@@ -1,0 +1,65 @@
+package de.buw.tmdt.plasma.services.srs.rest.controller;
+
+import de.buw.tmdt.plasma.services.srs.api.DataSourceSchemaDTO;
+import de.buw.tmdt.plasma.services.srs.api.SemanticRecommendationAPI;
+import de.buw.tmdt.plasma.services.srs.handler.SemanticLabelingHandler;
+import de.buw.tmdt.plasma.services.srs.handler.SemanticModelingHandler;
+import de.buw.tmdt.plasma.services.srs.handler.SemanticRefinementHandler;
+import de.buw.tmdt.plasma.services.srs.api.syntaxmodel.SyntaxModelDTO;
+import io.swagger.v3.oas.annotations.Operation;
+import org.jetbrains.annotations.NotNull;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController("Modeling Controller")
+public class SemanticRecommendationController implements SemanticRecommendationAPI {
+
+	private final SemanticRefinementHandler refinementHandler;
+	private final SemanticLabelingHandler labelingHandler;
+	private final SemanticModelingHandler modelingHandler;
+
+
+	@Autowired
+	public SemanticRecommendationController(
+			@NotNull SemanticRefinementHandler refinementHandler,
+			@NotNull SemanticLabelingHandler labelingHandler,
+			@NotNull SemanticModelingHandler modelingHandler
+			) {
+		this.refinementHandler = refinementHandler;
+		this.labelingHandler = labelingHandler;
+		this.modelingHandler = modelingHandler;
+	}
+
+	@NotNull
+	@Override
+	@Operation(description = "finish schema modelling process")
+	public DataSourceSchemaDTO performInitialSemanticLabeling(@NotNull String uuid, @NotNull SyntaxModelDTO syntaxModelDTO) {
+		return labelingHandler.performLabeling(uuid,syntaxModelDTO);
+	}
+
+	@NotNull
+	@Override
+	@Operation(description = "finish schema modelling process")
+	public  DataSourceSchemaDTO performInitialSemanticModeling(@NotNull String uuid,@NotNull DataSourceSchemaDTO dataSourceSchemaDTO) {
+		return modelingHandler.performModeling(uuid,dataSourceSchemaDTO);
+	}
+
+	@NotNull
+	@Override
+	@Operation(description = "finish schema modelling process")
+	public DataSourceSchemaDTO performInitialSemanticRefinement(@NotNull String uuid,@NotNull DataSourceSchemaDTO dataSourceSchemaDTO) {
+		return refinementHandler.performRefinement(uuid,dataSourceSchemaDTO);
+	}
+	@NotNull
+	@Override
+	@Operation(description = "finish schema modelling process")
+	public DataSourceSchemaDTO performSemanticModeling(@NotNull String uuid, @NotNull DataSourceSchemaDTO dataSourceSchemaDTO) {
+		return modelingHandler.performModeling(uuid,dataSourceSchemaDTO);
+	}
+	@NotNull
+	@Override
+	@Operation(description = "finish schema modelling process")
+	public DataSourceSchemaDTO performSemanticRefinement(@NotNull String uuid, @NotNull DataSourceSchemaDTO dataSourceSchemaDTO) {
+		return refinementHandler.performRefinement(uuid,dataSourceSchemaDTO);
+	}
+}
