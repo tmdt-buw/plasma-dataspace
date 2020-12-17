@@ -171,20 +171,6 @@
                     </configuration>
                 </plugin>
 
-                <!-- Source code style checking. -->
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-checkstyle-plugin</artifactId>
-                    <version>${org.apache.maven.plugin.checkstyle.version}</version>
-                    <configuration>
-                        <configLocation>.idea/codeStyles/checkstyle.xml</configLocation>
-                        <includeTestSourceDirectory>true</includeTestSourceDirectory>
-                        <failOnViolation>true</failOnViolation>
-                        <failsOnError>true</failsOnError>
-                        <consoleOutput>true</consoleOutput>
-                    </configuration>
-                </plugin>
-
                 <!-- Unit Tests -->
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -270,11 +256,6 @@
             <plugin>
                 <groupId>com.github.spotbugs</groupId>
                 <artifactId>spotbugs-maven-plugin</artifactId>
-            </plugin>
-            <!-- Source code style checking. -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-checkstyle-plugin</artifactId>
             </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
