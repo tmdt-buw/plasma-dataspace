@@ -2,7 +2,9 @@ package de.buw.tmdt.plasma.services.sas.shared.dto.syntaxmodel;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 
+@JsonTypeName("IndexSelectorDTO")
 public class IndexSelectorDTO extends SelectorDTO {
 	private static final long serialVersionUID = 7161514810881655797L;
 	private static final String ELEMENT_INDEX_PROPERTY = "elementIndex";

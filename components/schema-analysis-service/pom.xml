@@ -12,7 +12,7 @@
     </parent>
 
     <groupId>de.buw.tmdt.plasma.services.sas</groupId>
-    <artifactId>parent</artifactId>
+    <artifactId>sas-parent</artifactId>
     <name>${project.module.label.prefix} Parent</name>
     <packaging>pom</packaging>
     <version>1.0.0</version>

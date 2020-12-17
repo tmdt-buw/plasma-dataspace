@@ -12,7 +12,7 @@
     </parent>
 
     <groupId>de.buw.tmdt.plasma.services.dss</groupId>
-    <artifactId>parent</artifactId>
+    <artifactId>dss-parent</artifactId>
     <name>${project.module.label.prefix} Parent</name>
     <packaging>pom</packaging>
 

@@ -12,7 +12,7 @@
     </parent>
 
     <groupId>de.buw.tmdt.plasma.services.srs</groupId>
-    <artifactId>parent</artifactId>
+    <artifactId>srs-parent</artifactId>
     <name>${project.module.label.prefix} Parent</name>
     <packaging>pom</packaging>
 

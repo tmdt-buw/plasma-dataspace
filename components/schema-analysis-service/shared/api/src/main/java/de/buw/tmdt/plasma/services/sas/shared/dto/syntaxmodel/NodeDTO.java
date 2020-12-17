@@ -9,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import java.io.Serializable;
 import java.util.UUID;
 
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "@class")
 @JsonSubTypes({
 		@JsonSubTypes.Type(value = PrimitiveNodeDTO.class, name = "PrimitiveNodeDTO"),
 		@JsonSubTypes.Type(value = ObjectNodeDTO.class, name = "ObjectNodeDTO"),

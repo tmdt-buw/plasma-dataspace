@@ -2,6 +2,7 @@ package de.buw.tmdt.plasma.services.sas.shared.dto.syntaxmodel;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import de.buw.tmdt.plasma.utilities.misc.StringUtilities;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -9,6 +10,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.UUID;
 
+@JsonTypeName("CompositeNodeDTO")
 public class CompositeNodeDTO extends NodeDTO {
 	private static final long serialVersionUID = 2455514534412466302L;
 	private static final String COMPONENTS_PROPERTY = "components";

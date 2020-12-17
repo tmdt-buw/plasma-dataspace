@@ -12,7 +12,7 @@
     </parent>
 
     <groupId>de.buw.tmdt.plasma.services.sba</groupId>
-    <artifactId>parent</artifactId>
+    <artifactId>sba-parent</artifactId>
     <name>${project.module.label.prefix} Parent</name>
     <packaging>pom</packaging>
 
