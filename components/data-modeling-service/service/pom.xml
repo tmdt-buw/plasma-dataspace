@@ -278,7 +278,7 @@
                         <goals>
                             <goal>dockerBuild</goal>
                         </goals>
-                        <phase>package</phase>
+                        <phase>install</phase>
                     </execution>
                 </executions>
             </plugin>
