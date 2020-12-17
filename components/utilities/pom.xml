@@ -14,10 +14,10 @@
     <artifactId>utilities</artifactId>
     <version>5.0.0</version>
     <packaging>jar</packaging>
-    <name>${project.label.abbrv}</name>
+    <name>${project.module.label.prefix}</name>
 
     <properties>
-        <project.label>Utilities</project.label>
+        <project.label>PLASMA Utilities</project.label>
         <project.label.short>utilities</project.label.short>
         <project.label.abbrv>Utilities</project.label.abbrv>
         <project.module.label.prefix>${platform.name} ${project.label.abbrv}</project.module.label.prefix>
