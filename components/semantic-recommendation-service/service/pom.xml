@@ -17,8 +17,7 @@
         <java.version>11</java.version>
         <javax.servlet.version>3.1.0</javax.servlet.version>
         <org.mariadb.version>2.5.2</org.mariadb.version>
-        <plasma.services.kgs>1.15.1</plasma.services.kgs>
-        <plasma.services.sas>0.2.1</plasma.services.sas>
+        <plasma.services.kgs>1.0.0</plasma.services.kgs>
     </properties>
 
     <dependencyManagement>
@@ -56,22 +55,7 @@
                 <artifactId>feign-client</artifactId>
                 <version>${plasma.services.kgs}</version>
             </dependency>
-            <dependency>
-                <groupId>de.buw.tmdt.plasma.services.sas</groupId>
-                <artifactId>feign-client</artifactId>
-                <version>${plasma.services.sas}</version>
-            </dependency>
-            <dependency>
-                <groupId>de.buw.tmdt.plasma.services.sas</groupId>
-                <artifactId>dto</artifactId>
-                <version>${plasma.services.sas}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.springframework.boot</groupId>
-                        <artifactId>spring-boot-starter-data-jpa</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
+
         </dependencies>
     </dependencyManagement>
 

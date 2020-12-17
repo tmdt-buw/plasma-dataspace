@@ -21,6 +21,7 @@
 		<module>components/semantic-database-service</module>
 		<module>components/utilities</module>
 		<module>components/datasource-service</module>
+		<module>auxiliary_services/ARS-L-label-matching</module>
     </modules>
 
     <properties>
@@ -37,8 +38,8 @@
         <plasma.utilities.version>5.0.0</plasma.utilities.version>
 
         <!-- ==================== Spring ==================== -->
-        <org.springframework.boot.version>2.2.8.RELEASE</org.springframework.boot.version>
-        <org.springframework.cloud.version>Hoxton.SR6</org.springframework.cloud.version>
+        <org.springframework.boot.version>2.3.7.RELEASE</org.springframework.boot.version>
+        <org.springframework.cloud.version>Hoxton.SR9</org.springframework.cloud.version>
         <org.springdoc.openapi.ui.version>1.4.3</org.springdoc.openapi.ui.version>
 
         <!-- Annotations -->
@@ -71,106 +72,69 @@
         <org.apache.maven.plugin.checkstyle.version>3.1.1</org.apache.maven.plugin.checkstyle.version>
     </properties>
 
-    <!-- <dependencyManagement> -->
-        <!-- <dependencies> -->
+    <dependencyManagement>
+        <dependencies>
             <!-- PLASMA Utilities -->
-            <!-- <dependency> -->
-                <!-- <groupId>de.buw.tmdt.plasma</groupId> -->
-                <!-- <artifactId>utilities</artifactId> -->
-                <!-- <version>${plasma.utilities.version}</version> -->
-            <!-- </dependency> -->
+            <dependency>
+                <groupId>de.buw.tmdt.plasma</groupId>
+                <artifactId>utilities</artifactId>
+                <version>${plasma.utilities.version}</version>
+            </dependency>
 
             <!-- Spring Boot Dependency Management -->
-            <!-- <dependency> -->
-                <!-- <groupId>org.springframework.boot</groupId> -->
-                <!-- <artifactId>spring-boot-dependencies</artifactId> -->
-                <!-- <version>${org.springframework.boot.version}</version> -->
-                <!-- <type>pom</type> -->
-                <!-- <scope>import</scope> -->
-            <!-- </dependency> -->
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${org.springframework.boot.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
 
             <!-- Spring Cloud Dependency Management -->
-            <!-- <dependency> -->
-                <!-- <groupId>org.springframework.cloud</groupId> -->
-                <!-- <artifactId>spring-cloud-dependencies</artifactId> -->
-                <!-- <version>${org.springframework.cloud.version}</version> -->
-                <!-- <type>pom</type> -->
-                <!-- <scope>import</scope> -->
-            <!-- </dependency> -->
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>${org.springframework.cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
 
             <!-- Spring API Documentation -->
-            <!-- <dependency> -->
-                <!-- <groupId>org.springdoc</groupId> -->
-                <!-- <artifactId>springdoc-openapi-ui</artifactId> -->
-                <!-- <version>${org.springdoc.openapi.ui.version}</version> -->
-            <!-- </dependency> -->
+            <dependency>
+                <groupId>org.springdoc</groupId>
+                <artifactId>springdoc-openapi-ui</artifactId>
+                <version>${org.springdoc.openapi.ui.version}</version>
+            </dependency>
 
             <!-- Annotations -->
-            <!-- <dependency> -->
-                <!-- <groupId>org.jetbrains</groupId> -->
-                <!-- <artifactId>annotations</artifactId> -->
-                <!-- <version>${org.jetbrains.annotations.version}</version> -->
-            <!-- </dependency> -->
-            <!-- <dependency> -->
-                <!-- <groupId>com.github.spotbugs</groupId> -->
-                <!-- <artifactId>spotbugs-annotations</artifactId> -->
-                <!-- <version>${com.github.spotbugs.annotations.version}</version> -->
-            <!-- </dependency> -->
+            <dependency>
+                <groupId>org.jetbrains</groupId>
+                <artifactId>annotations</artifactId>
+                <version>${org.jetbrains.annotations.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.spotbugs</groupId>
+                <artifactId>spotbugs-annotations</artifactId>
+                <version>${com.github.spotbugs.annotations.version}</version>
+            </dependency>
 
             <!-- Testing -->
-            <!-- <dependency> -->
-                <!-- <groupId>org.mockito</groupId> -->
-                <!-- <artifactId>mockito-core</artifactId> -->
-                <!-- <version>${org.mockito.version}</version> -->
-            <!-- </dependency> -->
-            <!-- <dependency> -->
-                <!-- <groupId>org.junit.jupiter</groupId> -->
-                <!-- <artifactId>junit-jupiter-api</artifactId> -->
-                <!-- <version>${junit.jupiter.version}</version> -->
-            <!-- </dependency> -->
-            <!-- <dependency> -->
-                <!-- <groupId>org.junit.jupiter</groupId> -->
-                <!-- <artifactId>junit-jupiter-engine</artifactId> -->
-                <!-- <version>${junit.jupiter.version}</version> -->
-            <!-- </dependency> -->
-        <!-- </dependencies> -->
-    <!-- </dependencyManagement> -->
-
-    <!-- Repositories for Downloading Dependencies -->
-    <!-- <repositories> -->
-        <!-- <repository> -->
-            <!-- <id>buw-gitlab</id> -->
-            <!-- <url>https://git.uni-wuppertal.de/api/v4/groups/eskape/-/packages/maven</url> -->
-            <!-- <releases> -->
-                <!-- <enabled>true</enabled> -->
-                <!-- <updatePolicy>always</updatePolicy> -->
-                <!-- <checksumPolicy>warn</checksumPolicy> -->
-            <!-- </releases> -->
-        <!-- </repository> -->
-    <!-- </repositories> -->
-
-    <!-- <pluginRepositories> -->
-        <!-- <pluginRepository> -->
-            <!-- <id>buw-gitlab</id> -->
-            <!-- <url>https://git.uni-wuppertal.de/api/v4/groups/eskape/-/packages/maven</url> -->
-            <!-- <releases> -->
-                <!-- <enabled>true</enabled> -->
-                <!-- <updatePolicy>always</updatePolicy> -->
-                <!-- <checksumPolicy>ignore</checksumPolicy> -->
-            <!-- </releases> -->
-        <!-- </pluginRepository> -->
-    <!-- </pluginRepositories> -->
-
-    <!-- Repositories for Deploying Dependencies -->
-    <distributionManagement>
-        <!-- <repository> -->
-            <!-- <id>buw-gitlab</id> -->
-            <!-- <url>https://git.uni-wuppertal.de/api/v4/projects/${env.CI_PROJECT_ID}/packages/maven</url> -->
-        <!-- </repository> -->
-        <!-- <snapshotRepository> -->
-            <!-- <id>buw-gitlab</id> -->
-            <!-- <url>https://git.uni-wuppertal.de/api/v4/projects/${env.CI_PROJECT_ID}/packages/maven</url> -->
-        <!-- </snapshotRepository> -->
-    </distributionManagement>
-
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-core</artifactId>
+                <version>${org.mockito.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter-api</artifactId>
+                <version>${junit.jupiter.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter-engine</artifactId>
+                <version>${junit.jupiter.version}</version>
+            </dependency>
+		
+        </dependencies>
+    </dependencyManagement>
 </project>
