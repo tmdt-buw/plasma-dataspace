@@ -180,14 +180,7 @@
                         <goals>
                             <goal>dockerBuild</goal>
                         </goals>
-                        <phase>package</phase>
-                    </execution>
-                    <execution>
-                        <id>build</id>
-                        <goals>
-                            <goal>build</goal>
-                        </goals>
-                        <phase>deploy</phase>
+                        <phase>install</phase>
                     </execution>
                 </executions>
             </plugin>

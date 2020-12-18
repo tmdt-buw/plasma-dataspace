@@ -21,7 +21,6 @@
 		<module>components/semantic-database-service</module>
 		<module>components/utilities</module>
 		<module>components/datasource-service</module>
-		<module>auxiliary_services/ARS-L-label-matching</module>
     </modules>
 
     <properties>
@@ -69,7 +68,6 @@
         <org.apache.maven.plugin.project-info-reports.version>3.0.0</org.apache.maven.plugin.project-info-reports.version>
         <org.apache.maven.plugin.javadoc.version>3.2.0</org.apache.maven.plugin.javadoc.version>
         <com.github.spotbugs.plugin.version>3.1.12.2</com.github.spotbugs.plugin.version>
-        <org.apache.maven.plugin.checkstyle.version>3.1.1</org.apache.maven.plugin.checkstyle.version>
     </properties>
 
     <dependencyManagement>
@@ -134,7 +132,29 @@
                 <artifactId>junit-jupiter-engine</artifactId>
                 <version>${junit.jupiter.version}</version>
             </dependency>
-		
         </dependencies>
     </dependencyManagement>
+
+    <!-- Build Management -->
+    <build>
+        <plugins>
+            <!-- Code quality: SpotBugs (follower of FindBugs) -->
+            <plugin>
+                <groupId>com.github.spotbugs</groupId>
+                <artifactId>spotbugs-maven-plugin</artifactId>
+                <version>${com.github.spotbugs.plugin.version}</version>
+                <configuration>
+                    <excludeFilterFile>.idea/inspectionProfiles/spotbugs_exclude.xml</excludeFilterFile>
+                    <plugins>
+                        <plugin>
+                            <groupId>com.h3xstream.findsecbugs</groupId>
+                            <artifactId>findsecbugs-plugin</artifactId>
+                            <version>1.10.1</version>
+                        </plugin>
+                    </plugins>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
 </project>

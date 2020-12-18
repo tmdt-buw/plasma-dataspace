@@ -2,12 +2,14 @@ package de.buw.tmdt.plasma.services.sas.shared.dto.syntaxmodel;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import de.buw.tmdt.plasma.utilities.misc.StringUtilities;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.UUID;
 
+@JsonTypeName("PrimitiveNodeDTO")
 public class PrimitiveNodeDTO extends NodeDTO {
 
 	private static final long serialVersionUID = 3226181900274436204L;

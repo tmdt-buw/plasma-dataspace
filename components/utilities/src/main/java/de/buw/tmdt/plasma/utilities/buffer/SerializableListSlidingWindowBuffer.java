@@ -1,6 +1,8 @@
 package de.buw.tmdt.plasma.utilities.buffer;
 
-import org.graalvm.compiler.core.common.SuppressFBWarnings;
+
+
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 import java.io.Serializable;
 

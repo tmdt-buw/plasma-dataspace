@@ -2,10 +2,12 @@ package de.buw.tmdt.plasma.services.sas.shared.dto.syntaxmodel;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import de.buw.tmdt.plasma.utilities.misc.StringUtilities;
 
 import java.util.List;
 
+@JsonTypeName("PatternSelectorDTO")
 public class PatternSelectorDTO extends SelectorDTO{
 	private static final long serialVersionUID = 2618339272865879181L;
 	private static final String SELECTIONS_PROPERTY = "selections";

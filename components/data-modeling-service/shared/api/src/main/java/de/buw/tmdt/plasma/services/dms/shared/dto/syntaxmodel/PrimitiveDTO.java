@@ -2,6 +2,7 @@ package de.buw.tmdt.plasma.services.dms.shared.dto.syntaxmodel;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import de.buw.tmdt.plasma.services.dms.shared.dto.Positioned;
 import de.buw.tmdt.plasma.services.dms.shared.dto.syntaxmodel.operation.SyntacticOperationDTO;
 import de.buw.tmdt.plasma.utilities.misc.StringUtilities;
@@ -9,6 +10,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
+@JsonTypeName("PrimitiveDTO")
 public class PrimitiveDTO extends SchemaNodeDTO {
 
 	private static final long serialVersionUID = -144653268470507986L;
