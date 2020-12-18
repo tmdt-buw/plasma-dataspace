@@ -5,7 +5,7 @@ import org.springframework.cloud.openfeign.FeignClient;
 
 @SuppressWarnings("HardcodedFileSeparator - uris")
 @FeignClient(
-		name = "semantic-recommendation-service",
+		name = "plasma-srs",
 		contextId = "plasma-services",
 		configuration = DataModelingFeignConfiguration.class
 )

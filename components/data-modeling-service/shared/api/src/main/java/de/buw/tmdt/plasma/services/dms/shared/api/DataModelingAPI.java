@@ -52,6 +52,8 @@ public interface DataModelingAPI {
 			@NotNull @RequestBody SchemaNodeDTO schemaNodeDTO
 	);
 
+	/* Cache operations */
+
 	@NotNull
 	@PostMapping(value = "/{uuid}/entityconcept", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	EntityConceptDTO cacheEntityConcept(@NotNull @PathVariable("uuid") String uuid, @NotNull @RequestBody EntityConceptDTO entityConceptDTO);
@@ -73,6 +75,8 @@ public interface DataModelingAPI {
 			@NotNull @PathVariable("dataSourceUuid") String dataSourceUuid,
 			@NotNull @PathVariable("relationConceptId") Long relationConceptId
 	);
+
+	/* Modeling operations (EntityTypes)*/
 
 	@NotNull
 	@PostMapping(value = "/{uuid}/entitytype", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -101,6 +105,8 @@ public interface DataModelingAPI {
 	@DeleteMapping(value = "/{uuid}/entitytype/{entityTypeId}", produces = MediaType.APPLICATION_JSON_VALUE)
 	DataSourceSchemaDTO removeEntityType(@NotNull @PathVariable("uuid") String uuid, @NotNull @PathVariable("entityTypeId") Long entityTypeId);
 
+	/* Modeling operations (Relations)*/
+
 	@NotNull
 	@PostMapping(value = "/{uuid}/relation", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	DataSourceSchemaDTO addRelation(@NotNull @PathVariable("uuid") String uuid, @NotNull @RequestBody RelationDTO relationDto);
@@ -116,6 +122,8 @@ public interface DataModelingAPI {
 	@NotNull
 	@DeleteMapping(value = "/{uuid}/relation/{relationId}", produces = MediaType.APPLICATION_JSON_VALUE)
 	DataSourceSchemaDTO removeRelation(@NotNull @PathVariable("uuid") String uuid, @NotNull @PathVariable("relationId") Long entityTypeId);
+
+	/* Undo / Redp / finish */
 
 	@NotNull
 	@PostMapping(value = "/{uuid}/schema/undo", produces = MediaType.APPLICATION_JSON_VALUE)

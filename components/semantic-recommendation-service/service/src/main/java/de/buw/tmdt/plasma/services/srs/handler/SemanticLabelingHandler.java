@@ -1,7 +1,7 @@
 package de.buw.tmdt.plasma.services.srs.handler;
 
 import de.buw.tmdt.plasma.ars.labeling.lm.shared.feignclient.LabelMatchingApiClient;
-import de.buw.tmdt.plasma.services.srs.api.DataSourceSchemaDTO;
+import de.buw.tmdt.plasma.services.dms.shared.dto.DataSourceSchemaDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;

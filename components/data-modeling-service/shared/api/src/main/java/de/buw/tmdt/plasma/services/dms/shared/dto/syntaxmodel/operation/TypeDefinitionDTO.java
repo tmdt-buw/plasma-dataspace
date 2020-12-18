@@ -9,8 +9,8 @@ import java.io.Serializable;
 
 public class TypeDefinitionDTO<T extends Serializable> implements Serializable {
 
-	public static final String MINIMUM_CARDINALITY_PROPERTY = "minimumCardinality";
-	public static final String MAXIMUM_CARDINALITY_PROPERTY = "maximumCardinality";
+	public static final String MINIMUM_CARDINALITY_PROPERTY = "minCardinality";
+	public static final String MAXIMUM_CARDINALITY_PROPERTY = "maxCardinality";
 	public static final String TYPE_PROPERTY = "type";
 	public static final String NAME_PROPERTY = "name";
 	public static final String LABEL_PROPERTY = "label";

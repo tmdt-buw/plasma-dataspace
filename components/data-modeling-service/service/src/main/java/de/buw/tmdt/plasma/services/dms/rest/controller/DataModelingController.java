@@ -3,6 +3,7 @@ package de.buw.tmdt.plasma.services.dms.rest.controller;
 import de.buw.tmdt.plasma.services.dms.core.converter.DataSourceSchemaDTOConverter;
 import de.buw.tmdt.plasma.services.dms.core.converter.SemanticModelDTOConverter;
 import de.buw.tmdt.plasma.services.dms.core.handler.DataModelingHandler;
+import de.buw.tmdt.plasma.services.dms.core.model.datasource.DataSourceSchema;
 import de.buw.tmdt.plasma.services.dms.shared.api.DataModelingAPI;
 import de.buw.tmdt.plasma.services.dms.shared.dto.DataSourceSchemaDTO;
 import de.buw.tmdt.plasma.services.dms.shared.dto.semanticmodel.EntityConceptDTO;
@@ -39,7 +40,7 @@ public class DataModelingController implements DataModelingAPI {
 	}
 
 	@Override
-	@Operation(description = "Returns the current schema of the specified data source.")
+	@Operation(description = "Initializes the current schema of the specified data source.")
 	public void initDataSourceSchema(@NotNull String uuid, @NotNull Integer exampleLimit) {
 		dataModelingHandler.initDataSourceSchema(UUID.fromString(uuid), exampleLimit);
 	}
@@ -132,7 +133,11 @@ public class DataModelingController implements DataModelingAPI {
 		} else {
 			primitiveNodeUuid = null;
 		}
-		return dataSourceSchemaDTOConverter.toDTO(dataModelingHandler.addEntityType(UUID.fromString(uuid), entityTypeDTO, primitiveNodeUuid));
+		// modify the sementic model
+		DataSourceSchema dataSourceSchema = dataModelingHandler.addEntityType(UUID.fromString(uuid), entityTypeDTO, primitiveNodeUuid);
+		// request recommendations
+		dataSourceSchema = dataModelingHandler.getRecommendations(uuid,dataSourceSchema);
+		return dataSourceSchemaDTOConverter.toDTO(dataSourceSchema);
 	}
 
 	@NotNull

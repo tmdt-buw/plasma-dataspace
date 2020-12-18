@@ -1,11 +1,12 @@
 package de.buw.tmdt.plasma.services.srs.api;
 
+import de.buw.tmdt.plasma.services.dms.shared.dto.DataSourceSchemaDTO;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 @SuppressWarnings("HardcodedFileSeparator")
-@RequestMapping(value = "api/srs")
+@RequestMapping(value = "api/plasma-srs")
 public interface SemanticRecommendationAPI {
 
 	//############################################### Initial requests ###############################################
@@ -19,30 +20,8 @@ public interface SemanticRecommendationAPI {
 	 * @return A combined model containing a new semantic labeling as a basic semantic model
 	 */
 	@PostMapping(value = "/labeling", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	DataSourceSchemaDTO performInitialSemanticLabeling(@RequestParam("uuid") String uuid, @NotNull @RequestBody DataSourceSchemaDTO dataSourceSchemaDTO);
+	DataSourceSchemaDTO performSemanticLabeling(@RequestParam("uuid") String uuid, @NotNull @RequestBody DataSourceSchemaDTO dataSourceSchemaDTO);
 
-	/**
-	 * Requests a semantic modeling for the combined model.
-	 * @param dataSourceSchemaDTO The current state of the combined model. Semantic model may be empty.
-	 * @param uuid A reference uuid to identify the modeling process which may also be used to request metadata.
-	 *             Usually the data source id
-	 * @return The combined model
-	 */
-	@NotNull
-	@PostMapping(value = "/modeling",consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	DataSourceSchemaDTO performInitialSemanticModeling(@RequestParam("uuid") String uuid,@NotNull @RequestBody DataSourceSchemaDTO dataSourceSchemaDTO);
-
-	/**
-	 * Requests a semantic refinement for the combined model.
-	 * @param dataSourceSchemaDTO The current state of the combined model. Semantic model may be empty.
-	 * @param uuid A reference uuid to identify the modeling process which may also be used to request metadata.
-	 *             Usually the data source id
-	 * @return The combined model containing the recommended changes
-	 */
-	@PostMapping(value = "/refinement", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	DataSourceSchemaDTO performInitialSemanticRefinement(@RequestParam("uuid") String uuid,@NotNull @RequestBody DataSourceSchemaDTO dataSourceSchemaDTO);
-
-	//############################################### Follow-up requests #############################################
 
 	/**
 	 * Requests a semantic modeling for the combined model.

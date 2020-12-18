@@ -6,6 +6,7 @@ import de.buw.tmdt.plasma.services.dms.core.model.datasource.semanticmodel.Entit
 import de.buw.tmdt.plasma.services.dms.core.model.datasource.semanticmodel.RelationConcept;
 import de.buw.tmdt.plasma.services.dms.core.model.datasource.semanticmodel.SemanticModel;
 import de.buw.tmdt.plasma.services.dms.core.model.datasource.syntaxmodel.Node;
+import de.buw.tmdt.plasma.services.dms.shared.dto.recommendation.DeltaRecommendationDTO;
 import de.buw.tmdt.plasma.utilities.misc.ObjectUtilities;
 import org.hibernate.annotations.DynamicUpdate;
 import org.jetbrains.annotations.NotNull;
@@ -34,6 +35,9 @@ public class DataSourceSchema extends TraversableModelBase {
 	@ManyToMany(cascade = {CascadeType.REFRESH, CascadeType.MERGE, CascadeType.PERSIST})
 	private List<RelationConcept> relationConceptCache;
 
+	@Transient
+	private List<DeltaRecommendationDTO> recommendations;
+
 	@Column(nullable = false)
 	private boolean finalized = false;
 
@@ -54,7 +58,7 @@ public class DataSourceSchema extends TraversableModelBase {
 		this(parent, syntaxModel, semanticModel, entityConceptCache, relationConceptCache, Identity.random());
 	}
 
-	public DataSourceSchema(
+	private DataSourceSchema(
 			@NotNull DataSourceModel parent,
 			@NotNull Node syntaxModel,
 			@NotNull SemanticModel semanticModel,
@@ -90,6 +94,7 @@ public class DataSourceSchema extends TraversableModelBase {
 		this.semanticModel = semanticModel;
 		this.entityConceptCache = new ArrayList<>(entityConceptCache);
 		this.relationConceptCache = new ArrayList<>(relationConceptCache);
+		this.recommendations = new ArrayList<>();
 	}
 
 	@NotNull
@@ -155,6 +160,15 @@ public class DataSourceSchema extends TraversableModelBase {
 	@SuppressWarnings("AssignmentOrReturnOfFieldWithMutableType - necessary for hibernate")
 	public void setRelationConceptCache(List<RelationConcept> relationConceptCache) {
 		this.relationConceptCache = relationConceptCache;
+	}
+
+
+	public List<DeltaRecommendationDTO> getRecommendations() {
+		return recommendations;
+	}
+
+	public void setRecommendations (List<DeltaRecommendationDTO> recommendations) {
+		this.recommendations = recommendations;
 	}
 
 	@Override

@@ -1,6 +1,6 @@
 package de.buw.tmdt.plasma.services.srs.model.datasource.syntaxmodel;
 
-import de.buw.tmdt.plasma.services.srs.api.syntaxmodel.operation.DataType;
+import de.buw.tmdt.plasma.services.dms.shared.dto.syntaxmodel.operation.DataType;
 import de.buw.tmdt.plasma.services.srs.model.Position;
 import de.buw.tmdt.plasma.services.srs.model.Traversable;
 import de.buw.tmdt.plasma.services.srs.model.datasource.semanticmodel.EntityType;

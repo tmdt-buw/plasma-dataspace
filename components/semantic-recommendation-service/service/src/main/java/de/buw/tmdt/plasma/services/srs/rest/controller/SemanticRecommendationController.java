@@ -1,6 +1,6 @@
 package de.buw.tmdt.plasma.services.srs.rest.controller;
 
-import de.buw.tmdt.plasma.services.srs.api.DataSourceSchemaDTO;
+import de.buw.tmdt.plasma.services.dms.shared.dto.DataSourceSchemaDTO;
 import de.buw.tmdt.plasma.services.srs.api.SemanticRecommendationAPI;
 import de.buw.tmdt.plasma.services.srs.handler.SemanticLabelingHandler;
 import de.buw.tmdt.plasma.services.srs.handler.SemanticModelingHandler;
@@ -10,7 +10,7 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
 
-@RestController("Modeling Controller")
+@RestController("RecommendationController")
 public class SemanticRecommendationController implements SemanticRecommendationAPI {
 
 	private final SemanticRefinementHandler refinementHandler;
@@ -31,33 +31,20 @@ public class SemanticRecommendationController implements SemanticRecommendationA
 
 	@NotNull
 	@Override
-	@Operation(description = "finish schema modelling process")
-	public DataSourceSchemaDTO performInitialSemanticLabeling(@NotNull String uuid, @NotNull DataSourceSchemaDTO dataSourceSchemaDTO) {
+	@Operation(description = "do a semantic labeling")
+	public DataSourceSchemaDTO performSemanticLabeling(@NotNull String uuid, @NotNull DataSourceSchemaDTO dataSourceSchemaDTO) {
 		return labelingHandler.performLabeling(uuid, dataSourceSchemaDTO);
 	}
 
 	@NotNull
 	@Override
-	@Operation(description = "finish schema modelling process")
-	public  DataSourceSchemaDTO performInitialSemanticModeling(@NotNull String uuid,@NotNull DataSourceSchemaDTO dataSourceSchemaDTO) {
-		return modelingHandler.performModeling(uuid,dataSourceSchemaDTO);
-	}
-
-	@NotNull
-	@Override
-	@Operation(description = "finish schema modelling process")
-	public DataSourceSchemaDTO performInitialSemanticRefinement(@NotNull String uuid,@NotNull DataSourceSchemaDTO dataSourceSchemaDTO) {
-		return refinementHandler.performRefinement(uuid,dataSourceSchemaDTO);
-	}
-	@NotNull
-	@Override
-	@Operation(description = "finish schema modelling process")
+	@Operation(description = "do a semantic modeling")
 	public DataSourceSchemaDTO performSemanticModeling(@NotNull String uuid, @NotNull DataSourceSchemaDTO dataSourceSchemaDTO) {
 		return modelingHandler.performModeling(uuid,dataSourceSchemaDTO);
 	}
 	@NotNull
 	@Override
-	@Operation(description = "finish schema modelling process")
+	@Operation(description = "request semantic refinement recommendations")
 	public DataSourceSchemaDTO performSemanticRefinement(@NotNull String uuid, @NotNull DataSourceSchemaDTO dataSourceSchemaDTO) {
 		return refinementHandler.performRefinement(uuid,dataSourceSchemaDTO);
 	}

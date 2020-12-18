@@ -1,5 +1,6 @@
 package de.buw.tmdt.plasma.services.dms.core.services;
 
+import de.buw.tmdt.plasma.services.dms.core.converter.DataSourceSchemaDTOConverter;
 import de.buw.tmdt.plasma.services.dms.core.converter.SchemaAnalysisDTOConverter;
 import de.buw.tmdt.plasma.services.dms.core.model.datasource.DataSourceModel;
 import de.buw.tmdt.plasma.services.dms.core.model.datasource.DataSourceSchema;
@@ -7,12 +8,14 @@ import de.buw.tmdt.plasma.services.dms.core.model.datasource.semanticmodel.*;
 import de.buw.tmdt.plasma.services.dms.core.model.datasource.syntaxmodel.*;
 import de.buw.tmdt.plasma.services.dms.core.model.datasource.syntaxmodel.members.EntityConceptSuggestion;
 import de.buw.tmdt.plasma.services.dms.core.repository.*;
+import de.buw.tmdt.plasma.services.dms.shared.dto.DataSourceSchemaDTO;
 import de.buw.tmdt.plasma.services.dms.shared.dto.semanticmodel.EntityTypeDTO;
 import de.buw.tmdt.plasma.services.dms.shared.dto.semanticmodel.RelationConceptDTO;
 import de.buw.tmdt.plasma.services.dms.shared.dto.semanticmodel.RelationDTO;
 import de.buw.tmdt.plasma.services.dms.shared.dto.semanticmodel.SemanticModelDTO;
 import de.buw.tmdt.plasma.services.sas.shared.dto.syntaxmodel.NodeDTO;
 import de.buw.tmdt.plasma.services.sas.shared.feignclient.SchemaAnalysisApiClient;
+import de.buw.tmdt.plasma.services.srs.feignclient.SemanticRecommendationApiClient;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import feign.FeignException;
 import org.jetbrains.annotations.NotNull;
@@ -37,6 +40,9 @@ public class DataSourceModelInitService {
 	private final RelationConceptPropertyRepository relationConceptPropertyRepository;
 	private final SchemaAnalysisApiClient schemaAnalysisApiClient;
 	private final SchemaAnalysisDTOConverter schemaAnalysisDTOConverter;
+	private final SemanticRecommendationApiClient semanticRecommendationApiClient;
+	private final DataSourceSchemaDTOConverter dataSourceSchemaDTOConverter;
+	private final DataSourceRepository dataSourceRepository;
 
 	public DataSourceModelInitService(
 			@NotNull EntityTypeRepository entityTypeRepository,
@@ -45,8 +51,8 @@ public class DataSourceModelInitService {
 			@NotNull RelationConceptRepository relationConceptRepository,
 			@NotNull RelationConceptPropertyRepository relationConceptPropertyRepository,
 			@NotNull SchemaAnalysisApiClient schemaAnalysisApiClient,
-			@NotNull SchemaAnalysisDTOConverter schemaAnalysisDTOConverter
-	) {
+			@NotNull SchemaAnalysisDTOConverter schemaAnalysisDTOConverter,
+			SemanticRecommendationApiClient semanticRecommendationApiClient, DataSourceSchemaDTOConverter dataSourceSchemaDTOConverter, DataSourceRepository dataSourceRepository) {
 		this.entityTypeRepository = entityTypeRepository;
 		this.entityConceptRepository = entityConceptRepository;
 		this.relationRepository = relationRepository;
@@ -54,26 +60,49 @@ public class DataSourceModelInitService {
 		this.relationConceptPropertyRepository = relationConceptPropertyRepository;
 		this.schemaAnalysisApiClient = schemaAnalysisApiClient;
 		this.schemaAnalysisDTOConverter = schemaAnalysisDTOConverter;
+		this.semanticRecommendationApiClient = semanticRecommendationApiClient;
+		this.dataSourceSchemaDTOConverter = dataSourceSchemaDTOConverter;
+		this.dataSourceRepository = dataSourceRepository;
 	}
 
 	public DataSourceSchema createInitialSchema(UUID uuid, int exampleLimit, DataSourceModel dataSourceModel) {
-
 		NodeDTO result;
 		try {
 			result = schemaAnalysisApiClient.getResult(uuid.toString(), exampleLimit);
 		} catch (FeignException e) {
 			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Could not reach SchemaAnalysisService", e);
 		}
-
-		SemanticModelDTO semanticModelDTO;
-		semanticModelDTO = new SemanticModelDTO(
-				null,
+		SemanticModel semanticModel;
+		semanticModel = new SemanticModel(
 				uuid.toString(),
 				"",
 				"",
 				new ArrayList<>(),
+				new ArrayList<>(),
+				null
+		);
+
+		DataSourceSchema  schema = new DataSourceSchema(
+				dataSourceModel,
+				schemaAnalysisDTOConverter.fromNodeDTO(result),
+				semanticModel,
+				new ArrayList<>(),
 				new ArrayList<>()
 		);
+
+		dataSourceModel.pushDataSourceSchema(schema);
+		dataSourceModel = dataSourceRepository.save(dataSourceModel);
+
+		// request semantic labeling
+		DataSourceSchemaDTO dataSourceSchemaDTO1 = dataSourceSchemaDTOConverter.toDTO(dataSourceModel.peekDataSourceSchema());
+		DataSourceSchemaDTO dataSourceSchemaDTO = semanticRecommendationApiClient.performSemanticLabeling(
+				uuid.toString(), dataSourceSchemaDTO1);
+
+		// request semantic modeling
+		dataSourceSchemaDTO = semanticRecommendationApiClient.performSemanticModeling(
+				uuid.toString(), dataSourceSchemaDTO);
+
+		SemanticModelDTO semanticModelDTO = dataSourceSchemaDTO.getSemanticModelDTO();
 
 		//Convert the fetched schema to the internal model
 		Node syntaxModel = schemaAnalysisDTOConverter.fromNodeDTO(result);
@@ -159,7 +188,7 @@ public class DataSourceModelInitService {
 
 		String uuidS = semanticModelDTO.getUuid() == null ? null : semanticModelDTO.getUuid();
 
-		SemanticModel semanticModel = new SemanticModel(
+		semanticModel = new SemanticModel(
 				uuidS,
 				semanticModelDTO.getLabel(),
 				semanticModelDTO.getDescription(),

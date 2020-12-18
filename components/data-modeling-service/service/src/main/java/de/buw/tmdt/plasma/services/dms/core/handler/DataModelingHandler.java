@@ -1,9 +1,6 @@
 package de.buw.tmdt.plasma.services.dms.core.handler;
 
-import de.buw.tmdt.plasma.services.dms.core.converter.KnowledgeGraphServiceDTO2DTOConverter;
-import de.buw.tmdt.plasma.services.dms.core.converter.KnowledgeGraphServiceDTO2ModelConverter;
-import de.buw.tmdt.plasma.services.dms.core.converter.SchemaOperationDTOConverter;
-import de.buw.tmdt.plasma.services.dms.core.converter.SemanticModelDTOConverter;
+import de.buw.tmdt.plasma.services.dms.core.converter.*;
 import de.buw.tmdt.plasma.services.dms.core.model.ModelBase;
 import de.buw.tmdt.plasma.services.dms.core.model.Position;
 import de.buw.tmdt.plasma.services.dms.core.model.Traversable;
@@ -30,6 +27,8 @@ import de.buw.tmdt.plasma.services.kgs.shared.dto.semanticmodel.SemanticModelCre
 import de.buw.tmdt.plasma.services.kgs.shared.dto.semanticmodel.SemanticModelDTO;
 import de.buw.tmdt.plasma.services.kgs.shared.feignclient.LocalKnowledgeApiClient;
 import de.buw.tmdt.plasma.services.kgs.shared.feignclient.UniversalKnowledgeApiClient;
+import de.buw.tmdt.plasma.services.sas.shared.dto.syntaxmodel.NodeDTO;
+import de.buw.tmdt.plasma.services.srs.feignclient.SemanticRecommendationApiClient;
 import de.buw.tmdt.plasma.utilities.collections.CollectionUtilities;
 import de.buw.tmdt.plasma.utilities.collections.MapUtilities;
 import de.buw.tmdt.plasma.utilities.misc.ObjectUtilities;
@@ -49,6 +48,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class DataModelingHandler {
@@ -67,6 +67,9 @@ public class DataModelingHandler {
 	private final EntityTypeRepository entityTypeRepository;
 	private final RelationConceptRepository relationConceptRepository;
 	private final DataSourceModelInitService dataSourceModelInitService;
+	private final SemanticRecommendationApiClient semanticRecommendationApiClient;
+	private final DataSourceSchemaDTOConverter dataSourceSchemaDTOConverter;
+	private final SchemaAnalysisDTOConverter schemaAnalysisDTOConverter;
 
 	@Autowired
 	public DataModelingHandler(
@@ -81,8 +84,8 @@ public class DataModelingHandler {
 			@NotNull EntityConceptRepository entityConceptRepository,
 			@NotNull EntityTypeRepository entityTypeRepository,
 			@NotNull RelationConceptRepository relationConceptRepository,
-			@NotNull DataSourceModelInitService dataSourceModelInitService
-	) {
+			@NotNull DataSourceModelInitService dataSourceModelInitService,
+			SemanticRecommendationApiClient semanticRecommendationApiClient, DataSourceSchemaDTOConverter dataSourceSchemaDTOConverter, SchemaAnalysisDTOConverter schemaAnalysisDTOConverter) {
 		this.localKnowledgeApiClient = localKnowledgeApiClient;
 		this.universalKnowledgeApiClient = universalKnowledgeApiClient;
 		this.schemaOperationDTOConverter = schemaOperationDTOConverter;
@@ -95,6 +98,9 @@ public class DataModelingHandler {
 		this.entityTypeRepository = entityTypeRepository;
 		this.relationConceptRepository = relationConceptRepository;
 		this.dataSourceModelInitService = dataSourceModelInitService;
+		this.semanticRecommendationApiClient = semanticRecommendationApiClient;
+		this.dataSourceSchemaDTOConverter = dataSourceSchemaDTOConverter;
+		this.schemaAnalysisDTOConverter = schemaAnalysisDTOConverter;
 	}
 
 	public void initDataSourceSchema(@NotNull UUID uuid, int exampleLimit) {
@@ -103,7 +109,7 @@ public class DataModelingHandler {
 		if (dataSourceResult.isPresent()) {
 			logger.info("Data source already exists - the current schema is replaced with the last existing one in the SAS");
 			dataSourceModel = dataSourceResult.get();
-			dataSourceModel.setDataSourceSchemaStack(Collections.emptyList());
+			//dataSourceModel.setDataSourceSchemaStack(Collections.emptyList());
 		} else {
 			logger.info("Data source does not exist");
 			DataSourceModel dsm = new DataSourceModel(uuid);
@@ -113,8 +119,8 @@ public class DataModelingHandler {
 
 		dataSourceModel.pushDataSourceSchema(dataSourceModelInitService.createInitialSchema(uuid, exampleLimit, dataSourceModel));
 
-		//store the schema
-		dataSourceRepository.save(dataSourceModel);
+				//store the schema
+						dataSourceRepository.save(dataSourceModel);
 	}
 
 	@NotNull
@@ -272,7 +278,7 @@ public class DataModelingHandler {
 			throw new ResponseStatusException(
 					HttpStatus.BAD_REQUEST,
 					"Passed uuid in syntax model node is inconsistent to resource to update. "
-					+ "Resource: " + schemaNodeUuid + " Payload: " + schemaNodeDTO.getUUIDString()
+							+ "Resource: " + schemaNodeUuid + " Payload: " + schemaNodeDTO.getUUIDString()
 			);
 		}
 		if (schemaNodeDTO.getXCoordinate() == null || schemaNodeDTO.getYCoordinate() == null) {
@@ -385,7 +391,7 @@ public class DataModelingHandler {
 		} else {
 			for (RelationConcept relationConcept : currentSchema.getRelationConceptCache()) {
 				if (relationConcept.getName().equals(usedRelationConcept.getName()) && relationConcept.getDescription().equals(usedRelationConcept
-						                                                                                                               .getDescription())) {
+						.getDescription())) {
 					return relationConcept;
 				}
 			}
@@ -438,7 +444,7 @@ public class DataModelingHandler {
 				throw new ResponseStatusException(
 						HttpStatus.BAD_REQUEST,
 						"Referenced syntax model node was not of type `" + PrimitiveNode.class.getSimpleName()
-						+ "` but was " + (traversable != null ? traversable.getClass().getSimpleName() : null)
+								+ "` but was " + (traversable != null ? traversable.getClass().getSimpleName() : null)
 				);
 			}
 			PrimitiveNode primitiveNode = (PrimitiveNode) traversable;
@@ -666,7 +672,6 @@ public class DataModelingHandler {
 	 * @param element          the entry which is looked for
 	 * @param identityFunction the function which maps an element to it's {@link UUID} (usually just a method reference to T::getUuid)
 	 * @param elementCache     the cache of known entries
-	 *
 	 * @return an entity concept which is equivalent to {@code entityConcept}
 	 */
 	private <T extends ModelBase> T getAndUpdateCache(
@@ -703,7 +708,6 @@ public class DataModelingHandler {
 	 * @param element       the element to load
 	 * @param uuidGenerator the function to determine a global UUID from the given elements type
 	 * @param repository    the repository to load from
-	 *
 	 * @return attached element matching the given transient element
 	 */
 	@NotNull
@@ -913,5 +917,13 @@ public class DataModelingHandler {
 		} else {
 			logger.warn("Model with id {} was not available", dataSourceUuid);
 		}
+	}
+
+	/* Recommendations */
+
+	public DataSourceSchema getRecommendations(@NotNull String dataSourceUuid, @NotNull DataSourceSchema dataSourceSchema) {
+		DataSourceSchemaDTO dataSourceSchemaDTO = semanticRecommendationApiClient.performSemanticRefinement(dataSourceUuid, dataSourceSchemaDTOConverter.toDTO(dataSourceSchema));
+		dataSourceSchema.setRecommendations(dataSourceSchemaDTO.getRecommendations());
+		return dataSourceSchema;
 	}
 }

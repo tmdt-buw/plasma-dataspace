@@ -1,6 +1,6 @@
 package de.buw.tmdt.plasma.services.srs.rest;
 
-import de.buw.tmdt.plasma.services.srs.api.error.ErrorDTO;
+import de.buw.tmdt.plasma.services.dms.shared.dto.error.ErrorDTO;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

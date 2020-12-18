@@ -6,7 +6,7 @@ import org.springframework.cloud.openfeign.FeignClient;
 @SuppressWarnings("HardcodedFileSeparator - uris")
 @FeignClient(
         name = "plasma-dms",
-        contextId = "dms-coffee-client",
+        contextId = "plasma-services",
         configuration = DataModelingFeignConfiguration.class
 )
 public interface DataModelingApiClient extends DataModelingAPI {

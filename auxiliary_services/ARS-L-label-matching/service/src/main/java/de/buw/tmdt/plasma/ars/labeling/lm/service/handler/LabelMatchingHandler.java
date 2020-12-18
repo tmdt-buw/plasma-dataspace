@@ -1,20 +1,21 @@
 package de.buw.tmdt.plasma.ars.labeling.lm.service.handler;
 
 import de.buw.tmdt.plasma.ars.labeling.lm.service.converter.KGStoSRSDTOConverter;
+import de.buw.tmdt.plasma.services.dms.shared.dto.DataSourceSchemaDTO;
+import de.buw.tmdt.plasma.services.dms.shared.dto.PrimitiveEntityTypeEdgeDTO;
+import de.buw.tmdt.plasma.services.dms.shared.dto.semanticmodel.EntityConceptDTO;
+import de.buw.tmdt.plasma.services.dms.shared.dto.semanticmodel.EntityTypeDTO;
+import de.buw.tmdt.plasma.services.dms.shared.dto.syntaxmodel.EdgeDTO;
+import de.buw.tmdt.plasma.services.dms.shared.dto.syntaxmodel.PrimitiveDTO;
+import de.buw.tmdt.plasma.services.dms.shared.dto.syntaxmodel.SchemaNodeDTO;
+import de.buw.tmdt.plasma.services.dms.shared.dto.syntaxmodel.SyntaxModelDTO;
 import de.buw.tmdt.plasma.services.kgs.shared.api.UniversalKnowledgeApi;
-import de.buw.tmdt.plasma.services.srs.api.DataSourceSchemaDTO;
-import de.buw.tmdt.plasma.services.srs.api.PrimitiveEntityTypeEdgeDTO;
-import de.buw.tmdt.plasma.services.srs.api.semanticmodel.EntityConceptDTO;
-import de.buw.tmdt.plasma.services.srs.api.semanticmodel.EntityTypeDTO;
-import de.buw.tmdt.plasma.services.srs.api.syntaxmodel.EdgeDTO;
-import de.buw.tmdt.plasma.services.srs.api.syntaxmodel.PrimitiveDTO;
-import de.buw.tmdt.plasma.services.srs.api.syntaxmodel.SchemaNodeDTO;
-import de.buw.tmdt.plasma.services.srs.api.syntaxmodel.SyntaxModelDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Optional;
 
 @Service
 public class LabelMatchingHandler {
@@ -37,7 +38,7 @@ public class LabelMatchingHandler {
             }
 
             String label = node.getLabel();
-            Collection<EntityConceptDTO> entityConcepts = KGStoSRSDTOConverter.toSRS(universalKnowledgeApi.getEntityConcepts(label));
+            Collection<EntityConceptDTO> entityConcepts = KGStoSRSDTOConverter.toDMS(universalKnowledgeApi.getEntityConcepts(label));
             Optional<EntityConceptDTO> matching = entityConcepts.stream().filter(entityConceptDTO -> entityConceptDTO.getName().equals(label)).findFirst();
             if(matching.isPresent()){  // we only match on exact equality
                 // we found one
