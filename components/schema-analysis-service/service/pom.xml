@@ -205,7 +205,7 @@
                     </from>
                     <to>
                         <!--suppress UnresolvedMavenProperty -->
-                        <image>${platform.name.prefix}/${project.label.short}:${project.version}-${git.commit.id.abbrev}</image>
+                        <image>${platform.name.prefix}/${project.label.short}:${project.version}</image>
                     </to>
                     <container>
                         <ports>

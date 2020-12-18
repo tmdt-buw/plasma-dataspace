@@ -164,6 +164,18 @@ services:
 #    ports:
 #     - 80:80     
 
+########################### Auxiliary Services ######################################
+     
+  ars-l-lm:
+    image: "plasma/ars-l-lm:${PLASMA_VERSION}"
+    hostname: plasma-ars-l-lm
+    restart: unless-stopped
+    depends_on:
+      - discovery
+      - kgs
+    ports:
+     - 8201:8201
+
 volumes:
   neo4j_data:
   mariadb_dss: 
