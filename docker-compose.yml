@@ -81,79 +81,88 @@ services:
      - 3308:3306 
       
 ########################### Service Infrastructure ######################################
-  discovery-service:
-    image: "plasma:discovery-service:0.8.3"
+  discovery:
+    image: "plasma/discovery:${PLASMA_VERSION}"
     hostname: plasma-discovery-service
     restart: unless-stopped
     ports:
      - 8761:8761  
 
-  admin-service:
-    image: "plasma:admin-service:0.8.3"
+  admin:
+    image: "plasma/admin:${PLASMA_VERSION}"
     hostname: plasma-admin-service
     restart: unless-stopped
     depends_on:
-      - discovery-service
+      - discovery
     ports:
      - 8080:8080       
 
-  gateway-service:
-    image: "plasma:gateway-service:0.8.3"
+  gateway:
+    image: "plasma/gateway:${PLASMA_VERSION}"
     hostname: plasma-gateway-service
     restart: unless-stopped
     depends_on:
-      - discovery-service
+      - discovery
     ports:
      - 8888:8888 
      
 ########################### Services ######################################
      
   kgs:
-    image: "plasma/kgs:1.0.0"
+    image: "plasma/kgs:${PLASMA_VERSION}"
     hostname: plasma-kgs
     restart: unless-stopped
     depends_on:
-      - discovery-service
+      - discovery
       - neo4j
     ports:
      - 8181:8181
      
   dss:
-    image: "plasma/dss:1.0.0"
+    image: "plasma/dss:${PLASMA_VERSION}"
     hostname: plasma-dss
     restart: unless-stopped
     depends_on:
-      - discovery-service
+      - discovery
       - mariadb-dss      
     ports:
      - 8185:8185    
 
   sas:
-    image: "plasma/sas:1.0.0"
+    image: "plasma/sas:${PLASMA_VERSION}"
     hostname: plasma-sas
     restart: unless-stopped
     depends_on:
-      - discovery-service
+      - discovery
       - mariadb-sas      
     ports:
      - 8189:8189   
 
   dms:
-    image: "plasma/dms:1.0.0"
+    image: "plasma/dms:${PLASMA_VERSION}"
     hostname: plasma-dms
     restart: unless-stopped
     depends_on:
-      - discovery-service
+      - discovery
       - mariadb-dms      
     ports:
-     - 8186:8186     
+     - 8186:8186   
 
-  ui:
-    image: "plasma/ui:1.0.0"
-    hostname: plasma-ui
+  srs:
+    image: "plasma/srs:${PLASMA_VERSION}"
+    hostname: plasma-srs
     restart: unless-stopped
+    depends_on:
+      - discovery   
     ports:
-     - 80:80     
+     - 8190:8190 
+
+#  ui:
+#    image: "plasma/ui:${PLASMA_VERSION}"
+#    hostname: plasma-ui
+#    restart: unless-stopped
+#    ports:
+#     - 80:80     
 
 volumes:
   neo4j_data:
