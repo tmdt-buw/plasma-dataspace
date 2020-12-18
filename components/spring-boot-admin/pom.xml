@@ -22,7 +22,7 @@
 
     <properties>
         <project.label>Spring Boot Admin</project.label>
-        <project.label.short>sba</project.label.short>
+        <project.label.short>admin</project.label.short>
         <project.label.abbrv>SBA</project.label.abbrv>
         <project.module.label.prefix>PLASMA ${project.label.abbrv}</project.module.label.prefix>
         <project.base-package>de.buw.tmdt.plasma.services.sba</project.base-package>

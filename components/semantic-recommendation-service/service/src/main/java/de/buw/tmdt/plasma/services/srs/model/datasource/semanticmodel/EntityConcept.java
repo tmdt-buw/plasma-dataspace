@@ -7,28 +7,18 @@ import de.buw.tmdt.plasma.utilities.misc.ObjectUtilities;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Lob;
-import javax.persistence.Table;
 import javax.validation.constraints.NotEmpty;
 import java.util.Deque;
 import java.util.Map;
 import java.util.Set;
 
-@Entity
-@Table(name = "entity_concepts")
 public class EntityConcept extends TraversableModelBase {
 
-	@Column(nullable = true, unique = false)
 	private final String uuid;
 
 	@NotEmpty
-	@Column(nullable = false)
 	private final String name;
 
-	@Lob
-	@Column(nullable = false)
 	private final String description;
 
 	//Hibernate constructor

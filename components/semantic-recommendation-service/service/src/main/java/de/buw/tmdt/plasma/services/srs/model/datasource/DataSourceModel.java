@@ -1,7 +1,6 @@
 package de.buw.tmdt.plasma.services.srs.model.datasource;
 
 import de.buw.tmdt.plasma.utilities.misc.StringUtilities;
-import org.hibernate.annotations.DynamicUpdate;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -9,7 +8,6 @@ import java.util.List;
 import java.util.UUID;
 
 @SuppressWarnings("DefaultAnnotationParam - explicit > implicit")
-@DynamicUpdate
 public class DataSourceModel {
 
 	private UUID uuid;

@@ -7,7 +7,6 @@ import de.buw.tmdt.plasma.utilities.misc.ObjectUtilities;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
 import java.util.Deque;
 import java.util.HashMap;
@@ -15,25 +14,17 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 
-@Entity
-@Table(name = "entity_types")
 public class EntityType extends TraversableModelBase {
 
-	@Column(nullable = true, unique = false)
 	private final String uuid;
 
 	@NotEmpty
-	@Column(nullable = false)
 	private String label;
 
-	@Column(nullable = false)
 	private String originalLabel;
 
-	@Lob
-	@Column(nullable = false)
 	private String description;
 
-	@ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
 	private EntityConcept entityConcept;
 
 	//Hibernate constructor

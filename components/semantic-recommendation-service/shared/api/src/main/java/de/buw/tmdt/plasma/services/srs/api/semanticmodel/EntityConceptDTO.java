@@ -12,35 +12,26 @@ import java.io.Serializable;
 public class EntityConceptDTO implements Serializable {
 	private static final long serialVersionUID = 2351939502355153654L;
 	public static final String ID_PROPERTY = "id";
-	public static final String UUID_PROPERTY = "uuid";
 	private static final String NAME_PROPERTY = "name";
 	private static final String DESCRIPTION_PROPERTY = "description";
+	private static final String URI_PROPERTY = "uri";
 
-	private final Long id;
-	private final String uuid;
+	private final String id;
 	private final String name;
 	private final String description;
-
-	public EntityConceptDTO(@Nullable Long id, @Nullable String uuid, @NotNull String name, @NotNull String description) {
-		this.id = id;
-		this.uuid = uuid;
-		this.name = name;
-		this.description = description;
-	}
+	private final String uri;
 
 	@JsonCreator
 	public EntityConceptDTO(
-			@Nullable @JsonProperty(ID_PROPERTY) String id,
-			@Nullable @JsonProperty(UUID_PROPERTY) String uuid,
+			@NotNull @JsonProperty(ID_PROPERTY) String id,
 			@NotNull @JsonProperty(NAME_PROPERTY) String name,
-			@NotNull @JsonProperty(DESCRIPTION_PROPERTY) String description
+			@NotNull @JsonProperty(DESCRIPTION_PROPERTY) String description,
+			@NotNull @JsonProperty(URI_PROPERTY) String uri
 	) {
-		this(
-				id != null ? Long.parseLong(id) : null,
-				uuid,
-				name,
-				description
-		);
+		this.id = id;
+		this.name = name;
+		this.description = description;
+		this.uri = uri;
 	}
 
 	@JsonProperty(ID_PROPERTY)
@@ -51,20 +42,8 @@ public class EntityConceptDTO implements Serializable {
 
 	@JsonIgnore
 	@Nullable
-	public Long getId() {
+	public String getId() {
 		return id;
-	}
-
-	@JsonProperty(UUID_PROPERTY)
-	@Nullable
-	public String getSerializedUuid() {
-		return StringUtilities.toStringIfExists(uuid);
-	}
-
-	@JsonIgnore
-	@Nullable
-	public String getUuid() {
-		return uuid;
 	}
 
 	@JsonProperty(NAME_PROPERTY)
@@ -77,6 +56,12 @@ public class EntityConceptDTO implements Serializable {
 	@NotNull
 	public String getDescription() {
 		return description;
+	}
+
+	@JsonProperty(URI_PROPERTY)
+	@NotNull
+	public String getUri() {
+		return uri;
 	}
 
 	public int hashCode() {
@@ -99,9 +84,9 @@ public class EntityConceptDTO implements Serializable {
 	public String toString() {
 		return "{\"@class\":\"EntityConceptDTO\""
 		       + ", \"id\":\"" + id + '"'
-		       + ", \"uuid\":\"" + uuid + '"'
 		       + ", \"name\":\"" + name + '"'
 		       + ", \"description\":\"" + description + '"'
 		       + '}';
 	}
+
 }

@@ -1,14 +1,13 @@
 package de.buw.tmdt.plasma.services.srs.model.datasource.syntaxmodel;
 
+import de.buw.tmdt.plasma.services.srs.api.syntaxmodel.operation.DataType;
 import de.buw.tmdt.plasma.services.srs.model.Position;
 import de.buw.tmdt.plasma.services.srs.model.Traversable;
 import de.buw.tmdt.plasma.services.srs.model.datasource.semanticmodel.EntityType;
 import de.buw.tmdt.plasma.services.srs.model.datasource.syntaxmodel.members.EntityConceptSuggestion;
-import de.buw.tmdt.plasma.services.srs.api.syntaxmodel.operation.DataType;
 import de.buw.tmdt.plasma.utilities.collections.CollectionUtilities;
 import de.buw.tmdt.plasma.utilities.misc.ObjectUtilities;
 import de.buw.tmdt.plasma.utilities.misc.StringUtilities;
-import org.hibernate.annotations.DynamicUpdate;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -16,7 +15,6 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-@DynamicUpdate
 public class PrimitiveNode extends Node implements RawDataContainer {
 	private EntityType entityType;
 	private DataType dataType;

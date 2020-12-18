@@ -5,35 +5,24 @@ import de.buw.tmdt.plasma.services.srs.model.Traversable;
 import de.buw.tmdt.plasma.services.srs.model.TraversableModelBase;
 import de.buw.tmdt.plasma.utilities.misc.ObjectUtilities;
 import de.buw.tmdt.plasma.utilities.misc.StringUtilities;
-import org.hibernate.annotations.DynamicUpdate;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.persistence.*;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-@Entity
-@DynamicUpdate
-@Table(name = "semantic_models")
 public class SemanticModel extends TraversableModelBase {
 
 	@SuppressWarnings("DefaultAnnotationParam - this is not part of the primary key in the middleware, entity concepts are created redundantly")
-	@Column(nullable = true, unique = false)
 	private String uuid;
 
-	@Column(nullable = false)
 	private String label;
 
-	@Lob
-	@Column(nullable = false)
 	private String description;
 
-	@OneToMany(cascade = CascadeType.ALL)
 	private List<EntityType> entityTypes;
 
-	@OneToMany(cascade = CascadeType.ALL)
 	private List<Relation> relations;
 
 	//Hibernate constructor
@@ -212,7 +201,6 @@ public class SemanticModel extends TraversableModelBase {
 		return children;
 	}
 
-	@PrePersist
 	protected void prePersist() {
 		//This may happen if the object was initialized by Hibernate
 		if(this.relations == null){

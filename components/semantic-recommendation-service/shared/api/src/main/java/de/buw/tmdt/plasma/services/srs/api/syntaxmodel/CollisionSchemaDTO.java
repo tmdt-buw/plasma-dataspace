@@ -2,6 +2,7 @@ package de.buw.tmdt.plasma.services.srs.api.syntaxmodel;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import de.buw.tmdt.plasma.services.srs.api.syntaxmodel.operation.SyntacticOperationDTO;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -9,6 +10,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.UUID;
 
+@JsonTypeName("CollisionSchemaDTO")
 public class CollisionSchemaDTO extends SchemaNodeDTO {
 
 	private static final long serialVersionUID = 5329441916665293203L;
@@ -29,7 +31,7 @@ public class CollisionSchemaDTO extends SchemaNodeDTO {
 	@SuppressWarnings("MagicCharacter")
 	public String toString() {
 		return "{\"@class\":\"CollisionSchemaDTO\""
-		       + ", \"@super\":" + super.toString()
-		       + '}';
+				+ ", \"@super\":" + super.toString()
+				+ '}';
 	}
 }

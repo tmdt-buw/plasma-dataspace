@@ -2,12 +2,10 @@ package de.buw.tmdt.plasma.services.srs.model.datasource.syntaxmodel.members;
 
 import de.buw.tmdt.plasma.services.srs.model.ModelBase;
 import de.buw.tmdt.plasma.services.srs.model.datasource.semanticmodel.EntityConcept;
-import org.hibernate.annotations.DynamicUpdate;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
-@DynamicUpdate
 public class EntityConceptSuggestion extends ModelBase {
 	private final EntityConcept entityConcept;
 	private final double weight;

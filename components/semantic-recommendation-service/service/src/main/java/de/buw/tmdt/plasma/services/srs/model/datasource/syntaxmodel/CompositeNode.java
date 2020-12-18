@@ -7,7 +7,6 @@ import de.buw.tmdt.plasma.utilities.collections.CollectionUtilities;
 import de.buw.tmdt.plasma.utilities.collections.ListUtilities;
 import de.buw.tmdt.plasma.utilities.misc.ObjectUtilities;
 import de.buw.tmdt.plasma.utilities.misc.StringUtilities;
-import org.hibernate.annotations.DynamicUpdate;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -15,7 +14,6 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-@DynamicUpdate
 public class CompositeNode extends Node implements RawDataContainer {
 
 	private List<PrimitiveNode> components;

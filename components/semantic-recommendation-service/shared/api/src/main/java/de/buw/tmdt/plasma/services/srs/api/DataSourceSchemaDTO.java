@@ -1,6 +1,7 @@
 package de.buw.tmdt.plasma.services.srs.api;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import de.buw.tmdt.plasma.services.srs.api.recommendation.DeltaRecommendationDTO;
 import de.buw.tmdt.plasma.services.srs.api.semanticmodel.SemanticModelDTO;
 import de.buw.tmdt.plasma.services.srs.api.syntaxmodel.SyntaxModelDTO;
 import de.buw.tmdt.plasma.utilities.misc.StringUtilities;
@@ -8,7 +9,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -17,24 +17,28 @@ public class DataSourceSchemaDTO implements Serializable {
 	public static final String SYNTAX_MODEL_PROPERTY = "syntaxModel";
 	public static final String SEMANTIC_MODEL_PROPERTY = "semanticModel";
 	private static final String PRIMITIVE_ENTITY_TYPE_LIST = "primitiveToEntityTypeList";
+	private static final String RECOMMENDATION_LIST = "recommendations";
 	private static final String FINALIZED = "finalized";
 	private static final long serialVersionUID = 1069167546126071914L;
 
 	private final SyntaxModelDTO syntaxModelDTO;
 	private final SemanticModelDTO semanticModelDTO;
-	private final ArrayList<PrimitiveEntityTypeEdgeDTO> primitiveEntityTypeEdgeDTOs;
+	private final List<PrimitiveEntityTypeEdgeDTO> primitiveEntityTypeEdgeDTOs;
+	private final List<DeltaRecommendationDTO> recommendations;
 	private final boolean finalized;
 
 	public DataSourceSchemaDTO(
 			@JsonProperty(SYNTAX_MODEL_PROPERTY) @NotNull SyntaxModelDTO syntaxModelDTO,
 			@JsonProperty(SEMANTIC_MODEL_PROPERTY) SemanticModelDTO semanticModelDTO,
 			@JsonProperty(PRIMITIVE_ENTITY_TYPE_LIST) List<? extends PrimitiveEntityTypeEdgeDTO> primitiveEntityTypeEdgeDTOs,
+			@JsonProperty(RECOMMENDATION_LIST) List<DeltaRecommendationDTO> recommendations,
 			@JsonProperty(value = FINALIZED, defaultValue = "false") boolean finalized
 	) {
 		this.syntaxModelDTO = syntaxModelDTO;
 		this.semanticModelDTO = semanticModelDTO;
 		this.primitiveEntityTypeEdgeDTOs = new ArrayList<>(primitiveEntityTypeEdgeDTOs);
 		this.finalized = finalized;
+		this.recommendations = new ArrayList<>(recommendations);
 	}
 
 	@JsonProperty(SYNTAX_MODEL_PROPERTY)
@@ -52,15 +56,21 @@ public class DataSourceSchemaDTO implements Serializable {
 		return finalized;
 	}
 
+	@NotNull
 	@JsonProperty(PRIMITIVE_ENTITY_TYPE_LIST)
 	public List<PrimitiveEntityTypeEdgeDTO> getPrimitiveEntityTypeEdgeDTOs() {
-		return Collections.unmodifiableList(primitiveEntityTypeEdgeDTOs);
+		return primitiveEntityTypeEdgeDTOs;
+	}
+
+	@NotNull
+	@JsonProperty(RECOMMENDATION_LIST)
+	public List<DeltaRecommendationDTO> getRecommendations() {
+		return recommendations;
 	}
 
 	@Override
 	public int hashCode() {
-
-		return Objects.hash(syntaxModelDTO, semanticModelDTO);
+		return Objects.hash(syntaxModelDTO, semanticModelDTO, recommendations);
 	}
 
 	@Override
@@ -80,9 +90,10 @@ public class DataSourceSchemaDTO implements Serializable {
 	@SuppressWarnings("MagicCharacter")
 	public String toString() {
 		return "{\"@class\":\"DataSourceSchemaDTO\""
-		       + ", \"syntaxModelDTO\":" + syntaxModelDTO
-		       + ", \"semanticModelDTO\":" + semanticModelDTO
-		       + ", \"primitiveEntityTypeEdgeDTOs\":" + StringUtilities.listToJson(primitiveEntityTypeEdgeDTOs)
-		       + '}';
+				+ ", \"syntaxModelDTO\":" + syntaxModelDTO
+				+ ", \"semanticModelDTO\":" + semanticModelDTO
+				+ ", \"primitiveEntityTypeEdgeDTOs\":" + StringUtilities.listToJson(primitiveEntityTypeEdgeDTOs)
+				+ ", \"recommendations\":" + StringUtilities.listToJson(recommendations)
+				+ '}';
 	}
 }

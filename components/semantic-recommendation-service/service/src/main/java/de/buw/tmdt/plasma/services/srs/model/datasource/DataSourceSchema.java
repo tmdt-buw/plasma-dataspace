@@ -7,13 +7,11 @@ import de.buw.tmdt.plasma.services.srs.model.datasource.semanticmodel.RelationCo
 import de.buw.tmdt.plasma.services.srs.model.datasource.semanticmodel.SemanticModel;
 import de.buw.tmdt.plasma.services.srs.model.datasource.syntaxmodel.Node;
 import de.buw.tmdt.plasma.utilities.misc.ObjectUtilities;
-import org.hibernate.annotations.DynamicUpdate;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.function.Consumer;
 
-@DynamicUpdate
 public class DataSourceSchema extends TraversableModelBase {
 
 	private DataSourceModel owningNode;

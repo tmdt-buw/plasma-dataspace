@@ -1,14 +1,12 @@
 package de.buw.tmdt.plasma.services.srs.model.datasource.syntaxmodel.members;
 
 import de.buw.tmdt.plasma.services.srs.model.ModelBase;
-import org.hibernate.annotations.DynamicUpdate;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
-@DynamicUpdate
 public abstract class Selector extends ModelBase {
 
 	private static final Map<String, Function<? super String, ? extends Selector>> PARSER_LOOKUP = new HashMap<>();

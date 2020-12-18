@@ -5,14 +5,12 @@ import de.buw.tmdt.plasma.services.srs.model.Traversable;
 import de.buw.tmdt.plasma.utilities.collections.MapUtilities;
 import de.buw.tmdt.plasma.utilities.misc.ObjectUtilities;
 import de.buw.tmdt.plasma.utilities.misc.StringUtilities;
-import org.hibernate.annotations.DynamicUpdate;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.function.Consumer;
 
-@DynamicUpdate
 public class ObjectNode extends Node {
 
 	private Map<String, Node> children;

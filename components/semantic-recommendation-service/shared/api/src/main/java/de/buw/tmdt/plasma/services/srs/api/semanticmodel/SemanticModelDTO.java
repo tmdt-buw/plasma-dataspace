@@ -94,12 +94,12 @@ public class SemanticModelDTO extends Positioned {
 
 	@JsonProperty(NODES_PROPERTY)
 	public List<EntityTypeDTO> getNodes() {
-		return Collections.unmodifiableList(nodes);
+		return nodes;
 	}
 
 	@JsonProperty(EDGES_PROPERTY)
 	public List<RelationDTO> getEdges() {
-		return Collections.unmodifiableList(edges);
+		return edges;
 	}
 
 	@Override

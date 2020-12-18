@@ -9,7 +9,6 @@ import de.buw.tmdt.plasma.services.srs.model.datasource.syntaxmodel.members.Wild
 import de.buw.tmdt.plasma.utilities.collections.CollectionUtilities;
 import de.buw.tmdt.plasma.utilities.misc.ObjectUtilities;
 import de.buw.tmdt.plasma.utilities.misc.StringUtilities;
-import org.hibernate.annotations.DynamicUpdate;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -17,7 +16,6 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-@DynamicUpdate
 public class SetNode extends Node {
 	private final List<Child> children;
 
@@ -180,7 +178,6 @@ public class SetNode extends Node {
 		return true;
 	}
 
-	@DynamicUpdate
 	public static class Child extends TraversableModelBase {
 		private Selector selector;
 

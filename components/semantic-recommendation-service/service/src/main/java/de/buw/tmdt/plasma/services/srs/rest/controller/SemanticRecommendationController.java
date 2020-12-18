@@ -5,7 +5,6 @@ import de.buw.tmdt.plasma.services.srs.api.SemanticRecommendationAPI;
 import de.buw.tmdt.plasma.services.srs.handler.SemanticLabelingHandler;
 import de.buw.tmdt.plasma.services.srs.handler.SemanticModelingHandler;
 import de.buw.tmdt.plasma.services.srs.handler.SemanticRefinementHandler;
-import de.buw.tmdt.plasma.services.srs.api.syntaxmodel.SyntaxModelDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,8 +32,8 @@ public class SemanticRecommendationController implements SemanticRecommendationA
 	@NotNull
 	@Override
 	@Operation(description = "finish schema modelling process")
-	public DataSourceSchemaDTO performInitialSemanticLabeling(@NotNull String uuid, @NotNull SyntaxModelDTO syntaxModelDTO) {
-		return labelingHandler.performLabeling(uuid,syntaxModelDTO);
+	public DataSourceSchemaDTO performInitialSemanticLabeling(@NotNull String uuid, @NotNull DataSourceSchemaDTO dataSourceSchemaDTO) {
+		return labelingHandler.performLabeling(uuid, dataSourceSchemaDTO);
 	}
 
 	@NotNull

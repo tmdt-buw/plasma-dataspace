@@ -18,10 +18,16 @@
         <javax.servlet.version>3.1.0</javax.servlet.version>
         <org.mariadb.version>2.5.2</org.mariadb.version>
         <plasma.services.kgs>1.0.0</plasma.services.kgs>
+        <plasma.ars.labeling.lm>1.0.0</plasma.ars.labeling.lm>
     </properties>
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>de.buw.tmdt.plasma.ars.labeling.labelmatching</groupId>
+                <artifactId>feign-client</artifactId>
+                <version>${plasma.ars.labeling.lm}</version>
+            </dependency>
             <dependency>
                 <groupId>${project.parent.groupId}</groupId>
                 <artifactId>api</artifactId>
@@ -36,12 +42,6 @@
                 <groupId>javax.servlet</groupId>
                 <artifactId>javax.servlet-api</artifactId>
                 <version>${javax.servlet.version}</version>
-            </dependency>
-            <!-- Database -->
-            <dependency>
-                <groupId>org.mariadb.jdbc</groupId>
-                <artifactId>mariadb-java-client</artifactId>
-                <version>${org.mariadb.version}</version>
             </dependency>
 
 <!--             Other Microservices -->
@@ -83,6 +83,10 @@
         <dependency>
             <groupId>de.buw.tmdt.plasma.services.srs</groupId>
             <artifactId>api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>de.buw.tmdt.plasma.ars.labeling.labelmatching</groupId>
+            <artifactId>feign-client</artifactId>
         </dependency>
         <!-- Spring -->
         <dependency>
@@ -158,6 +162,29 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
             </plugin>
+            <!-- Spring Boot Maven Plugin - creates an executable jar -->
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>${org.springframework.boot.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>build-info</goal>
+                            <goal>repackage</goal>
+                        </goals>
+                        <configuration>
+                            <additionalProperties>
+                                <title>${project.name}</title>
+                                <description>Service to manage semantic recommendations</description>
+                                <developerName>Alexander Paulus</developerName>
+                                <developerEMail>paulus@uni-wuppertal.de</developerEMail>
+                            </additionalProperties>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
             <!-- docker image build plugin -->
             <plugin>
                 <groupId>com.google.cloud.tools</groupId>

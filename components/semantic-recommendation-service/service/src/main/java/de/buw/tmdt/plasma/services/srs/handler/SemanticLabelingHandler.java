@@ -1,24 +1,30 @@
 package de.buw.tmdt.plasma.services.srs.handler;
 
+import de.buw.tmdt.plasma.ars.labeling.lm.shared.feignclient.LabelMatchingApiClient;
 import de.buw.tmdt.plasma.services.srs.api.DataSourceSchemaDTO;
-import de.buw.tmdt.plasma.services.srs.api.recommendation.DeltaRecommendationDTO;
-import de.buw.tmdt.plasma.services.srs.api.semanticmodel.SemanticModelDTO;
-import de.buw.tmdt.plasma.services.srs.api.syntaxmodel.SyntaxModelDTO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Service
 public class SemanticLabelingHandler {
-    public DataSourceSchemaDTO performLabeling(String uuid, SyntaxModelDTO syntaxModelDTO) {
 
-        // call ARS-L here
+    private static final Logger log = LoggerFactory.getLogger(SemanticLabelingHandler.class);
 
-        List<DeltaRecommendationDTO> recommendations = new ArrayList<>();
+    final LabelMatchingApiClient labelMatchingApiClient;
 
-        SemanticModelDTO semanticModelDTO = new SemanticModelDTO(null, null, "", "", new ArrayList<>(), new ArrayList<>());
-        DataSourceSchemaDTO dataSourceSchemaDTO = new DataSourceSchemaDTO(syntaxModelDTO,semanticModelDTO,new ArrayList<>(),false);
+    public SemanticLabelingHandler(LabelMatchingApiClient labelMatchingApiClient) {
+        this.labelMatchingApiClient = labelMatchingApiClient;
+    }
+
+    public DataSourceSchemaDTO performLabeling(String uuid, DataSourceSchemaDTO dataSourceSchemaDTO) {
+        try {
+            // call ARS-L here
+            dataSourceSchemaDTO = labelMatchingApiClient.performLabeling(uuid, dataSourceSchemaDTO);
+        } catch (Exception ex) {
+            log.warn("Could not perform semantic labeling", ex);
+        }
+
         return dataSourceSchemaDTO;
     }
 }

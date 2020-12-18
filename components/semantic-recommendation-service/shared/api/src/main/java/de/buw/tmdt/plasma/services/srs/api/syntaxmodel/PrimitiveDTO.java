@@ -2,12 +2,14 @@ package de.buw.tmdt.plasma.services.srs.api.syntaxmodel;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import de.buw.tmdt.plasma.services.srs.api.syntaxmodel.operation.SyntacticOperationDTO;
 import de.buw.tmdt.plasma.utilities.misc.StringUtilities;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
+@JsonTypeName("PrimitiveDTO")
 public class PrimitiveDTO extends SchemaNodeDTO {
 
 	private static final long serialVersionUID = -144653268470507986L;
@@ -66,12 +68,12 @@ public class PrimitiveDTO extends SchemaNodeDTO {
 	@SuppressWarnings("MagicCharacter")
 	public String toString() {
 		return "{\"@class\":\"PrimitiveDTO\""
-		       + ", \"@super\":" + super.toString()
-		       + ", \"suggestedEntityConcepts\":" + StringUtilities.listToJson(suggestedEntityConcepts)
-		       + ", \"cleansingPattern\":\"" + cleansingPattern + '"'
-		       + ", \"examples\":" + StringUtilities.listToJson(examples)
-		       + ", \"dataType\":\"" + dataType + '"'
-		       + '}';
+				+ ", \"@super\":" + super.toString()
+				+ ", \"suggestedEntityConcepts\":" + StringUtilities.listToJson(suggestedEntityConcepts)
+				+ ", \"cleansingPattern\":\"" + cleansingPattern + '"'
+				+ ", \"examples\":" + StringUtilities.listToJson(examples)
+				+ ", \"dataType\":\"" + dataType + '"'
+				+ '}';
 	}
 
 	@Override
@@ -87,9 +89,9 @@ public class PrimitiveDTO extends SchemaNodeDTO {
 		}
 		PrimitiveDTO that = (PrimitiveDTO) o;
 		return Objects.equals(suggestedEntityConcepts, that.suggestedEntityConcepts) &&
-		       Objects.equals(cleansingPattern, that.cleansingPattern) &&
-		       Objects.equals(examples, that.examples) &&
-		       Objects.equals(dataType, that.dataType);
+				Objects.equals(cleansingPattern, that.cleansingPattern) &&
+				Objects.equals(examples, that.examples) &&
+				Objects.equals(dataType, that.dataType);
 	}
 
 	@Override

@@ -1,14 +1,8 @@
 package de.buw.tmdt.plasma.services.srs.model.datasource.syntaxmodel.members;
 
-import org.hibernate.annotations.DynamicUpdate;
 import org.jetbrains.annotations.NotNull;
 
-import javax.persistence.Entity;
-import javax.persistence.Table;
 
-@Entity
-@DynamicUpdate
-@Table(name = "wildcard_selectors")
 public class WildcardSelector extends Selector {
 	private static final String PARSING_PREFIX = "w:";
 

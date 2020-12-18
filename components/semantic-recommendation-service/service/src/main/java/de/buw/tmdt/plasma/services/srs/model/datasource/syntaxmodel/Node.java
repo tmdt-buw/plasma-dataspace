@@ -2,7 +2,6 @@ package de.buw.tmdt.plasma.services.srs.model.datasource.syntaxmodel;
 
 import de.buw.tmdt.plasma.services.srs.model.Position;
 import de.buw.tmdt.plasma.services.srs.model.Traversable;
-import org.hibernate.annotations.DynamicUpdate;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -11,7 +10,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-@DynamicUpdate
 public abstract class Node implements Traversable {
 
 	protected UUID uuid;
