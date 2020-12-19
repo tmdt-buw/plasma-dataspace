@@ -42,12 +42,12 @@ public class SyntaxModelDTO implements Serializable {
 
 	@JsonProperty(NODES_PROPERTY)
 	public List<SchemaNodeDTO> getNodes() {
-		return Collections.unmodifiableList(nodes);
+		return nodes;
 	}
 
 	@JsonProperty(EDGES_PROPERTY)
 	public List<EdgeDTO> getEdges() {
-		return Collections.unmodifiableList(edges);
+		return edges;
 	}
 
 	@Override

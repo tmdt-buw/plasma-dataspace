@@ -163,7 +163,7 @@ services:
     hostname: plasma-ui
     restart: unless-stopped
     ports:
-     - 80:80     
+     - 80:80
 
 ########################### Auxiliary Services ######################################
      
