@@ -14,7 +14,7 @@ server {
     proxy_set_header    X-Forwarded-Proto  $scheme;
   }
   location /api/ {
-    set $upstream_gateway eskape-gateway;
+    set $upstream_gateway plasma-gateway-service;
     proxy_pass http://$upstream_gateway:8888;
     proxy_set_header    Host               $host;
     proxy_set_header    X-Real-IP          $remote_addr;
