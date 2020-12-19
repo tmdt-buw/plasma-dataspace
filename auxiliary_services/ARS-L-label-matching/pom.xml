@@ -28,11 +28,7 @@
         <project.label.abbrv>ARS-L LM</project.label.abbrv>
         <project.module.label.prefix>${platform.name} ${project.label.abbrv}</project.module.label.prefix>
         <project.base-package>de.buw.tmdt.plasma.services.ars.labeling.labelmatching</project.base-package>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-
-        <!-- CUSTOM VERSIONS ============================================================================================ -->
     </properties>
-
 
     <dependencyManagement>
         <dependencies>
@@ -48,10 +44,6 @@
         <dependency>
             <groupId>de.buw.tmdt.plasma.services.srs</groupId>
             <artifactId>api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.jetbrains</groupId>
-            <artifactId>annotations</artifactId>
         </dependency>
         <dependency>
             <groupId>de.buw.tmdt.plasma</groupId>
