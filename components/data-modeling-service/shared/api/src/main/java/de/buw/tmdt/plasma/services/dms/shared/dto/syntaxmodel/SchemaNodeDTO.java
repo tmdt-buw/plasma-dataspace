@@ -94,7 +94,7 @@ public class SchemaNodeDTO extends Positioned {
 	@JsonProperty(OPERATIONS_PROPERTY)
 	@NotNull
 	public List<SyntacticOperationDTO> getOperations() {
-		return Collections.unmodifiableList(operations);
+		return operations;
 	}
 
 	@Override

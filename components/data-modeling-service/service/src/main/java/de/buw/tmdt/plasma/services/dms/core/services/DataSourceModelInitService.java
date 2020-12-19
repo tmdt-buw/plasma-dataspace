@@ -95,6 +95,10 @@ public class DataSourceModelInitService {
 
 		// request semantic labeling
 		DataSourceSchemaDTO dataSourceSchemaDTO1 = dataSourceSchemaDTOConverter.toDTO(dataSourceModel.peekDataSourceSchema());
+		dataSourceSchemaDTO1.getSyntaxModelDTO().getNodes().forEach(node -> {
+			// no operations when sending to other services
+			node.getOperations().clear();
+		});
 		DataSourceSchemaDTO dataSourceSchemaDTO = semanticRecommendationApiClient.performSemanticLabeling(
 				uuid.toString(), dataSourceSchemaDTO1);
 

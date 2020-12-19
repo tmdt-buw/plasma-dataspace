@@ -83,14 +83,14 @@ services:
 ########################### Service Infrastructure ######################################
   discovery:
     image: "plasma/discovery:${PLASMA_VERSION}"
-    hostname: plasma-discovery
+    hostname: plasma-discovery-service
     restart: unless-stopped
     ports:
      - 8761:8761  
 
   admin:
     image: "plasma/admin:${PLASMA_VERSION}"
-    hostname: plasma-admin
+    hostname: plasma-admin-service
     restart: unless-stopped
     depends_on:
       - discovery
@@ -99,7 +99,7 @@ services:
 
   gateway:
     image: "plasma/gateway:${PLASMA_VERSION}"
-    hostname: plasma-gateway
+    hostname: plasma-gateway-service
     restart: unless-stopped
     depends_on:
       - discovery
@@ -157,13 +157,13 @@ services:
     ports:
      - 8190:8190 
 
-  ui:
-    build: plasma-ui
-    image: "plasma/ui:${PLASMA_VERSION}"
-    hostname: plasma-ui
-    restart: unless-stopped
-    ports:
-     - 80:80     
+#  ui:
+#    build: plasma-ui
+#    image: "plasma/ui:${PLASMA_VERSION}"
+#    hostname: plasma-ui
+#    restart: unless-stopped
+#    ports:
+#     - 80:80     
 
 ########################### Auxiliary Services ######################################
      
