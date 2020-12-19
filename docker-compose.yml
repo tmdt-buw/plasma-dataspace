@@ -110,7 +110,7 @@ services:
      
   kgs:
     image: "plasma/kgs:${PLASMA_VERSION}"
-    hostname: plasma-kgs-service
+    hostname: plasma-kgs
     restart: unless-stopped
     depends_on:
       - discovery
@@ -120,7 +120,7 @@ services:
      
   dss:
     image: "plasma/dss:${PLASMA_VERSION}"
-    hostname: plasma-dss-service
+    hostname: plasma-dss
     restart: unless-stopped
     depends_on:
       - discovery
@@ -130,7 +130,7 @@ services:
 
   sas:
     image: "plasma/sas:${PLASMA_VERSION}"
-    hostname: plasma-sas-service
+    hostname: plasma-sas
     restart: unless-stopped
     depends_on:
       - discovery
@@ -140,7 +140,7 @@ services:
 
   dms:
     image: "plasma/dms:${PLASMA_VERSION}"
-    hostname: plasma-dms-service
+    hostname: plasma-dms
     restart: unless-stopped
     depends_on:
       - discovery
@@ -150,25 +150,26 @@ services:
 
   srs:
     image: "plasma/srs:${PLASMA_VERSION}"
-    hostname: plasma-srs-service
+    hostname: plasma-srs
     restart: unless-stopped
     depends_on:
       - discovery   
     ports:
      - 8190:8190 
 
-#  ui:
-#    image: "plasma/ui:${PLASMA_VERSION}"
-#    hostname: plasma-ui
-#    restart: unless-stopped
-#    ports:
-#     - 80:80     
+  ui:
+    build: ./plasma-ui
+    image: "plasma/ui:${PLASMA_VERSION}"
+    hostname: plasma-ui
+    restart: unless-stopped
+    ports:
+     - 80:80     
 
 ########################### Auxiliary Services ######################################
      
   ars-l-lm:
     image: "plasma/ars-l-lm:${PLASMA_VERSION}"
-    hostname: plasma-ars-l-lm-service
+    hostname: plasma-ars-l-lm
     restart: unless-stopped
     depends_on:
       - discovery
