@@ -72,7 +72,7 @@ public class RdfImporter {
                     @Override
                     public boolean selects(Statement statement) {
                         return statement.getSubject().asNode().isBlank() &&
-                               statement.getSubject().getId().getBlankNodeId() == currStatement.getObject().asNode().getBlankNodeId();
+                               Objects.equals(statement.getSubject().getId().getBlankNodeId(), currStatement.getObject().asNode().getBlankNodeId());
                     }
                 });
 
@@ -151,7 +151,7 @@ public class RdfImporter {
                     StmtIterator iter = model.listStatements(new SimpleSelector(null, null, (RDFNode) null) {
                         @Override
                         public boolean selects(Statement statement) {
-                            return statement.getSubject().asNode().isBlank() && statement.getSubject().getId() == domain.getId();
+                            return statement.getSubject().asNode().isBlank() && Objects.equals(statement.getSubject().getId(), domain.getId());
                         }
                     });
 
@@ -202,7 +202,7 @@ public class RdfImporter {
                     StmtIterator iter = model.listStatements(new SimpleSelector(null, null, (RDFNode) null) {
                         @Override
                         public boolean selects(Statement statement) {
-                            return statement.getSubject().asNode().isBlank() && statement.getSubject().getId() == domain.getId();
+                            return statement.getSubject().asNode().isBlank() && Objects.equals(statement.getSubject().getId(), domain.getId());
                         }
                     });
 
