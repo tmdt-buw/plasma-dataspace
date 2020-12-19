@@ -52,9 +52,9 @@ public class ModelToRdfConverter {
         OntClass entityConceptOntClass = model.getOntClass(URI_UO_PREFIX + "EntityConcept");
         OntClass entityTypeOntClass = model.getOntClass(URI_UO_PREFIX + "EntityType");
 
-        Map<String, String> kgsPrefixMap = driverFactory.getGraphDBDriver().getPrefixMap();
+        model.setNsPrefixes(driverFactory.getGraphDBDriver().getPrefixMap());
 
-        model.clearNsPrefixMap();
+        model.setNsPrefix("plasma", URI_KGS_PREFIX);
 
         if (!flat) {
             model.setNsPrefix("tmdtkg", URI_KGS_PREFIX);
@@ -63,20 +63,22 @@ public class ModelToRdfConverter {
         }
 
         for (EntityType et : entityTypes) {
-            if (flat) {
-                // Individual prefix import so as to not import the whole prefix map
-                String ecUriAndLabel = et.getEntityConcept().getSourceURI().replace(et.getEntityConcept().getMainLabel(), "");
-                if (!getPrefixForUrl(kgsPrefixMap, ecUriAndLabel).isEmpty()) {
-                    model.setNsPrefix(getPrefixForUrl(kgsPrefixMap, ecUriAndLabel), ecUriAndLabel);
-                }
-                model.createResource(et.getEntityConcept().getSourceURI());
+            String ecUri;
+            if (!et.getEntityConcept().getSourceURI().contains("://")) { //URI is only with prefix
+                ecUri = model.getNsPrefixURI(et.getEntityConcept().getSourceURI().replaceAll(":.*", "")) +
+                        et.getEntityConcept().getSourceURI().replaceAll(".*:", "");
             } else {
-                Resource entityConceptIndividual = model.createIndividual(URI_KGS_PREFIX + et.getEntityConcept().getMainLabel(), entityConceptOntClass)
+                ecUri = et.getEntityConcept().getSourceURI();
+            }
+            if (flat) {
+                model.createResource(ecUri);
+            } else {
+                Resource entityConceptIndividual = model.createIndividual(ecUri, entityConceptOntClass)
                         .addProperty(labelOntProperty, et.getEntityConcept().getMainLabel())
                         .addProperty(uriOntProperty, et.getEntityConcept().getSourceURI())
                         .addProperty(descriptionOntProperty, et.getEntityConcept().getDescription());
 
-                model.createIndividual(URI_SM_PREFIX + et.getLabel(), entityTypeOntClass)
+                model.createIndividual(URI_SM_PREFIX + et.getLabel().replaceAll(" ", "_").replaceAll("#", ""), entityTypeOntClass)
                         .addProperty(labelOntProperty, et.getLabel())
                         .addProperty(descriptionOntProperty, et.getDescription())
                         .addProperty(relationOntProperty, entityConceptIndividual);
@@ -84,21 +86,34 @@ public class ModelToRdfConverter {
         }
 
         for (Relation rel : relationSet) {
+            String fromUri;
+            String toUri;
+            String relUri;
+            if (!rel.getTailNode().getEntityConcept().getSourceURI().contains("://")) { //URI is only with prefix
+                fromUri = model.getNsPrefixURI(rel.getTailNode().getEntityConcept().getSourceURI().replaceAll(":.*", "")) +
+                          rel.getTailNode().getEntityConcept().getSourceURI().replaceAll(".*:", "");
+            } else {
+                fromUri = rel.getTailNode().getEntityConcept().getSourceURI();
+            }
+            if (!rel.getHeadNode().getEntityConcept().getSourceURI().contains("://")) { //URI is only with prefix
+                toUri = model.getNsPrefixURI(rel.getHeadNode().getEntityConcept().getSourceURI().replaceAll(":.*", "")) +
+                        rel.getHeadNode().getEntityConcept().getSourceURI().replaceAll(".*:", "");
+            } else {
+                toUri = rel.getHeadNode().getEntityConcept().getSourceURI();
+            }
+            if (!rel.getRelationConcept().getSourceURI().contains("://")) { //URI is only with prefix
+                relUri = model.getNsPrefixURI(rel.getRelationConcept().getSourceURI().replaceAll(":.*", "")) +
+                         rel.getRelationConcept().getSourceURI().replaceAll(".*:", "");
+            } else {
+                relUri = rel.getRelationConcept().getSourceURI();
+            }
             if (flat) {
-                Resource from = model.getResource(rel.getTailNode().getEntityConcept().getSourceURI());
+                Resource from = model.getResource(fromUri);
 
-                Resource to = model.getResource(rel.getHeadNode().getEntityConcept().getSourceURI());
-
-                // Individual prefix import so as to not import the whole prefix map
-                String relUrlAndLabel = rel.getRelationConcept().getSourceURI().replace(rel.getRelationConcept().getLabel(), "");
-                if (!getPrefixForUrl(kgsPrefixMap, relUrlAndLabel).isEmpty()) {
-                    model.setNsPrefix(getPrefixForUrl(kgsPrefixMap, relUrlAndLabel), relUrlAndLabel);
-                }
-
-                model.createResource(rel.getRelationConcept().getSourceURI());
+                Resource to = model.getResource(toUri);
 
                 from.addProperty(
-                        new PropertyImpl(rel.getRelationConcept().getSourceURI()),
+                        new PropertyImpl(relUri),
                         to
                 );
             } else {
@@ -106,7 +121,7 @@ public class ModelToRdfConverter {
                 Resource from = model.listStatements(new SimpleSelector(null, null, (RDFNode) null) {
                     @Override
                     public boolean selects(Statement statement) {
-                        return statement.getSubject().getClass().isInstance(entityConceptOntClass) && statement.getObject().toString()
+                        return statement.getSubject().getClass().isInstance(entityTypeOntClass) && statement.getObject().toString()
                                 .equals(rel.getTailNode().getLabel());
                     }
                 }).nextStatement().getSubject();
@@ -114,13 +129,13 @@ public class ModelToRdfConverter {
                 Resource to = model.listStatements(new SimpleSelector(null, null, (RDFNode) null) {
                     @Override
                     public boolean selects(Statement statement) {
-                        return statement.getSubject().getClass().isInstance(entityConceptOntClass) && statement.getObject().toString()
+                        return statement.getSubject().getClass().isInstance(entityTypeOntClass) && statement.getObject().toString()
                                 .equals(rel.getHeadNode().getLabel());
                     }
                 }).nextStatement().getSubject();
 
                 from.addProperty(
-                        new PropertyImpl(URI_KGS_PREFIX, rel.getRelationConcept().getLabel()),
+                        new PropertyImpl(relUri),
                         to
                 );
             }

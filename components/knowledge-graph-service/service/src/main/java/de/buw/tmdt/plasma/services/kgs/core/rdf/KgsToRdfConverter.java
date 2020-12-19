@@ -15,8 +15,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Set;
 
-import static de.buw.tmdt.plasma.services.kgs.core.rdf.UpperOntologyDefiner.URI_KGS_PREFIX;
-import static de.buw.tmdt.plasma.services.kgs.core.rdf.UpperOntologyDefiner.URI_UO_PREFIX;
+import static de.buw.tmdt.plasma.services.kgs.core.rdf.UpperOntologyDefiner.*;
 
 @Component
 public class KgsToRdfConverter {
@@ -36,7 +35,7 @@ public class KgsToRdfConverter {
 
         Set<EntityConceptRelation> entityConceptRelations = driverFactory.getGraphDBDriver().retrieveEntityConceptRelations(false);
 
-        OntModel model = UpperOntologyDefiner.getUpperOntologyModel();
+        OntModel model = getUpperOntologyModel();
         DatatypeProperty descriptionOntProperty = model.getDatatypeProperty(URI_UO_PREFIX + "description");
         DatatypeProperty uriOntProperty = model.getDatatypeProperty(URI_UO_PREFIX + "uri");
         DatatypeProperty labelOntProperty = model.getDatatypeProperty(URI_UO_PREFIX + "label");
@@ -45,6 +44,8 @@ public class KgsToRdfConverter {
         model.clearNsPrefixMap();
         model.setNsPrefixes(driverFactory.getGraphDBDriver().getPrefixMap());
 
+        //TODO: Remove explicit plasma namespace from export and implement method that allows adding pairs for the prefix map
+        model.setNsPrefix("plasma", URI_PLASMA);
         if (!flat) {
             model.setNsPrefix("tmdtkg", URI_KGS_PREFIX);
             model.setNsPrefix("tmdtuo", URI_UO_PREFIX);
@@ -53,20 +54,45 @@ public class KgsToRdfConverter {
         for (EntityConceptRelation ecr : entityConceptRelations) {
             Resource from;
             Resource to;
-            if (flat) {
-                from = model.getResource(ecr.getTailNode().getSourceURI());
+            String fromUri;
+            String toUri;
+            String relUri;
 
-                to = model.getResource(ecr.getHeadNode().getSourceURI());
+            if (!ecr.getTailNode().getSourceURI().contains("://")) { //URI is only with prefix
+                fromUri = model.getNsPrefixURI(ecr.getTailNode().getSourceURI().replaceAll(":.*", "")) +
+                          ecr.getTailNode().getSourceURI().replaceAll(".*:", "");
+            } else {
+                fromUri = ecr.getTailNode().getSourceURI();
+            }
+
+            if (!ecr.getHeadNode().getSourceURI().contains("://")) { //URI is only with prefix
+                toUri = model.getNsPrefixURI(ecr.getHeadNode().getSourceURI().replaceAll(":.*", "")) +
+                        ecr.getHeadNode().getSourceURI().replaceAll(".*:", "");
+            } else {
+                toUri = ecr.getHeadNode().getSourceURI();
+            }
+
+            if (!ecr.getRelationConcept().getSourceURI().contains("://")) { //URI is only with prefix
+                relUri = model.getNsPrefixURI(ecr.getRelationConcept().getSourceURI().replaceAll(":.*", "")) +
+                         ecr.getRelationConcept().getSourceURI().replaceAll(".*:", "");
+            } else {
+                relUri = ecr.getRelationConcept().getSourceURI();
+            }
+
+            if (flat) {
+                from = model.getResource(fromUri);
+
+                to = model.getResource(toUri);
 
                 if (from == null) {
-                    from = model.createResource(ecr.getTailNode().getSourceURI());
+                    from = model.createResource(fromUri);
                 }
                 if (to == null) {
-                    to = model.createResource(ecr.getHeadNode().getSourceURI());
+                    to = model.createResource(toUri);
                 }
 
                 from.addProperty(
-                        new PropertyImpl(ecr.getRelationConcept().getSourceURI()),
+                        new PropertyImpl(relUri),
                         to
                 );
             } else {
@@ -86,7 +112,7 @@ public class KgsToRdfConverter {
                 });
 
                 if (!fromIter.hasNext()) {
-                    from = model.createIndividual(URI_KGS_PREFIX + ecr.getTailNode().getMainLabel(), entityConceptOntClass)
+                    from = model.createIndividual(fromUri, entityConceptOntClass)
                             .addProperty(labelOntProperty, ecr.getTailNode().getMainLabel())
                             .addProperty(uriOntProperty, ecr.getTailNode().getSourceURI())
                             .addProperty(descriptionOntProperty, ecr.getTailNode().getDescription());
@@ -95,7 +121,7 @@ public class KgsToRdfConverter {
                 }
 
                 if (!toIter.hasNext()) {
-                    to = model.createIndividual(URI_KGS_PREFIX + ecr.getHeadNode().getMainLabel(), entityConceptOntClass)
+                    to = model.createIndividual(toUri, entityConceptOntClass)
                             .addProperty(labelOntProperty, ecr.getHeadNode().getMainLabel())
                             .addProperty(uriOntProperty, ecr.getHeadNode().getSourceURI())
                             .addProperty(descriptionOntProperty, ecr.getHeadNode().getDescription());
@@ -104,7 +130,7 @@ public class KgsToRdfConverter {
                 }
 
                 from.addProperty(
-                        new PropertyImpl(URI_KGS_PREFIX, ecr.getRelationConcept().getLabel()),
+                        new PropertyImpl(relUri),
                         to
                 );
 
@@ -117,7 +143,7 @@ public class KgsToRdfConverter {
             }
         }
 
-        model.remove(UpperOntologyDefiner.getUpperOntologyModel());
+        model.remove(getUpperOntologyModel());
 
         logger.info("Converted KG to RDF successfully");
 
