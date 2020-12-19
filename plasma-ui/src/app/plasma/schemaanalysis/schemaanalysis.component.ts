@@ -1,12 +1,8 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {
-  EntityRuleDTO,
   NodeDTO,
-  RelationRuleDTO,
-  RuleProvisionDTO,
-  SchemaAnalysisDataProvisionDTO,
-  SelectorDTO
+  SchemaAnalysisDataProvisionDTO
 } from '../../../../build/openapi';
 import {DataSourceDTO} from '../../../../build/openapi';
 import {AnalysisControllerService} from '../../../../build/openapi/api/analysisController.service';
@@ -42,70 +38,6 @@ export class SchemaanalysisComponent implements OnInit, OnDestroy {
 
   public dataSourceInitialized: boolean;
   public currentDataPoint = '';
-  // tslint:disable-next-line:max-line-length
-  public fullGeo = '{"name":"TestCollection","type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"Point","coordinate":{"longitude":7.2746115909,"latitude":51.2778283936}},"properties":{"key1":"value1","key2":"value2"}},{"type":"Feature","geometry":{"type":"LineString","line":[{"longitude":7.2746115909,"latitude":51.2778283936},{"longitude":7.2747184496,"latitude":51.2778641239}]},"properties":{"key1":"value1","key2":"value2"}},{"type":"Feature","geometry":{"type":"Polygon","outerPolygon":[{"longitude":7.2746115909,"latitude":51.2778283936},{"longitude":7.2747184496,"latitude":51.2778641239},{"longitude":7.2746115909,"latitude":51.2778283936}],"innerPolygon":[{"longitude":7.2746115909,"latitude":51.2778283936},{"longitude":7.2747184496,"latitude":51.2778641239},{"longitude":7.2746115909,"latitude":51.2778283936}]},"properties":{"key1":"value1","key2":"value2"}},{"type":"Feature","geometry":{"type":"MultiPoint","points":[{"type":"Point","coordinate":{"longitude":7.2746115909,"latitude":51.2778283936}},{"type":"Point","coordinate":{"longitude":7.2747184496,"latitude":51.2778641239}}]},"properties":{"key1":"value1","key2":"value2"}},{"type":"Feature","geometry":{"type":"MultiLineString","lines":[{"type":"LineString","line":[{"longitude":7.2746115909,"latitude":51.2778283936},{"longitude":7.2747184496,"latitude":51.2778641239}]},{"type":"LineString","line":[{"longitude":7.2746115909,"latitude":51.2778283936},{"longitude":7.2747184496,"latitude":51.2778641239}]}]},"properties":{"key1":"value1","key2":"value2"}},{"type":"Feature","geometry":{"type":"MultiPolygon","polygons":[{"type":"Polygon","outerPolygon":[{"longitude":7.2746115909,"latitude":51.2778283936},{"longitude":7.2747184496,"latitude":51.2778641239},{"longitude":7.2746115909,"latitude":51.2778283936}],"innerPolygon":[{"longitude":7.2746115909,"latitude":51.2778283936},{"longitude":7.2747184496,"latitude":51.2778641239},{"longitude":7.2746115909,"latitude":51.2778283936}]},{"type":"Polygon","outerPolygon":[{"longitude":7.2746115909,"latitude":51.2778283936},{"longitude":7.2747184496,"latitude":51.2778641239},{"longitude":7.2746115909,"latitude":51.2778283936}],"innerPolygon":[{"longitude":7.2746115909,"latitude":51.2778283936},{"longitude":7.2747184496,"latitude":51.2778641239},{"longitude":7.2746115909,"latitude":51.2778283936}]}]},"properties":{"key1":"value1","key2":"value2"}}]}';
-  // tslint:disable-next-line:max-line-length
-  public pointGeo = '{\n' +
-    '  "type" : "Feature",\n' +
-    '  "geometry" : {\n' +
-    '        "type" : "Point",\n' +
-    '        "coordinate" : {\n' +
-    '          "longitude" : 7.2746115909,\n' +
-    '          "latitude" : 51.2778283936\n' +
-    '        }\n' +
-    '      },\n' +
-    '  "properties" : {\n' +
-    '    "key1" : "value1",\n' +
-    '    "key2" : "value2"\n' +
-    '  },\n' +
-    '  "collectionName" : "TestCollection"\n' +
-    '}';
-  // tslint:disable-next-line:max-line-length
-  public lineGeo = '{\n' +
-    '  "type" : "Feature",\n' +
-    '  "geometry" : {\n' +
-    '    "type" : "LineString",\n' +
-    '    "line" : [{"longitude":7.2746115909,"latitude":51.2778283936},{"longitude":7.2747184496,"latitude":51.2778641239}]\n' +
-    '  },\n' +
-    '  "properties" : {\n' +
-    '    "key1" : "value1",\n' +
-    '    "key2" : "value2"\n' +
-    '  },\n' +
-    '  "collectionName" : "TestCollection"\n' +
-    '}\n';
-  // tslint:disable-next-line:max-line-length
-  public polygonGeo = '{\n' +
-    '  "type" : "Feature",\n' +
-    '  "geometry" : {\n' +
-    '        "type" : "Polygon",\n' +
-    '        "outerPolygon" : [\n' +
-    '          {\n' +
-    '            "longitude" : 7.2746115909,\n' +
-    '            "latitude" : 51.2778283936\n' +
-    '          },\n' +
-    '          {\n' +
-    '            "longitude" : 7.2747184496,\n' +
-    '            "latitude" : 51.2778641239\n' +
-    '          },\n' +
-    '          {\n' +
-    '            "longitude" : 7.2746115909,\n' +
-    '            "latitude" : 51.2778283936\n' +
-    '          }\n' +
-    '        ]\n' +
-    '      },\n' +
-    '  "properties" : {\n' +
-    '    "key1" : "value1",\n' +
-    '    "key2" : "value2"\n' +
-    '  },\n' +
-    '  "collectionName" : "TestCollection"\n' +
-    '}\n';
-  // tslint:disable-next-line:max-line-length
-  public multiPointGeo = '{"name":"TestCollection","type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"MultiPoint","points":[{"type":"Point","coordinate":{"longitude":7.2746115909,"latitude":51.2778283936}},{"type":"Point","coordinate":{"longitude":7.2747184496,"latitude":51.2778641239}}]},"properties":{"key1":"value1","key2":"value2"}}]}';
-  // tslint:disable-next-line:max-line-length
-  public multiLineGeo = '{"name":"TestCollection","type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"MultiLineString","lines":[{"type":"LineString","line":[{"longitude":7.2746115909,"latitude":51.2778283936},{"longitude":7.2747184496,"latitude":51.2778641239}]},{"type":"LineString","line":[{"longitude":7.2746115909,"latitude":51.2778283936},{"longitude":7.2747184496,"latitude":51.2778641239}]}]},"properties":{"key1":"value1","key2":"value2"}}]}';
-  // tslint:disable-next-line:max-line-length
-  public multiPolygonGeo = '{"name":"TestCollection","type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"MultiPolygon","polygons":[{"type":"Polygon","outerPolygon":[{"longitude":7.2746115909,"latitude":51.2778283936},{"longitude":7.2747184496,"latitude":51.2778641239},{"longitude":7.2746115909,"latitude":51.2778283936}],"innerPolygon":[{"longitude":7.2746115909,"latitude":51.2778283936},{"longitude":7.2747184496,"latitude":51.2778641239},{"longitude":7.2746115909,"latitude":51.2778283936}]},{"type":"Polygon","outerPolygon":[{"longitude":7.2746115909,"latitude":51.2778283936},{"longitude":7.2747184496,"latitude":51.2778641239},{"longitude":7.2746115909,"latitude":51.2778283936}],"innerPolygon":[{"longitude":7.2746115909,"latitude":51.2778283936},{"longitude":7.2747184496,"latitude":51.2778641239},{"longitude":7.2746115909,"latitude":51.2778283936}]}]},"properties":{"key1":"value1","key2":"value2"}}]}';
-
   public schemaAnalysisRawResult: string;
   public schemaAnalysisResult: NodeDTO;
   public schemaAnalysisReady: boolean;
@@ -137,7 +69,8 @@ export class SchemaanalysisComponent implements OnInit, OnDestroy {
 
   addLineSample() {
     const sendDataDto: SchemaAnalysisDataProvisionDTO = {data: this.currentDataPoint};
-    this.schemaanalysisController.addDataPoint(this.selectedDataSource.uuid, sendDataDto).toPromise();
+    this.schemaanalysisController.addDataPoint(this.selectedDataSource.uuid, sendDataDto).toPromise()
+      .then(r => console.log('data points has been added'));
     this.lastDataPoints.push(this.currentDataPoint);
   }
 
