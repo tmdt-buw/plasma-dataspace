@@ -38,13 +38,6 @@
 
     <dependencyManagement>
         <dependencies>
-            <!-- PLASMA Utilities -->
-            <dependency>
-                <groupId>de.buw.tmdt.plasma</groupId>
-                <artifactId>utilities</artifactId>
-                <version>${plasma.utilities.version}</version>
-            </dependency>
-
             <!-- Spring Boot Dependency Management -->
             <dependency>
                 <groupId>org.springframework.boot</groupId>
@@ -116,6 +109,7 @@
         <dependency>
             <groupId>de.buw.tmdt.plasma</groupId>
             <artifactId>utilities</artifactId>
+            <version>${project.parent.version}</version>
         </dependency>
         <!-- Testing -->
         <dependency>

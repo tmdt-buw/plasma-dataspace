@@ -31,11 +31,8 @@
 
         <!-- TECHNICAL -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-
-        <!-- VERSIONS =========================================================================================== -->
-
-        <!-- PLASMA -->
-        <plasma.utilities.version>5.0.0</plasma.utilities.version>
+        <project.java.source.version>11</project.java.source.version>
+        <project.java.target.version>11</project.java.target.version>
 
         <!-- ==================== Spring ==================== -->
         <org.springframework.boot.version>2.3.7.RELEASE</org.springframework.boot.version>
@@ -55,9 +52,10 @@
         <org.apache.maven.plugin.clean.version>3.1.0</org.apache.maven.plugin.clean.version>
         <org.apache.maven.plugin.compiler.version>3.8.1</org.apache.maven.plugin.compiler.version>
         <org.apache.maven.plugin.jar.version>3.2.0</org.apache.maven.plugin.jar.version>
+        <org.apache.maven.plugin.source.version>3.2.1</org.apache.maven.plugin.source.version>
         <org.apache.maven.plugin.versionplugin.version>2.7</org.apache.maven.plugin.versionplugin.version>
-		<com.google.cloud.tools.jib.version>2.1.0</com.google.cloud.tools.jib.version>
         <pl.project13.maven.version>4.0.0</pl.project13.maven.version>
+        <com.google.cloud.tools.jib.version>2.1.0</com.google.cloud.tools.jib.version>
 
         <!-- Deployment plugins -->
         <org.apache.maven.plugin.deploy.version>3.0.0-M1</org.apache.maven.plugin.deploy.version>
@@ -72,13 +70,6 @@
 
     <dependencyManagement>
         <dependencies>
-            <!-- PLASMA Utilities -->
-            <dependency>
-                <groupId>de.buw.tmdt.plasma</groupId>
-                <artifactId>utilities</artifactId>
-                <version>${plasma.utilities.version}</version>
-            </dependency>
-
             <!-- Spring Boot Dependency Management -->
             <dependency>
                 <groupId>org.springframework.boot</groupId>

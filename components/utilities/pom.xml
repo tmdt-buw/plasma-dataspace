@@ -12,30 +12,13 @@
     </parent>
 
     <artifactId>utilities</artifactId>
-    <version>5.0.0</version>
-    <packaging>jar</packaging>
+    <version>1.0.0</version>
     <name>${project.module.label.prefix}</name>
 
     <properties>
-        <project.label>PLASMA Utilities</project.label>
-        <project.label.short>utilities</project.label.short>
         <project.label.abbrv>Utilities</project.label.abbrv>
         <project.module.label.prefix>${platform.name} ${project.label.abbrv}</project.module.label.prefix>
         <project.base-package>de.buw.tmdt.plasma.utilities</project.base-package>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-
-        <!-- Global project properties -->
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <project.java.source.version>1.8</project.java.source.version>
-        <project.java.target.version>1.8</project.java.target.version>
-
-        <!-- IntelliJ Annotations -->
-        <org.jetbrains.annotations.version>19.0.0</org.jetbrains.annotations.version>
-
-        <!-- Plugins -->
-        <org.apache.maven.plugins.compiler.version>3.8.1</org.apache.maven.plugins.compiler.version>
-        <org.apache.maven.plugins.source.version>3.2.1</org.apache.maven.plugins.source.version>
 
         <!-- Logging -->
         <slf4j.version>1.7.30</slf4j.version>
@@ -96,7 +79,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>${org.apache.maven.plugins.compiler.version}</version>
+                <version>${org.apache.maven.plugin.compiler.version}</version>
                 <configuration>
                     <source>${project.java.source.version}</source>
                     <target>${project.java.target.version}</target>
@@ -106,7 +89,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
-                <version>${org.apache.maven.plugins.source.version}</version>
+                <version>${org.apache.maven.plugin.source.version}</version>
                 <executions>
                     <execution>
                         <id>attach-sources</id>
