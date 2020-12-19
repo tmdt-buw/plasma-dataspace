@@ -13,56 +13,29 @@
     <name>${project.module.label.prefix} Service</name>
 
     <properties>
-        <!-- ==================== Global Service Properties ==================== -->
-        <java.version>11</java.version>
-        <javax.servlet.version>3.1.0</javax.servlet.version>
-        <com.google.cloud.tools.jib.version>2.1.0</com.google.cloud.tools.jib.version>
-        <pl.project13.maven.version>4.0.0</pl.project13.maven.version>
-
-        <!-- ==================== Neo4J ==================== -->
+        <!-- Neo4J -->
         <neo4j.graphdb.api>4.1.3</neo4j.graphdb.api>
         <com.steelbridgelabs.oss.version>0.4.5</com.steelbridgelabs.oss.version>
     </properties>
 
     <dependencyManagement>
         <dependencies>
-            <dependency>
-                <groupId>javax.servlet</groupId>
-                <artifactId>javax.servlet-api</artifactId>
-                <version>${javax.servlet.version}</version>
-            </dependency>
-
             <!-- Neo4J -->
-            <dependency>
-                <groupId>com.steelbridgelabs.oss</groupId>
-                <artifactId>neo4j-gremlin-bolt</artifactId>
-                <version>${com.steelbridgelabs.oss.version}</version>
-            </dependency>
             <dependency>
                 <groupId>org.neo4j</groupId>
                 <artifactId>neo4j-graphdb-api</artifactId>
                 <version>${neo4j.graphdb.api}</version>
             </dependency>
-
-            <!-- Semantic Database -->
             <dependency>
-                <groupId>de.buw.tmdt.plasma.services.sds</groupId>
-                <artifactId>api</artifactId>
-                <version>${de.buw.tmdt.plasma.services.sds.version}</version>
-            </dependency>
-
-            <!-- RDF -->
-            <dependency>
-                <groupId>org.apache.jena</groupId>
-                <artifactId>apache-jena-libs</artifactId>
-                <version>${org.apache.jena.apache-jena-libs.version}</version>
-                <type>pom</type>
+                <groupId>com.steelbridgelabs.oss</groupId>
+                <artifactId>neo4j-gremlin-bolt</artifactId>
+                <version>${com.steelbridgelabs.oss.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
 
     <dependencies>
-        <!-- Spring -->
+        <!-- Spring Boot -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
@@ -88,77 +61,58 @@
             <artifactId>spring-boot-starter-jetty</artifactId>
         </dependency>
         <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-configuration-processor</artifactId>
-        </dependency>
-
-        <!-- Logging -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-log4j2</artifactId>
-        </dependency>
-
-        <!-- Testing -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.junit.vintage</groupId>
-                    <artifactId>junit-vintage-engine</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
-        <!-- Spring -->
-        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-configuration-processor</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-log4j2</artifactId>
         </dependency>
 
         <!-- Spring Cloud -->
         <dependency>
             <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+            <artifactId>spring-cloud-starter-openfeign</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-openfeign</artifactId>
+            <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-ui</artifactId>
         </dependency>
 
-        <!-- Internal -->
+        <!-- PLASMA Dependencies -->
         <dependency>
             <groupId>${project.parent.groupId}</groupId>
             <artifactId>api</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
 
-        <!-- Rest API -->
-        <dependency>
-            <groupId>org.springdoc</groupId>
-            <artifactId>springdoc-openapi-ui</artifactId>
-        </dependency>
-
         <!-- Neo4J -->
-        <dependency>
-            <groupId>com.steelbridgelabs.oss</groupId>
-            <artifactId>neo4j-gremlin-bolt</artifactId>
-        </dependency>
         <dependency>
             <groupId>org.neo4j</groupId>
             <artifactId>neo4j-graphdb-api</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.steelbridgelabs.oss</groupId>
+            <artifactId>neo4j-gremlin-bolt</artifactId>
+        </dependency>
 
-        <!-- Other -->
+        <!-- RDF -->
         <dependency>
             <groupId>org.apache.jena</groupId>
             <artifactId>apache-jena-libs</artifactId>
@@ -168,48 +122,30 @@
 
         <!-- Testing -->
         <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>junit-jupiter</artifactId>
-            <version>${org.testcontainers.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>neo4j</artifactId>
-            <version>${org.testcontainers.version}</version>
             <scope>test</scope>
         </dependency>
-
-        <!-- =========== EUREKA TEST ENVIRONMENT ============ -->
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-netflix-eureka-server</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>javax.xml.bind</groupId>
-            <artifactId>jaxb-api</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.glassfish.jaxb</groupId>
-            <artifactId>jaxb-runtime</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <!-- =========== EUREKA TEST ENVIRONMENT ============ -->
     </dependencies>
 
     <build>
         <plugins>
-            <!-- compiler -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>${java.version}</source>
-                    <target>${java.version}</target>
-                </configuration>
-            </plugin>
+            <!-- Deployment -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-deploy-plugin</artifactId>
@@ -217,12 +153,8 @@
                     <skip>true</skip>
                 </configuration>
             </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-failsafe-plugin</artifactId>
-            </plugin>
 
-            <!-- Spring Boot Maven Plugin - creates an executable jar -->
+            <!-- Spring Boot Maven Plugin -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
@@ -245,11 +177,12 @@
                 </executions>
             </plugin>
 
-            <!-- docker image build plugin -->
+            <!-- Docker Image Plugin -->
             <plugin>
                 <groupId>com.google.cloud.tools</groupId>
                 <artifactId>jib-maven-plugin</artifactId>
                 <version>${com.google.cloud.tools.jib.version}</version>
+
                 <configuration>
                     <from>
                         <image>gcr.io/distroless/java:11</image>
