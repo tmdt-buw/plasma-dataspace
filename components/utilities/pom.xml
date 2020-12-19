@@ -32,12 +32,10 @@
 
         <!-- IntelliJ Annotations -->
         <org.jetbrains.annotations.version>19.0.0</org.jetbrains.annotations.version>
-        <com.github.spotbugs.annotations.version>3.1.12</com.github.spotbugs.annotations.version>
 
         <!-- Plugins -->
         <org.apache.maven.plugins.compiler.version>3.8.1</org.apache.maven.plugins.compiler.version>
         <org.apache.maven.plugins.source.version>3.2.1</org.apache.maven.plugins.source.version>
-        <com.github.spotbugs.plugin.version>3.1.12.2</com.github.spotbugs.plugin.version>
 
         <!-- Logging -->
         <slf4j.version>1.7.30</slf4j.version>
@@ -89,10 +87,6 @@
             <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>com.github.spotbugs</groupId>
-            <artifactId>spotbugs-annotations</artifactId>
-        </dependency>
     </dependencies>
 
     <!-- Build Management -->
@@ -121,23 +115,6 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
-
-            <!-- Code quality: SpotBugs (follower of FindBugs) -->
-            <plugin>
-                <groupId>com.github.spotbugs</groupId>
-                <artifactId>spotbugs-maven-plugin</artifactId>
-                <version>${com.github.spotbugs.plugin.version}</version>
-                <configuration>
-                    <excludeFilterFile>.idea/inspectionProfiles/spotbugs_exclude.xml</excludeFilterFile>
-                    <plugins>
-                        <plugin>
-                            <groupId>com.h3xstream.findsecbugs</groupId>
-                            <artifactId>findsecbugs-plugin</artifactId>
-                            <version>1.10.1</version>
-                        </plugin>
-                    </plugins>
-                </configuration>
             </plugin>
         </plugins>
     </build>

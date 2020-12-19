@@ -73,11 +73,6 @@
                 <artifactId>annotations</artifactId>
                 <version>${org.jetbrains.annotations.version}</version>
             </dependency>
-            <dependency>
-                <groupId>com.github.spotbugs</groupId>
-                <artifactId>spotbugs-annotations</artifactId>
-                <version>${com.github.spotbugs.annotations.version}</version>
-            </dependency>
 
             <!-- Testing -->
             <dependency>
@@ -107,10 +102,6 @@
             <groupId>de.buw.tmdt.plasma</groupId>
             <artifactId>utilities</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.github.spotbugs</groupId>
-            <artifactId>spotbugs-annotations</artifactId>
-        </dependency>
         <!-- Testing -->
         <dependency>
             <groupId>org.mockito</groupId>
@@ -137,23 +128,6 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>${org.apache.maven.plugin.compiler.version}</version>
-                </plugin>
-
-                <!-- Code quality: SpotBugs (Follower of FindBugs) -->
-                <plugin>
-                    <groupId>com.github.spotbugs</groupId>
-                    <artifactId>spotbugs-maven-plugin</artifactId>
-                    <version>${com.github.spotbugs.plugin.version}</version>
-                    <configuration>
-                        <excludeFilterFile>.idea/inspectionProfiles/spotbugs_exclude.xml</excludeFilterFile>
-                        <plugins>
-                            <plugin>
-                                <groupId>com.h3xstream.findsecbugs</groupId>
-                                <artifactId>findsecbugs-plugin</artifactId>
-                                <version>1.10.1</version>
-                            </plugin>
-                        </plugins>
-                    </configuration>
                 </plugin>
 
                 <!-- Unit Tests -->
@@ -236,11 +210,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-            </plugin>
-            <!-- Code quality: SpotBugs (follower of FindBugs) -->
-            <plugin>
-                <groupId>com.github.spotbugs</groupId>
-                <artifactId>spotbugs-maven-plugin</artifactId>
             </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
