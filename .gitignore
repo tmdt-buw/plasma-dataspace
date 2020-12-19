@@ -1,3 +1,20 @@
-# Created by .ignore support plugin (hsz.mobi)
-.idea
+### Generated ###
+target/
+
+### IntelliJ IDEA ###
+#Exclude .idea folder
+.idea/*
+!.idea/.name
+!.idea/copyright/
+
+#Share all dictionaries
+!.idea/dictionaries/
+!.idea/fileTemplates/
+!.idea/runConfigurations/
+
 *.iml
+
+### Logging ###
+logs/*
+**.log
+**.log.zip
