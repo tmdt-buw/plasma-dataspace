@@ -260,8 +260,10 @@ public class UniversalKnowledgeGraphHandler {
     public @NotNull Set<EntityConceptRelationDTO> importRdf(@NotNull String input) {
         RDFReaderF factory = new RDFReaderFImpl();
         RDFReader reader;
+        InputStream is = new ByteArrayInputStream(input.getBytes(StandardCharsets.UTF_8));
+        OntModel rdfModel = ModelFactory.createOntologyModel();
         if (!Strings.isEmpty(input)) {
-            if (input.startsWith("<?xml")) {
+            if (input.startsWith("<?xml") || input.startsWith("<rdf")) {
                 reader = factory.getReader(Lang.RDFXML.getName());
             } else {
                 reader = factory.getReader(Lang.TURTLE.getName());
@@ -270,8 +272,6 @@ public class UniversalKnowledgeGraphHandler {
             logger.info("Input for rdf import is null");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Empty body");
         }
-        InputStream is = new ByteArrayInputStream(input.getBytes(StandardCharsets.UTF_8));
-        OntModel rdfModel = ModelFactory.createOntologyModel();
         reader.read(rdfModel, is, null);
 
         return rdfImporter.convertRdfToKgs(rdfModel).stream().map(modelDTOConverter::mapEntityConceptRelation).collect(Collectors.toSet());

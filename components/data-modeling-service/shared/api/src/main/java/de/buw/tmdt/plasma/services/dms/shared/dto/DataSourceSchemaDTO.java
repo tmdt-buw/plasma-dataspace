@@ -25,7 +25,7 @@ public class DataSourceSchemaDTO implements Serializable {
 	private final SyntaxModelDTO syntaxModelDTO;
 	private final SemanticModelDTO semanticModelDTO;
 	private final ArrayList<PrimitiveEntityTypeEdgeDTO> primitiveEntityTypeEdgeDTOs;
-	private final List<DeltaRecommendationDTO> recommendations;
+	private List<DeltaRecommendationDTO> recommendations;
 	private final boolean finalized;
 
 	public DataSourceSchemaDTO(
@@ -66,6 +66,11 @@ public class DataSourceSchemaDTO implements Serializable {
 	@JsonProperty(RECOMMENDATION_LIST)
 	public List<DeltaRecommendationDTO> getRecommendations() {
 		return recommendations;
+	}
+
+	// we allow later injections of recommendations, will be solved with new data model
+	public void setRecommendations (List<DeltaRecommendationDTO> recommendations) {
+		this.recommendations = recommendations;
 	}
 
 	@Override

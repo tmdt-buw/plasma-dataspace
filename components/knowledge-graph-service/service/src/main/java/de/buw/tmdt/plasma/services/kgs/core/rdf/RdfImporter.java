@@ -18,12 +18,15 @@ import org.springframework.stereotype.Component;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static de.buw.tmdt.plasma.services.kgs.core.rdf.UpperOntologyDefiner.URI_UO_PREFIX;
+
 @SuppressWarnings("HardcodedFileSeparator")
 @Component
 public class RdfImporter {
 
     private static final Logger logger = LoggerFactory.getLogger(RdfImporter.class);
     private static final String NEW_ID = "newId";
+    private final DatatypeProperty labelProp = UpperOntologyDefiner.getUpperOntologyModel().getDatatypeProperty(URI_UO_PREFIX + "label");
     // Used for isA relations in super class traversal of rdf classes
     private final RelationConcept isA = new RelationConcept(NEW_ID, "isA", "", "", Collections.emptySet());
     private GraphDBDriverFactory driverFactory;
@@ -36,10 +39,59 @@ public class RdfImporter {
     public Set<EntityConceptRelation> convertRdfToKgs(OntModel model) {
         driverFactory.getGraphDBDriver().createRdfPrefixNode(model.getNsPrefixMap());
         Pair<Set<EntityConceptRelation>, OntModel> cachedRdfConversionAfterOntProperties = removeAndCreateOntProperties(model);
+        Pair<Set<EntityConceptRelation>, OntModel> cachedRdfConversionAfterTriples = removeRegularTriples(cachedRdfConversionAfterOntProperties.getRight());
 
         logger.info("Imported RDF into KG");
 
-        return new HashSet<>(cachedRdfConversionAfterOntProperties.getLeft());
+        return new HashSet<>(cachedRdfConversionAfterTriples.getLeft());
+    }
+
+    //Regular triple iteration (i.e. import of a flattened KG)
+    private Pair<Set<EntityConceptRelation>, OntModel> removeRegularTriples(OntModel model) {
+        Set<EntityConceptRelation> partialResult = new HashSet<>();
+
+        StmtIterator stmtIterator = model.listStatements(new SimpleSelector(null, null, (RDFNode) null) {
+            @Override
+            public boolean selects(Statement statement) {
+                return !statement.getSubject().asNode().isBlank() &&
+                       !(statement.getSubject().toString().contains("rdf-syntax") ||
+                         statement.getSubject().toString().contains("rdf-schema") ||
+                         statement.getObject().toString().contains("tmdt"));
+            }
+        });
+
+        List<Statement> list = stmtIterator.toList();
+
+        for (Statement currStatement : list) {
+
+            EntityConcept from = rdfNodeToEntityConcept(currStatement.getSubject());
+            RelationConcept rel = rdfPredicateToRelationConcept(currStatement.getPredicate());
+
+            if (currStatement.getObject().asNode().isBlank()) {
+                StmtIterator toIter = model.listStatements(new SimpleSelector(null, null, (RDFNode) null) {
+                    @Override
+                    public boolean selects(Statement statement) {
+                        return statement.getSubject().asNode().isBlank() &&
+                               Objects.equals(statement.getSubject().getId().getBlankNodeId(), currStatement.getObject().asNode().getBlankNodeId());
+                    }
+                });
+
+                for (Statement toStatement : toIter.toList()) {
+                    EntityConcept to = rdfNodeToEntityConcept(toStatement.getObject());
+
+                    partialResult.add(driverFactory.getGraphDBDriver().createEntityConceptRelation(
+                            new EntityConceptRelation(NEW_ID, from, to, rel)
+                    ));
+                }
+            } else {
+                EntityConcept to = rdfNodeToEntityConcept(currStatement.getObject());
+                partialResult.add(driverFactory.getGraphDBDriver().createEntityConceptRelation(
+                        new EntityConceptRelation(NEW_ID, from, to, rel)
+                ));
+            }
+        }
+
+        return new Pair<>(partialResult, model);
     }
 
     private Pair<Set<EntityConceptRelation>, OntModel> removeAndCreateOntProperties(OntModel model) {
@@ -66,10 +118,10 @@ public class RdfImporter {
             }
         }
 
-        // Iterate through all properties
+        // Iterate through all datatype properties
         ExtendedIterator<DatatypeProperty> dataTypeIterator = model.listDatatypeProperties();
         for (DatatypeProperty dtp : dataTypeIterator.toList()) {
-            if (dtp.getURI().contains("rdf-syntax")) {
+            if (dtp.toString().contains("rdf-syntax") || dtp.toString().contains("rdf-schema")) {
                 continue;
             }
             // Create an EC for the relation which is connected via an 'is' or 'has' relation
@@ -99,7 +151,7 @@ public class RdfImporter {
                     StmtIterator iter = model.listStatements(new SimpleSelector(null, null, (RDFNode) null) {
                         @Override
                         public boolean selects(Statement statement) {
-                            return statement.getSubject().asNode().isBlank() && statement.getSubject().getId() == domain.getId();
+                            return statement.getSubject().asNode().isBlank() && Objects.equals(statement.getSubject().getId(), domain.getId());
                         }
                     });
 
@@ -116,11 +168,12 @@ public class RdfImporter {
             }
         }
 
+        //Iterate through all ontology properties
         ExtendedIterator<OntProperty> ontPropIterator = model.listOntProperties();
 
         for (OntProperty prop : ontPropIterator.toList()) {
             // Regular case for other properties
-            if (prop.getURI().contains("rdf-syntax")) {
+            if (prop.toString().contains("rdf-syntax") || prop.toString().contains("rdf-schema")) {
                 continue;
             }
 
@@ -149,7 +202,7 @@ public class RdfImporter {
                     StmtIterator iter = model.listStatements(new SimpleSelector(null, null, (RDFNode) null) {
                         @Override
                         public boolean selects(Statement statement) {
-                            return statement.getSubject().asNode().isBlank() && statement.getSubject().getId() == domain.getId();
+                            return statement.getSubject().asNode().isBlank() && Objects.equals(statement.getSubject().getId(), domain.getId());
                         }
                     });
 
@@ -225,7 +278,8 @@ public class RdfImporter {
             String description;
             if (resource.isResource()) {
                 ecUri = resource.asResource().getURI();
-                ecName = resource.asResource().getLocalName();
+                ecName = resource.hasProperty(labelProp) ? resource.asResource().getPropertyResourceValue(labelProp).getLocalName() :
+                        resource.asResource().getLocalName();
                 description = resource.getComment("EN");
             } else if (resource.isLiteral()) {
                 ecUri = resource.asLiteral().getDatatypeURI() + "^^" + resource.asLiteral().getString();
@@ -239,12 +293,6 @@ public class RdfImporter {
             EntityConcept res = driverFactory.getGraphDBDriver().createEntityConcept(new EntityConcept(NEW_ID, ecName, description, ecUri));
             cache.put(resource.getURI(), res.getId());
             return res;
-            /*return driverFactory.getGraphDBDriver()
-                    .retrieveEntityConceptsByPrefix(ecName).stream()
-                    .filter(ec -> ec.getMainLabel().equals(ecName))
-                    .findFirst().orElse(
-                            new EntityConcept(ecName, ecName, description, ecUri)
-                    );*/
         }
     }
 

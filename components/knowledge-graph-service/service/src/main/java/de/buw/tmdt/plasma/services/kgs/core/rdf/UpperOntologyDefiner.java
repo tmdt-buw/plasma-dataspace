@@ -10,6 +10,7 @@ public final class UpperOntologyDefiner {
     static final String URI_UO_PREFIX = "http://tmdtuo#";
     static final String URI_KGS_PREFIX = "http://tmdtkg#";
     static final String URI_SM_PREFIX = "http://tmdtsm#";
+    static final String URI_PLASMA = "http://www.plasma.uni-wuppertal.de/schema#";
     static final String URI_NEOVOC_PREFIX = "neo4j://vocabulary#";
     static final String URI_RDFS_PREFIX = "http://www.w3.org/2000/01/rdf-schema#";
     static final String URI_OWL_PREFIX = "http://www.w3.org/2002/07/owl#";
