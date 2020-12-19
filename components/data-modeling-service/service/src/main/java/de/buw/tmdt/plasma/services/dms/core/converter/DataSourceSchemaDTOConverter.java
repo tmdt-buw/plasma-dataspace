@@ -278,7 +278,8 @@ public class DataSourceSchemaDTOConverter {
 
 		//inject operations
 		List<SyntacticOperationDTO> syntacticOperationDTOs = getOperationDTOs(primitiveNode, serializationContext);
-		syntacticOperationDTOs.sort(Comparator.comparing(SyntacticOperationDTO::getName));
+		syntacticOperationDTOs = new ArrayList<>();
+		//syntacticOperationDTOs.sort(Comparator.comparing(SyntacticOperationDTO::getName));
 
 		//transform position to coordinates
 		Double xCoordinate = null;
