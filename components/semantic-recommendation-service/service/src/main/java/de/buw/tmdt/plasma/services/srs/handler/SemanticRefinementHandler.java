@@ -7,6 +7,8 @@ import org.springframework.stereotype.Service;
 public class SemanticRefinementHandler {
     public DataSourceSchemaDTO performRefinement(String uuid, DataSourceSchemaDTO dataSourceSchemaDTO) {
         // call ARS-R here
+
+        // TODO ensure that all recommendations have a non-empty set of anchor points
         return dataSourceSchemaDTO;
     }
 

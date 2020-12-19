@@ -1,6 +1,7 @@
 package de.buw.tmdt.plasma.services.dms.shared.api;
 
 import de.buw.tmdt.plasma.services.dms.shared.dto.DataSourceSchemaDTO;
+import de.buw.tmdt.plasma.services.dms.shared.dto.recommendation.DeltaRecommendationDTO;
 import de.buw.tmdt.plasma.services.dms.shared.dto.semanticmodel.EntityConceptDTO;
 import de.buw.tmdt.plasma.services.dms.shared.dto.semanticmodel.EntityTypeDTO;
 import de.buw.tmdt.plasma.services.dms.shared.dto.semanticmodel.RelationConceptDTO;
@@ -123,7 +124,13 @@ public interface DataModelingAPI {
 	@DeleteMapping(value = "/{uuid}/relation/{relationId}", produces = MediaType.APPLICATION_JSON_VALUE)
 	DataSourceSchemaDTO removeRelation(@NotNull @PathVariable("uuid") String uuid, @NotNull @PathVariable("relationId") Long entityTypeId);
 
-	/* Undo / Redp / finish */
+	/* Recommendation */
+
+	@NotNull
+	@PostMapping(value = "/{uuid}/recommendation/accept", produces = MediaType.APPLICATION_JSON_VALUE)
+	DataSourceSchemaDTO acceptRecommendation(@NotNull @PathVariable("uuid") String uuid, @NotNull @RequestBody DeltaRecommendationDTO recommendation);
+
+	/* Undo / Redo / finish */
 
 	@NotNull
 	@PostMapping(value = "/{uuid}/schema/undo", produces = MediaType.APPLICATION_JSON_VALUE)

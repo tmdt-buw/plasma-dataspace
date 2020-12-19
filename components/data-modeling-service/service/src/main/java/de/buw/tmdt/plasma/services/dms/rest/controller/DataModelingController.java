@@ -3,9 +3,11 @@ package de.buw.tmdt.plasma.services.dms.rest.controller;
 import de.buw.tmdt.plasma.services.dms.core.converter.DataSourceSchemaDTOConverter;
 import de.buw.tmdt.plasma.services.dms.core.converter.SemanticModelDTOConverter;
 import de.buw.tmdt.plasma.services.dms.core.handler.DataModelingHandler;
+import de.buw.tmdt.plasma.services.dms.core.model.datasource.DataSourceModel;
 import de.buw.tmdt.plasma.services.dms.core.model.datasource.DataSourceSchema;
 import de.buw.tmdt.plasma.services.dms.shared.api.DataModelingAPI;
 import de.buw.tmdt.plasma.services.dms.shared.dto.DataSourceSchemaDTO;
+import de.buw.tmdt.plasma.services.dms.shared.dto.recommendation.DeltaRecommendationDTO;
 import de.buw.tmdt.plasma.services.dms.shared.dto.semanticmodel.EntityConceptDTO;
 import de.buw.tmdt.plasma.services.dms.shared.dto.semanticmodel.EntityTypeDTO;
 import de.buw.tmdt.plasma.services.dms.shared.dto.semanticmodel.RelationConceptDTO;
@@ -16,9 +18,13 @@ import io.swagger.v3.oas.annotations.Operation;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @RestController("Modeling Controller")
@@ -136,8 +142,10 @@ public class DataModelingController implements DataModelingAPI {
 		// modify the sementic model
 		DataSourceSchema dataSourceSchema = dataModelingHandler.addEntityType(UUID.fromString(uuid), entityTypeDTO, primitiveNodeUuid);
 		// request recommendations
-		dataSourceSchema = dataModelingHandler.getRecommendations(uuid,dataSourceSchema);
-		return dataSourceSchemaDTOConverter.toDTO(dataSourceSchema);
+		List<DeltaRecommendationDTO> recommendations = dataModelingHandler.getRecommendations(uuid,dataSourceSchema);
+		DataSourceSchemaDTO dto = dataSourceSchemaDTOConverter.toDTO(dataSourceSchema);
+		dto.setRecommendations(recommendations);
+		return dto;
 	}
 
 	@NotNull
@@ -149,6 +157,20 @@ public class DataModelingController implements DataModelingAPI {
 			@NotNull EntityTypeDTO entityTypeDTO
 	) {
 		return dataSourceSchemaDTOConverter.toDTO(dataModelingHandler.updateEntityType(UUID.fromString(uuid), entityTypeId, entityTypeDTO));
+	}
+
+	@NotNull
+	@PostMapping(value = "/recommendation/accept", produces = MediaType.APPLICATION_JSON_VALUE)
+	@Operation(description = "Accepts a recommendation and adds the contents to the semantic model.")
+	public DataSourceSchemaDTO acceptRecommendation(@NotNull String uuid, @NotNull DeltaRecommendationDTO recommendation){
+		DataSourceModel model = dataModelingHandler.acceptRecommendation(UUID.fromString(uuid),recommendation);
+
+		// get new recommendations here
+		List<DeltaRecommendationDTO> recommendations = dataModelingHandler.getRecommendations(uuid,model.peekDataSourceSchema());
+		// request recommendations
+		DataSourceSchemaDTO dto = dataSourceSchemaDTOConverter.toDTO(model.peekDataSourceSchema());
+		dto.setRecommendations(recommendations);
+		return dto;
 	}
 
 	@Override

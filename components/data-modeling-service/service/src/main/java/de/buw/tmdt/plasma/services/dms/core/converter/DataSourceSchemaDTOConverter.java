@@ -70,7 +70,9 @@ public class DataSourceSchemaDTOConverter {
 				syntaxModel.getLeft(),
 				modifiedSemanticModel,
 				syntaxModel.getRight(),
-				dataSourceSchema.getRecommendations(),
+				// re-enitialize, as we have reloaded from db rendering all ids invalid
+				// TODO fix ids
+				new ArrayList<>(),
 				dataSourceSchema.isFinalized()
 
 		);
