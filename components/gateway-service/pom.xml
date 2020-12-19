@@ -298,41 +298,4 @@
         </plugins>
     </reporting>
 
-<!--    &lt;!&ndash; Repositories for Downloading Dependencies &ndash;&gt;-->
-<!--    <repositories>-->
-<!--        <repository>-->
-<!--            <id>buw-gitlab</id>-->
-<!--            <url>https://git.uni-wuppertal.de/api/v4/groups/eskape/-/packages/maven</url>-->
-<!--            <releases>-->
-<!--                <enabled>true</enabled>-->
-<!--                <updatePolicy>always</updatePolicy>-->
-<!--                <checksumPolicy>warn</checksumPolicy>-->
-<!--            </releases>-->
-<!--        </repository>-->
-<!--    </repositories>-->
-
-<!--    <pluginRepositories>-->
-<!--        <pluginRepository>-->
-<!--            <id>buw-gitlab</id>-->
-<!--            <url>https://git.uni-wuppertal.de/api/v4/groups/eskape/-/packages/maven</url>-->
-<!--            <releases>-->
-<!--                <enabled>true</enabled>-->
-<!--                <updatePolicy>always</updatePolicy>-->
-<!--                <checksumPolicy>ignore</checksumPolicy>-->
-<!--            </releases>-->
-<!--        </pluginRepository>-->
-<!--    </pluginRepositories>-->
-
-<!--    &lt;!&ndash; Repositories for Deploying Dependencies &ndash;&gt;-->
-<!--    <distributionManagement>-->
-<!--        <repository>-->
-<!--            <id>buw-gitlab</id>-->
-<!--            <url>https://git.uni-wuppertal.de/api/v4/projects/${env.CI_PROJECT_ID}/packages/maven</url>-->
-<!--        </repository>-->
-<!--        <snapshotRepository>-->
-<!--            <id>buw-gitlab</id>-->
-<!--            <url>https://git.uni-wuppertal.de/api/v4/projects/${env.CI_PROJECT_ID}/packages/maven</url>-->
-<!--        </snapshotRepository>-->
-<!--    </distributionManagement>-->
-
 </project>
