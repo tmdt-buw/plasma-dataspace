@@ -12,83 +12,8 @@
     <artifactId>service</artifactId>
     <name>${project.module.label.prefix} Service</name>
 
-    <properties>
-        <!-- The java version should be 11 if there are no dependencies to a HDP Version which requires 8 -->
-        <java.version>11</java.version>
-        <javax.servlet.version>3.1.0</javax.servlet.version>
-        <org.mariadb.version>2.5.2</org.mariadb.version>
-        <plasma.services.kgs>1.0.0</plasma.services.kgs>
-        <plasma.ars.labeling.lm>1.0.0</plasma.ars.labeling.lm>
-    </properties>
-
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>de.buw.tmdt.plasma.ars.labeling.labelmatching</groupId>
-                <artifactId>feign-client</artifactId>
-                <version>${plasma.ars.labeling.lm}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.parent.groupId}</groupId>
-                <artifactId>api</artifactId>
-                <version>${project.parent.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.parent.groupId}</groupId>
-                <artifactId>feign-client</artifactId>
-                <version>${project.parent.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>javax.servlet</groupId>
-                <artifactId>javax.servlet-api</artifactId>
-                <version>${javax.servlet.version}</version>
-            </dependency>
-
-<!--             Other Microservices -->
-            <dependency>
-                <groupId>de.buw.tmdt.plasma.services.kgs</groupId>
-                <artifactId>dto</artifactId>
-                <version>${plasma.services.kgs}</version>
-            </dependency>
-            <dependency>
-                <groupId>de.buw.tmdt.plasma.services.kgs</groupId>
-                <artifactId>feign-client</artifactId>
-                <version>${plasma.services.kgs}</version>
-            </dependency>
-
-        </dependencies>
-    </dependencyManagement>
-
     <dependencies>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-security</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-actuator</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springdoc</groupId>
-            <artifactId>springdoc-openapi-ui</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-openfeign</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>de.buw.tmdt.plasma.services.srs</groupId>
-            <artifactId>api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>de.buw.tmdt.plasma.ars.labeling.labelmatching</groupId>
-            <artifactId>feign-client</artifactId>
-        </dependency>
-        <!-- Spring -->
+        <!-- Spring Boot -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
@@ -114,21 +39,53 @@
             <artifactId>spring-boot-starter-jetty</artifactId>
         </dependency>
         <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-configuration-processor</artifactId>
         </dependency>
-
-        <!-- Logging -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-log4j2</artifactId>
         </dependency>
 
-        <!-- Test -->
+        <!-- Spring Cloud -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-openfeign</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-ui</artifactId>
+        </dependency>
+
+        <!-- PLASMA Dependencies -->
+        <dependency>
+            <groupId>${project.parent.groupId}</groupId>
+            <artifactId>api</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>de.buw.tmdt.plasma.ars.labeling.labelmatching</groupId>
+            <artifactId>feign-client</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+
+        <!-- Testing -->
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
@@ -142,15 +99,7 @@
     </dependencies>
     <build>
         <plugins>
-            <!-- compiler -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>${java.version}</source>
-                    <target>${java.version}</target>
-                </configuration>
-            </plugin>
+            <!-- Deployment -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-deploy-plugin</artifactId>
@@ -158,11 +107,8 @@
                     <skip>true</skip>
                 </configuration>
             </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-failsafe-plugin</artifactId>
-            </plugin>
-            <!-- Spring Boot Maven Plugin - creates an executable jar -->
+
+            <!-- Spring Boot Maven Plugin -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
@@ -185,11 +131,12 @@
                 </executions>
             </plugin>
 
-            <!-- docker image build plugin -->
+            <!-- Docker Image Plugin -->
             <plugin>
                 <groupId>com.google.cloud.tools</groupId>
                 <artifactId>jib-maven-plugin</artifactId>
                 <version>${com.google.cloud.tools.jib.version}</version>
+
                 <configuration>
                     <from>
                         <image>gcr.io/distroless/java:11</image>

@@ -15,7 +15,6 @@
     <artifactId>ars-l-lm-parent</artifactId>
     <name>${project.module.label.prefix} Parent</name>
     <packaging>pom</packaging>
-    <version>1.0.0</version>
 
     <modules>
         <module>service</module>
