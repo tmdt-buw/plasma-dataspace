@@ -78,7 +78,6 @@ export class DatasourcesComponent implements OnInit {
   }
 
   displayLongDescription(dataSource: DataSourceDTO) {
-    console.log(dataSource);
     this.selectedDataSource = dataSource;
     this.longDescriptionModalNgb = this.modalService.open(this.longDescriptionModal, {windowClass: 'hugeModal'});
     this.longDescriptionModalNgb.result.then(async () => {

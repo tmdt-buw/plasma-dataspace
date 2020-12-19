@@ -12,7 +12,6 @@ import {DataSourceDTO} from '../../../../build/openapi';
 import {AnalysisControllerService} from '../../../../build/openapi/api/analysisController.service';
 import {Subscription} from 'rxjs';
 import {DataSourceControllerService} from '../../../../build/openapi/api/dataSourceController.service';
-import {StandardDTO} from '../../../../build/openapi/model/standardDTO';
 
 
 @Component({
@@ -32,22 +31,12 @@ export class SchemaanalysisComponent implements OnInit, OnDestroy {
 
         });
       });
-    this.schemaanalysisController.getAllStandards().subscribe(
-      (standards) => {
-        this.standards = standards;
-        this.standards.sort((a, b) => {
-            return (a.name.toUpperCase() < b.name.toUpperCase()) ? -1 : (a.name.toUpperCase() > b.name.toUpperCase()) ? 1 : 0;
-
-          });
-      });
   }
 
   allDataSources: DataSourceDTO[] = [];
 
   selectedDataSource: DataSourceDTO;
 
-  public standards: StandardDTO[];
-  public usedStandard: StandardDTO;
 
   lastDataPoints: string[] = [];
 
@@ -179,14 +168,5 @@ export class SchemaanalysisComponent implements OnInit, OnDestroy {
     } catch (e) {
       return false;
     }
-  }
-
-  async getStandards() {
-    this.standards = await this.schemaanalysisController.getAllStandards().toPromise();
-    console.log(this.standards);
-  }
-
-  setStandard() {
-    this.schemaanalysisController.assignStandard(this.selectedDataSource.uuid, this.usedStandard.uuid).toPromise();
   }
 }

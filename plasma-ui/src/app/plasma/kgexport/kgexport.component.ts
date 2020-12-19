@@ -28,13 +28,10 @@ export class KgexportComponent implements OnInit {
 
   public async getUpperOntology() {
     this.upperOntology = await this.universalKnowledgeGraphController.getUpperOntology(this.formatUpper).toPromise();
-    console.log(this.upperOntology);
     this.download('upperOntology.rdf', this.upperOntology);
   }
 
   private download(filename: string, content: string) {
-    console.log('coming here');
-    console.log(content);
     const blob = new Blob([content], { type: 'application/xml' });
     const link = document.createElement('a');
     link.setAttribute('type', 'hidden');

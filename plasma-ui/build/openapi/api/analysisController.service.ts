@@ -22,7 +22,6 @@ import { SchemaAnalysisDataProvisionDTO } from '../model/models';
 
 import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
 import { Configuration }                                     from '../configuration';
-import {StandardDTO} from '../model/standardDTO';
 
 
 
@@ -32,7 +31,7 @@ import {StandardDTO} from '../model/standardDTO';
 })
 export class AnalysisControllerService {
 
-    protected basePath = 'http://plasma-gateway:8888/api/plasma-sas';
+    protected basePath = 'http://plasma-gateway-service:8888/api/plasma-sas';
     public defaultHeaders = new HttpHeaders();
     public configuration = new Configuration();
     public encoder: HttpParameterCodec;
@@ -367,151 +366,4 @@ export class AnalysisControllerService {
             }
         );
     }
-
-  /**
-   * @param id
-   * @param ruleProvisionDTO
-   * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-   * @param reportProgress flag to report request and response progress.
-   */
-  public createStandard(ruleProvisionDTO: RuleProvisionDTO, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json'}): Observable<void>;
-  public createStandard(ruleProvisionDTO: RuleProvisionDTO, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json'}): Observable<HttpResponse<void>>;
-  public createStandard(ruleProvisionDTO: RuleProvisionDTO, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json'}): Observable<HttpEvent<void>>;
-  public createStandard(ruleProvisionDTO: RuleProvisionDTO, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json'}): Observable<any> {
-
-    if (ruleProvisionDTO === null || ruleProvisionDTO === undefined) {
-      throw new Error('Required parameter ruleProvisionDTO was null or undefined when calling createStandard.');
-    }
-
-    let headers = this.defaultHeaders;
-
-    let httpHeaderAcceptSelected: string | undefined = options && options.httpHeaderAccept;
-    if (httpHeaderAcceptSelected === undefined) {
-      // to determine the Accept header
-      const httpHeaderAccepts: string[] = [
-        'application/json'
-      ];
-      httpHeaderAcceptSelected = this.configuration.selectHeaderAccept(httpHeaderAccepts);
-    }
-    if (httpHeaderAcceptSelected !== undefined) {
-      headers = headers.set('Accept', httpHeaderAcceptSelected);
-    }
-
-
-    // to determine the Content-Type header
-    const consumes: string[] = [
-      'application/json'
-    ];
-    const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
-    if (httpContentTypeSelected !== undefined) {
-      headers = headers.set('Content-Type', httpContentTypeSelected);
-    }
-
-    let responseType: 'text' | 'json' = 'json';
-    if(httpHeaderAcceptSelected && httpHeaderAcceptSelected.startsWith('text')) {
-      responseType = 'text';
-    }
-
-    return this.httpClient.post<boolean>(`${this.configuration.basePath}/analysis/standard`,
-      ruleProvisionDTO,
-      {
-        responseType: <any>responseType,
-        withCredentials: this.configuration.withCredentials,
-        headers: headers,
-        observe: observe,
-        reportProgress: reportProgress
-      }
-    );
-  }
-
-  /**
-   * @param id
-   * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-   * @param reportProgress flag to report request and response progress.
-   */
-  public assignStandard(id: string, standardId: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json'}): Observable<boolean>;
-  public assignStandard(id: string, standardId: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json'}): Observable<HttpResponse<boolean>>;
-  public assignStandard(id: string, standardId: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json'}): Observable<HttpEvent<boolean>>;
-  public assignStandard(id: string, standardId: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json'}): Observable<any> {
-    if (id === null || id === undefined) {
-      throw new Error('Required parameter id was null or undefined when calling isReady.');
-    }
-
-    if (standardId === null || standardId === undefined) {
-      throw new Error('Required parameter standardId was null or undefined when calling isReady.');
-    }
-
-    let headers = this.defaultHeaders;
-
-    let httpHeaderAcceptSelected: string | undefined = options && options.httpHeaderAccept;
-    if (httpHeaderAcceptSelected === undefined) {
-      // to determine the Accept header
-      const httpHeaderAccepts: string[] = [
-        'application/json'
-      ];
-      httpHeaderAcceptSelected = this.configuration.selectHeaderAccept(httpHeaderAccepts);
-    }
-    if (httpHeaderAcceptSelected !== undefined) {
-      headers = headers.set('Accept', httpHeaderAcceptSelected);
-    }
-
-
-    let responseType: 'text' | 'json' = 'json';
-    if(httpHeaderAcceptSelected && httpHeaderAcceptSelected.startsWith('text')) {
-      responseType = 'text';
-    }
-
-    return this.httpClient.post<boolean>(`${this.configuration.basePath}/analysis/${encodeURIComponent(String(id))}/standard/${encodeURIComponent(String(standardId))}`,
-      {
-        responseType: <any>responseType,
-        withCredentials: this.configuration.withCredentials,
-        headers: headers,
-        observe: observe,
-        reportProgress: reportProgress
-      }
-    );
-  }
-
-
-  /**
-   * Retrieves all data sources
-   * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-   * @param reportProgress flag to report request and response progress.
-   */
-  public getAllStandards(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json'}): Observable<Array<StandardDTO>>;
-  public getAllStandards(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json'}): Observable<HttpResponse<Array<StandardDTO>>>;
-  public getAllStandards(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json'}): Observable<HttpEvent<Array<StandardDTO>>>;
-  public getAllStandards(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json'}): Observable<any> {
-
-    let headers = this.defaultHeaders;
-
-    let httpHeaderAcceptSelected: string | undefined = options && options.httpHeaderAccept;
-    if (httpHeaderAcceptSelected === undefined) {
-      // to determine the Accept header
-      const httpHeaderAccepts: string[] = [
-        'application/json'
-      ];
-      httpHeaderAcceptSelected = this.configuration.selectHeaderAccept(httpHeaderAccepts);
-    }
-    if (httpHeaderAcceptSelected !== undefined) {
-      headers = headers.set('Accept', httpHeaderAcceptSelected);
-    }
-
-
-    let responseType: 'text' | 'json' = 'json';
-    if(httpHeaderAcceptSelected && httpHeaderAcceptSelected.startsWith('text')) {
-      responseType = 'text';
-    }
-
-    return this.httpClient.get<Array<StandardDTO>>(`${this.configuration.basePath}/analysis/standards`,
-      {
-        responseType: <any>responseType,
-        withCredentials: this.configuration.withCredentials,
-        headers: headers,
-        observe: observe,
-        reportProgress: reportProgress
-      }
-    );
-  }
-
 }

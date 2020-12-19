@@ -40,7 +40,7 @@ import { Configuration }                                     from '../configurat
 })
 export class DataModelingControllerService {
 
-    protected basePath = 'http://plasma-gateway:8888/api/plasma-dms';
+    protected basePath = 'http://plasma-gateway-service:8888/api/plasma-dms';
     public defaultHeaders = new HttpHeaders();
     public configuration = new Configuration();
     public encoder: HttpParameterCodec;

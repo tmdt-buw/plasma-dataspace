@@ -62,23 +62,6 @@
     </mat-card-content>
   </mat-card>
 
-  <mat-card fxFlex="90" fxFill style="margin-bottom: 20px;" class="cardPa" *ngIf="this.dataSourceInitialized">
-    <mat-card-header>Select Standard</mat-card-header>
-    <mat-card-content fxFill>
-      <mat-form-field appearance="fill">
-        <mat-label>Standard</mat-label>
-        <mat-select [(ngModel)]="usedStandard">
-          <mat-option *ngFor="let st of standards" [value]="st">
-            {{st.name}}
-          </mat-option>
-        </mat-select>
-      </mat-form-field>
-
-      <button class="btn btn-primary" (click)="setStandard()" *ngIf="this.usedStandard" style="margin-left: 20px"><i class="fas fa-arrow-right"></i> Assign Standard</button>
-
-    </mat-card-content>
-  </mat-card>
-
   <mat-card fxFlex="90" fxFill *ngIf="this.dataSourceInitialized">
     <mat-card-header>Get Schema</mat-card-header>
     <mat-card-content fxFill>

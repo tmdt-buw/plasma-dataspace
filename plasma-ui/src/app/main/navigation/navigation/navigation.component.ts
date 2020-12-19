@@ -23,7 +23,6 @@ export class NavigationComponent {
   readonly datasourcesRoute = '/' + navigationRoutesNames.DATASOURCES;
   readonly schemaanaylsisRoute = '/' + navigationRoutesNames.SCHEMAANALYSIS;
   readonly modelingRoute = '/' + navigationRoutesNames.MODELING;
-  readonly standardsRoute = '/' + navigationRoutesNames.STANDARDS;
   readonly kgImportRoute = '/' + navigationRoutesNames.KGIMPORT;
   readonly kgExportRoute = '/' + navigationRoutesNames.KGEXPORT;
 

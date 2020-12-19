@@ -13,7 +13,6 @@ import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {NgSelectizeModule} from 'ng-selectize';
 import {AppVisModule} from '../../common/vis/app-vis.module';
 import {AppSchemaFormModule} from '../../common/schema-form/app-schema-form.module';
-import { StandardsComponent } from './standards/standards.component';
 import { KgimportComponent } from './kgimport/kgimport.component';
 import { KgexportComponent } from './kgexport/kgexport.component';
 
@@ -27,7 +26,6 @@ import { KgexportComponent } from './kgexport/kgexport.component';
     SchemaanalysisComponent,
     ModelingComponent,
     InformationgraphComponent,
-    StandardsComponent,
     KgimportComponent,
     KgexportComponent],
   imports: [

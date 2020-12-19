@@ -4,12 +4,12 @@ import {
   CompositeDTO,
   DataModelingControllerService,
   DataSourceDTO,
-  DataSourceSchemaDTO,
+  DataSourceSchemaDTO, EdgeDTO,
   EntityConceptDTO,
   EntityConceptSuggestionDTO,
   EntityTypeDTO,
   ObjectNodeDTO,
-  PrimitiveDTO,
+  PrimitiveDTO, PrimitiveEntityTypeEdgeDTO,
   RelationConceptDTO,
   RelationDTO,
   SchemaNodeDTO,
@@ -773,8 +773,6 @@ export class ModelingComponent implements OnInit, AfterViewChecked, OnDestroy {
 
 
     if (this.schemaAnalysisReady) {
-      console.log('in change');
-
       this.dataSourceSchema = null;
       // tslint:disable-next-line:max-line-length
 
@@ -784,9 +782,6 @@ export class ModelingComponent implements OnInit, AfterViewChecked, OnDestroy {
         .getDataSourceSchema(this.selectedDataSource.uuid).toPromise()
         .then(res => {this.modelingInitialized = true; this.schema = res; console.log(this.modelingInitialized); flagged = true; })
         .catch(() => {this.modelingInitialized = false; console.log(this.modelingInitialized); });
-
-      console.log('---SCHEMA---');
-      console.log(this.schema);
 
       if (!flagged) {
         this.modelingInitialized = false;
@@ -872,16 +867,104 @@ export class ModelingComponent implements OnInit, AfterViewChecked, OnDestroy {
     return null;
   }
 
+  /*
+  This method is used to extract all relevant data after modeling is finished
+  This includes
+  - a flattened rdf file of the model
+  - a not flattened rdf file of the model
+  - a json file containing all mappings
+  - a json file contain not mapped attributes
+   */
   public async extractSemanticModel() {
-    this.ontology = await this.localKnowledgeGraphController.convertSemanticModel(this.schema.semanticModel.uuid, 'turtle', false).toPromise();
-    console.log(this.ontology);
-    this.download('semanticModel.rdf', this.ontology);
+
+    const fileName = this.selectedDataSource.title.split(' ')[0] + '.rdf';
+    const fileNameFlat = this.selectedDataSource.title.split(' ')[0] + '_flat.rdf';
+    const fileNameMappedPrimitives = this.selectedDataSource.title.split(' ')[0] + '_mapped_attributes.json';
+    const fileNameUnmappedPrimitives = this.selectedDataSource.title.split(' ')[0] + '_unmapped_attributes.json';
+
+    // Export unflattened model
+    try {
+      this.ontology = await this.localKnowledgeGraphController
+        .convertSemanticModel(this.schema.semanticModel.uuid, 'xml', false).toPromise();
+      this.download(fileName, this.ontology);
+    } catch (e) {console.log('could not download unflattened file'); }
+
+    // Export flattened model
+    try {
+      this.ontology = await this.localKnowledgeGraphController
+        .convertSemanticModel(this.schema.semanticModel.uuid, 'xml', true).toPromise();
+      this.download(fileNameFlat, this.ontology);
+    } catch (e) {console.log('could not download flattened file'); }
+
+    // Export Mappings
+    const primitiveMappings = [];
+
+    this.schema.primitiveToEntityTypeList.forEach((x: PrimitiveEntityTypeEdgeDTO) => {
+      this.schema.semanticModel.nodes.forEach((y: EntityTypeDTO) => {
+        if (y.id === x.to) {
+          let foundRoot = false;
+          let foundPath = [];
+          let currentElement = this.getMappedPrimitiveNode(x.to).id;
+          while (foundRoot === false) {
+            const newElementId = this.schema.syntaxModel.edges.find((edge: EdgeDTO) => edge.to === currentElement).from;
+            if (newElementId === this.schema.syntaxModel.root) {
+              foundRoot = true;
+            } else {
+              const newName = this.schema.syntaxModel.nodes.find((node: SchemaNodeDTO) => node.id === newElementId).label;
+              foundPath = [newName].concat(foundPath);
+              currentElement = newElementId;
+            }
+          }
+          let originalLabel = this.getMappedPrimitiveNode(x.to).label;
+          if (originalLabel === '*') {
+            originalLabel = foundPath.pop();
+          }
+          primitiveMappings.push({concept: y.concept.sourceURI,
+            conceptId: y.concept.uuid,
+            originalLabel,
+            path: foundPath});
+        }
+      });
+    });
+    this.downloadJson(fileNameMappedPrimitives, JSON.stringify(primitiveMappings));
+
+    // unmapped primitives
+    const unmappedPrimitives = [];
+    this.schema.syntaxModel.nodes.forEach((x: SchemaNodeDTO) => {
+
+      let found = false;
+      if (x['@class'] === 'PrimitiveDTO') {
+
+        primitiveMappings.forEach((y) => {
+          if (x.label === y.originalLabel) {
+            found = true;
+          }
+        });
+        if (!found) {
+          if (x.label !== '*') {
+
+            unmappedPrimitives.push(x.label);
+          }
+        }
+      }
+    });
+    this.downloadJson(fileNameUnmappedPrimitives, JSON.stringify(unmappedPrimitives));
   }
 
   private download(filename: string, content: string) {
-    console.log('coming here');
-    console.log(content);
     const blob = new Blob([content], { type: 'application/xml' });
+    const link = document.createElement('a');
+    link.setAttribute('type', 'hidden');
+    link.href = window.URL.createObjectURL(blob);
+    link.download = filename;
+    link.target = '_blank';
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+  }
+
+  private downloadJson(filename: string, content: string) {
+    const blob = new Blob([content], { type: 'application/json' });
     const link = document.createElement('a');
     link.setAttribute('type', 'hidden');
     link.href = window.URL.createObjectURL(blob);

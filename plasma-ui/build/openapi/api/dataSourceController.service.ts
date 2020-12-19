@@ -30,7 +30,7 @@ import { Configuration } from '../configuration';
 })
 export class DataSourceControllerService {
 
-    protected basePath = 'http://plasma-gateway:8888/api/plasma-dss';
+    protected basePath = 'http://plasma-gateway-service:8888/api/plasma-dss';
     public defaultHeaders = new HttpHeaders();
     public configuration = new Configuration();
     public encoder: HttpParameterCodec;

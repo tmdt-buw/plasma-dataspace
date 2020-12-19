@@ -30,7 +30,6 @@ export class KgimportComponent implements OnInit {
   }
 
   public async uploadOntology() {
-    console.log('test');
     await this.universalKnowledgeGraphController.importRdf(this.ontology).toPromise();
   }
 }
