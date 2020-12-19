@@ -1,37 +1,41 @@
-package de.buw.tmdt.plasma.services.dms.shared.dto.semanticmodel;
+package de.buw.tmdt.plasma.datamodel.semanticmodel;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import de.buw.tmdt.plasma.utilities.misc.StringUtilities;
+import de.buw.tmdt.plasma.datamodel.CombinedModelElement;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.Serializable;
 import java.util.Objects;
+import java.util.UUID;
 
-public class RelationDTO implements Serializable {
+public class Relation extends CombinedModelElement implements Serializable {
 	private static final long serialVersionUID = -2964347710102077197L;
 
-	public static final String ID_PROPERTY = "id";
 	public static final String FROM_ID_PROPERTY = "from";
 	public static final String TO_ID_PROPERTY = "to";
 	private static final String DESCRIPTION_PROPERTY = "description";
 	public static final String CONCEPT_PROPERTY = "concept";
 
-	private final Long id;
-	private final Long fromId;
-	private final Long toId;
+	/**
+	 * The uuid of the origin element, identified by CombinedModelElement#uuid
+	 */
+	private final String fromId;
+	/**
+	 * The uuid of the destination element, identified by CombinedModelElement#uuid
+	 */
+	private final String toId;
 	private final String description;
-	private final RelationConceptDTO concept;
+	private final RelationConcept concept;
 
-	public RelationDTO(
-			Long id,
-			@NotNull Long fromId,
-			@NotNull Long toId,
-			@NotNull String description,
-			@NotNull RelationConceptDTO concept
+	public Relation(
+			String fromId,
+			String toId,
+			String description,
+			RelationConcept concept
 	) {
-		this.id = id;
+		super("");
 		this.fromId = fromId;
 		this.toId = toId;
 		this.description = description;
@@ -39,49 +43,28 @@ public class RelationDTO implements Serializable {
 	}
 
 	@JsonCreator
-	public RelationDTO(
-			@JsonProperty(ID_PROPERTY) String id,
+	public Relation(
+			@NotNull @JsonProperty(UUID_PROPERTY) String uuid,
+			@Nullable @JsonProperty(DATABASE_ID_PROPERTY) Long databaseId,
 			@NotNull @JsonProperty(FROM_ID_PROPERTY) String fromId,
 			@NotNull @JsonProperty(TO_ID_PROPERTY) String toId,
 			@NotNull @JsonProperty(DESCRIPTION_PROPERTY) String description,
-			@NotNull @JsonProperty(CONCEPT_PROPERTY) RelationConceptDTO concept
+			@NotNull @JsonProperty(CONCEPT_PROPERTY) RelationConcept concept
 	) {
-		this(
-				id != null ? Long.parseLong(id) : null,
-				Long.parseLong(fromId),
-				Long.parseLong(toId),
-				description,
-				concept
-		);
-	}
-
-	@JsonProperty(ID_PROPERTY)
-	public String getSerializedId() {
-		return StringUtilities.toStringIfExists(id);
-	}
-
-	@JsonIgnore
-	public Long getId() {
-		return id;
+		super(uuid,databaseId,"");
+				this.fromId = fromId;
+				this.toId = toId;
+				this.description = description;
+				this.concept = concept;
 	}
 
 	@JsonProperty(FROM_ID_PROPERTY)
-	public String getSerializedFromId() {
-		return fromId.toString();
-	}
-
-	@JsonIgnore
-	public Long getFromId() {
+	public String getFromId() {
 		return fromId;
 	}
 
 	@JsonProperty(TO_ID_PROPERTY)
-	public String getSerializedToId() {
-		return toId.toString();
-	}
-
-	@JsonIgnore
-	public Long getToId() {
+	public String getToId() {
 		return toId;
 	}
 
@@ -91,7 +74,7 @@ public class RelationDTO implements Serializable {
 	}
 
 	@JsonProperty(CONCEPT_PROPERTY)
-	public RelationConceptDTO getConcept() {
+	public RelationConcept getConcept() {
 		return concept;
 	}
 
@@ -108,7 +91,7 @@ public class RelationDTO implements Serializable {
 		if (o == null || !getClass().equals(o.getClass())) {
 			return false;
 		}
-		RelationDTO that = (RelationDTO) o;
+		Relation that = (Relation) o;
 		return Objects.equals(fromId, that.fromId) &&
 		       Objects.equals(toId, that.toId) &&
 		       Objects.equals(description, that.description) &&

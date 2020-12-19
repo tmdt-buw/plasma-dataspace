@@ -1,4 +1,4 @@
-package de.buw.tmdt.plasma.services.dms.shared.dto.syntaxmodel;
+package de.buw.tmdt.plasma.datamodel.syntaxmodel;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import de.buw.tmdt.plasma.utilities.collections.CollectionUtilities;
@@ -6,23 +6,27 @@ import de.buw.tmdt.plasma.utilities.misc.StringUtilities;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
 
-public class SyntaxModelDTO implements Serializable {
+public class SyntaxModel implements Serializable {
 
 	private static final String ROOT_PROPERTY = "root";
 	public static final String NODES_PROPERTY = "nodes";
 	private static final String EDGES_PROPERTY = "edges";
 	private static final long serialVersionUID = -7924812162247359979L;
 
-	private final UUID root;
-	private final ArrayList<SchemaNodeDTO> nodes;
-	private final ArrayList<EdgeDTO> edges;
+	private final String root;
+	private final ArrayList<SchemaNode> nodes;
+	private final ArrayList<Edge> edges;
 
-	public SyntaxModelDTO(
-			@JsonProperty(ROOT_PROPERTY) @NotNull UUID root,
-			@JsonProperty(NODES_PROPERTY) @NotNull List<SchemaNodeDTO> nodes,
-			@JsonProperty(EDGES_PROPERTY) @NotNull List<EdgeDTO> edges
+
+	public SyntaxModel(
+			@JsonProperty(ROOT_PROPERTY) @NotNull String root,
+			@JsonProperty(NODES_PROPERTY) @NotNull List<SchemaNode> nodes,
+			@JsonProperty(EDGES_PROPERTY) @NotNull List<Edge> edges
 	) {
 		this.root = root;
 		if (CollectionUtilities.containsNull(nodes)) {
@@ -36,17 +40,17 @@ public class SyntaxModelDTO implements Serializable {
 	}
 
 	@JsonProperty(ROOT_PROPERTY)
-	public UUID getRoot() {
+	public String getRoot() {
 		return root;
 	}
 
 	@JsonProperty(NODES_PROPERTY)
-	public List<SchemaNodeDTO> getNodes() {
+	public List<SchemaNode> getNodes() {
 		return nodes;
 	}
 
 	@JsonProperty(EDGES_PROPERTY)
-	public List<EdgeDTO> getEdges() {
+	public List<Edge> getEdges() {
 		return edges;
 	}
 
@@ -63,7 +67,7 @@ public class SyntaxModelDTO implements Serializable {
 		if (o == null || !getClass().equals(o.getClass())) {
 			return false;
 		}
-		SyntaxModelDTO that = (SyntaxModelDTO) o;
+		SyntaxModel that = (SyntaxModel) o;
 		return Objects.equals(nodes, that.nodes) &&
 		       Objects.equals(edges, that.edges) &&
 		       Objects.equals(root, that.root);

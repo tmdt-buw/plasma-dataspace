@@ -1,4 +1,4 @@
-package de.buw.tmdt.plasma.services.dms.shared.dto.syntaxmodel.operation;
+package de.buw.tmdt.plasma.datamodel.modification.operation;
 
 import de.buw.tmdt.plasma.utilities.misc.ReflectionUtilities;
 import de.buw.tmdt.plasma.utilities.misc.StringUtilities;

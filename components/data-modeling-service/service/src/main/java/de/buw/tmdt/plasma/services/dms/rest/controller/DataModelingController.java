@@ -159,7 +159,7 @@ public class DataModelingController implements DataModelingAPI {
     }
 
     @NotNull
-    @PostMapping(value = "/recommendation/accept", produces = MediaType.APPLICATION_JSON_VALUE)
+	@PostMapping(value = "/{uuid}/recommendations/accept", produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Accepts a recommendation and adds the contents to the semantic model.")
     public DataSourceSchemaDTO acceptRecommendation(@NotNull String uuid, @NotNull DeltaRecommendationDTO recommendation) {
         DataSourceModel model = dataModelingHandler.acceptRecommendation(UUID.fromString(uuid), recommendation);

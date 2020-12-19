@@ -1,4 +1,4 @@
-package de.buw.tmdt.plasma.services.dms.shared.dto.syntaxmodel.operation;
+package de.buw.tmdt.plasma.datamodel.modification.operation;
 
 public enum DataType {
 	UNKNOWN("Unknown"),

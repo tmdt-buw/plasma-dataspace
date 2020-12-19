@@ -17,14 +17,25 @@ public class EntityTypeDTO extends Positioned {
 
 	public static final String ID_PROPERTY = "id";
 	public static final String UUID_PROPERTY = "uuid";
+	public static final String REFERENCE_PROPERTY = "reference";
 	public static final String LABEL_PROPERTY = "label";
 	public static final String ORIGINAL_LABEL_PROPERTY = "originalLabel";
 	public static final String DESCRIPTION_PROPERTY = "description";
 	public static final String CONCEPT_PROPERTY = "concept";
 	public static final String MAPPED_TO_DATA_PROPERTY = "mappedToData";
 
+	/**
+	 * Database reference id, will be updated after each iteration / version
+	 */
 	private final Long id;
+	/**
+	 * KG UUID once added to the KGS
+ 	 */
 	private final String uuid;
+	/**
+	 * Temporary reference for relation association
+	 */
+	private String reference;
 	private final String label;
 	private final String originalLabel;
 	private final String description;
@@ -74,6 +85,7 @@ public class EntityTypeDTO extends Positioned {
 			@Nullable @JsonProperty(Y_COORDINATE_PROPERTY) Double yCoordinate,
 			@Nullable @JsonProperty(ID_PROPERTY) String idString,
 			@Nullable @JsonProperty(UUID_PROPERTY) String uuidString,
+			@Nullable @JsonProperty(REFERENCE_PROPERTY) String refString,
 			@NotNull @JsonProperty(LABEL_PROPERTY) String label,
 			@NotNull @JsonProperty(ORIGINAL_LABEL_PROPERTY) String originalLabel,
 			@NotNull @JsonProperty(DESCRIPTION_PROPERTY) String description,
@@ -91,6 +103,7 @@ public class EntityTypeDTO extends Positioned {
 		} catch (IllegalArgumentException e) {
 			throw new IllegalArgumentException("Invalid uuid passed to constructor: " + uuidString + " is neither null nor a valid UUID literal.", e);
 		}
+		this.reference = refString;
 		this.label = label;
 		this.originalLabel = originalLabel;
 		this.description = description;
@@ -117,6 +130,11 @@ public class EntityTypeDTO extends Positioned {
 	@JsonIgnore
 	public String getUuid() {
 		return uuid;
+	}
+
+	@JsonProperty(REFERENCE_PROPERTY)
+	public String getReference() {
+		return reference;
 	}
 
 	@JsonProperty(LABEL_PROPERTY)

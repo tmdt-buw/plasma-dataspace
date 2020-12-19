@@ -924,10 +924,78 @@ public class DataModelingHandler {
         return dataSourceSchemaDTO.getRecommendations();
     }
 
-    // This method will be replaced in new version
     @Transactional
     public DataSourceModel acceptRecommendation(@NotNull UUID dataSourceUuid, @NotNull DeltaRecommendationDTO recommendation) {
-        logger.info("Ignoring recommendation " + recommendation.reference);
-        return findDataSourceOrThrow(dataSourceUuid);
+
+        DataSourceModel dataSourceModel = findDataSourceOrThrow(dataSourceUuid);
+        DataSourceSchema dataSourceSchema = peekDataSourceSchema(dataSourceModel, true).copy();
+        SemanticModel semanticModel = dataSourceSchema.getSemanticModel();
+        if (recommendation.getEntities() != null) {
+            Map<String,EntityType> recommendedET = recommendation.getEntities().stream().collect(Collectors.toMap(EntityTypeDTO::getReference, semanticModelDTOConverter::fromDTO));
+            for (final Map.Entry<String, EntityType> etEntry : recommendedET.entrySet()) {
+                EntityType et = etEntry.getValue();
+                String reference = etEntry.getKey();
+                if (et.getId() == null) {
+                    // this is a new one, so just add it to the SM for now
+                    EntityType savedET = entityTypeRepository.save(et);
+                    semanticModel.getEntityTypes().add(et);
+                    recommendedET.put(reference,savedET);
+
+                } else {
+                    // this is a replacement, find the associated existing ET
+                    Optional<EntityType> match = semanticModel.getEntityTypes().stream().filter(currentET -> Objects.equals(currentET.getId(), et.getId())).findFirst();
+                    if (match.isPresent()) {
+                        // this one is to be replaced by et
+                        EntityType toReplace = match.get();
+                        semanticModel.getEntityTypes().remove(toReplace);
+                        EntityType savedET = entityTypeRepository.save(et); // update the database for the upcoming relation matching
+                        semanticModel.getEntityTypes().add(savedET);
+                        recommendedET.put(reference,savedET);
+
+                    }
+                }
+            }
+        }
+
+        if (recommendation.getRelations() != null) {
+            // all used entity types should be available as this once accesses the DB
+            List<Relation> recommendedRelation = recommendation.getRelations().stream().map(semanticModelDTOConverter::fromDTO).collect(Collectors.toList());
+
+            for (Relation r : recommendedRelation) {
+                // we can currently not remove relations in a recommendation
+                Traversable from = dataSourceSchema.find(r.getFrom().getIdentity());
+                if (from == null) {
+                    logger.warn(
+                            "Failed to find tail entity type with id {} and identity {} in schema copy.",
+                            r.getFrom().getId(),
+                            r.getFrom().getIdentity()
+                    );
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Id of tail entity of relation is not valid: " + r.getFrom().getId());
+                }
+
+                Traversable to = dataSourceSchema.find(r.getTo().getIdentity());
+                if (to == null) {
+                    logger.warn(
+                            "Failed to find head entity type with id {} and identity {} in schema copy.",
+                            r.getTo().getId(),
+                            r.getTo().getIdentity()
+                    );
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Id of head entity of relation is not valid: " + r.getTo().getId());
+                }
+
+                final EntityType fromEntityType = ObjectUtilities.checkedReturn(from, EntityType.class);
+                final EntityType toEntityType = ObjectUtilities.checkedReturn(to, EntityType.class);
+
+                //update model
+                r.setFrom(fromEntityType);
+                r.setTo(toEntityType);
+                semanticModel.getRelations().add(r);
+            }
+        }
+
+        dataSourceModel.pushDataSourceSchema(dataSourceSchema);
+        //persist and return copy
+        dataSourceModel = dataSourceRepository.save(dataSourceModel);
+        return dataSourceModel;
     }
 }

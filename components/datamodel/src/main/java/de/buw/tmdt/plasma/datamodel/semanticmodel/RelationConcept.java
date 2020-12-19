@@ -1,8 +1,9 @@
-package de.buw.tmdt.plasma.services.dms.shared.dto.semanticmodel;
+package de.buw.tmdt.plasma.datamodel.semanticmodel;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import de.buw.tmdt.plasma.datamodel.CombinedModelElement;
 import de.buw.tmdt.plasma.utilities.misc.StringUtilities;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -10,79 +11,47 @@ import org.jetbrains.annotations.Nullable;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
-public class RelationConceptDTO implements Serializable {
+public class RelationConcept extends CombinedModelElement implements Serializable {
 	private static final long serialVersionUID = -5112996969222323409L;
-	public static final String ID_PROPERTY = "id";
 	private static final String UUID_PROPERTY = "uuid";
-	private static final String NAME_PROPERTY = "name";
 	private static final String DESCRIPTION_PROPERTY = "description";
 	private static final String SOURCE_URI_PROPERTY = "sourceURI";
 	private static final String PROPERTIES_PROPERTY = "properties";
 
-	private final Long id;
-	private final String uuid;
-	private final String name;
 	private final String description;
 	private final String sourceURI;
-	private final HashSet<String> properties;
+	private final Set<String> properties;
 
-	public RelationConceptDTO(
-			@Nullable Long id, @Nullable String uuid, @NotNull String name, @NotNull String description,
-			@NotNull String sourceURI, @NotNull Set<String> properties
+	public RelationConcept(
+			@NotNull String label,
+			@NotNull String description,
+			@NotNull String sourceURI,
+			@NotNull Set<String> properties
 	) {
-		this.id = id;
-		this.uuid = uuid;
-		this.name = name;
+		super(label);
 		this.description = description;
 		this.sourceURI = sourceURI;
 		this.properties = new HashSet<>(properties);
 	}
 
 	@JsonCreator
-	public RelationConceptDTO(
-			@Nullable @JsonProperty(ID_PROPERTY) String id,
+	public RelationConcept(
 			@Nullable @JsonProperty(UUID_PROPERTY) String uuid,
-			@NotNull @JsonProperty(NAME_PROPERTY) String name,
+			@Nullable @JsonProperty(DATABASE_ID_PROPERTY) Long databaseId,
+			@NotNull @JsonProperty(LABEL_PROPERTY) String label,
 			@NotNull @JsonProperty(DESCRIPTION_PROPERTY) String description,
 			@NotNull @JsonProperty(SOURCE_URI_PROPERTY) String sourceURI,
 			@NotNull @JsonProperty(PROPERTIES_PROPERTY) Set<String> properties
 	) {
-		this(
-				id != null ? Long.parseLong(id) : null,
-				uuid,
-				name,
-				description,
-				sourceURI,
-				properties
-		);
+		super(				uuid,databaseId,label);
+		this.description = description;
+		this.sourceURI = sourceURI;
+		this.properties = properties;
 	}
 
-	@JsonProperty(UUID_PROPERTY)
-	public String getSerializedUuid() {
-		return StringUtilities.toStringIfExists(uuid);
-	}
-
-	@JsonIgnore
-	public String getUuid() {
-		return uuid;
-	}
-
-	@JsonProperty(ID_PROPERTY)
-	public String getSerializedId() {
-		return StringUtilities.toStringIfExists(id);
-	}
-
-	@JsonIgnore
-	public Long getId() {
-		return id;
-	}
-
-	@JsonProperty(NAME_PROPERTY)
-	public String getName() {
-		return this.name;
-	}
 
 	@JsonProperty(DESCRIPTION_PROPERTY)
 	public String getDescription() {
@@ -100,15 +69,15 @@ public class RelationConceptDTO implements Serializable {
 	}
 
 	public int hashCode() {
-		return this.name.hashCode();
+		return this.getUuid().hashCode();
 	}
 
 	public boolean equals(Object o) {
 		if (this == o) {
 			return true;
 		} else if (o != null && this.getClass().equals(o.getClass())) {
-			RelationConceptDTO that = (RelationConceptDTO) o;
-			return this.name.equals(that.name);
+			RelationConcept that = (RelationConcept) o;
+			return Objects.equals(getUuid(), that.getUuid());
 		} else {
 			return false;
 		}
@@ -118,8 +87,7 @@ public class RelationConceptDTO implements Serializable {
 	@SuppressWarnings("MagicCharacter")
 	public String toString() {
 		return "{\"@class\":\"RelationConceptDTO\""
-		       + ", \"uuid\":\"" + uuid + '"'
-		       + ", \"name\":\"" + name + '"'
+		       + ", \"parent\":\"" + super.toString() + '"'
 		       + ", \"description\":\"" + description + '"'
 		       + ", \"properties\":" + StringUtilities.setToJson(properties)
 		       + '}';

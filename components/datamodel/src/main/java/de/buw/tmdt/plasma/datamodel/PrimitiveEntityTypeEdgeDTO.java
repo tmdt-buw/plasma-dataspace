@@ -1,4 +1,4 @@
-package de.buw.tmdt.plasma.services.dms.shared.dto;
+package de.buw.tmdt.plasma.datamodel;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;

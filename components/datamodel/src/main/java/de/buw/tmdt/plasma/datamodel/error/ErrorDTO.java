@@ -1,4 +1,4 @@
-package de.buw.tmdt.plasma.services.dms.shared.dto.error;
+package de.buw.tmdt.plasma.datamodel.error;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
