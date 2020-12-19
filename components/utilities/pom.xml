@@ -20,49 +20,11 @@
         <project.module.label.prefix>${platform.name} ${project.label.abbrv}</project.module.label.prefix>
         <project.base-package>de.buw.tmdt.plasma.utilities</project.base-package>
 
-        <!-- Logging -->
-        <slf4j.version>1.7.30</slf4j.version>
-
         <!-- Testing -->
         <junit.version>4.13</junit.version>
-        <log4j.version>2.13.1</log4j.version>
     </properties>
 
     <dependencies>
-        <!-- Define the Logging -->
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>${slf4j.version}</version>
-        </dependency>
-
-        <!-- Logging Binder used in tests -->
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-core</artifactId>
-            <version>${log4j.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-api</artifactId>
-            <version>${log4j.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-slf4j-impl</artifactId>
-            <version>${log4j.version}</version>
-            <scope>test</scope>
-        </dependency>
-
-        <!-- JetBrains Annotations -->
-        <dependency>
-            <groupId>org.jetbrains</groupId>
-            <artifactId>annotations</artifactId>
-            <version>${org.jetbrains.annotations.version}</version>
-        </dependency>
-
         <!-- Testing -->
         <dependency>
             <groupId>junit</groupId>
@@ -72,33 +34,4 @@
         </dependency>
     </dependencies>
 
-    <!-- Build Management -->
-    <build>
-        <plugins>
-            <!-- Java Compiler Settings -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>${org.apache.maven.plugin.compiler.version}</version>
-                <configuration>
-                    <source>${project.java.source.version}</source>
-                    <target>${project.java.target.version}</target>
-                </configuration>
-            </plugin>
-            <!-- Source deployment plugin -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-source-plugin</artifactId>
-                <version>${org.apache.maven.plugin.source.version}</version>
-                <executions>
-                    <execution>
-                        <id>attach-sources</id>
-                        <goals>
-                            <goal>jar-no-fork</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
 </project>
