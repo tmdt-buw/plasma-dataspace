@@ -12,7 +12,6 @@ export class ComplexFormElementComponent<T> implements OnInit {
   public formElement: FormElement<T>;
 
   public ngOnInit() {
-    // Note to self remove if http://youtrack.zlw-ima.rwth-aachen.de/issue/DP-686 is resolved
     if (this.formElement.minimumCardinality !== 1 || this.formElement.maximumCardinality !== 1) {
       throw new Error('Middleware violated assumption that complex datatypes have min/max cardinality of 1.');
     }
