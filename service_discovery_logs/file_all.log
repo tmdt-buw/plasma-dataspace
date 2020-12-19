@@ -1,0 +1,46 @@
+2020-12-19 09:40:00.773 INFO  [ibernate.validator.internal.util.Version] [background-preinit] - HV000001: Hibernate Validator 6.1.6.Final
+2020-12-19 09:40:01.518 INFO  [es.discovery.ServiceDiscoveryApplication] [main] - No active profile set, falling back to default profiles: default
+2020-12-19 09:40:02.368 WARN  [amework.boot.actuate.endpoint.EndpointId] [main] - Endpoint ID 'service-registry' contains invalid characters, please migrate to a valid format.
+2020-12-19 09:40:02.520 INFO  [amework.cloud.context.scope.GenericScope] [main] - BeanFactory id=4cafdf73-ae09-329d-bcc9-e42dd92f543a
+2020-12-19 09:40:02.699 INFO  [org.eclipse.jetty.util.log              ] [main] - Logging initialized @4243ms to org.eclipse.jetty.util.log.Slf4jLog
+2020-12-19 09:40:02.852 INFO  [edded.jetty.JettyServletWebServerFactory] [main] - Server initialized with port: 8761
+2020-12-19 09:40:02.852 INFO  [org.eclipse.jetty.server.Server         ] [main] - jetty-9.4.35.v20201120; built: 2020-11-20T21:17:03.964Z; git: bdc54f03a5e0a7e280fab27f55c3c75ee8da89fb; jvm 13+33
+2020-12-19 09:40:02.884 INFO  [erver.handler.ContextHandler.application] [main] - Initializing Spring embedded WebApplicationContext
+2020-12-19 09:40:02.884 INFO  [ntext.ServletWebServerApplicationContext] [main] - Root WebApplicationContext: initialization completed in 1335 ms
+2020-12-19 09:40:02.968 WARN  [ix.config.sources.URLConfigurationSource] [main] - No URLs will be polled as dynamic configuration sources.
+2020-12-19 09:40:02.968 INFO  [ix.config.sources.URLConfigurationSource] [main] - To enable URLs as dynamic configuration sources, define System property archaius.configurationSource.additionalUrls or make config.properties available on classpath.
+2020-12-19 09:40:02.984 INFO  [om.netflix.config.DynamicPropertyFactory] [main] - DynamicPropertyFactory is initialized with configuration sources: com.netflix.config.ConcurrentCompositeConfiguration@2c3158e0
+2020-12-19 09:40:03.365 INFO  [org.eclipse.jetty.server.session        ] [main] - DefaultSessionIdManager workerName=node0
+2020-12-19 09:40:03.365 INFO  [org.eclipse.jetty.server.session        ] [main] - No SessionScavenger set, using defaults
+2020-12-19 09:40:03.365 INFO  [org.eclipse.jetty.server.session        ] [main] - node0 Scavenging every 600000ms
+2020-12-19 09:40:03.365 INFO  [ipse.jetty.server.handler.ContextHandler] [main] - Started o.s.b.w.e.j.JettyEmbeddedWebAppContext@2a667f44{application,/,[file:///C:/Users/andrepomp/AppData/Local/Temp/jetty-docbase.8761.10246506139010882724/],AVAILABLE}
+2020-12-19 09:40:03.365 INFO  [org.eclipse.jetty.server.Server         ] [main] - Started @4919ms
+2020-12-19 09:40:03.423 WARN  [ix.config.sources.URLConfigurationSource] [main] - No URLs will be polled as dynamic configuration sources.
+2020-12-19 09:40:03.423 INFO  [ix.config.sources.URLConfigurationSource] [main] - To enable URLs as dynamic configuration sources, define System property archaius.configurationSource.additionalUrls or make config.properties available on classpath.
+2020-12-19 09:40:03.570 INFO  [duling.concurrent.ThreadPoolTaskExecutor] [main] - Initializing ExecutorService 'applicationTaskExecutor'
+2020-12-19 09:40:04.526 INFO  [uling.concurrent.ThreadPoolTaskScheduler] [main] - Initializing ExecutorService
+2020-12-19 09:40:04.726 INFO  [.security.web.DefaultSecurityFilterChain] [main] - Creating filter chain: any request, [org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@1203d787, org.springframework.security.web.context.SecurityContextPersistenceFilter@6f7c9755, org.springframework.security.web.header.HeaderWriterFilter@6604f246, org.springframework.security.web.authentication.logout.LogoutFilter@1cee3e05, org.springframework.security.web.authentication.www.BasicAuthenticationFilter@4f2d8175, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@1e32037d, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@2c4cf7eb, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@1f72fbd1, org.springframework.security.web.session.SessionManagementFilter@6e66b498, org.springframework.security.web.access.ExceptionTranslationFilter@b3042ed, org.springframework.security.web.access.intercept.FilterSecurityInterceptor@434d001d]
+2020-12-19 09:40:05.262 INFO  [DiscoveryClientOptionalArgsConfiguration] [main] - Eureka HTTP Client uses Jersey
+2020-12-19 09:40:05.282 WARN  [ockingLoadBalancerClientRibbonWarnLogger] [main] - You already have RibbonLoadBalancerClient on your classpath. It will be used by default. As Spring Cloud Ribbon is in maintenance mode. We recommend switching to BlockingLoadBalancerClient instead. In order to use it, set the value of `spring.cloud.loadbalancer.ribbon.enabled` to `false` or remove spring-cloud-starter-netflix-ribbon from your project.
+2020-12-19 09:40:05.434 INFO  [cloud.netflix.eureka.InstanceInfoFactory] [main] - Setting initial instance status as: STARTING
+2020-12-19 09:40:05.939 INFO  [tuate.endpoint.web.EndpointLinksResolver] [main] - Exposing 17 endpoint(s) beneath base path '/actuator'
+2020-12-19 09:40:06.048 INFO  [ka.serviceregistry.EurekaServiceRegistry] [main] - Registering application PLASMA-SERVICE-DISCOVERY-SERVER with eureka with status UP
+2020-12-19 09:40:06.050 INFO  [flix.eureka.server.EurekaServerBootstrap] [Thread-18] - Setting the eureka configuration..
+2020-12-19 09:40:06.050 INFO  [flix.eureka.server.EurekaServerBootstrap] [Thread-18] - Eureka data center value eureka.datacenter is not set, defaulting to default
+2020-12-19 09:40:06.050 INFO  [flix.eureka.server.EurekaServerBootstrap] [Thread-18] - Eureka environment value eureka.environment is not set, defaulting to test
+2020-12-19 09:40:06.060 INFO  [flix.eureka.server.EurekaServerBootstrap] [Thread-18] - isAws returned false
+2020-12-19 09:40:06.060 INFO  [flix.eureka.server.EurekaServerBootstrap] [Thread-18] - Initialized server context
+2020-12-19 09:40:06.070 INFO  [ver.EurekaServerInitializerConfiguration] [Thread-18] - Started Eureka Server
+2020-12-19 09:40:06.098 INFO  [rver.impl.application.WebApplicationImpl] [main] - Initiating Jersey application, version 'Jersey: 1.19.4 05/24/2017 03:20 PM'
+2020-12-19 09:40:06.565 INFO  [erver.handler.ContextHandler.application] [main] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2020-12-19 09:40:06.565 INFO  [gframework.web.servlet.DispatcherServlet] [main] - Initializing Servlet 'dispatcherServlet'
+2020-12-19 09:40:06.575 INFO  [gframework.web.servlet.DispatcherServlet] [main] - Completed initialization in 10 ms
+2020-12-19 09:40:06.927 INFO  [g.eclipse.jetty.server.AbstractConnector] [main] - Started ServerConnector@65514add{HTTP/1.1, (http/1.1)}{0.0.0.0:8761}
+2020-12-19 09:40:06.937 INFO  [k.boot.web.embedded.jetty.JettyWebServer] [main] - Jetty started on port(s) 8761 (http/1.1) with context path '/'
+2020-12-19 09:40:06.939 INFO  [ceregistry.EurekaAutoServiceRegistration] [main] - Updating port to 8761
+2020-12-19 09:40:07.362 INFO  [es.discovery.ServiceDiscoveryApplication] [main] - Started ServiceDiscoveryApplication in 7.251 seconds (JVM running for 8.91)
+2020-12-19 09:40:07.372 INFO  [es.discovery.ServiceDiscoveryApplication] [main] - plasma-service-discovery-server: Booting successful
+2020-12-19 09:40:09.520 WARN  [ient.registration.ApplicationRegistrator] [registrationTask1] - Failed to register application as Application(name=plasma-service-discovery-server, managementUrl=http://MOBILE-AP.mshome.net:8761/actuator, healthUrl=http://MOBILE-AP.mshome.net:8761/actuator/health, serviceUrl=http://MOBILE-AP.mshome.net:8761/) at spring-boot-admin ([http://plasma-admin-service:8080/instances]): I/O error on POST request for "http://plasma-admin-service:8080/instances": Connect to plasma-admin-service:8080 [plasma-admin-service/127.0.0.1] failed: Connection refused: no further information; nested exception is org.apache.http.conn.HttpHostConnectException: Connect to plasma-admin-service:8080 [plasma-admin-service/127.0.0.1] failed: Connection refused: no further information. Further attempts are logged on DEBUG level
+2020-12-19 09:40:18.025 INFO  [ient.registration.ApplicationRegistrator] [registrationTask1] - Application registered itself as 9adb335b1fb7
+2020-12-19 09:40:26.661 WARN  [eureka.registry.AbstractInstanceRegistry] [qtp1576936424-28] - DS: Registry: lease doesn't exist, registering resource: PLASMA-GWS - host.docker.internal:plasma-gws:8888
+2020-12-19 09:40:26.661 WARN  [etflix.eureka.resources.InstanceResource] [qtp1576936424-28] - Not Found (Renew): PLASMA-GWS - host.docker.internal:plasma-gws:8888

@@ -1,0 +1,340 @@
+2020-12-19 09:39:51.159 INFO  [ibernate.validator.internal.util.Version] [background-preinit] - HV000001: Hibernate Validator 6.1.6.Final
+2020-12-19 09:39:51.884 INFO  [t.plasma.services.gws.GatewayApplication] [main] - No active profile set, falling back to default profiles: default
+2020-12-19 09:39:52.576 WARN  [amework.boot.actuate.endpoint.EndpointId] [main] - Endpoint ID 'service-registry' contains invalid characters, please migrate to a valid format.
+2020-12-19 09:39:52.673 INFO  [amework.cloud.context.scope.GenericScope] [main] - BeanFactory id=98c0e7ef-5c47-39b3-a5e9-23c06614bd99
+2020-12-19 09:39:52.743 INFO  [trationDelegate$BeanPostProcessorChecker] [main] - Bean 'org.springframework.cloud.client.loadbalancer.reactive.LoadBalancerBeanPostProcessorAutoConfiguration' of type [org.springframework.cloud.client.loadbalancer.reactive.LoadBalancerBeanPostProcessorAutoConfiguration] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2020-12-19 09:39:52.743 INFO  [trationDelegate$BeanPostProcessorChecker] [main] - Bean 'org.springframework.cloud.client.loadbalancer.reactive.LoadBalancerBeanPostProcessorAutoConfiguration$ReactiveLoadBalancerConfig' of type [org.springframework.cloud.client.loadbalancer.reactive.LoadBalancerBeanPostProcessorAutoConfiguration$ReactiveLoadBalancerConfig] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2020-12-19 09:39:52.743 INFO  [trationDelegate$BeanPostProcessorChecker] [main] - Bean 'deferringLoadBalancerExchangeFilterFunction' of type [org.springframework.cloud.client.loadbalancer.reactive.DeferringLoadBalancerExchangeFilterFunction] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2020-12-19 09:39:53.389 INFO  [DiscoveryClientOptionalArgsConfiguration] [main] - Eureka HTTP Client uses Jersey
+2020-12-19 09:39:53.707 INFO  [cloud.netflix.eureka.InstanceInfoFactory] [main] - Setting initial instance status as: STARTING
+2020-12-19 09:39:53.748 INFO  [com.netflix.discovery.DiscoveryClient   ] [main] - Initializing Eureka in region us-east-1
+2020-12-19 09:39:53.933 INFO  [scovery.provider.DiscoveryJerseyProvider] [main] - Using JSON encoding codec LegacyJacksonJson
+2020-12-19 09:39:53.933 INFO  [scovery.provider.DiscoveryJerseyProvider] [main] - Using JSON decoding codec LegacyJacksonJson
+2020-12-19 09:39:54.065 INFO  [scovery.provider.DiscoveryJerseyProvider] [main] - Using XML encoding codec XStreamXml
+2020-12-19 09:39:54.065 INFO  [scovery.provider.DiscoveryJerseyProvider] [main] - Using XML decoding codec XStreamXml
+2020-12-19 09:39:54.219 INFO  [hared.resolver.aws.ConfigClusterResolver] [main] - Resolving eureka endpoints via configuration
+2020-12-19 09:39:54.442 INFO  [com.netflix.discovery.DiscoveryClient   ] [main] - Disable delta property : false
+2020-12-19 09:39:54.442 INFO  [com.netflix.discovery.DiscoveryClient   ] [main] - Single vip registry refresh property : null
+2020-12-19 09:39:54.442 INFO  [com.netflix.discovery.DiscoveryClient   ] [main] - Force full registry fetch : false
+2020-12-19 09:39:54.442 INFO  [com.netflix.discovery.DiscoveryClient   ] [main] - Application is null : false
+2020-12-19 09:39:54.442 INFO  [com.netflix.discovery.DiscoveryClient   ] [main] - Registered Applications size is zero : true
+2020-12-19 09:39:54.442 INFO  [com.netflix.discovery.DiscoveryClient   ] [main] - Application version is -1: true
+2020-12-19 09:39:54.442 INFO  [com.netflix.discovery.DiscoveryClient   ] [main] - Getting all instance registry info from the eureka server
+2020-12-19 09:39:56.553 INFO  [rt.decorator.RedirectingEurekaHttpClient] [main] - Request execution error. endpoint=DefaultEndpoint{ serviceUrl='http://plasma-discovery-user:CHANGE-ME-558faa45-d34d-4d77-ba2b-11c705e51370@plasma-discovery-service:8761/eureka/}, exception=java.net.ConnectException: Connection refused: no further information stacktrace=com.sun.jersey.api.client.ClientHandlerException: java.net.ConnectException: Connection refused: no further information
+	at com.sun.jersey.client.apache4.ApacheHttpClient4Handler.handle(ApacheHttpClient4Handler.java:187)
+	at com.sun.jersey.api.client.filter.GZIPContentEncodingFilter.handle(GZIPContentEncodingFilter.java:123)
+	at com.netflix.discovery.EurekaIdentityHeaderFilter.handle(EurekaIdentityHeaderFilter.java:27)
+	at com.sun.jersey.api.client.Client.handle(Client.java:652)
+	at com.sun.jersey.api.client.WebResource.handle(WebResource.java:682)
+	at com.sun.jersey.api.client.WebResource.access$200(WebResource.java:74)
+	at com.sun.jersey.api.client.WebResource$Builder.get(WebResource.java:509)
+	at com.netflix.discovery.shared.transport.jersey.AbstractJerseyEurekaHttpClient.getApplicationsInternal(AbstractJerseyEurekaHttpClient.java:196)
+	at com.netflix.discovery.shared.transport.jersey.AbstractJerseyEurekaHttpClient.getApplications(AbstractJerseyEurekaHttpClient.java:167)
+	at com.netflix.discovery.shared.transport.decorator.EurekaHttpClientDecorator$6.execute(EurekaHttpClientDecorator.java:137)
+	at com.netflix.discovery.shared.transport.decorator.MetricsCollectingEurekaHttpClient.execute(MetricsCollectingEurekaHttpClient.java:73)
+	at com.netflix.discovery.shared.transport.decorator.EurekaHttpClientDecorator.getApplications(EurekaHttpClientDecorator.java:134)
+	at com.netflix.discovery.shared.transport.decorator.EurekaHttpClientDecorator$6.execute(EurekaHttpClientDecorator.java:137)
+	at com.netflix.discovery.shared.transport.decorator.RedirectingEurekaHttpClient.executeOnNewServer(RedirectingEurekaHttpClient.java:121)
+	at com.netflix.discovery.shared.transport.decorator.RedirectingEurekaHttpClient.execute(RedirectingEurekaHttpClient.java:80)
+	at com.netflix.discovery.shared.transport.decorator.EurekaHttpClientDecorator.getApplications(EurekaHttpClientDecorator.java:134)
+	at com.netflix.discovery.shared.transport.decorator.EurekaHttpClientDecorator$6.execute(EurekaHttpClientDecorator.java:137)
+	at com.netflix.discovery.shared.transport.decorator.RetryableEurekaHttpClient.execute(RetryableEurekaHttpClient.java:120)
+	at com.netflix.discovery.shared.transport.decorator.EurekaHttpClientDecorator.getApplications(EurekaHttpClientDecorator.java:134)
+	at com.netflix.discovery.shared.transport.decorator.EurekaHttpClientDecorator$6.execute(EurekaHttpClientDecorator.java:137)
+	at com.netflix.discovery.shared.transport.decorator.SessionedEurekaHttpClient.execute(SessionedEurekaHttpClient.java:77)
+	at com.netflix.discovery.shared.transport.decorator.EurekaHttpClientDecorator.getApplications(EurekaHttpClientDecorator.java:134)
+	at com.netflix.discovery.DiscoveryClient.getAndStoreFullRegistry(DiscoveryClient.java:1101)
+	at com.netflix.discovery.DiscoveryClient.fetchRegistry(DiscoveryClient.java:1014)
+	at com.netflix.discovery.DiscoveryClient.<init>(DiscoveryClient.java:441)
+	at com.netflix.discovery.DiscoveryClient.<init>(DiscoveryClient.java:283)
+	at com.netflix.discovery.DiscoveryClient.<init>(DiscoveryClient.java:279)
+	at org.springframework.cloud.netflix.eureka.CloudEurekaClient.<init>(CloudEurekaClient.java:67)
+	at org.springframework.cloud.netflix.eureka.EurekaClientAutoConfiguration$RefreshableEurekaClientConfiguration.eurekaClient(EurekaClientAutoConfiguration.java:316)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:567)
+	at org.springframework.beans.factory.support.SimpleInstantiationStrategy.instantiate(SimpleInstantiationStrategy.java:154)
+	at org.springframework.beans.factory.support.ConstructorResolver.instantiate(ConstructorResolver.java:650)
+	at org.springframework.beans.factory.support.ConstructorResolver.instantiateUsingFactoryMethod(ConstructorResolver.java:635)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.instantiateUsingFactoryMethod(AbstractAutowireCapableBeanFactory.java:1336)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBeanInstance(AbstractAutowireCapableBeanFactory.java:1176)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:556)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:516)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$1(AbstractBeanFactory.java:363)
+	at org.springframework.cloud.context.scope.GenericScope$BeanLifecycleWrapper.getBean(GenericScope.java:389)
+	at org.springframework.cloud.context.scope.GenericScope.get(GenericScope.java:186)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:360)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:202)
+	at org.springframework.aop.target.SimpleBeanTargetSource.getTarget(SimpleBeanTargetSource.java:35)
+	at org.springframework.aop.framework.JdkDynamicAopProxy.invoke(JdkDynamicAopProxy.java:192)
+	at com.sun.proxy.$Proxy118.getApplications(Unknown Source)
+	at org.springframework.cloud.netflix.eureka.reactive.EurekaReactiveDiscoveryClient.lambda$getServices$1(EurekaReactiveDiscoveryClient.java:63)
+	at reactor.core.publisher.FluxDefer.subscribe(FluxDefer.java:46)
+	at reactor.core.publisher.Flux.subscribe(Flux.java:8325)
+	at reactor.core.publisher.FluxFlatMap$FlatMapMain.onNext(FluxFlatMap.java:418)
+	at reactor.core.publisher.FluxIterable$IterableSubscription.slowPath(FluxIterable.java:267)
+	at reactor.core.publisher.FluxIterable$IterableSubscription.request(FluxIterable.java:225)
+	at reactor.core.publisher.FluxFlatMap$FlatMapMain.onSubscribe(FluxFlatMap.java:363)
+	at reactor.core.publisher.FluxIterable.subscribe(FluxIterable.java:161)
+	at reactor.core.publisher.FluxIterable.subscribe(FluxIterable.java:86)
+	at reactor.core.publisher.Flux.subscribe(Flux.java:8325)
+	at reactor.core.publisher.FluxMergeSequential$MergeSequentialMain.onNext(FluxMergeSequential.java:230)
+	at reactor.core.publisher.FluxIterable$IterableSubscription.slowPath(FluxIterable.java:267)
+	at reactor.core.publisher.FluxIterable$IterableSubscription.request(FluxIterable.java:225)
+	at reactor.core.publisher.FluxMergeSequential$MergeSequentialMain.onSubscribe(FluxMergeSequential.java:191)
+	at reactor.core.publisher.FluxIterable.subscribe(FluxIterable.java:161)
+	at reactor.core.publisher.FluxIterable.subscribe(FluxIterable.java:86)
+	at reactor.core.publisher.Mono.subscribe(Mono.java:4213)
+	at reactor.core.publisher.Mono.block(Mono.java:1679)
+	at de.buw.tmdt.plasma.services.gws.config.GatewayOpenAPIConfig.init(GatewayOpenAPIConfig.java:24)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:567)
+	at org.springframework.beans.factory.annotation.InitDestroyAnnotationBeanPostProcessor$LifecycleElement.invoke(InitDestroyAnnotationBeanPostProcessor.java:389)
+	at org.springframework.beans.factory.annotation.InitDestroyAnnotationBeanPostProcessor$LifecycleMetadata.invokeInitMethods(InitDestroyAnnotationBeanPostProcessor.java:333)
+	at org.springframework.beans.factory.annotation.InitDestroyAnnotationBeanPostProcessor.postProcessBeforeInitialization(InitDestroyAnnotationBeanPostProcessor.java:157)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.applyBeanPostProcessorsBeforeInitialization(AbstractAutowireCapableBeanFactory.java:415)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1786)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:594)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:516)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:324)
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:234)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:322)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:202)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.preInstantiateSingletons(DefaultListableBeanFactory.java:897)
+	at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:879)
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:551)
+	at org.springframework.boot.web.reactive.context.ReactiveWebServerApplicationContext.refresh(ReactiveWebServerApplicationContext.java:62)
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:758)
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:750)
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:405)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:315)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1237)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1226)
+	at de.buw.tmdt.plasma.services.gws.GatewayApplication.main(GatewayApplication.java:11)
+Caused by: java.net.ConnectException: Connection refused: no further information
+	at java.base/sun.nio.ch.Net.pollConnect(Native Method)
+	at java.base/sun.nio.ch.Net.pollConnectNow(Net.java:579)
+	at java.base/sun.nio.ch.NioSocketImpl.timedFinishConnect(NioSocketImpl.java:549)
+	at java.base/sun.nio.ch.NioSocketImpl.connect(NioSocketImpl.java:597)
+	at java.base/java.net.SocksSocketImpl.connect(SocksSocketImpl.java:339)
+	at java.base/java.net.Socket.connect(Socket.java:585)
+	at org.apache.http.conn.scheme.PlainSocketFactory.connectSocket(PlainSocketFactory.java:121)
+	at org.apache.http.impl.conn.DefaultClientConnectionOperator.openConnection(DefaultClientConnectionOperator.java:180)
+	at org.apache.http.impl.conn.AbstractPoolEntry.open(AbstractPoolEntry.java:144)
+	at org.apache.http.impl.conn.AbstractPooledConnAdapter.open(AbstractPooledConnAdapter.java:134)
+	at org.apache.http.impl.client.DefaultRequestDirector.tryConnect(DefaultRequestDirector.java:605)
+	at org.apache.http.impl.client.DefaultRequestDirector.execute(DefaultRequestDirector.java:440)
+	at org.apache.http.impl.client.AbstractHttpClient.doExecute(AbstractHttpClient.java:835)
+	at org.apache.http.impl.client.CloseableHttpClient.execute(CloseableHttpClient.java:118)
+	at org.apache.http.impl.client.CloseableHttpClient.execute(CloseableHttpClient.java:56)
+	at com.sun.jersey.client.apache4.ApacheHttpClient4Handler.handle(ApacheHttpClient4Handler.java:173)
+	... 92 more
+
+2020-12-19 09:39:56.553 WARN  [port.decorator.RetryableEurekaHttpClient] [main] - Request execution failed with message: java.net.ConnectException: Connection refused: no further information
+2020-12-19 09:39:56.553 INFO  [com.netflix.discovery.DiscoveryClient   ] [main] - DiscoveryClient_PLASMA-GWS/host.docker.internal:plasma-gws:8888 - was unable to refresh its cache! This periodic background refresh will be retried in 30 seconds. status = Cannot execute request on any known server stacktrace = com.netflix.discovery.shared.transport.TransportException: Cannot execute request on any known server
+	at com.netflix.discovery.shared.transport.decorator.RetryableEurekaHttpClient.execute(RetryableEurekaHttpClient.java:112)
+	at com.netflix.discovery.shared.transport.decorator.EurekaHttpClientDecorator.getApplications(EurekaHttpClientDecorator.java:134)
+	at com.netflix.discovery.shared.transport.decorator.EurekaHttpClientDecorator$6.execute(EurekaHttpClientDecorator.java:137)
+	at com.netflix.discovery.shared.transport.decorator.SessionedEurekaHttpClient.execute(SessionedEurekaHttpClient.java:77)
+	at com.netflix.discovery.shared.transport.decorator.EurekaHttpClientDecorator.getApplications(EurekaHttpClientDecorator.java:134)
+	at com.netflix.discovery.DiscoveryClient.getAndStoreFullRegistry(DiscoveryClient.java:1101)
+	at com.netflix.discovery.DiscoveryClient.fetchRegistry(DiscoveryClient.java:1014)
+	at com.netflix.discovery.DiscoveryClient.<init>(DiscoveryClient.java:441)
+	at com.netflix.discovery.DiscoveryClient.<init>(DiscoveryClient.java:283)
+	at com.netflix.discovery.DiscoveryClient.<init>(DiscoveryClient.java:279)
+	at org.springframework.cloud.netflix.eureka.CloudEurekaClient.<init>(CloudEurekaClient.java:67)
+	at org.springframework.cloud.netflix.eureka.EurekaClientAutoConfiguration$RefreshableEurekaClientConfiguration.eurekaClient(EurekaClientAutoConfiguration.java:316)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:567)
+	at org.springframework.beans.factory.support.SimpleInstantiationStrategy.instantiate(SimpleInstantiationStrategy.java:154)
+	at org.springframework.beans.factory.support.ConstructorResolver.instantiate(ConstructorResolver.java:650)
+	at org.springframework.beans.factory.support.ConstructorResolver.instantiateUsingFactoryMethod(ConstructorResolver.java:635)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.instantiateUsingFactoryMethod(AbstractAutowireCapableBeanFactory.java:1336)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBeanInstance(AbstractAutowireCapableBeanFactory.java:1176)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:556)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:516)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$1(AbstractBeanFactory.java:363)
+	at org.springframework.cloud.context.scope.GenericScope$BeanLifecycleWrapper.getBean(GenericScope.java:389)
+	at org.springframework.cloud.context.scope.GenericScope.get(GenericScope.java:186)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:360)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:202)
+	at org.springframework.aop.target.SimpleBeanTargetSource.getTarget(SimpleBeanTargetSource.java:35)
+	at org.springframework.aop.framework.JdkDynamicAopProxy.invoke(JdkDynamicAopProxy.java:192)
+	at com.sun.proxy.$Proxy118.getApplications(Unknown Source)
+	at org.springframework.cloud.netflix.eureka.reactive.EurekaReactiveDiscoveryClient.lambda$getServices$1(EurekaReactiveDiscoveryClient.java:63)
+	at reactor.core.publisher.FluxDefer.subscribe(FluxDefer.java:46)
+	at reactor.core.publisher.Flux.subscribe(Flux.java:8325)
+	at reactor.core.publisher.FluxFlatMap$FlatMapMain.onNext(FluxFlatMap.java:418)
+	at reactor.core.publisher.FluxIterable$IterableSubscription.slowPath(FluxIterable.java:267)
+	at reactor.core.publisher.FluxIterable$IterableSubscription.request(FluxIterable.java:225)
+	at reactor.core.publisher.FluxFlatMap$FlatMapMain.onSubscribe(FluxFlatMap.java:363)
+	at reactor.core.publisher.FluxIterable.subscribe(FluxIterable.java:161)
+	at reactor.core.publisher.FluxIterable.subscribe(FluxIterable.java:86)
+	at reactor.core.publisher.Flux.subscribe(Flux.java:8325)
+	at reactor.core.publisher.FluxMergeSequential$MergeSequentialMain.onNext(FluxMergeSequential.java:230)
+	at reactor.core.publisher.FluxIterable$IterableSubscription.slowPath(FluxIterable.java:267)
+	at reactor.core.publisher.FluxIterable$IterableSubscription.request(FluxIterable.java:225)
+	at reactor.core.publisher.FluxMergeSequential$MergeSequentialMain.onSubscribe(FluxMergeSequential.java:191)
+	at reactor.core.publisher.FluxIterable.subscribe(FluxIterable.java:161)
+	at reactor.core.publisher.FluxIterable.subscribe(FluxIterable.java:86)
+	at reactor.core.publisher.Mono.subscribe(Mono.java:4213)
+	at reactor.core.publisher.Mono.block(Mono.java:1679)
+	at de.buw.tmdt.plasma.services.gws.config.GatewayOpenAPIConfig.init(GatewayOpenAPIConfig.java:24)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:567)
+	at org.springframework.beans.factory.annotation.InitDestroyAnnotationBeanPostProcessor$LifecycleElement.invoke(InitDestroyAnnotationBeanPostProcessor.java:389)
+	at org.springframework.beans.factory.annotation.InitDestroyAnnotationBeanPostProcessor$LifecycleMetadata.invokeInitMethods(InitDestroyAnnotationBeanPostProcessor.java:333)
+	at org.springframework.beans.factory.annotation.InitDestroyAnnotationBeanPostProcessor.postProcessBeforeInitialization(InitDestroyAnnotationBeanPostProcessor.java:157)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.applyBeanPostProcessorsBeforeInitialization(AbstractAutowireCapableBeanFactory.java:415)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1786)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:594)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:516)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:324)
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:234)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:322)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:202)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.preInstantiateSingletons(DefaultListableBeanFactory.java:897)
+	at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:879)
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:551)
+	at org.springframework.boot.web.reactive.context.ReactiveWebServerApplicationContext.refresh(ReactiveWebServerApplicationContext.java:62)
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:758)
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:750)
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:405)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:315)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1237)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1226)
+	at de.buw.tmdt.plasma.services.gws.GatewayApplication.main(GatewayApplication.java:11)
+
+2020-12-19 09:39:56.561 INFO  [com.netflix.discovery.DiscoveryClient   ] [main] - Initial registry fetch from primary servers failed
+2020-12-19 09:39:56.561 WARN  [com.netflix.discovery.DiscoveryClient   ] [main] - Using default backup registry implementation which does not do anything.
+2020-12-19 09:39:56.561 INFO  [com.netflix.discovery.DiscoveryClient   ] [main] - Initial registry fetch from backup servers failed
+2020-12-19 09:39:56.563 INFO  [com.netflix.discovery.DiscoveryClient   ] [main] - Starting heartbeat executor: renew interval is: 30
+2020-12-19 09:39:56.563 INFO  [netflix.discovery.InstanceInfoReplicator] [main] - InstanceInfoReplicator onDemand update allowed rate per min is 4
+2020-12-19 09:39:56.563 INFO  [com.netflix.discovery.DiscoveryClient   ] [main] - Discovery Client initialized at timestamp 1608367196563 with initial instances count: 0
+2020-12-19 09:39:56.604 WARN  [ix.config.sources.URLConfigurationSource] [main] - No URLs will be polled as dynamic configuration sources.
+2020-12-19 09:39:56.604 INFO  [ix.config.sources.URLConfigurationSource] [main] - To enable URLs as dynamic configuration sources, define System property archaius.configurationSource.additionalUrls or make config.properties available on classpath.
+2020-12-19 09:39:56.612 WARN  [ix.config.sources.URLConfigurationSource] [main] - No URLs will be polled as dynamic configuration sources.
+2020-12-19 09:39:56.612 INFO  [ix.config.sources.URLConfigurationSource] [main] - To enable URLs as dynamic configuration sources, define System property archaius.configurationSource.additionalUrls or make config.properties available on classpath.
+2020-12-19 09:39:57.654 INFO  [ateway.route.RouteDefinitionRouteLocator] [main] - Loaded RoutePredicateFactory [After]
+2020-12-19 09:39:57.654 INFO  [ateway.route.RouteDefinitionRouteLocator] [main] - Loaded RoutePredicateFactory [Before]
+2020-12-19 09:39:57.654 INFO  [ateway.route.RouteDefinitionRouteLocator] [main] - Loaded RoutePredicateFactory [Between]
+2020-12-19 09:39:57.654 INFO  [ateway.route.RouteDefinitionRouteLocator] [main] - Loaded RoutePredicateFactory [Cookie]
+2020-12-19 09:39:57.654 INFO  [ateway.route.RouteDefinitionRouteLocator] [main] - Loaded RoutePredicateFactory [Header]
+2020-12-19 09:39:57.654 INFO  [ateway.route.RouteDefinitionRouteLocator] [main] - Loaded RoutePredicateFactory [Host]
+2020-12-19 09:39:57.654 INFO  [ateway.route.RouteDefinitionRouteLocator] [main] - Loaded RoutePredicateFactory [Method]
+2020-12-19 09:39:57.654 INFO  [ateway.route.RouteDefinitionRouteLocator] [main] - Loaded RoutePredicateFactory [Path]
+2020-12-19 09:39:57.654 INFO  [ateway.route.RouteDefinitionRouteLocator] [main] - Loaded RoutePredicateFactory [Query]
+2020-12-19 09:39:57.654 INFO  [ateway.route.RouteDefinitionRouteLocator] [main] - Loaded RoutePredicateFactory [ReadBody]
+2020-12-19 09:39:57.654 INFO  [ateway.route.RouteDefinitionRouteLocator] [main] - Loaded RoutePredicateFactory [RemoteAddr]
+2020-12-19 09:39:57.654 INFO  [ateway.route.RouteDefinitionRouteLocator] [main] - Loaded RoutePredicateFactory [Weight]
+2020-12-19 09:39:57.654 INFO  [ateway.route.RouteDefinitionRouteLocator] [main] - Loaded RoutePredicateFactory [CloudFoundryRouteService]
+2020-12-19 09:39:58.309 INFO  [tuate.endpoint.web.EndpointLinksResolver] [main] - Exposing 2 endpoint(s) beneath base path '/actuator'
+2020-12-19 09:39:59.142 WARN  [ockingLoadBalancerClientRibbonWarnLogger] [main] - You already have RibbonLoadBalancerClient on your classpath. It will be used by default. As Spring Cloud Ribbon is in maintenance mode. We recommend switching to BlockingLoadBalancerClient instead. In order to use it, set the value of `spring.cloud.loadbalancer.ribbon.enabled` to `false` or remove spring-cloud-starter-netflix-ribbon from your project.
+2020-12-19 09:39:59.158 WARN  [eactorLoadBalancerClientRibbonWarnLogger] [main] - You have RibbonLoadBalancerClient on your classpath. LoadBalancerExchangeFilterFunction that uses it under the hood will be used by default. Spring Cloud Ribbon is now in maintenance mode, so we suggest switching to ReactorLoadBalancerExchangeFilterFunction instead. In order to use it, set the value of `spring.cloud.loadbalancer.ribbon.enabled` to `false` or remove spring-cloud-starter-netflix-ribbon from your project.
+2020-12-19 09:39:59.211 INFO  [ka.serviceregistry.EurekaServiceRegistry] [main] - Registering application PLASMA-GWS with eureka with status UP
+2020-12-19 09:39:59.211 INFO  [com.netflix.discovery.DiscoveryClient   ] [main] - Saw local status change event StatusChangeEvent [timestamp=1608367199211, current=UP, previous=STARTING]
+2020-12-19 09:39:59.211 INFO  [com.netflix.discovery.DiscoveryClient   ] [DiscoveryClient-InstanceInfoReplicator-0] - DiscoveryClient_PLASMA-GWS/host.docker.internal:plasma-gws:8888: registering service...
+2020-12-19 09:40:00.060 INFO  [k.boot.web.embedded.netty.NettyWebServer] [main] - Netty started on port(s): 8888
+2020-12-19 09:40:00.060 INFO  [ceregistry.EurekaAutoServiceRegistration] [main] - Updating port to 8888
+2020-12-19 09:40:00.844 INFO  [t.plasma.services.gws.GatewayApplication] [main] - Started GatewayApplication in 10.318 seconds (JVM running for 11.864)
+2020-12-19 09:40:01.273 INFO  [rt.decorator.RedirectingEurekaHttpClient] [DiscoveryClient-InstanceInfoReplicator-0] - Request execution error. endpoint=DefaultEndpoint{ serviceUrl='http://plasma-discovery-user:CHANGE-ME-558faa45-d34d-4d77-ba2b-11c705e51370@plasma-discovery-service:8761/eureka/}, exception=java.net.ConnectException: Connection refused: no further information stacktrace=com.sun.jersey.api.client.ClientHandlerException: java.net.ConnectException: Connection refused: no further information
+	at com.sun.jersey.client.apache4.ApacheHttpClient4Handler.handle(ApacheHttpClient4Handler.java:187)
+	at com.sun.jersey.api.client.filter.GZIPContentEncodingFilter.handle(GZIPContentEncodingFilter.java:123)
+	at com.netflix.discovery.EurekaIdentityHeaderFilter.handle(EurekaIdentityHeaderFilter.java:27)
+	at com.sun.jersey.api.client.Client.handle(Client.java:652)
+	at com.sun.jersey.api.client.WebResource.handle(WebResource.java:682)
+	at com.sun.jersey.api.client.WebResource.access$200(WebResource.java:74)
+	at com.sun.jersey.api.client.WebResource$Builder.post(WebResource.java:570)
+	at com.netflix.discovery.shared.transport.jersey.AbstractJerseyEurekaHttpClient.register(AbstractJerseyEurekaHttpClient.java:57)
+	at com.netflix.discovery.shared.transport.decorator.EurekaHttpClientDecorator$1.execute(EurekaHttpClientDecorator.java:59)
+	at com.netflix.discovery.shared.transport.decorator.MetricsCollectingEurekaHttpClient.execute(MetricsCollectingEurekaHttpClient.java:73)
+	at com.netflix.discovery.shared.transport.decorator.EurekaHttpClientDecorator.register(EurekaHttpClientDecorator.java:56)
+	at com.netflix.discovery.shared.transport.decorator.EurekaHttpClientDecorator$1.execute(EurekaHttpClientDecorator.java:59)
+	at com.netflix.discovery.shared.transport.decorator.RedirectingEurekaHttpClient.executeOnNewServer(RedirectingEurekaHttpClient.java:121)
+	at com.netflix.discovery.shared.transport.decorator.RedirectingEurekaHttpClient.execute(RedirectingEurekaHttpClient.java:80)
+	at com.netflix.discovery.shared.transport.decorator.EurekaHttpClientDecorator.register(EurekaHttpClientDecorator.java:56)
+	at com.netflix.discovery.shared.transport.decorator.EurekaHttpClientDecorator$1.execute(EurekaHttpClientDecorator.java:59)
+	at com.netflix.discovery.shared.transport.decorator.RetryableEurekaHttpClient.execute(RetryableEurekaHttpClient.java:120)
+	at com.netflix.discovery.shared.transport.decorator.EurekaHttpClientDecorator.register(EurekaHttpClientDecorator.java:56)
+	at com.netflix.discovery.shared.transport.decorator.EurekaHttpClientDecorator$1.execute(EurekaHttpClientDecorator.java:59)
+	at com.netflix.discovery.shared.transport.decorator.SessionedEurekaHttpClient.execute(SessionedEurekaHttpClient.java:77)
+	at com.netflix.discovery.shared.transport.decorator.EurekaHttpClientDecorator.register(EurekaHttpClientDecorator.java:56)
+	at com.netflix.discovery.DiscoveryClient.register(DiscoveryClient.java:876)
+	at com.netflix.discovery.InstanceInfoReplicator.run(InstanceInfoReplicator.java:121)
+	at com.netflix.discovery.InstanceInfoReplicator$1.run(InstanceInfoReplicator.java:101)
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:515)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:264)
+	at java.base/java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:304)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1128)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:628)
+	at java.base/java.lang.Thread.run(Thread.java:830)
+Caused by: java.net.ConnectException: Connection refused: no further information
+	at java.base/sun.nio.ch.Net.pollConnect(Native Method)
+	at java.base/sun.nio.ch.Net.pollConnectNow(Net.java:579)
+	at java.base/sun.nio.ch.NioSocketImpl.timedFinishConnect(NioSocketImpl.java:549)
+	at java.base/sun.nio.ch.NioSocketImpl.connect(NioSocketImpl.java:597)
+	at java.base/java.net.SocksSocketImpl.connect(SocksSocketImpl.java:339)
+	at java.base/java.net.Socket.connect(Socket.java:585)
+	at org.apache.http.conn.scheme.PlainSocketFactory.connectSocket(PlainSocketFactory.java:121)
+	at org.apache.http.impl.conn.DefaultClientConnectionOperator.openConnection(DefaultClientConnectionOperator.java:180)
+	at org.apache.http.impl.conn.AbstractPoolEntry.open(AbstractPoolEntry.java:144)
+	at org.apache.http.impl.conn.AbstractPooledConnAdapter.open(AbstractPooledConnAdapter.java:134)
+	at org.apache.http.impl.client.DefaultRequestDirector.tryConnect(DefaultRequestDirector.java:605)
+	at org.apache.http.impl.client.DefaultRequestDirector.execute(DefaultRequestDirector.java:440)
+	at org.apache.http.impl.client.AbstractHttpClient.doExecute(AbstractHttpClient.java:835)
+	at org.apache.http.impl.client.CloseableHttpClient.execute(CloseableHttpClient.java:118)
+	at org.apache.http.impl.client.CloseableHttpClient.execute(CloseableHttpClient.java:56)
+	at com.sun.jersey.client.apache4.ApacheHttpClient4Handler.handle(ApacheHttpClient4Handler.java:173)
+	... 29 more
+
+2020-12-19 09:40:01.273 WARN  [port.decorator.RetryableEurekaHttpClient] [DiscoveryClient-InstanceInfoReplicator-0] - Request execution failed with message: java.net.ConnectException: Connection refused: no further information
+2020-12-19 09:40:01.273 WARN  [com.netflix.discovery.DiscoveryClient   ] [DiscoveryClient-InstanceInfoReplicator-0] - DiscoveryClient_PLASMA-GWS/host.docker.internal:plasma-gws:8888 - registration failed Cannot execute request on any known server
+com.netflix.discovery.shared.transport.TransportException: Cannot execute request on any known server
+	at com.netflix.discovery.shared.transport.decorator.RetryableEurekaHttpClient.execute(RetryableEurekaHttpClient.java:112) ~[eureka-client-1.10.7.jar:1.10.7]
+	at com.netflix.discovery.shared.transport.decorator.EurekaHttpClientDecorator.register(EurekaHttpClientDecorator.java:56) ~[eureka-client-1.10.7.jar:1.10.7]
+	at com.netflix.discovery.shared.transport.decorator.EurekaHttpClientDecorator$1.execute(EurekaHttpClientDecorator.java:59) ~[eureka-client-1.10.7.jar:1.10.7]
+	at com.netflix.discovery.shared.transport.decorator.SessionedEurekaHttpClient.execute(SessionedEurekaHttpClient.java:77) ~[eureka-client-1.10.7.jar:1.10.7]
+	at com.netflix.discovery.shared.transport.decorator.EurekaHttpClientDecorator.register(EurekaHttpClientDecorator.java:56) ~[eureka-client-1.10.7.jar:1.10.7]
+	at com.netflix.discovery.DiscoveryClient.register(DiscoveryClient.java:876) [eureka-client-1.10.7.jar:1.10.7]
+	at com.netflix.discovery.InstanceInfoReplicator.run(InstanceInfoReplicator.java:121) [eureka-client-1.10.7.jar:1.10.7]
+	at com.netflix.discovery.InstanceInfoReplicator$1.run(InstanceInfoReplicator.java:101) [eureka-client-1.10.7.jar:1.10.7]
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:515) [?:?]
+	at java.util.concurrent.FutureTask.run(FutureTask.java:264) [?:?]
+	at java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:304) [?:?]
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1128) [?:?]
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:628) [?:?]
+	at java.lang.Thread.run(Thread.java:830) [?:?]
+2020-12-19 09:40:01.275 WARN  [netflix.discovery.InstanceInfoReplicator] [DiscoveryClient-InstanceInfoReplicator-0] - There was a problem with the instance info replicator
+com.netflix.discovery.shared.transport.TransportException: Cannot execute request on any known server
+	at com.netflix.discovery.shared.transport.decorator.RetryableEurekaHttpClient.execute(RetryableEurekaHttpClient.java:112) ~[eureka-client-1.10.7.jar:1.10.7]
+	at com.netflix.discovery.shared.transport.decorator.EurekaHttpClientDecorator.register(EurekaHttpClientDecorator.java:56) ~[eureka-client-1.10.7.jar:1.10.7]
+	at com.netflix.discovery.shared.transport.decorator.EurekaHttpClientDecorator$1.execute(EurekaHttpClientDecorator.java:59) ~[eureka-client-1.10.7.jar:1.10.7]
+	at com.netflix.discovery.shared.transport.decorator.SessionedEurekaHttpClient.execute(SessionedEurekaHttpClient.java:77) ~[eureka-client-1.10.7.jar:1.10.7]
+	at com.netflix.discovery.shared.transport.decorator.EurekaHttpClientDecorator.register(EurekaHttpClientDecorator.java:56) ~[eureka-client-1.10.7.jar:1.10.7]
+	at com.netflix.discovery.DiscoveryClient.register(DiscoveryClient.java:876) ~[eureka-client-1.10.7.jar:1.10.7]
+	at com.netflix.discovery.InstanceInfoReplicator.run(InstanceInfoReplicator.java:121) [eureka-client-1.10.7.jar:1.10.7]
+	at com.netflix.discovery.InstanceInfoReplicator$1.run(InstanceInfoReplicator.java:101) [eureka-client-1.10.7.jar:1.10.7]
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:515) [?:?]
+	at java.util.concurrent.FutureTask.run(FutureTask.java:264) [?:?]
+	at java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:304) [?:?]
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1128) [?:?]
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:628) [?:?]
+	at java.lang.Thread.run(Thread.java:830) [?:?]
+2020-12-19 09:40:26.574 INFO  [com.netflix.discovery.DiscoveryClient   ] [DiscoveryClient-CacheRefreshExecutor-0] - Disable delta property : false
+2020-12-19 09:40:26.575 INFO  [com.netflix.discovery.DiscoveryClient   ] [DiscoveryClient-CacheRefreshExecutor-0] - Single vip registry refresh property : null
+2020-12-19 09:40:26.575 INFO  [com.netflix.discovery.DiscoveryClient   ] [DiscoveryClient-CacheRefreshExecutor-0] - Force full registry fetch : false
+2020-12-19 09:40:26.575 INFO  [com.netflix.discovery.DiscoveryClient   ] [DiscoveryClient-CacheRefreshExecutor-0] - Application is null : false
+2020-12-19 09:40:26.575 INFO  [com.netflix.discovery.DiscoveryClient   ] [DiscoveryClient-CacheRefreshExecutor-0] - Registered Applications size is zero : true
+2020-12-19 09:40:26.575 INFO  [com.netflix.discovery.DiscoveryClient   ] [DiscoveryClient-CacheRefreshExecutor-0] - Application version is -1: true
+2020-12-19 09:40:26.575 INFO  [com.netflix.discovery.DiscoveryClient   ] [DiscoveryClient-CacheRefreshExecutor-0] - Getting all instance registry info from the eureka server
+2020-12-19 09:40:26.661 INFO  [com.netflix.discovery.DiscoveryClient   ] [DiscoveryClient-HeartbeatExecutor-0] - DiscoveryClient_PLASMA-GWS/host.docker.internal:plasma-gws:8888 - Re-registering apps/PLASMA-GWS
+2020-12-19 09:40:26.661 INFO  [com.netflix.discovery.DiscoveryClient   ] [DiscoveryClient-HeartbeatExecutor-0] - DiscoveryClient_PLASMA-GWS/host.docker.internal:plasma-gws:8888: registering service...
+2020-12-19 09:40:26.676 INFO  [com.netflix.discovery.DiscoveryClient   ] [DiscoveryClient-CacheRefreshExecutor-0] - The response status is 200
+2020-12-19 09:40:26.676 INFO  [com.netflix.discovery.DiscoveryClient   ] [DiscoveryClient-HeartbeatExecutor-0] - DiscoveryClient_PLASMA-GWS/host.docker.internal:plasma-gws:8888 - registration status: 204

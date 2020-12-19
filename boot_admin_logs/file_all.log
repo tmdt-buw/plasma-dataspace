@@ -1,0 +1,66 @@
+2020-12-19 09:40:07.465 INFO  [ibernate.validator.internal.util.Version] [background-preinit] - HV000001: Hibernate Validator 6.1.6.Final
+2020-12-19 09:40:08.266 INFO  [asma.services.sba.AdminServerApplication] [main] - No active profile set, falling back to default profiles: default
+2020-12-19 09:40:08.919 WARN  [amework.boot.actuate.endpoint.EndpointId] [main] - Endpoint ID 'service-registry' contains invalid characters, please migrate to a valid format.
+2020-12-19 09:40:08.993 INFO  [amework.cloud.context.scope.GenericScope] [main] - BeanFactory id=6c4501eb-d365-38ed-81c3-4770d3e6e367
+2020-12-19 09:40:09.054 INFO  [trationDelegate$BeanPostProcessorChecker] [main] - Bean 'org.springframework.cloud.client.loadbalancer.reactive.LoadBalancerBeanPostProcessorAutoConfiguration' of type [org.springframework.cloud.client.loadbalancer.reactive.LoadBalancerBeanPostProcessorAutoConfiguration] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2020-12-19 09:40:09.054 INFO  [trationDelegate$BeanPostProcessorChecker] [main] - Bean 'org.springframework.cloud.client.loadbalancer.reactive.LoadBalancerBeanPostProcessorAutoConfiguration$ReactiveLoadBalancerConfig' of type [org.springframework.cloud.client.loadbalancer.reactive.LoadBalancerBeanPostProcessorAutoConfiguration$ReactiveLoadBalancerConfig] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2020-12-19 09:40:09.054 INFO  [trationDelegate$BeanPostProcessorChecker] [main] - Bean 'deferringLoadBalancerExchangeFilterFunction' of type [org.springframework.cloud.client.loadbalancer.reactive.DeferringLoadBalancerExchangeFilterFunction] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2020-12-19 09:40:09.095 INFO  [org.eclipse.jetty.util.log              ] [main] - Logging initialized @4002ms to org.eclipse.jetty.util.log.Slf4jLog
+2020-12-19 09:40:09.216 INFO  [edded.jetty.JettyServletWebServerFactory] [main] - Server initialized with port: 8080
+2020-12-19 09:40:09.216 INFO  [org.eclipse.jetty.server.Server         ] [main] - jetty-9.4.35.v20201120; built: 2020-11-20T21:17:03.964Z; git: bdc54f03a5e0a7e280fab27f55c3c75ee8da89fb; jvm 13+33
+2020-12-19 09:40:09.235 INFO  [erver.handler.ContextHandler.application] [main] - Initializing Spring embedded WebApplicationContext
+2020-12-19 09:40:09.237 INFO  [ntext.ServletWebServerApplicationContext] [main] - Root WebApplicationContext: initialization completed in 956 ms
+2020-12-19 09:40:09.298 WARN  [ix.config.sources.URLConfigurationSource] [main] - No URLs will be polled as dynamic configuration sources.
+2020-12-19 09:40:09.298 INFO  [ix.config.sources.URLConfigurationSource] [main] - To enable URLs as dynamic configuration sources, define System property archaius.configurationSource.additionalUrls or make config.properties available on classpath.
+2020-12-19 09:40:09.308 INFO  [om.netflix.config.DynamicPropertyFactory] [main] - DynamicPropertyFactory is initialized with configuration sources: com.netflix.config.ConcurrentCompositeConfiguration@625487a6
+2020-12-19 09:40:09.407 INFO  [org.eclipse.jetty.server.session        ] [main] - DefaultSessionIdManager workerName=node0
+2020-12-19 09:40:09.407 INFO  [org.eclipse.jetty.server.session        ] [main] - No SessionScavenger set, using defaults
+2020-12-19 09:40:09.409 INFO  [org.eclipse.jetty.server.session        ] [main] - node0 Scavenging every 600000ms
+2020-12-19 09:40:09.409 INFO  [ipse.jetty.server.handler.ContextHandler] [main] - Started o.s.b.w.e.j.JettyEmbeddedWebAppContext@4536a715{application,/,[file:///C:/Users/andrepomp/AppData/Local/Temp/jetty-docbase.8080.7500948602233587904/],AVAILABLE}
+2020-12-19 09:40:09.409 INFO  [org.eclipse.jetty.server.Server         ] [main] - Started @4320ms
+2020-12-19 09:40:09.448 WARN  [ix.config.sources.URLConfigurationSource] [main] - No URLs will be polled as dynamic configuration sources.
+2020-12-19 09:40:09.448 INFO  [ix.config.sources.URLConfigurationSource] [main] - To enable URLs as dynamic configuration sources, define System property archaius.configurationSource.additionalUrls or make config.properties available on classpath.
+2020-12-19 09:40:09.540 INFO  [duling.concurrent.ThreadPoolTaskExecutor] [main] - Initializing ExecutorService 'applicationTaskExecutor'
+2020-12-19 09:40:09.643 WARN  [ion$DefaultTemplateResolverConfiguration] [main] - Cannot find template location: classpath:/templates/ (please add some templates or check your Thymeleaf configuration)
+2020-12-19 09:40:10.060 INFO  [DiscoveryClientOptionalArgsConfiguration] [main] - Eureka HTTP Client uses Jersey
+2020-12-19 09:40:11.302 INFO  [.security.web.DefaultSecurityFilterChain] [main] - Creating filter chain: any request, [org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@33f059ad, org.springframework.security.web.context.SecurityContextPersistenceFilter@40a2fdd2, org.springframework.security.web.header.HeaderWriterFilter@502dc93a, org.springframework.security.web.authentication.logout.LogoutFilter@18f1260, org.springframework.security.web.authentication.www.BasicAuthenticationFilter@5276330a, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@331da721, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@2e268c19, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@6c7bc8ac, org.springframework.security.web.session.SessionManagementFilter@701a79b, org.springframework.security.web.access.ExceptionTranslationFilter@73ccdfc1, org.springframework.security.web.access.intercept.FilterSecurityInterceptor@3993cecb]
+2020-12-19 09:40:11.718 WARN  [ockingLoadBalancerClientRibbonWarnLogger] [main] - You already have RibbonLoadBalancerClient on your classpath. It will be used by default. As Spring Cloud Ribbon is in maintenance mode. We recommend switching to BlockingLoadBalancerClient instead. In order to use it, set the value of `spring.cloud.loadbalancer.ribbon.enabled` to `false` or remove spring-cloud-starter-netflix-ribbon from your project.
+2020-12-19 09:40:11.734 WARN  [eactorLoadBalancerClientRibbonWarnLogger] [main] - You have RibbonLoadBalancerClient on your classpath. LoadBalancerExchangeFilterFunction that uses it under the hood will be used by default. Spring Cloud Ribbon is now in maintenance mode, so we suggest switching to ReactorLoadBalancerExchangeFilterFunction instead. In order to use it, set the value of `spring.cloud.loadbalancer.ribbon.enabled` to `false` or remove spring-cloud-starter-netflix-ribbon from your project.
+2020-12-19 09:40:11.749 INFO  [tuate.endpoint.web.EndpointLinksResolver] [main] - Exposing 2 endpoint(s) beneath base path '/actuator'
+2020-12-19 09:40:11.818 INFO  [cloud.netflix.eureka.InstanceInfoFactory] [main] - Setting initial instance status as: STARTING
+2020-12-19 09:40:11.850 INFO  [com.netflix.discovery.DiscoveryClient   ] [main] - Initializing Eureka in region us-east-1
+2020-12-19 09:40:11.975 INFO  [scovery.provider.DiscoveryJerseyProvider] [main] - Using JSON encoding codec LegacyJacksonJson
+2020-12-19 09:40:11.975 INFO  [scovery.provider.DiscoveryJerseyProvider] [main] - Using JSON decoding codec LegacyJacksonJson
+2020-12-19 09:40:12.082 INFO  [scovery.provider.DiscoveryJerseyProvider] [main] - Using XML encoding codec XStreamXml
+2020-12-19 09:40:12.082 INFO  [scovery.provider.DiscoveryJerseyProvider] [main] - Using XML decoding codec XStreamXml
+2020-12-19 09:40:12.188 INFO  [hared.resolver.aws.ConfigClusterResolver] [main] - Resolving eureka endpoints via configuration
+2020-12-19 09:40:12.420 INFO  [com.netflix.discovery.DiscoveryClient   ] [main] - Disable delta property : false
+2020-12-19 09:40:12.420 INFO  [com.netflix.discovery.DiscoveryClient   ] [main] - Single vip registry refresh property : null
+2020-12-19 09:40:12.420 INFO  [com.netflix.discovery.DiscoveryClient   ] [main] - Force full registry fetch : false
+2020-12-19 09:40:12.420 INFO  [com.netflix.discovery.DiscoveryClient   ] [main] - Application is null : false
+2020-12-19 09:40:12.420 INFO  [com.netflix.discovery.DiscoveryClient   ] [main] - Registered Applications size is zero : true
+2020-12-19 09:40:12.420 INFO  [com.netflix.discovery.DiscoveryClient   ] [main] - Application version is -1: true
+2020-12-19 09:40:12.420 INFO  [com.netflix.discovery.DiscoveryClient   ] [main] - Getting all instance registry info from the eureka server
+2020-12-19 09:40:12.725 INFO  [com.netflix.discovery.DiscoveryClient   ] [main] - The response status is 200
+2020-12-19 09:40:12.725 INFO  [com.netflix.discovery.DiscoveryClient   ] [main] - Starting heartbeat executor: renew interval is: 30
+2020-12-19 09:40:12.736 INFO  [netflix.discovery.InstanceInfoReplicator] [main] - InstanceInfoReplicator onDemand update allowed rate per min is 4
+2020-12-19 09:40:12.736 INFO  [com.netflix.discovery.DiscoveryClient   ] [main] - Discovery Client initialized at timestamp 1608367212736 with initial instances count: 0
+2020-12-19 09:40:12.736 INFO  [ka.serviceregistry.EurekaServiceRegistry] [main] - Registering application PLASMA-SPRING-BOOT-ADMIN with eureka with status UP
+2020-12-19 09:40:12.736 INFO  [com.netflix.discovery.DiscoveryClient   ] [main] - Saw local status change event StatusChangeEvent [timestamp=1608367212736, current=UP, previous=STARTING]
+2020-12-19 09:40:12.736 INFO  [com.netflix.discovery.DiscoveryClient   ] [DiscoveryClient-InstanceInfoReplicator-0] - DiscoveryClient_PLASMA-SPRING-BOOT-ADMIN/host.docker.internal:plasma-spring-boot-admin:8080: registering service...
+2020-12-19 09:40:12.755 INFO  [erver.handler.ContextHandler.application] [main] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2020-12-19 09:40:12.755 INFO  [gframework.web.servlet.DispatcherServlet] [main] - Initializing Servlet 'dispatcherServlet'
+2020-12-19 09:40:12.755 INFO  [gframework.web.servlet.DispatcherServlet] [main] - Completed initialization in 0 ms
+2020-12-19 09:40:12.796 INFO  [com.netflix.discovery.DiscoveryClient   ] [DiscoveryClient-InstanceInfoReplicator-0] - DiscoveryClient_PLASMA-SPRING-BOOT-ADMIN/host.docker.internal:plasma-spring-boot-admin:8080 - registration status: 204
+2020-12-19 09:40:12.975 INFO  [g.eclipse.jetty.server.AbstractConnector] [main] - Started ServerConnector@124d26ba{HTTP/1.1, (http/1.1)}{0.0.0.0:8080}
+2020-12-19 09:40:12.975 INFO  [k.boot.web.embedded.jetty.JettyWebServer] [main] - Jetty started on port(s) 8080 (http/1.1) with context path '/'
+2020-12-19 09:40:12.975 INFO  [ceregistry.EurekaAutoServiceRegistration] [main] - Updating port to 8080
+2020-12-19 09:40:13.605 INFO  [asma.services.sba.AdminServerApplication] [main] - Started AdminServerApplication in 6.843 seconds (JVM running for 8.511)
+2020-12-19 09:40:42.749 INFO  [com.netflix.discovery.DiscoveryClient   ] [DiscoveryClient-CacheRefreshExecutor-0] - Disable delta property : false
+2020-12-19 09:40:42.749 INFO  [com.netflix.discovery.DiscoveryClient   ] [DiscoveryClient-CacheRefreshExecutor-0] - Single vip registry refresh property : null
+2020-12-19 09:40:42.749 INFO  [com.netflix.discovery.DiscoveryClient   ] [DiscoveryClient-CacheRefreshExecutor-0] - Force full registry fetch : false
+2020-12-19 09:40:42.749 INFO  [com.netflix.discovery.DiscoveryClient   ] [DiscoveryClient-CacheRefreshExecutor-0] - Application is null : false
+2020-12-19 09:40:42.749 INFO  [com.netflix.discovery.DiscoveryClient   ] [DiscoveryClient-CacheRefreshExecutor-0] - Registered Applications size is zero : true
+2020-12-19 09:40:42.749 INFO  [com.netflix.discovery.DiscoveryClient   ] [DiscoveryClient-CacheRefreshExecutor-0] - Application version is -1: false
+2020-12-19 09:40:42.749 INFO  [com.netflix.discovery.DiscoveryClient   ] [DiscoveryClient-CacheRefreshExecutor-0] - Getting all instance registry info from the eureka server
+2020-12-19 09:40:42.768 INFO  [com.netflix.discovery.DiscoveryClient   ] [DiscoveryClient-CacheRefreshExecutor-0] - The response status is 200
