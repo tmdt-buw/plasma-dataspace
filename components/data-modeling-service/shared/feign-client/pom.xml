@@ -23,10 +23,6 @@
             <artifactId>api</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
-        <dependency>
-            <groupId>io.github.openfeign</groupId>
-            <artifactId>feign-httpclient</artifactId>
-        </dependency>
     </dependencies>
 
 </project>
