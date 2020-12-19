@@ -30,7 +30,7 @@ import { Configuration }                                     from '../configurat
 })
 export class SemanticDatabaseControllerService {
 
-    protected basePath = 'http://plasma-gateway-service:8888/api/plasma-sds';
+    protected basePath = 'http://localhost:8888/api/plasma-sds';
     public defaultHeaders = new HttpHeaders();
     public configuration = new Configuration();
     public encoder: HttpParameterCodec;
