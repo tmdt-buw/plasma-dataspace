@@ -110,7 +110,7 @@ services:
      
   kgs:
     image: "plasma/kgs:${PLASMA_VERSION}"
-    hostname: plasma-kgs
+    hostname: plasma-kgs-service
     restart: unless-stopped
     depends_on:
       - discovery
@@ -120,7 +120,7 @@ services:
      
   dss:
     image: "plasma/dss:${PLASMA_VERSION}"
-    hostname: plasma-dss
+    hostname: plasma-dss-service
     restart: unless-stopped
     depends_on:
       - discovery
@@ -130,7 +130,7 @@ services:
 
   sas:
     image: "plasma/sas:${PLASMA_VERSION}"
-    hostname: plasma-sas
+    hostname: plasma-sas-service
     restart: unless-stopped
     depends_on:
       - discovery
@@ -140,7 +140,7 @@ services:
 
   dms:
     image: "plasma/dms:${PLASMA_VERSION}"
-    hostname: plasma-dms
+    hostname: plasma-dms-service
     restart: unless-stopped
     depends_on:
       - discovery
@@ -150,7 +150,7 @@ services:
 
   srs:
     image: "plasma/srs:${PLASMA_VERSION}"
-    hostname: plasma-srs
+    hostname: plasma-srs-service
     restart: unless-stopped
     depends_on:
       - discovery   
@@ -168,7 +168,7 @@ services:
      
   ars-l-lm:
     image: "plasma/ars-l-lm:${PLASMA_VERSION}"
-    hostname: plasma-ars-l-lm
+    hostname: plasma-ars-l-lm-service
     restart: unless-stopped
     depends_on:
       - discovery
