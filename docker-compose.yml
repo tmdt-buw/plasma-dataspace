@@ -157,13 +157,13 @@ services:
     ports:
      - 8190:8190 
 
-#  ui:
-#    build: plasma-ui
-#    image: "plasma/ui:${PLASMA_VERSION}"
-#    hostname: plasma-ui
-#    restart: unless-stopped
-#    ports:
-#     - 80:80     
+  ui:
+    build: ./plasma-ui
+    image: "plasma/ui:${PLASMA_VERSION}"
+    hostname: plasma-ui
+    restart: unless-stopped
+    ports:
+     - 80:80
 
 ########################### Auxiliary Services ######################################
      
