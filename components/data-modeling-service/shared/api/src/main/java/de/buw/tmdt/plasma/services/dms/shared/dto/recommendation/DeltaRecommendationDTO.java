@@ -6,6 +6,7 @@ import de.buw.tmdt.plasma.services.dms.shared.dto.semanticmodel.RelationDTO;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -13,7 +14,7 @@ import java.util.Set;
 /**
  * Defines a Delta recommendation, a partial update of a semantic model.
  */
-public class DeltaRecommendationDTO {
+public class DeltaRecommendationDTO implements Serializable {
 
     private static final String REFERENCE_PROPERTY = "reference";
     private static final String ENTITIES_PROPERTY = "entities";

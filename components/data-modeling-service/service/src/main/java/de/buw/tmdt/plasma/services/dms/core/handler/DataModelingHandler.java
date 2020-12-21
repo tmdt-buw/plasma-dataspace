@@ -919,7 +919,7 @@ public class DataModelingHandler {
 
     /* Recommendations */
 
-    public List<DeltaRecommendationDTO> getRecommendations(@NotNull String dataSourceUuid, @NotNull DataSourceSchema dataSourceSchema) {
+    public ArrayList<DeltaRecommendationDTO> getRecommendations(@NotNull String dataSourceUuid, @NotNull DataSourceSchema dataSourceSchema) {
         DataSourceSchemaDTO dataSourceSchemaDTO = semanticRecommendationApiClient.performSemanticRefinement(dataSourceUuid, dataSourceSchemaDTOConverter.toDTO(dataSourceSchema));
         return dataSourceSchemaDTO.getRecommendations();
     }
