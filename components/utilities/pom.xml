@@ -12,7 +12,6 @@
     </parent>
 
     <artifactId>utilities</artifactId>
-    <version>1.0.0</version>
     <name>${project.module.label.prefix}</name>
 
     <properties>
