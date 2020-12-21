@@ -1,8 +1,8 @@
 ##### Global Configuration ####################################################################################################################################
 # Define the Maven Variables (including a custom .m2 repository)
 variables:
-  MAVEN_CLI_OPTS: "-s ../.m2/settings.xml --batch-mode -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=WARN"
-  MAVEN_OPTS: "-Dmaven.repo.local=../.m2/repository"
+  MAVEN_CLI_OPTS: "-s .m2/settings.xml --batch-mode -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=WARN"
+  MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
   MAVEN_IMAGE: maven:3.6.0-jdk-11
   # Instruct Testcontainers to use the daemon of DinD.
   DOCKER_HOST: "tcp://docker:2375"
@@ -18,7 +18,6 @@ checkstyle:
   tags:
     - docker
   script:
-    - cd components
     - mvn $MAVEN_CLI_OPTS checkstyle:check
   artifacts:
     when: always
@@ -32,7 +31,6 @@ spotbugs:
   tags:
     - docker
   script:
-    - cd components
     - mvn $MAVEN_CLI_OPTS clean compile spotbugs:check
   artifacts:
     when: always
@@ -46,7 +44,6 @@ unit_test:
   tags:
     - docker
   script:
-    - cd components
     - mvn $MAVEN_CLI_OPTS clean test
   only:
     - branches
@@ -66,7 +63,6 @@ unit_test:
   services:
     - docker:dind
   script:
-    - cd components
     - mvn $MAVEN_CLI_OPTS clean verify
   artifacts:
     reports:
@@ -104,7 +100,6 @@ integration_test_on_merge:
 artifact_deployment_manual:
   extends: .artifact_deployment
   before_script:
-    - cd components
     - mvn versions:set -DnewVersion=$CI_COMMIT_SHORT_SHA-SNAPSHOT -DgenerateBackupPoms=false
   only:
     - pushes
@@ -116,7 +111,6 @@ artifact_deployment_manual:
 artifact_deployment_on_release:
   extends: .artifact_deployment
   before_script:
-    - cd components
     - VERSION=${CI_COMMIT_TAG#release-}
     - mvn versions:set -DnewVersion=$VERSION -DgenerateBackupPoms=false
   only:
@@ -143,7 +137,6 @@ artifact_deployment_on_release:
 docker_build_manual:
   extends: .docker_build
   before_script:
-    - cd components
     - mvn versions:set -DnewVersion=SNAPSHOT -DgenerateBackupPoms=false #JIB automatically appends the COMMIT Hash
   except:
     - tags
@@ -154,7 +147,6 @@ docker_build_manual:
 docker_build_on_release:
   extends: .docker_build
   before_script:
-    - cd components
     - VERSION=${CI_COMMIT_TAG#release-}
     - mvn versions:set -DnewVersion=$VERSION -DgenerateBackupPoms=false #JIB automatically appends the COMMIT Hash
   only:
