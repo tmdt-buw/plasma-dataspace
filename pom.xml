@@ -415,7 +415,7 @@
     <repositories>
         <repository>
             <id>buw-gitlab</id>
-            <url>https://git.uni-wuppertal.de/api/v4/groups/plasma/-/packages/maven</url>
+            <url>https://git.uni-wuppertal.de/api/v4/groups/data-platform/-/packages/maven</url>
             <releases>
                 <enabled>true</enabled>
                 <updatePolicy>always</updatePolicy>
@@ -427,7 +427,7 @@
     <pluginRepositories>
         <pluginRepository>
             <id>buw-gitlab</id>
-            <url>https://git.uni-wuppertal.de/api/v4/groups/plasma/-/packages/maven</url>
+            <url>https://git.uni-wuppertal.de/api/v4/groups/data-platform/-/packages/maven</url>
             <releases>
                 <enabled>true</enabled>
                 <updatePolicy>always</updatePolicy>
