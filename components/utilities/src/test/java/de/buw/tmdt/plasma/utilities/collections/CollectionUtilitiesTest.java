@@ -1,13 +1,13 @@
 package de.buw.tmdt.plasma.utilities.collections;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
 import static java.util.Arrays.asList;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class CollectionUtilitiesTest {
 
