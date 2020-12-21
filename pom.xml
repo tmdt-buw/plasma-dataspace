@@ -70,6 +70,8 @@
         <org.apache.maven.plugin.versionplugin.version>2.7</org.apache.maven.plugin.versionplugin.version>
         <pl.project13.maven.version>4.0.0</pl.project13.maven.version>
         <com.google.cloud.tools.jib.version>2.1.0</com.google.cloud.tools.jib.version>
+        <com.github.spotbugs.plugin.version>4.1.4</com.github.spotbugs.plugin.version>
+        <org.apache.maven.plugin.checkstyle.version>3.1.1</org.apache.maven.plugin.checkstyle.version>
 
         <!-- Deployment plugins -->
         <org.apache.maven.plugin.deploy.version>3.0.0-M1</org.apache.maven.plugin.deploy.version>
@@ -282,6 +284,19 @@
                     <artifactId>maven-source-plugin</artifactId>
                     <version>${org.apache.maven.plugin.source.version}</version>
                 </plugin>
+
+                <!-- Code quality: SpotBugs (follower of FindBugs) -->
+                <plugin>
+                    <groupId>com.github.spotbugs</groupId>
+                    <artifactId>spotbugs-maven-plugin</artifactId>
+                    <version>${com.github.spotbugs.plugin.version}</version>
+                </plugin>
+                <!-- Source code style checking. -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-checkstyle-plugin</artifactId>
+                    <version>${org.apache.maven.plugin.checkstyle.version}</version>
+                </plugin>
             </plugins>
         </pluginManagement>
 
@@ -360,6 +375,34 @@
                     </execution>
                 </executions>
             </plugin>
+
+            <!-- Code quality: SpotBugs (follower of FindBugs) -->
+            <plugin>
+                <groupId>com.github.spotbugs</groupId>
+                <artifactId>spotbugs-maven-plugin</artifactId>
+                <configuration>
+                    <plugins>
+                        <plugin>
+                            <groupId>com.h3xstream.findsecbugs</groupId>
+                            <artifactId>findsecbugs-plugin</artifactId>
+                            <version>1.10.1</version>
+                        </plugin>
+                    </plugins>
+                </configuration>
+            </plugin>
+            <!-- Source code style checking. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <configuration>
+                    <configLocation>checkstyle.xml</configLocation>
+                    <includeTestSourceDirectory>true</includeTestSourceDirectory>
+                    <failOnViolation>true</failOnViolation>
+                    <failsOnError>true</failsOnError>
+                    <consoleOutput>true</consoleOutput>
+                </configuration>
+            </plugin>
+
         </plugins>
     </build>
 
