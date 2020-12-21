@@ -1,4 +1,4 @@
-package de.buw.tmdt.plasma.services.dms.core.deserializer;
+package de.buw.tmdt.plasma.services.dms.shared.deserializer;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonParser;

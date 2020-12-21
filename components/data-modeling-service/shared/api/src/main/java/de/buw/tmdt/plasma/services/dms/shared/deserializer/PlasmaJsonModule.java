@@ -1,4 +1,4 @@
-package de.buw.tmdt.plasma.services.dms.core.deserializer;
+package de.buw.tmdt.plasma.services.dms.shared.deserializer;
 
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import de.buw.tmdt.plasma.services.dms.shared.dto.syntaxmodel.operation.TypeDefinitionDTO;
