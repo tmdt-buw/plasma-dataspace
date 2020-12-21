@@ -84,7 +84,7 @@
                         <configuration>
                             <additionalProperties>
                                 <title>${project.name}</title>
-                                <description>Example Description for the Service</description>
+                                <description>Gateway service between UI and the other microservices.</description>
                                 <developerName>André Pomp</developerName>
                                 <developerEMail>pomp@uni-wuppertal.de</developerEMail>
                             </additionalProperties>
