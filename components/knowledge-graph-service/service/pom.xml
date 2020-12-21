@@ -101,6 +101,11 @@
             <artifactId>api</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
+        <dependency>
+            <groupId>de.buw.tmdt.plasma.services.sds</groupId>
+            <artifactId>feign-client</artifactId>
+            <version>1.0.0</version>
+        </dependency>
 
         <!-- Neo4J -->
         <dependency>
