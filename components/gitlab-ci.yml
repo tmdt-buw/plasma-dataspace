@@ -1,0 +1,165 @@
+##### Global Configuration ####################################################################################################################################
+# Define the Maven Variables (including a custom .m2 repository)
+variables:
+  MAVEN_CLI_OPTS: "-s ../.m2/settings.xml --batch-mode -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=WARN"
+  MAVEN_OPTS: "-Dmaven.repo.local=../.m2/repository"
+  MAVEN_IMAGE: maven:3.6.0-jdk-11
+  # Instruct Testcontainers to use the daemon of DinD.
+  DOCKER_HOST: "tcp://docker:2375"
+  # Improve performance with overlayfs.
+  DOCKER_DRIVER: overlay2
+  # disable TLS compatibility for DinD 19.03+
+  DOCKER_TLS_CERTDIR: ""
+
+# Checkstyle source code standard review.
+checkstyle:
+  stage: test
+  image: $MAVEN_IMAGE
+  tags:
+    - docker
+  script:
+    - cd components
+    - mvn $MAVEN_CLI_OPTS checkstyle:check
+  artifacts:
+    when: always
+    paths:
+      - "*/target/checkstyle-result.xml"
+
+# SpotBugs code quality analysis.
+spotbugs:
+  stage: test
+  image: $MAVEN_IMAGE
+  tags:
+    - docker
+  script:
+    - cd components
+    - mvn $MAVEN_CLI_OPTS clean compile spotbugs:check
+  artifacts:
+    when: always
+    paths:
+      - "*/target/spotbugsXml.xml"
+
+##### Unit Test ###############################################################################################################################################
+unit_test:
+  stage: test
+  image: $MAVEN_IMAGE
+  tags:
+    - docker
+  script:
+    - cd components
+    - mvn $MAVEN_CLI_OPTS clean test
+  only:
+    - branches
+  except:
+    - master
+  artifacts:
+    reports:
+      junit:
+        - "*/target/surefire-reports/TEST-*.xml"
+
+##### Integration Tests #######################################################################################################################################
+.integration_test:
+  stage: integration_test
+  image: $MAVEN_IMAGE
+  tags:
+    - docker
+  services:
+    - docker:dind
+  script:
+    - cd components
+    - mvn $MAVEN_CLI_OPTS clean verify
+  artifacts:
+    reports:
+      junit:
+        - "*/target/surefire-reports/TEST-*.xml"
+        - "*/target/failsafe-reports/TEST-*.xml"
+
+# manual integration test on push
+integration_test_manual:
+  extends: .integration_test
+  only:
+    - branches
+    - pushes
+  except:
+    - merge_requests
+    - tags
+  when: manual
+
+# automatic trigger for integration tests on merge_request
+integration_test_on_merge:
+  extends: .integration_test
+  only:
+    - merge_requests
+  when: on_success
+
+##### Artifact Deployment #####################################################################################################################################
+.artifact_deployment:
+  stage: artifact_deploy
+  image: $MAVEN_IMAGE
+  tags:
+    - docker
+  script:
+    - mvn $MAVEN_CLI_OPTS clean deploy -DskipTests
+
+artifact_deployment_manual:
+  extends: .artifact_deployment
+  before_script:
+    - cd components
+    - mvn versions:set -DnewVersion=$CI_COMMIT_SHORT_SHA-SNAPSHOT -DgenerateBackupPoms=false
+  only:
+    - pushes
+  except:
+    - merge_requests
+    - tags
+  when: manual
+
+artifact_deployment_on_release:
+  extends: .artifact_deployment
+  before_script:
+    - cd components
+    - VERSION=${CI_COMMIT_TAG#release-}
+    - mvn versions:set -DnewVersion=$VERSION -DgenerateBackupPoms=false
+  only:
+    - tags
+  except: #equivalent to /^(?!release-).*$/ the longer version is needed since negative look-ahead is deactivated because of catastrophic backtracking
+    - /^((.{0,7}$)|[^r]|.{1}[^e]|.{2}[^l]|.{3}[^e]|.{4}[^a]|.{5}[^s]|.{6}[^e]|.{7}[^-]).*$/
+
+##### Docker Deployment #####################################################################################################################################
+.docker_build:
+  stage: docker
+  image: $MAVEN_IMAGE
+  services:
+    - docker:dind
+  tags:
+    - docker
+  script:
+    - "mvn $MAVEN_CLI_OPTS install -DskipTests && \
+       mvn $MAVEN_CLI_OPTS initialize jib:build \
+      -Dgit.registry=$CI_REGISTRY_IMAGE \
+      -Djib.to.auth.username=$CI_REGISTRY_USER \
+      -Djib.to.auth.password=$CI_REGISTRY_PASSWORD \
+      -f ./pom.xml"
+
+docker_build_manual:
+  extends: .docker_build
+  before_script:
+    - cd components
+    - mvn versions:set -DnewVersion=SNAPSHOT -DgenerateBackupPoms=false #JIB automatically appends the COMMIT Hash
+  except:
+    - tags
+  when: manual
+  dependencies:
+    - artifact_deployment_manual
+
+docker_build_on_release:
+  extends: .docker_build
+  before_script:
+    - cd components
+    - VERSION=${CI_COMMIT_TAG#release-}
+    - mvn versions:set -DnewVersion=$VERSION -DgenerateBackupPoms=false #JIB automatically appends the COMMIT Hash
+  only:
+    - tags
+  except: #equivalent to /^(?!release-).*$/ the longer version is needed since negative look-ahead is deactivated because of catastrophic backtracking
+    - /^((.{0,7}$)|[^r]|.{1}[^e]|.{2}[^l]|.{3}[^e]|.{4}[^a]|.{5}[^s]|.{6}[^e]|.{7}[^-]).*$/
+  dependencies:
+    - artifact_deployment_on_release
