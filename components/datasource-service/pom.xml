@@ -26,7 +26,6 @@
         <project.label.short>dss</project.label.short>
         <project.label.abbrv>DSS</project.label.abbrv>
         <project.module.label.prefix>${platform.name} ${project.label.abbrv}</project.module.label.prefix>
-        <project.base-package>de.buw.tmdt.plasma.services.dss</project.base-package>
     </properties>
 
     <dependencies>

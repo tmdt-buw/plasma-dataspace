@@ -26,7 +26,6 @@
         <project.label.short>ars-l-lm</project.label.short>
         <project.label.abbrv>ARS-L LM</project.label.abbrv>
         <project.module.label.prefix>${platform.name} ${project.label.abbrv}</project.module.label.prefix>
-        <project.base-package>de.buw.tmdt.plasma.services.ars.labeling.labelmatching</project.base-package>
     </properties>
 
     <dependencies>

@@ -26,7 +26,6 @@
         <project.label.short>dms</project.label.short>
         <project.label.abbrv>DMS</project.label.abbrv>
         <project.module.label.prefix>${platform.name} ${project.label.abbrv}</project.module.label.prefix>
-        <project.base-package>de.buw.tmdt.plasma.services.dms</project.base-package>
     </properties>
 
     <dependencies>

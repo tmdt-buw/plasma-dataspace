@@ -26,7 +26,6 @@
         <project.label.short>srs</project.label.short>
         <project.label.abbrv>SRS</project.label.abbrv>
         <project.module.label.prefix>${platform.name} ${project.label.abbrv}</project.module.label.prefix>
-        <project.base-package>de.buw.tmdt.plasma.services.srs</project.base-package>
     </properties>
 
     <dependencies>

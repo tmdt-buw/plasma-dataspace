@@ -26,7 +26,6 @@
         <project.label.short>sds</project.label.short>
         <project.label.abbrv>SDS</project.label.abbrv>
         <project.module.label.prefix>${platform.name} ${project.label.abbrv}</project.module.label.prefix>
-        <project.base-package>de.buw.tmdt.plasma.services.sds</project.base-package>
     </properties>
 
     <dependencies>

@@ -25,7 +25,6 @@
         <project.label.short>gateway</project.label.short>
         <project.label.abbrv>gws</project.label.abbrv>
         <project.module.label.prefix>PLASMA ${project.label}</project.module.label.prefix>
-        <project.base-package>de.buw.tmdt.plasma.services.gws</project.base-package>
     </properties>
 
     <dependencyManagement>
