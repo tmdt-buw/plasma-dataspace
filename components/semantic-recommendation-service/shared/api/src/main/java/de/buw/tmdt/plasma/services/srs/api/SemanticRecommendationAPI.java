@@ -6,7 +6,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 @SuppressWarnings("HardcodedFileSeparator")
-@RequestMapping(value = "api/plasma-srs")
+@RequestMapping(value = "/api/plasma-srs")
 public interface SemanticRecommendationAPI {
 
 	//############################################### Initial requests ###############################################
