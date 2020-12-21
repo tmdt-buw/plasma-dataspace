@@ -18,18 +18,4 @@
         <module>feign-client</module>
     </modules>
 
-    <properties>
-        <com.fasterxml.jackson.version>2.10.3</com.fasterxml.jackson.version>
-    </properties>
-
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>com.fasterxml.jackson.core</groupId>
-                <artifactId>jackson-annotations</artifactId>
-                <version>${com.fasterxml.jackson.version}</version>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
-
 </project>

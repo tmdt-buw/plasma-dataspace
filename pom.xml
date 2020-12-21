@@ -58,8 +58,8 @@
         <org.apache.commons.lang3.version>3.6</org.apache.commons.lang3.version>
 
         <!-- Testing -->
-        <org.mockito.version>3.1.0</org.mockito.version>
-        <junit.jupiter.version>5.5.2</junit.jupiter.version>
+        <org.mockito.version>3.3.3</org.mockito.version>
+        <junit.jupiter.version>5.6.3</junit.jupiter.version>
         <org.testcontainers.version>1.15.1</org.testcontainers.version>
 
         <!-- Build plugins -->
