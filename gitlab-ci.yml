@@ -1,0 +1,12 @@
+stages:
+  - test
+  - integration_test
+  - build
+  - artifact_deploy
+  - deploy
+  - docker
+
+include:
+  - local: '/components/.gitlab-ci.yml'
+  - local: '/auxiliary_services.gitlab-ci.yml'
+  - local: '/plasma-ui/.gitlab-ci.yml'
