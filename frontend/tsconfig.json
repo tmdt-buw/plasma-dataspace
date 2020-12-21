@@ -1,0 +1,33 @@
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "baseUrl": "./",
+    "outDir": "./dist/out-tsc",
+    "sourceMap": true,
+    "declaration": false,
+    "downlevelIteration": true,
+    "experimentalDecorators": true,
+    "moduleResolution": "node",
+    "importHelpers": true,
+    "target": "es2015",
+    "module": "es2020",
+    "lib": [
+      "es2018",
+      "dom"
+    ],
+    "paths": {
+      "data-sources": [
+        "dist/data-sources/data-sources",
+        "dist/data-sources"
+      ],
+      "modeling": [
+        "dist/modeling/modeling",
+        "dist/modeling"
+      ],
+      "schema-analysis": [
+        "dist/schema-analysis/schema-analysis",
+        "dist/schema-analysis"
+      ]
+    }
+  }
+}

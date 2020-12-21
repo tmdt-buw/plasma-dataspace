@@ -1,0 +1,53 @@
+.drop-zone-container {
+  position: relative;
+
+  .drop-zone {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    bottom: 5px;
+    left: 5px;
+    border: 2px dotted;
+    border-radius: 5px;
+
+    .upload-btn-wrapper {
+      cursor: pointer;
+
+      & input[type=file] {
+        font-size: 25px;
+        position: absolute;
+        left: 0;
+        top: 0;
+        opacity: 0;
+      }
+    }
+
+    .drop-zone-overlay {
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      background: rgba(147, 147, 147, 0.5);
+      opacity: 0;
+      border-radius: 5px;
+    }
+  }
+
+  .drop-zone-dragged {
+    .drop-zone-overlay {
+      opacity: .4 !important;
+    }
+  }
+}
+
+.mat-raised-button {
+  mat-icon {
+    margin-right: 5px;
+    line-height: 17px;
+    height: 17px;
+  }
+}
+
+
+

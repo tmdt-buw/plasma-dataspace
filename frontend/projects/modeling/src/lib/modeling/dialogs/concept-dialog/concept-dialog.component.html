@@ -1,0 +1,95 @@
+<div class="tab-container">
+  <button mat-raised-button color="primary" #colorEl style="display: none"></button>
+  <mat-icon class="close-icon" mat-dialog-close>close</mat-icon>
+  <mat-tab-group (selectedTabChange)="onIndexChange($event)">
+    <mat-tab>
+      <ng-template mat-tab-label>
+        <mat-icon class="tab-icon">category</mat-icon>
+        Entities
+      </ng-template>
+
+      <div fxLayout="column">
+
+        <div *ngIf="loadingEntityConcepts" class="dialog-loading-shade">
+          <mat-spinner [diameter]="40"></mat-spinner>
+        </div>
+
+        <div fxLayout="row" fxLayoutGap="5px" fxLayoutAlign="start center" class="tab-search-container">
+          <div>
+            <button mat-stroked-button color="primary" (click)="newEntityConcept()">
+              <mat-icon>add</mat-icon>
+              <span>New</span>
+            </button>
+          </div>
+          <mat-form-field fxFlex="grow" appearance="outline" class="tab-search-bar">
+            <input matInput [formControl]="entitySearchControl" placeholder="Search">
+            <mat-icon matPrefix>search</mat-icon>
+          </mat-form-field>
+        </div>
+
+        <div cdkDropList
+          id="entityList" [cdkDropListConnectedTo]="['canvasContainer']"
+          [cdkDropListData]="entityConcepts"
+          class="concept-list scroll-list"
+          cdkDropListSortingDisabled>
+          <div class="concept-box" *ngFor="let entityConcept of entityConcepts" cdkDrag matTooltipPosition="right" matTooltip="{{entityConcept.description}}" [cdkDragData]="entityConcept">
+            {{ entityConcept.name }}
+            <div *cdkDragPreview class="concept-preview" [ngStyle]="{ border: '3px solid', 'border-color': primaryColor,  color: primaryColor}">
+              <div class="concept-preview-header" [ngStyle]="{ background: primaryColor, color: primaryColorContrast }"><span class="concept-preview-header-text">{{ entityConcept.name }}</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </mat-tab>
+
+    <mat-tab>
+      <ng-template mat-tab-label>
+        <mat-icon class="tab-icon">alt_route</mat-icon>
+        Relations
+      </ng-template>
+
+      <div fxLayout="column">
+
+        <div *ngIf="loadingRelationConcepts" class="dialog-loading-shade">
+          <mat-spinner [diameter]="40"></mat-spinner>
+        </div>
+
+        <div fxLayout="row" fxLayoutGap="5px" fxLayoutAlign="start center" class="tab-search-container">
+          <div>
+            <button mat-stroked-button color="primary" (click)="newRelationConcept()">
+              <mat-icon>add</mat-icon>
+              <span>New</span>
+            </button>
+          </div>
+          <mat-form-field fxFlex="grow" appearance="outline" class="tab-search-bar">
+            <input matInput [formControl]="relationSearchControl" placeholder="Search">
+            <mat-icon matPrefix>search</mat-icon>
+          </mat-form-field>
+        </div>
+
+        <mat-selection-list [multiple]="false" #relationsList class="scroll-list">
+          <mat-list-option *ngFor="let relationConcept of relationConcepts; let i = index"
+                           [value]="relationConcept"
+                           (click)="toggleRelation(i, relationConcept)"
+                           [ngStyle]="{
+                             'background': isSelected(relationConcept) ? primaryColor : null,
+                             'color': isSelected(relationConcept) ? primaryColorContrast : null
+                           }">{{ relationConcept.name }}</mat-list-option>
+        </mat-selection-list>
+      </div>
+
+    </mat-tab>
+
+    <mat-tab>
+      <ng-template mat-tab-label>
+        <mat-icon class="tab-icon">grade</mat-icon>
+        Recommendations
+      </ng-template>
+      <div class="concept-list scroll-list">
+        <div class="concept-box" *ngFor="let recommendation of data.recommendations" (mouseenter)="setRecommendation(recommendation)" (mouseleave)="setRecommendation(null)">
+          Entities: {{ recommendation.entities.length }} | {{ recommendation.confidence }}
+        </div>
+      </div>
+    </mat-tab>
+  </mat-tab-group>
+</div>

@@ -1,0 +1,33 @@
+<h2 mat-dialog-title fxLayout="row" fxLayoutAlign="space-between center" fxLayoutGap="15px" class="dialog-header"><span>New Relation concept</span>
+  <mat-icon class="close-icon" [mat-dialog-close]="true">close</mat-icon>
+</h2>
+
+<form [formGroup]="form" (submit)="submit()" fxLayout="column">
+  <div mat-dialog-content fxLayout="column" fxLayoutGap="5px">
+    <mat-form-field appearance="outline">
+      <mat-label>Name</mat-label>
+      <input matInput formControlName="name" required>
+      <mat-hint>This will identify the concept in multiple sources, so it should be
+        independent from your current data set.
+      </mat-hint>
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Description</mat-label>
+      <textarea matInput formControlName="description" mat-autosize></textarea>
+      <mat-hint>Detailed description of the entity concept.</mat-hint>
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Source URI</mat-label>
+      <input matInput formControlName="sourceURI">
+      <mat-hint>URI of the concept from an ontology.</mat-hint>
+    </mat-form-field>
+  </div>
+
+  <div fxLayout="row" fxLayoutAlign="space-between">
+    <mat-error *ngIf="error">{{ error }}</mat-error>
+    <div fxLayout="row" fxLayoutGap="5px" fxLayoutAlign="end center" fxFlex="grow">
+      <button mat-button mat-dialog-close>Cancel</button>
+      <button mat-raised-button color="primary" type="submit">Save</button>
+    </div>
+  </div>
+</form>

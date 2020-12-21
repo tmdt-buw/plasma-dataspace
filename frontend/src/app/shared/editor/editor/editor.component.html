@@ -1,0 +1,29 @@
+<div fxLayout="column" fxFill class="editor">
+  <div fxLayout="row" fxFlex="nogrow" class="editor-header">
+    <div fxFlex>
+      <button (click)="close()" class="toolbar-button" mat-icon-button>
+        <i class="material-icons">arrow_back</i>
+      </button>
+    </div>
+
+    <div fxLayout="row" fxLayoutAlign="center" fxFlex>
+      <div class="mat-h2">
+        <ng-content select="[editorContentHeaderText]"></ng-content>
+      </div>
+    </div>
+
+    <div fxLayout="row" fxLayoutAlign="end center" fxLayoutGap="8px" fxFlex>
+      <ng-content select="[editorContentHeaderButtons]"></ng-content>
+    </div>
+  </div>
+
+  <div fxLayout="row" fxLayoutAlign="center" fxFlex="nogrow" class="editor-header">
+    <div class="mat-h4 mat-card-subtitle">
+      <ng-content select="[editorContentHeaderSubtext]"></ng-content>
+    </div>
+  </div>
+
+  <div cdkScrollable class="editor-content" fxFlex>
+    <ng-content select="[editorContentBody]"></ng-content>
+  </div>
+</div>

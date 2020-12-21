@@ -1,0 +1,32 @@
+<mat-card>
+  <mat-card-content fxLayout="column">
+    <span>{{upload.file.name}} ({{upload.file.size | bytes}})</span>
+    <mat-icon (click)="close.emit()" class="close-button">close</mat-icon>
+    <div fxLayout="row" fxLayoutAlign="center center" fxLayoutGap="8px">
+      <mat-progress-bar [value]="upload.progress" color="primary" mode="determinate"></mat-progress-bar>
+      <mat-icon (click)="retry.emit()"
+                *ngIf="upload.status === 'error' || upload.status === 'canceled'" class="action-button">
+        replay
+      </mat-icon>
+      <mat-icon (click)="cancel.emit()" *ngIf="upload.status === 'queued'" class="action-button">cancel</mat-icon>
+    </div>
+    <div fxLayout="row" fxLayoutGap="8px">
+      <div *ngIf="upload.status === 'queued'">
+        <span>{{upload.progress}}%</span>
+        <span> {{upload.loaded | bytes}} of {{upload.file.size | bytes}}</span>
+      </div>
+      <div *ngIf="upload.status === 'finished'" class="icon-finished" fxLayoutAlign="start center">
+        <mat-icon>done</mat-icon>
+        <span>Complete</span>
+      </div>
+      <div *ngIf="upload.status === 'error'" class="icon-failed" fxLayoutAlign="start center">
+        <mat-icon>warning</mat-icon>
+        <span>Error: {{upload.error}}</span>
+      </div>
+      <div *ngIf="upload.status === 'canceled'" class="icon-failed" fxLayoutAlign="start center">
+        <mat-icon>cancel</mat-icon>
+        <span>Aborted</span>
+      </div>
+    </div>
+  </mat-card-content>
+</mat-card>

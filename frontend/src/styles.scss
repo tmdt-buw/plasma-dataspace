@@ -1,0 +1,36 @@
+@import '~@angular/material/theming';
+@import 'plasma-theme';
+
+html, body {
+  margin: 0;
+  height: 100%;
+  width: 100%;
+  overflow-y: hidden;
+  font-family: 'roboto', monospace !important;
+}
+
+/* Scrollbars only for Chrome */
+
+::-webkit-scrollbar-track
+{
+  border-radius: 4px;
+  background-color: mat-color($plasma-app-grey-1);
+}
+
+::-webkit-scrollbar
+{
+  width: 6px;
+  height: 6px;
+  background-color: mat-color($plasma-app-grey-1);
+}
+
+::-webkit-scrollbar-thumb
+{
+  border-radius: 4px;
+  background-color: mat-color($plasma-app-grey-2);
+  transition: height ease-out 150ms;
+}
+
+@include mat-core($plasma-typography);
+@include angular-material-theme($plasma-app-theme);
+

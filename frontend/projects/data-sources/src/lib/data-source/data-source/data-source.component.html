@@ -1,0 +1,51 @@
+<div fxLayout="column" fxLayoutGap="30px">
+  <form [formGroup]="form" fxLayout="column">
+    <div fxLayout="row" fxLayoutGap="15px">
+      <mat-form-field fxFlex="30" appearance="fill">
+        <mat-label>Title</mat-label>
+        <input matInput placeholder="Title" formControlName="title" required>
+        <mat-error *ngIf="form.get('title').hasError('required')">Field is required</mat-error>
+      </mat-form-field>
+
+      <mat-form-field fxFlex="70" appearance="fill">
+        <mat-label>Short Description</mat-label>
+        <input matInput placeholder="Description" formControlName="description" required>
+        <mat-error *ngIf="form.get('description').hasError('required')">Field is required</mat-error>
+      </mat-form-field>
+    </div>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Long Description</mat-label>
+      <textarea matNativeControl placeholder="Long description" formControlName="longDescription" rows="12"></textarea>
+    </mat-form-field>
+  </form>
+
+  <div fxLayout="column" fxLayoutGap="5px" fxFlex="100px" *ngIf="uploads.length > 0">
+    <pls-upload-card (cancel)="onCancel(upload)" (close)="onClose(upload)" (retry)="uploadUpload(upload)" *ngFor="let upload of uploads" [upload]="upload"></pls-upload-card>
+  </div>
+
+  <div fxFlex="100px" *ngIf="uploads.length < 1" class="drop-zone-container">
+    <div class="drop-zone" fxLayoutAlign="center center" plsFileDrop [multiple]="false" (fileDrop)="dropped($event)">
+      <div class="drop-zone-overlay" ></div>
+      <div fxLayout="column" fxLayoutAlign="center center">
+        <span>drop file</span>
+        <span>or</span>
+        <button mat-stroked-button color="accent" class="upload-btn-wrapper">
+          <span>choose file</span>
+          <input #fileInput (change)="select()" name="file" type="file">
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div fxLayoutAlign="space-between" fxLayout="row" fxLayoutGap="10px">
+    <span fxFlex>
+      <mat-error *ngIf="error">{{ error.message }}</mat-error>
+    </span>
+    <button fxFlex="nogrow" mat-raised-button color="primary" type="submit" [disabled]="!isValid()"
+            (click)="onSubmit(form.value)">
+      <mat-icon>save</mat-icon>
+      <span>Save</span>
+    </button>
+  </div>
+</div>
