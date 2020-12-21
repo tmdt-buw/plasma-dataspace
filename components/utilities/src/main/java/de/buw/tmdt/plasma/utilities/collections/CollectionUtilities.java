@@ -20,18 +20,20 @@ public final class CollectionUtilities {
     }
 
     /**
-     * Returns true iff the given collection contains the given element. In opposite to {@link Collection#contains(Object)} this method does not throw {@link NullPointerException}s.
+     * Returns true iff the given collection contains the given element. In opposite to {@link Collection#contains(Object)} this method does not throw
+     * {@link NullPointerException}s.
      *
      * @param collection the collection which is searched
      * @param element    the element which is looked for
      * @param <T>        the element Type
+     *
      * @return true iff there is an element e in collection for which {@code Objects.equals(e, element} is true - false otherwise
      */
     public static <T> boolean collectionContains(@Nullable Collection<? super T> collection, @Nullable T element) {
         if (collection == null) {
             return false;
         }
-        for (java.lang.Object o : collection) {
+        for (Object o : collection) {
             if (Objects.equals(o, element)) {
                 return true;
             }
@@ -44,11 +46,13 @@ public final class CollectionUtilities {
     }
 
     /**
-     * Returns true if at least one of the elements of the second collection ({@code testes}) is contained in the first collection ({@code collection}). If either collection is empty or null the method returns false.
+     * Returns true if at least one of the elements of the second collection ({@code testes}) is contained in the first collection ({@code collection}). If
+     * either collection is empty or null the method returns false.
      *
      * @param collection the collection which is searched
      * @param testes     the collection with the testees
      * @param <T>        the element type
+     *
      * @return true iff at least one element of the second collection is in the first collection - false otherwise
      */
     public static <T> boolean containsAny(@Nullable Collection<? super T> collection, @Nullable Collection<T> testes) {
@@ -72,6 +76,7 @@ public final class CollectionUtilities {
      * @param collection the collection to search in
      * @param condition  the condition the element must fulfill
      * @param <T>        the type of the searched element
+     *
      * @return the first element in {@code collection} which is accepted by {@code condition}
      */
     public static <T> Optional<T> findFirst(@Nullable Collection<? extends T> collection, @NotNull Predicate<T> condition) {
@@ -92,6 +97,7 @@ public final class CollectionUtilities {
      * @param source         elements which are copied to {@code supplier}
      * @param <T>            element type
      * @param <C>            collection type
+     *
      * @return The supplied collection where all elements from source are added
      */
     @Contract("null, _ -> fail; _, !null -> !null")
@@ -108,19 +114,20 @@ public final class CollectionUtilities {
      *
      * @param <T>                   Input element type
      * @param <U>                   Output element type
-     * @param <COut>                Output collection type
+     * @param <TCOut>               Output collection type
      * @param collection            Collection of input elements
      * @param mapping               The mapping function which projects the input elements to the output collection
      * @param collectionConstructor Provider for the resulting collection.
+     *
      * @return a collection containing all
      */
     @Contract("_, !null, !null -> !null; _, _, null -> fail; _, null, _ -> fail")
-    public static <T, U, COut extends Collection<? super U>> @NotNull COut map(
+    public static <T, U, TCOut extends Collection<? super U>> @NotNull TCOut map(
             @Nullable Iterable<? extends T> collection,
             @NotNull Function<? super T, ? extends U> mapping,
-            @NotNull Supplier<COut> collectionConstructor
+            @NotNull Supplier<TCOut> collectionConstructor
     ) {
-        COut result = collectionConstructor.get();
+        TCOut result = collectionConstructor.get();
         if (collection != null) {
             for (T t : collection) {
                 result.add(mapping.apply(t));

@@ -37,7 +37,7 @@ public class CollectionUtilitiesTest {
      * Tests if the method correctly returns an empty optional if searching for {@code null}.
      */
     @Test
-    public void findFirstNull(){
+    public void findFirstNull() {
         //Optional of null is not present. Method must not throw an exception
         final Optional<String> nullElement = CollectionUtilities.findFirst(asList("First", null, "Third"), Objects::isNull);
         assertFalse(nullElement.isPresent());

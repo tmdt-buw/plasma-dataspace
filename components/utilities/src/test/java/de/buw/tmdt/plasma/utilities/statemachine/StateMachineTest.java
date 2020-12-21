@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.UUID;
 
 import static de.buw.tmdt.plasma.utilities.statemachine.StateMachineTest.TestState.*;
 import static org.junit.jupiter.api.Assertions.*;
