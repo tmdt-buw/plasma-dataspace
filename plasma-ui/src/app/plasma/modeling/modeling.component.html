@@ -39,6 +39,112 @@
   </div>
 </ng-template>
 
+<ng-template #entityConceptAdditionModal let-c="close" let-d="dismiss">
+  <form (submit)="c()">
+    <div class="modal-header">
+      <h4 class="modal-title">New entity concept</h4>
+      <button type="button" class="close" aria-label="Close" (click)="d('Cross click')">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Name</label>
+        <input type="text" [(ngModel)]="newEntityConcept.name" name="name" class="form-control">
+        <small class="form-text text-muted">This will identify the concept in multiple sources, so it should be
+          independent from your current data set.
+        </small>
+      </div>
+      <div class="form-group">
+        <label>Description</label>
+        <textarea [(ngModel)]="newEntityConcept.description" name="description" class="form-control"></textarea>
+      </div>
+      <div class="form-group">
+        <label>Source URI</label>
+        <input type="text" [(ngModel)]="newEntityConcept.sourceURI" name="sourceURI" class="form-control">
+        <small class="form-text text-muted">URI of the concept from an ontology.
+        </small>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save</button>
+    </div>
+  </form>
+</ng-template>
+
+<ng-template #relationConceptAdditionModal let-c="close" let-d="dismiss">
+  <form (submit)="c()">
+    <div class="modal-header">
+      <h4 class="modal-title">New relation concept</h4>
+      <button type="button" class="close" aria-label="Close" (click)="d('Cross click')">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="container">
+        <div class="form-group">
+          <label>Name</label>
+          <input type="text" [(ngModel)]="newRelationConcept.name" name="name" class="form-control">
+          <small class="form-text text-muted">This will identify the concept in multiple sources, so it should be
+            independent from your current data set.
+          </small>
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <textarea [(ngModel)]="newRelationConcept.description" name="description" class="form-control"></textarea>
+        </div>
+        <div class="form-group">
+          <label>Source URI</label>
+          <input type="text" [(ngModel)]="newRelationConcept.sourceURI" name="sourceURI" class="form-control">
+          <small class="form-text text-muted">URI of the concept from an ontology.
+          </small>
+        </div>
+        <div style="display: none"> <!-- this has to be activated, when functionality is added in other services-->
+          <h4>Properties</h4>
+          <div class="form-check">
+            <label class="form-check-label">
+              <input class="form-check-input" type="checkbox" (change)="toggleProperty('Reflexive')"
+                     [checked]="newRelationConcept.properties.indexOf('Reflexive') > -1"> Reflexive
+            </label>
+          </div>
+          <div class="form-check">
+            <label class="form-check-label">
+              <input class="form-check-input" type="checkbox" (change)="toggleProperty('Irreflexive')"
+                     [checked]="newRelationConcept.properties.indexOf('Irreflexive') > -1"> Irreflexive
+            </label>
+          </div>
+          <div class="form-check">
+            <label class="form-check-label">
+              <input class="form-check-input" type="checkbox" (change)="toggleProperty('Symmetric')"
+                     [checked]="newRelationConcept.properties.indexOf('Symmetric') > -1"> Symmetric
+            </label>
+          </div>
+          <div class="form-check">
+            <label class="form-check-label">
+              <input class="form-check-input" type="checkbox" (change)="toggleProperty('Antisymmetric')"
+                     [checked]="newRelationConcept.properties.indexOf('Antisymmetric') > -1"> Antisymmetric
+            </label>
+          </div>
+          <div class="form-check">
+            <label class="form-check-label">
+              <input class="form-check-input" type="checkbox" (change)="toggleProperty('Asymmetric')"
+                     [checked]="newRelationConcept.properties.indexOf('Asymmetric') > -1"> Asymmetric
+            </label>
+          </div>
+          <div class="form-check">
+            <label class="form-check-label">
+              <input class="form-check-input" type="checkbox" (change)="toggleProperty('Transitive')"
+                     [checked]="newRelationConcept.properties.indexOf('Transitive') > -1"> Transitive
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save</button>
+    </div>
+  </form>
+</ng-template>
 
 <ng-template #entityTypeEditModal let-c="close" let-d="dismiss">
   <form (submit)="c()">
@@ -280,6 +386,11 @@
             </ng-container>
             <ng-container *ngIf="selectedConceptTab == ConceptSelection.Entities">
               <div class="input-group">
+                <div class="input-group-prepend">
+                  <button class="btn btn-outline-success" type="button" (click)="onAddEntityConcept(entityConceptFilter)"><i
+                    class="fa fa-plus"></i> New
+                  </button>
+                </div>
                 <div class="search">
                   <input type="text" [(ngModel)]="entityConceptFilter"
                          (ngModelChange)="entityConceptFilterDebouncer.next($event)"
@@ -305,6 +416,12 @@
             </ng-container>
             <ng-container *ngIf="selectedConceptTab == ConceptSelection.Relations">
               <div class="input-group">
+                <div class="input-group-prepend">
+                  <button class="btn btn-outline-success" type="button" (click)="onAddRelationConcept(relationConceptFilter)">
+                    <i
+                      class="fa fa-plus"></i> New
+                  </button>
+                </div>
                 <div class="search">
                   <input type="text" [(ngModel)]="relationConceptFilter"
                          (ngModelChange)="relationConceptFilterDebouncer.next($event)" class="form-control mb-1"
@@ -390,6 +507,10 @@
             </ng-container>
             <ng-container *ngIf="!selectedNode.concept">
               <h6 class="dropdown-header">Concept</h6>
+              <button type="button" class="dropdown-item" (click)="createAndAssignConcept(selectedNode)">
+                Create new and assign
+              </button>
+              <div class="dropdown-divider"></div>
             </ng-container>
             <h6 *ngIf="!selectedNode.operations" class="dropdown-header">Entity Type Operations</h6>
             <button *ngIf="!selectedNode.operations" type="button" class="dropdown-item"
@@ -415,10 +536,6 @@
           </ng-container>
         </div>
       </div>
-
     </mat-card-content>
   </mat-card>
-
-
-
 </div>
