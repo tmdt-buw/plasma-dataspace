@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
+
 public class StandardDTO implements Serializable {
 	private static final long serialVersionUID = -7417813433683071191L;
 

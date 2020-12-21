@@ -37,7 +37,7 @@ public class HyponymSearch extends Search {
 	}
 
 	@NotNull
-	private Map<String, List<SDConceptDTO>> generalQuery(@NotNull Set<String> labels, @NotNull SemanticDatabase semanticDatabaseAPI){
+	private Map<String, List<SDConceptDTO>> generalQuery(@NotNull Set<String> labels, @NotNull SemanticDatabase semanticDatabaseAPI) {
 		Map<String, List<SDConceptDTO>> result = new HashMap<>();
 		labels.forEach(label -> {
 			// Extract & convert the concept itself plus its related concepts.

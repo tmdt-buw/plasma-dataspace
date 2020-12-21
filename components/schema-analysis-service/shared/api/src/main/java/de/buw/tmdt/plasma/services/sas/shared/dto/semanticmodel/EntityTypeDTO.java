@@ -44,9 +44,6 @@ public class EntityTypeDTO implements Serializable {
             @NotNull EntityConceptDTO concept,
             @Nullable Boolean mappedToData
     ) {
-		/*if (id == null && uuid == null) {
-			throw new IllegalArgumentException("Either id or uuid must not be null.");
-		}*/
         this.id = id;
         this.uuid = uuid;
         this.label = label;

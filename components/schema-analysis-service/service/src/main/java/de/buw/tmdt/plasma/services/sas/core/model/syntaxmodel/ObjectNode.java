@@ -134,7 +134,7 @@ public class ObjectNode extends Node {
 		}
 	}
 
-	private void mergeChild(String key, Node oldChild, Node newChild) throws SchemaAnalysisException{
+	private void mergeChild(String key, Node oldChild, Node newChild) throws SchemaAnalysisException {
 		try {
 			this.children.put(key, oldChild.merge(newChild));
 		} catch (Exception e) {

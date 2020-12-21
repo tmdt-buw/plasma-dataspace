@@ -70,7 +70,7 @@ public class SchemaAnalysisIdentifyJSONStructure implements Serializable {
 	}
 
 	// children.add is wrong --> check merging
-	private SetNode parseJsonArray(ArrayNode array) throws SchemaAnalysisException{
+	private SetNode parseJsonArray(ArrayNode array) throws SchemaAnalysisException {
 		int primitiveCounter = 0;
 		Set<Node> children = new HashSet<>();
 		SetNode setNode = new SetNode(children);

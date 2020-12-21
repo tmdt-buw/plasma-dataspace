@@ -19,12 +19,10 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 @RestController("Modeling Controller")
@@ -162,7 +160,7 @@ public class DataModelingController implements DataModelingAPI {
 	@NotNull
 	@PostMapping(value = "/recommendation/accept", produces = MediaType.APPLICATION_JSON_VALUE)
 	@Operation(description = "Accepts a recommendation and adds the contents to the semantic model.")
-	public DataSourceSchemaDTO acceptRecommendation(@NotNull String uuid, @NotNull DeltaRecommendationDTO recommendation){
+	public DataSourceSchemaDTO acceptRecommendation(@NotNull String uuid, @NotNull DeltaRecommendationDTO recommendation) {
 		DataSourceModel model = dataModelingHandler.acceptRecommendation(UUID.fromString(uuid),recommendation);
 
 		// get new recommendations here

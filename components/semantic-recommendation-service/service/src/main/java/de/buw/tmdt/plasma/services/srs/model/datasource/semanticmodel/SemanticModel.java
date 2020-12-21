@@ -203,11 +203,11 @@ public class SemanticModel extends TraversableModelBase {
 
 	protected void prePersist() {
 		//This may happen if the object was initialized by Hibernate
-		if(this.relations == null){
+		if (this.relations == null) {
 			return;
 		}
 
-		if(this.relations .size() > 0 && entityTypes == null){
+		if (this.relations .size() > 0 && entityTypes == null) {
 			throw new IllegalStateException("Relation contains an entity type but the entity types are null");
 		}
 

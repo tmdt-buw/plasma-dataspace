@@ -2,7 +2,6 @@ package de.buw.tmdt.plasma.services.sas.core.model.syntaxmodel;
 
 import de.buw.tmdt.plasma.services.sas.core.model.Traversable;
 import de.buw.tmdt.plasma.services.sas.core.model.exception.SchemaAnalysisException;
-import de.buw.tmdt.plasma.services.sas.core.model.semanticmodel.EntityConcept;
 import de.buw.tmdt.plasma.services.sas.core.model.semanticmodel.EntityType;
 import de.buw.tmdt.plasma.services.sas.core.model.Position;
 import de.buw.tmdt.plasma.services.sas.core.model.syntaxmodel.members.EntityConceptSuggestion;

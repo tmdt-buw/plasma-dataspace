@@ -33,25 +33,25 @@ public class LabelMatchingHandler {
 
         long counter = -1;
         for (SchemaNodeDTO node : syntaxModelDTO.getNodes()) {
-            if(!(node instanceof PrimitiveDTO)) {
+            if (!(node instanceof PrimitiveDTO)) {
                 continue;
             }
 
             String label = node.getLabel();
             Collection<EntityConceptDTO> entityConcepts = KGStoSRSDTOConverter.toDMS(universalKnowledgeApi.getEntityConcepts(label));
             Optional<EntityConceptDTO> matching = entityConcepts.stream().filter(entityConceptDTO -> entityConceptDTO.getName().equals(label)).findFirst();
-            if(matching.isPresent()){  // we only match on exact equality
+            if (matching.isPresent()) {  // we only match on exact equality
                 // we found one
                 // create an EntityType in the semantic model
                 EntityTypeDTO et = new EntityTypeDTO(null,null,counter, label,label,"",matching.get());
                 combined.getSemanticModelDTO().getNodes().add(et);
                 // add a mapping from ET to node
                 Optional<EdgeDTO> firstEdge = syntaxModelDTO.getEdges().stream().filter(edgeDTO -> edgeDTO.getTo().equals(node.getUuid())).findFirst();
-                if(firstEdge.isPresent()){
+                if (firstEdge.isPresent()) {
                     // we got an edge find where it comes from
                     EdgeDTO edge = firstEdge.get();
                     Optional<SchemaNodeDTO> parentNode = syntaxModelDTO.getNodes().stream().filter(schemaNodeDTO -> schemaNodeDTO.getUuid().equals(edge.getFrom())).findFirst();
-                    if(parentNode.isPresent()){
+                    if (parentNode.isPresent()) {
                         PrimitiveEntityTypeEdgeDTO mapping = new PrimitiveEntityTypeEdgeDTO(parentNode.get().getUuid().toString(),String.valueOf(counter),node.getUUIDString());
                         combined.getPrimitiveEntityTypeEdgeDTOs().add(mapping);
                         log.info("Assigned EC '{}' to node '{}'", matching.get().getName(), node.getLabel());

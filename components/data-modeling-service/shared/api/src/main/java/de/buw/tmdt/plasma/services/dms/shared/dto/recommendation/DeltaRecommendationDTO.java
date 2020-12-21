@@ -11,7 +11,7 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
- * Defines a Delta recommendation, a partial update of a semantic model
+ * Defines a Delta recommendation, a partial update of a semantic model.
  */
 public class DeltaRecommendationDTO {
 
@@ -21,7 +21,7 @@ public class DeltaRecommendationDTO {
     private static final String CONFIDENCE_PROPERTY = "confidence";
 
     /**
-     * A unique id identifying this recommendation
+     * A unique id identifying this recommendation.
      */
     public String reference;
     public Set<EntityTypeDTO> entities;
@@ -66,8 +66,12 @@ public class DeltaRecommendationDTO {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         DeltaRecommendationDTO that = (DeltaRecommendationDTO) o;
         return Objects.equals(getReference(), that.getReference());
     }

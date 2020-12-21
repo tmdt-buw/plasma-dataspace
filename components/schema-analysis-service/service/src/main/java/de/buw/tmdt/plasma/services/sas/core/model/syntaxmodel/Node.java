@@ -28,6 +28,7 @@ public abstract class Node implements Traversable {
 	private Position position;
 
 	private transient Identity<?> identity;
+
 	protected Node() {
 
 	}

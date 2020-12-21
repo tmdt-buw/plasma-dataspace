@@ -6,7 +6,6 @@ import de.buw.tmdt.plasma.services.dms.core.model.datasource.semanticmodel.Entit
 import de.buw.tmdt.plasma.services.dms.core.model.datasource.semanticmodel.RelationConcept;
 import de.buw.tmdt.plasma.services.dms.core.model.datasource.semanticmodel.SemanticModel;
 import de.buw.tmdt.plasma.services.dms.core.model.datasource.syntaxmodel.Node;
-import de.buw.tmdt.plasma.services.dms.shared.dto.recommendation.DeltaRecommendationDTO;
 import de.buw.tmdt.plasma.utilities.misc.ObjectUtilities;
 import org.hibernate.annotations.DynamicUpdate;
 import org.jetbrains.annotations.NotNull;

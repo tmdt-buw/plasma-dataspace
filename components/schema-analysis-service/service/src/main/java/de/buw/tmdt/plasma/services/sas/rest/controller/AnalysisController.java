@@ -2,16 +2,12 @@ package de.buw.tmdt.plasma.services.sas.rest.controller;
 
 import de.buw.tmdt.plasma.services.sas.shared.api.AnalysisApi;
 import de.buw.tmdt.plasma.services.sas.shared.dto.SchemaAnalysisDataProvisionDTO;
-import de.buw.tmdt.plasma.services.sas.shared.dto.StandardDTO;
-import de.buw.tmdt.plasma.services.sas.shared.dto.StandardProvisionDTO;
-import de.buw.tmdt.plasma.services.sas.shared.dto.semanticmodel.SemanticModelDTO;
 import de.buw.tmdt.plasma.services.sas.shared.dto.syntaxmodel.NodeDTO;
 import de.buw.tmdt.plasma.services.sas.core.basic.SchemaAnalysisHandler;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
 import java.util.UUID;
 
 /**

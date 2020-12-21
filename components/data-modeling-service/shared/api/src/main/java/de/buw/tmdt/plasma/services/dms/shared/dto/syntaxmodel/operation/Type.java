@@ -12,7 +12,7 @@ import java.util.function.Function;
 /**
  * Fakes an enum because it conceptually is one but java enums don't support generics.
  */
-public final class Type<RAW extends Serializable, PARSED extends Serializable> implements Serializable {
+public final class Type<TRaw extends Serializable, TParsed extends Serializable> implements Serializable {
 	//INSTANCES
 	public static final Type<TypeDefinitionDTO, ParameterDefinition> COMPLEX;
 	public static final Type<String, UUID> SYNTAX_NODE_ID;
@@ -72,18 +72,18 @@ public final class Type<RAW extends Serializable, PARSED extends Serializable> i
 	}
 
 	private final String name;
-	private final Class<RAW> rawClass;
-	private final Class<PARSED> parsedClass;
-	private final SerializableFunction<RAW, PARSED> parser;
-	private final SerializableFunction<PARSED, RAW> serializer;
+	private final Class<TRaw> rawClass;
+	private final Class<TParsed> parsedClass;
+	private final SerializableFunction<TRaw, TParsed> parser;
+	private final SerializableFunction<TParsed, TRaw> serializer;
 
 	@SuppressWarnings("SingleCharacterStringConcatenation")
 	private Type(
 			String name,
-			Class<RAW> rawClass,
-			Class<PARSED> parsedClass,
-			SerializableFunction<RAW, PARSED> parser,
-			SerializableFunction<PARSED, RAW> serializer
+			Class<TRaw> rawClass,
+			Class<TParsed> parsedClass,
+			SerializableFunction<TRaw, TParsed> parser,
+			SerializableFunction<TParsed, TRaw> serializer
 	) {
 		Type duplicate;
 		if ((duplicate = NAME_LOOK_UP.put(name, this)) != null) {
@@ -104,7 +104,7 @@ public final class Type<RAW extends Serializable, PARSED extends Serializable> i
 		return NAME_LOOK_UP.get(name);
 	}
 
-	public @NotNull ParameterDefinition<RAW, PARSED> castParameterDefinition(@NotNull ParameterDefinition<?, ?> parameterDefinition) {
+	public @NotNull ParameterDefinition<TRaw, TParsed> castParameterDefinition(@NotNull ParameterDefinition<?, ?> parameterDefinition) {
 		if (!this.equals(parameterDefinition.getType())) {
 			throw new IllegalArgumentException(
 					"Provided parameter definition `" + parameterDefinition
@@ -112,24 +112,24 @@ public final class Type<RAW extends Serializable, PARSED extends Serializable> i
 					+ "` but `" + parameterDefinition.getType() + "`."
 			);
 		}
-		Class<PARSED[]> parsedArrayType = ReflectionUtilities.getArrayTypeOf(this.getParsedClass());
+		Class<TParsed[]> parsedArrayType = ReflectionUtilities.getArrayTypeOf(this.getParsedClass());
 		Class<?> valueType = parameterDefinition.getValue().getClass();
 		if (!parsedArrayType.isAssignableFrom(valueType)) {
 			throw new IllegalArgumentException("Cannot assign " + valueType + " to " + parameterDefinition);
 		}
 		//noinspection unchecked
-		return (ParameterDefinition<RAW, PARSED>) parameterDefinition;
+		return (ParameterDefinition<TRaw, TParsed>) parameterDefinition;
 	}
 
 	public String getName() {
 		return name;
 	}
 
-	public PARSED parse(RAW rawData) {
+	public TParsed parse(TRaw rawData) {
 		return parser.apply(rawData);
 	}
 
-	public RAW serialize(PARSED parsed) {
+	public TRaw serialize(TParsed parsed) {
 		return serializer.apply(parsed);
 	}
 
@@ -138,11 +138,11 @@ public final class Type<RAW extends Serializable, PARSED extends Serializable> i
 		return this.name;
 	}
 
-	public Class<RAW> getRawClass() {
+	public Class<TRaw> getRawClass() {
 		return rawClass;
 	}
 
-	public Class<PARSED> getParsedClass() {
+	public Class<TParsed> getParsedClass() {
 		return parsedClass;
 	}
 

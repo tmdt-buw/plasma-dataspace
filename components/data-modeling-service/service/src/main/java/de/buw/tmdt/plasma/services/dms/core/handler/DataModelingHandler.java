@@ -28,7 +28,6 @@ import de.buw.tmdt.plasma.services.kgs.shared.dto.semanticmodel.SemanticModelCre
 import de.buw.tmdt.plasma.services.kgs.shared.dto.semanticmodel.SemanticModelDTO;
 import de.buw.tmdt.plasma.services.kgs.shared.feignclient.LocalKnowledgeApiClient;
 import de.buw.tmdt.plasma.services.kgs.shared.feignclient.UniversalKnowledgeApiClient;
-import de.buw.tmdt.plasma.services.sas.shared.dto.syntaxmodel.NodeDTO;
 import de.buw.tmdt.plasma.services.srs.feignclient.SemanticRecommendationApiClient;
 import de.buw.tmdt.plasma.utilities.collections.CollectionUtilities;
 import de.buw.tmdt.plasma.utilities.collections.MapUtilities;
@@ -49,7 +48,6 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 public class DataModelingHandler {

@@ -125,7 +125,7 @@ public class SynonymSearch extends Search {
                 List<SDConceptDTO> probableSynConcepts = synonymConceptQuery.get(probableSyn);
                 for (SDConceptDTO probSynConcept : probableSynConcepts) {
                     if (//only take concepts that differ in their main label (to avoid redundancy), check wether the concept contains the current label
-                        //as synonym (reflexivity) and exclude concepts with special characters
+                            //as synonym (reflexivity) and exclude concepts with special characters
                             !probSynConcept.getLabel().equals(currentLabel)
                                     && probSynConcept.getSynonyms().contains(query1Entry.getKey())
                                     && !probSynConcept.getLabel().matches("(.*)\\(.*?\\)(.*)")) {

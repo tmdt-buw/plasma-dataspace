@@ -149,7 +149,7 @@ public class SetNode extends Node {
 		}
 	}
 
-	public void mergeChild(Node child) throws SchemaAnalysisException{
+	public void mergeChild(Node child) throws SchemaAnalysisException {
 
 		List<Child> newChildList = new ArrayList<>();
 
@@ -175,10 +175,10 @@ public class SetNode extends Node {
 		if (other == null) {
 			return this;
 		}
-		if (this.uuid.equals(other.uuid) && this.equals(other)){
+		if (this.uuid.equals(other.uuid) && this.equals(other)) {
 			throw new SchemaAnalysisException("Tried to merge SetNode with itself: " + this);
 		}
-		for(Child otherChild : other.children) {
+		for (Child otherChild : other.children) {
 			this.mergeChild(otherChild.getNode());
 		}
 		return this;

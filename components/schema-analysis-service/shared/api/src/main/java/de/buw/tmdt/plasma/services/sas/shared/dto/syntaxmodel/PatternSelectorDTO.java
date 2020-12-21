@@ -8,7 +8,7 @@ import de.buw.tmdt.plasma.utilities.misc.StringUtilities;
 import java.util.List;
 
 @JsonTypeName("PatternSelectorDTO")
-public class PatternSelectorDTO extends SelectorDTO{
+public class PatternSelectorDTO extends SelectorDTO {
 	private static final long serialVersionUID = 2618339272865879181L;
 	private static final String SELECTIONS_PROPERTY = "selections";
 	private static final String OFFSET_PROPERTY = "offset";

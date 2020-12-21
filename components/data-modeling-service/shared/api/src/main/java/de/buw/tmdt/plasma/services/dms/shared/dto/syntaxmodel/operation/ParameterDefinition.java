@@ -86,21 +86,21 @@ public class ParameterDefinition<R extends Serializable, T extends Serializable>
 		return maxCardinality;
 	}
 
-	static <PAYLOAD extends Serializable, PARSED extends Serializable> ParameterDefinition<PAYLOAD, PARSED>
-	parse(TypeDefinitionDTO<PAYLOAD> typeDefinitionDTO) {
-		@SuppressWarnings("unchecked") final Class<? extends PAYLOAD[]> payloadType = (Class<? extends PAYLOAD[]>) typeDefinitionDTO.getValue().getClass();
+	static <TPayload extends Serializable, TParsed extends Serializable> ParameterDefinition<TPayload, TParsed>
+	parse(TypeDefinitionDTO<TPayload> typeDefinitionDTO) {
+		@SuppressWarnings("unchecked") final Class<? extends TPayload[]> payloadType = (Class<? extends TPayload[]>) typeDefinitionDTO.getValue().getClass();
 
 		Type<?, ?> resultType = Type.valueOf(typeDefinitionDTO.getType());
 
-		Class<PARSED> parsedType = (Class<PARSED>) resultType.getParsedClass();
+		Class<TParsed> parsedType = (Class<TParsed>) resultType.getParsedClass();
 
-		Type<PAYLOAD, PARSED> type = ParameterDefinition.castType(resultType, payloadType, parsedType);
+		Type<TPayload, TParsed> type = ParameterDefinition.castType(resultType, payloadType, parsedType);
 
 		if (type == null) {
 			throw new IllegalArgumentException("Unknown type: " + typeDefinitionDTO.getType());
 		}
 
-		PAYLOAD[] values = typeDefinitionDTO.getValue();
+		TPayload[] values = typeDefinitionDTO.getValue();
 
 		return new ParameterDefinition<>(
 				type,
@@ -114,8 +114,8 @@ public class ParameterDefinition<R extends Serializable, T extends Serializable>
 	}
 
 	@Nullable
-	private static <PAYLOAD extends Serializable, PARSED extends Serializable>
-	Type<PAYLOAD, PARSED> castType(@Nullable Type<?, ?> type, Class<? extends PAYLOAD[]> payloadClass, Class<PARSED> parsedType) {
+	private static <TPayload extends Serializable, TParsed extends Serializable>
+	Type<TPayload, TParsed> castType(@Nullable Type<?, ?> type, Class<? extends TPayload[]> payloadClass, Class<TParsed> parsedType) {
 		if (type == null) {
 			return null;
 		}
@@ -135,19 +135,19 @@ public class ParameterDefinition<R extends Serializable, T extends Serializable>
 
 		//sure... that code above is just for shits and giggles... such unchecked, much ifs, wow
 		@SuppressWarnings("unchecked")
-		Type<PAYLOAD, PARSED> castType = (Type<PAYLOAD, PARSED>) type;
+		Type<TPayload, TParsed> castType = (Type<TPayload, TParsed>) type;
 		return castType;
 	}
 
-	private static <RAW extends Serializable, PARSED extends Serializable> @Nullable RAW @NotNull [] serializeParameterDefinition(
-			PARSED @NotNull [] parsedData,
-			Type<RAW, PARSED> type
+	private static <TRaw extends Serializable, TParsed extends Serializable> @Nullable TRaw @NotNull [] serializeParameterDefinition(
+			TParsed @NotNull [] parsedData,
+			Type<TRaw, TParsed> type
 	) {
 		@SuppressWarnings("unchecked - because no one needs generic signatures in the standard library")
-		RAW[] result = (RAW[]) Array.newInstance(type.getRawClass(), parsedData.length);
+		TRaw[] result = (TRaw[]) Array.newInstance(type.getRawClass(), parsedData.length);
 
 		for (int i = 0; i < parsedData.length; i++) {
-			Class<PARSED> parsedClass = type.getParsedClass();
+			Class<TParsed> parsedClass = type.getParsedClass();
 			try {
 				result[i] = type.serialize(parsedClass.cast(parsedData[i]));
 			} catch (ClassCastException e) {
@@ -157,14 +157,14 @@ public class ParameterDefinition<R extends Serializable, T extends Serializable>
 		return result;
 	}
 
-	private static <RAW extends Serializable, PARSED extends Serializable> @Nullable PARSED @NotNull [] parseParameterDefinition(
-			RAW @NotNull [] rawData,
-			Type<RAW, PARSED> type
+	private static <TRaw extends Serializable, TParsed extends Serializable> @Nullable TParsed @NotNull [] parseParameterDefinition(
+			TRaw @NotNull [] rawData,
+			Type<TRaw, TParsed> type
 	) {
 		@SuppressWarnings("unchecked - because no one needs generic signatures in the standard library")
-		PARSED[] result = (PARSED[]) Array.newInstance(type.getParsedClass(), rawData.length);
+		TParsed[] result = (TParsed[]) Array.newInstance(type.getParsedClass(), rawData.length);
 		for (int i = 0; i < rawData.length; i++) {
-			Class<RAW> rawClass = type.getRawClass();
+			Class<TRaw> rawClass = type.getRawClass();
 			try {
 				result[i] = type.parse(rawClass.cast(rawData[i]));
 			} catch (ClassCastException e) {

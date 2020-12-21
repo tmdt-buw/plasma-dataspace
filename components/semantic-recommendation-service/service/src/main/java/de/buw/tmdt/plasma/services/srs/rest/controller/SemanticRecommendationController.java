@@ -42,6 +42,7 @@ public class SemanticRecommendationController implements SemanticRecommendationA
 	public DataSourceSchemaDTO performSemanticModeling(@NotNull String uuid, @NotNull DataSourceSchemaDTO dataSourceSchemaDTO) {
 		return modelingHandler.performModeling(uuid,dataSourceSchemaDTO);
 	}
+
 	@NotNull
 	@Override
 	@Operation(description = "request semantic refinement recommendations")

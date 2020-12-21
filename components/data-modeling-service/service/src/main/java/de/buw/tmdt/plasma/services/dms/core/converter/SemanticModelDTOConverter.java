@@ -1,9 +1,7 @@
 package de.buw.tmdt.plasma.services.dms.core.converter;
 
 import de.buw.tmdt.plasma.services.dms.core.model.Position;
-import de.buw.tmdt.plasma.services.dms.core.model.datasource.DataSourceSchema;
 import de.buw.tmdt.plasma.services.dms.core.model.datasource.semanticmodel.*;
-import de.buw.tmdt.plasma.services.dms.core.model.datasource.syntaxmodel.Node;
 import de.buw.tmdt.plasma.services.dms.core.repository.EntityTypeRepository;
 import de.buw.tmdt.plasma.services.dms.core.repository.RelationConceptPropertyRepository;
 import de.buw.tmdt.plasma.services.dms.shared.dto.Positioned;
@@ -109,12 +107,6 @@ public class SemanticModelDTOConverter {
 				relationConcept.getProperties().stream().map(RelationConcept.Property::getName).collect(Collectors.getSerializableSetCollector())
 		);
 	}
-
-//	public @NotNull SemanticModel fromDTO (@NotNull SemanticModelDTO dto){
-//		// TODO;
-//		return null;
-//	}
-
 
 	public @NotNull Relation fromDTO(@NotNull RelationDTO relationDTO) {
 		final EntityType from = entityTypeRepository.findById(relationDTO.getFromId())

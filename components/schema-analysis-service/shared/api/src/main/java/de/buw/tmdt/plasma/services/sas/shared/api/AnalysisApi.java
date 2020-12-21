@@ -1,15 +1,10 @@
 package de.buw.tmdt.plasma.services.sas.shared.api;
 
 import de.buw.tmdt.plasma.services.sas.shared.dto.SchemaAnalysisDataProvisionDTO;
-import de.buw.tmdt.plasma.services.sas.shared.dto.StandardDTO;
-import de.buw.tmdt.plasma.services.sas.shared.dto.StandardProvisionDTO;
-import de.buw.tmdt.plasma.services.sas.shared.dto.semanticmodel.SemanticModelDTO;
 import de.buw.tmdt.plasma.services.sas.shared.dto.syntaxmodel.NodeDTO;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RequestMapping("/api/plasma-sas/analysis")
 @SuppressWarnings("HardcodedFileSeparator - uris")

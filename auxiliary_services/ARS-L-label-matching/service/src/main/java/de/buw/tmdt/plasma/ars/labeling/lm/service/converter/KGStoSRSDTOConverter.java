@@ -8,6 +8,10 @@ import java.util.stream.Collectors;
 
 public class KGStoSRSDTOConverter {
 
+    private KGStoSRSDTOConverter(){
+
+    }
+
     public static EntityConceptDTO toDMS(de.buw.tmdt.plasma.services.kgs.shared.dto.knowledgegraph.EntityConceptDTO kgs) {
         return new EntityConceptDTO(0L, kgs.getId(), kgs.getMainLabel(), kgs.getDescription(), kgs.getSourceURI());
     }

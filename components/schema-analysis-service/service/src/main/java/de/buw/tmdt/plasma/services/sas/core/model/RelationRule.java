@@ -1,7 +1,6 @@
 package de.buw.tmdt.plasma.services.sas.core.model;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -27,7 +26,9 @@ public class RelationRule {
 	@Column
 	private String conceptDescription;
 
-	protected RelationRule() {}
+	protected RelationRule() {
+
+	}
 
 	public RelationRule(@NotNull String fromConcept, @NotNull String toConcept, @NotNull String conceptName, @NotNull String conceptDescription) {
 		this.uuid = UUID.randomUUID();

@@ -9,7 +9,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -69,7 +68,7 @@ public class DataSourceSchemaDTO implements Serializable {
 	}
 
 	// we allow later injections of recommendations, will be solved with new data model
-	public void setRecommendations (List<DeltaRecommendationDTO> recommendations) {
+	public void setRecommendations(List<DeltaRecommendationDTO> recommendations) {
 		this.recommendations = recommendations;
 	}
 

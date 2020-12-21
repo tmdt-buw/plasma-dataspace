@@ -20,14 +20,14 @@ public class BasicAuthGatewayFilterFactory extends AbstractGatewayFilterFactory<
 
     @Override
     public GatewayFilter apply(Config config) {
-        return ((exchange, chain) -> {
+        return (exchange, chain) -> {
             String auth = config.username + ":" + config.password;
-            byte[] encodedAuth = Base64.getEncoder().encode(auth.getBytes((StandardCharsets.UTF_8)));
+            byte[] encodedAuth = Base64.getEncoder().encode(auth.getBytes(StandardCharsets.UTF_8));
             String authHeader = "Basic " + new String(encodedAuth, StandardCharsets.UTF_8);
 
             ServerHttpRequest request = exchange.getRequest().mutate().header(HttpHeaders.AUTHORIZATION, authHeader).build();
             return chain.filter(exchange.mutate().request(request).build());
-        });
+        };
     }
 
     @Override

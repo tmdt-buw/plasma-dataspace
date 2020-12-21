@@ -506,26 +506,14 @@ public class GraphDBDriverImpl implements GraphDBDriver {
         if (sameID.hasNext()) {
             // Duplicate case 1
             createdVertex = sameID.next();
-//            logger.debug(
-//                    "EntityConcept to be created is a duplicate wrt. ID: {}",
-//                    readProperty(createdVertex, Neo4JModel.EntityConcept.PROPERTY_ID, String.class)
-//            );
             createdEntityConcept = marshalEntityConcept(createdVertex, readCache);
         } else if (sameConcept.hasNext()) {
             // Duplicate case 2
             createdVertex = sameConcept.next();
-//            logger.debug(
-//                    "Labels of the EntityConcept to be created are already covered by the existing EntityConcept {}",
-//                    readProperty(createdVertex, Neo4JModel.EntityConcept.PROPERTY_ID, String.class)
-//            );
             createdEntityConcept = marshalEntityConcept(createdVertex, readCache);
         } else if (sameDataSourceAndID.hasNext()) {
             // Duplicate case 3
             createdVertex = sameDataSourceAndID.next();
-//            logger.debug(
-//                    "EntityConcept to be created is a duplicate wrt. data source and ID: {}",
-//                    readProperty(createdVertex, Neo4JModel.EntityConcept.PROPERTY_ID, String.class)
-//            );
             createdEntityConcept = marshalEntityConcept(createdVertex, readCache);
         } else {
             // No duplicate, create EntityConcept.

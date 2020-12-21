@@ -28,7 +28,9 @@ public class Analysis {
 	@ManyToOne
 	private Standard standard;
 
-	protected Analysis() {}
+	protected Analysis() {
+
+	}
 
 	public Analysis(UUID uuid) {
 		this.uuid = uuid;
@@ -63,7 +65,7 @@ public class Analysis {
 		this.standard = standard;
 	}
 
-	public Standard getStandard(){
+	public Standard getStandard() {
 		return this.standard;
 	}
 }
