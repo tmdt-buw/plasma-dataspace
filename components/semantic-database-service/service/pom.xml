@@ -150,7 +150,6 @@
                         <image>${platform.name.prefix}/${project.label.short}:${project.version}</image>
                     </to>
                     <container>
-                        <entrypoint>./files/run.sh</entrypoint>
                         <ports>
                             <port>8182</port>
                         </ports>
@@ -159,16 +158,10 @@
                     <extraDirectories>
                         <paths>
                             <path>
-                                <from>../../../files</from>
+                                <from>${project.parent.basedir}/files</from>
                                 <into>/files</into>
                             </path>
                         </paths>
-                        <permissions>
-                            <permission>
-                                <file>/files/run.sh</file>
-                                <mode>755</mode>
-                            </permission>
-                        </permissions>
                     </extraDirectories>
                 </configuration>
                 <executions>
