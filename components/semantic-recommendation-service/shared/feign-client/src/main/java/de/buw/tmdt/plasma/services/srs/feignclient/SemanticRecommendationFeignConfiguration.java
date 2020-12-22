@@ -10,10 +10,10 @@ import org.springframework.context.annotation.Configuration;
 
 @EnableFeignClients("de.buw.tmdt.plasma.services.srs.feignclient")
 @Configuration
-public class DataModelingFeignConfiguration {
+public class SemanticRecommendationFeignConfiguration {
 
 	@Bean
-	public CloseableHttpClient client() {
+	public CloseableHttpClient srsClient() {
 		return HttpClients.createDefault();
 	}
 

@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Configuration;
 public class DataModelingFeignConfiguration {
 
     @Bean
-    public CloseableHttpClient client() {
+    public CloseableHttpClient dmsClient() {
         return HttpClients.createDefault();
     }
 

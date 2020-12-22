@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Configuration;
 public class SemanticDatabaseFeignConfiguration {
 
     @Bean
-    public CloseableHttpClient client() {
+    public CloseableHttpClient sdsClient() {
         return HttpClients.createDefault();
     }
 

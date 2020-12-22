@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Configuration;
 public class LabelMatchingFeignConfiguration {
 
 	@Bean
-	public CloseableHttpClient client() {
+	public CloseableHttpClient arsllmClient() {
 		return HttpClients.createDefault();
 	}
 

@@ -69,7 +69,7 @@
         <org.apache.maven.plugin.source.version>3.2.1</org.apache.maven.plugin.source.version>
         <org.apache.maven.plugin.versionplugin.version>2.7</org.apache.maven.plugin.versionplugin.version>
         <pl.project13.maven.version>4.0.0</pl.project13.maven.version>
-        <com.google.cloud.tools.jib.version>2.1.0</com.google.cloud.tools.jib.version>
+        <com.google.cloud.tools.jib.version>2.7.0</com.google.cloud.tools.jib.version>
         <com.github.spotbugs.plugin.version>4.1.4</com.github.spotbugs.plugin.version>
         <org.apache.maven.plugin.checkstyle.version>3.1.1</org.apache.maven.plugin.checkstyle.version>
 

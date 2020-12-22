@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Configuration;
 public class DataSourceFeignConfiguration {
 
 	@Bean
-	public CloseableHttpClient client() {
+	public CloseableHttpClient dssClient() {
 		return HttpClients.createDefault();
 	}
 

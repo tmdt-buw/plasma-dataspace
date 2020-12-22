@@ -12,5 +12,9 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class SchemaAnalysisFeignConfiguration {
 
+    @Bean
+    public CloseableHttpClient sasClient() {
+        return HttpClients.createDefault();
+    }
 
 }
