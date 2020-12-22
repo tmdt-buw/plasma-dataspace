@@ -107,6 +107,14 @@ services:
      - 8888:8888 
      
 ########################### Services ######################################
+  sds:
+    image: "plasma/sds:${PLASMA_VERSION}"
+    hostname: plasma-sds
+    restart: unless-stopped
+    depends_on:
+      - discovery
+    ports:
+     - 8182:8182
      
   kgs:
     image: "plasma/kgs:${PLASMA_VERSION}"
