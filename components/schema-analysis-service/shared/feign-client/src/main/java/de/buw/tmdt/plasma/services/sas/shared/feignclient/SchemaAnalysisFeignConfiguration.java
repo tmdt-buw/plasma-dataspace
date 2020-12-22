@@ -12,9 +12,5 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class SchemaAnalysisFeignConfiguration {
 
-	@Bean
-	public CloseableHttpClient client() {
-		return HttpClients.createDefault();
-	}
 
 }
