@@ -17,11 +17,4 @@ public class DataModelingFeignConfiguration {
 		return HttpClients.createDefault();
 	}
 
-	@Bean
-	public BasicAuthRequestInterceptor getDataModelingServiceAuthInterceptor(
-			@Value("${plasma.services.srs.user}") String user,
-			@Value("${plasma.services.srs.password}") String password
-	) {
-		return new BasicAuthRequestInterceptor(user, password);
-	}
 }

@@ -1,4 +1,4 @@
-package de.buw.tmdt.plasma.services.srs.rest;
+package de.buw.tmdt.plasma.services.srs.rest.config;
 
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;

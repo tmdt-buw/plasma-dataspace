@@ -1,4 +1,4 @@
-package de.buw.tmdt.plasma.services.srs.rest;
+package de.buw.tmdt.plasma.services.srs.rest.error;
 
 import de.buw.tmdt.plasma.services.dms.shared.dto.error.ErrorDTO;
 import org.jetbrains.annotations.NotNull;

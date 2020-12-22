@@ -17,11 +17,4 @@ public class LabelMatchingFeignConfiguration {
 		return HttpClients.createDefault();
 	}
 
-	@Bean
-	public BasicAuthRequestInterceptor getDataModelingServiceAuthInterceptor(
-			@Value("${plasma.ars.labeling.lm.user}") String user,
-			@Value("${plasma.ars.labeling.lm.password}") String password
-	) {
-		return new BasicAuthRequestInterceptor(user, password);
-	}
 }

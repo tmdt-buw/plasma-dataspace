@@ -1,4 +1,4 @@
-package de.buw.tmdt.plasma.services.srs.rest;
+package de.buw.tmdt.plasma.services.srs.rest.config;
 
 import feign.Feign;
 import org.jetbrains.annotations.NotNull;
