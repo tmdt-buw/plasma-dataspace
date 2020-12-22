@@ -157,6 +157,12 @@
                         <creationTime>USE_CURRENT_TIMESTAMP</creationTime>
                     </container>
                     <extraDirectories>
+                        <paths>
+                            <path>
+                                <from>../../../files</from>
+                                <into>/files</into>
+                            </path>
+                        </paths>
                         <permissions>
                             <permission>
                                 <file>/files/run.sh</file>
