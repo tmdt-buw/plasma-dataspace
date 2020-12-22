@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import java.io.Serializable;
 
 @Component
-@ConfigurationProperties(prefix = "neo4j")
+@ConfigurationProperties(prefix = "plasma.neo4j")
 public class Neo4JProfile implements Serializable {
 
 	private static final char HOST_PORT_SEPARATOR = ':';
