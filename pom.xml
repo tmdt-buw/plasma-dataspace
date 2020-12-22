@@ -315,9 +315,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <configuration>
-                    <forkCount>0</forkCount>
-                </configuration>
             </plugin>
 
             <!-- Integration Tests -->
@@ -333,7 +330,6 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <forkCount>0</forkCount>
                     <additionalClasspathElements>
                         <!-- cf. https://sandor-nemeth.github.io/2017/10/16/integration-tests-with-spring-boot-classnotfoundexception.html -->
                         <additionalClasspathElement>${basedir}/target/classes</additionalClasspathElement>
