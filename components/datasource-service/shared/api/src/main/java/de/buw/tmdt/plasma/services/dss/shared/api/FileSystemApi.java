@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
 @SuppressWarnings("HardcodedFileSeparator - uris")
-@RequestMapping(value = "/api/filesystem")
+@RequestMapping(value = "/api/plasma-dss/filesystem")
 public interface FileSystemApi {
 
 	@PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
