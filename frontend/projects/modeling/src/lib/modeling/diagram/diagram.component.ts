@@ -36,8 +36,8 @@ import { Filter } from '../model/filter';
 import { MatDialog, MatDialogConfig, MatDialogRef } from '@angular/material/dialog';
 import { PlsSyntaxNodeDetailsComponent } from '../dialogs/syntax-node-dialog/syntax-node.component';
 import { PlsSemanticNodeDetailsComponent } from '../dialogs/semantic-node-dialog/semantic-node.component';
-import { EntityDroppedEvent } from '../model/entity-dropped-event';
-import { NodeChangedEvent } from '../model/node-changed-event';
+import { EntityDroppedEvent } from '../model/events/entity-dropped-event';
+import { NodeChangedEvent } from '../model/events/node-changed-event';
 import { ModelingService } from '../modeling.service';
 import { chain, each, filter, first, omit } from 'lodash';
 import { Overlay } from '@angular/cdk/overlay';
@@ -630,7 +630,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
           case 'Number':
             return 'looks_one';
           case 'String':
-            return 'title';
+            return 'text_fields';
           case 'Boolean':
             return 'check_box';
           case 'Binary':
@@ -830,7 +830,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
     }
   }
 
-  private rgbToHex(rgbString: string) {
+  private rgbToHex(rgbString: string): string {
     const rgb = rgbString.split(',');
     const r = parseInt(rgb[0].substring(4));
     const g = parseInt(rgb[1]);
@@ -841,8 +841,18 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
     }).join('');
   }
 
-  // TODO ordentlich machen
-  private adjustVertices(graph, cell) {
+  @HostListener('window:resize', ['$event'])
+  onResize(event): void {
+    console.log(event);
+    // const width = +getComputedStyle(this.canvas.nativeElement).width.replace('px', '');
+    // const height = +getComputedStyle(this.canvas.nativeElement).height.replace('px', '');
+    // const zoom = this.panAndZoom.getZoom();
+    // console.log(width, height);
+    // this.graph.resize(width / zoom, height / zoom);
+  }
+
+
+  private adjustVertices(graph, cell): void {
 
     // if `cell` is a view, find its model
     cell = cell.model || cell;
@@ -851,7 +861,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
       // `cell` is an element
 
       chain(graph.getConnectedLinks(cell))
-        .groupBy(function(link) {
+        .groupBy((link) => {
 
           // the key of the group is the model id of the link's source or target
           // cell id is omitted
@@ -872,8 +882,8 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
 
     // `cell` is a link
     // get its source and target model IDs
-    var sourceId = cell.get('source').id || cell.previous('source').id;
-    var targetId = cell.get('target').id || cell.previous('target').id;
+    const sourceId = cell.get('source').id || cell.previous('source').id;
+    const targetId = cell.get('target').id || cell.previous('target').id;
 
     // if one of the ends is not a model
     // (if the link is pinned to paper at a point)
@@ -883,10 +893,10 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
     }
 
     // identify link siblings
-    var siblings = filter(graph.getLinks(), function(sibling) {
+    const siblings = filter(graph.getLinks(), (sibling) => {
 
-      var siblingSourceId = sibling.source().id;
-      var siblingTargetId = sibling.target().id;
+      const siblingSourceId = sibling.source().id;
+      const siblingTargetId = sibling.target().id;
 
       // if source and target are the same
       // or if source and target are reversed
@@ -894,7 +904,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
         || ((siblingSourceId === targetId) && (siblingTargetId === sourceId));
     });
 
-    var numSiblings = siblings.length;
+    const numSiblings = siblings.length;
     switch (numSiblings) {
 
       case 0: {
@@ -914,21 +924,21 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
         // we need to create vertices
 
         // find the middle point of the link
-        var sourceCenter = graph.getCell(sourceId).getBBox().center();
-        var targetCenter = graph.getCell(targetId).getBBox().center();
-        var midPoint = new g.Line(sourceCenter, targetCenter).midpoint();
+        const sourceCenter = graph.getCell(sourceId).getBBox().center();
+        const targetCenter = graph.getCell(targetId).getBBox().center();
+        const midPoint = new g.Line(sourceCenter, targetCenter).midpoint();
 
         // find the angle of the link
-        var theta = sourceCenter.theta(targetCenter);
+        const theta = sourceCenter.theta(targetCenter);
 
         // constant
         // the maximum distance between two sibling links
-        var GAP = 50;
+        const GAP = 50;
 
-        each(siblings, function(sibling, index) {
+        each(siblings, (sibling, index) => {
 
           // we want offset values to be calculated as 0, 20, 20, 40, 40, 60, 60 ...
-          var offset = GAP * Math.ceil(index / 2);
+          let offset = GAP * Math.ceil(index / 2);
 
           // place the vertices at points which are `offset` pixels perpendicularly away
           // from the first link
@@ -940,7 +950,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
           //  |---->  index 0 sibling - centerline (between source and target centers)
           //  |
           //  v  even indices
-          var sign = ((index % 2) ? 1 : -1);
+          const sign = ((index % 2) ? 1 : -1);
 
           // to assure symmetry, if there is an even number of siblings
           // shift all vertices leftward perpendicularly away from the centerline
@@ -949,11 +959,11 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
           }
 
           // make reverse links count the same as non-reverse
-          var reverse = ((theta < 180) ? 1 : -1);
+          const reverse = ((theta < 180) ? 1 : -1);
 
           // we found the vertex
-          var angle = g.toRad(theta + (sign * reverse * 90));
-          var vertex = g.Point.fromPolar(offset, angle, midPoint);
+          const angle = g.toRad(theta + (sign * reverse * 90));
+          const vertex = g.Point.fromPolar(offset, angle, midPoint);
 
           // replace vertices array with `vertex`
           sibling.vertices([vertex]);

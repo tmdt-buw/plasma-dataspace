@@ -1,4 +1,5 @@
 <div fxLayout="column" fxLayoutGap="30px">
+  <!-- Main Form -->
   <form [formGroup]="form" fxLayout="column">
     <div fxLayout="row" fxLayoutGap="15px">
       <mat-form-field fxFlex="30" appearance="fill">
@@ -20,13 +21,15 @@
     </mat-form-field>
   </form>
 
+  <!-- File upload progress cards -->
   <div fxLayout="column" fxLayoutGap="5px" fxFlex="100px" *ngIf="uploads.length > 0">
-    <pls-upload-card (cancel)="onCancel(upload)" (close)="onClose(upload)" (retry)="uploadUpload(upload)" *ngFor="let upload of uploads" [upload]="upload"></pls-upload-card>
+    <pls-upload-card (canceled)="onCanceled(upload)" (closed)="onClosed(upload)" (retried)="uploadUpload(upload)" *ngFor="let upload of uploads" [upload]="upload"></pls-upload-card>
   </div>
 
+  <!-- File upload dropzone -->
   <div fxFlex="100px" *ngIf="uploads.length < 1" class="drop-zone-container">
     <div class="drop-zone" fxLayoutAlign="center center" plsFileDrop [multiple]="false" (fileDrop)="dropped($event)">
-      <div class="drop-zone-overlay" ></div>
+      <div class="drop-zone-overlay"></div>
       <div fxLayout="column" fxLayoutAlign="center center">
         <span>drop file</span>
         <span>or</span>
@@ -38,6 +41,7 @@
     </div>
   </div>
 
+  <!-- error and submit button -->
   <div fxLayoutAlign="space-between" fxLayout="row" fxLayoutGap="10px">
     <span fxFlex>
       <mat-error *ngIf="error">{{ error.message }}</mat-error>

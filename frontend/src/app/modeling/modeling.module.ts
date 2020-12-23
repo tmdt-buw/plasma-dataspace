@@ -1,5 +1,5 @@
 import { NgModule } from '@angular/core';
-import * as dms from 'modeling';
+import * as dms from '@plasma/dms';
 import { environment } from '../../environments/environment';
 import { CommonModule } from '@angular/common';
 import { FlexLayoutModule } from '@angular/flex-layout';
@@ -12,9 +12,9 @@ import { ModelingComponent } from './modeling/modeling.component';
 @NgModule({
   declarations: [ModelingComponent],
   imports: [
-    //Plasma
+    // Plasma
     dms.PlsModelingModule.setBasePath(environment.baseUrl),
-    //Angular
+    // Angular
     CommonModule,
     FlexLayoutModule,
     EditorModule,

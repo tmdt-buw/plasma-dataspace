@@ -11,10 +11,9 @@ import { PlsDataSourcesDescriptionComponent } from './data-sources-desciption/da
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatMenuModule } from '@angular/material/menu';
-import { HoverAccentDirective } from './data-sources-list/directives/hover-accent.directive';
 
 @NgModule({
-  declarations: [PlsDataSourcesComponent, PlsDataSourcesDescriptionComponent, HoverAccentDirective],
+  declarations: [PlsDataSourcesComponent, PlsDataSourcesDescriptionComponent],
   imports: [
     CommonModule,
     FlexLayoutModule,

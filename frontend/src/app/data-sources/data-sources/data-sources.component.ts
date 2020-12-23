@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { Subject } from 'rxjs';
-import { PlsUploadDialogService } from 'data-sources';
+import { PlsUploadDialogService } from '@plasma/dss';
 import { appRoutesNames } from '../../app.routes.names';
 import { FWD } from '../../shared/common/constants/routing';
 

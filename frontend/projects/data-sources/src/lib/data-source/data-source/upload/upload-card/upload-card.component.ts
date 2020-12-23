@@ -13,9 +13,9 @@ export class PlsUploadCardComponent {
 
   @Input() upload: Upload;
 
-  @Output() retry = new EventEmitter();
-  @Output() cancel = new EventEmitter();
-  @Output() close = new EventEmitter();
+  @Output() retried = new EventEmitter();
+  @Output() canceled = new EventEmitter();
+  @Output() closed = new EventEmitter();
 
   constructor() {
   }

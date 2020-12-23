@@ -11,18 +11,19 @@ import { MatSortModule } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
 import { PlsDataSourceDialogComponent } from './data-source-dialog/data-source-dialog.component';
 import { PlsDataSourceComponent } from './data-source/data-source.component';
-import { PlsFileDropDirective } from './data-source/upload/directives/file-drop.directive';
 import { BytesPipe } from './data-source/upload/upload-card/bytes.pipe';
 import { PlsUploadCardComponent } from './data-source/upload/upload-card/upload-card.component';
 import { MatDialogModule } from '@angular/material/dialog';
 import { PlsUploadDialogService } from './data-source-dialog/data-source-dialog.service';
+import { FileDropModule } from '@plasma/common';
 
 
 @NgModule({
-  declarations: [BytesPipe, PlsFileDropDirective, PlsDataSourceComponent, PlsUploadCardComponent, PlsDataSourceDialogComponent],
+  declarations: [BytesPipe, PlsDataSourceComponent, PlsUploadCardComponent, PlsDataSourceDialogComponent],
   imports: [
     // Angular
     CommonModule,
+    FileDropModule,
     FlexLayoutModule,
     FormsModule,
     MatButtonModule,

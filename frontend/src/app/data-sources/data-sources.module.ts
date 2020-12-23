@@ -4,7 +4,7 @@ import { FlexLayoutModule } from '@angular/flex-layout';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterModule } from '@angular/router';
-import * as dss from 'data-sources';
+import * as dss from '@plasma/dss';
 import { environment } from '../../environments/environment';
 import { DSS_ROUTES } from './data-sources.routes';
 import { DataSourcesComponent } from './data-sources/data-sources.component';
@@ -13,9 +13,9 @@ import { DataSourcesComponent } from './data-sources/data-sources.component';
 @NgModule({
   declarations: [DataSourcesComponent],
   imports: [
-    //Plasma
+    // Plasma
     dss.PlsDataSourcesModule.setBasePath(environment.baseUrl),
-    //Angular
+    // Angular
     CommonModule,
     FlexLayoutModule,
     MatButtonModule,

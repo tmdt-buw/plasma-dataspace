@@ -1,5 +1,5 @@
 /**
- * Upload dataset model
+ * Upload data model
  */
 export class Upload {
   file: File;

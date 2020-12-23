@@ -22,13 +22,13 @@
       <mat-header-cell *matHeaderCellDef fxFlex="180px"></mat-header-cell>
       <mat-cell *matCellDef="let element" fxFlex="180px" align="end">
         <button mat-icon-button (click)="showDataSourceLongDescription(element)" matTooltip="Info">
-          <mat-icon hover-accent-icon>info</mat-icon>
+          <mat-icon>info</mat-icon>
         </button>
         <button mat-icon-button matTooltip="Schema analysis" *ngIf="schemaAnalysisRoute" (click)="navigateToEditor(element, schemaAnalysisRoute)">
-          <mat-icon hover-accent-icon>graphic_eq</mat-icon>
+          <mat-icon>graphic_eq</mat-icon>
         </button>
         <button mat-icon-button matTooltip="Modeling" *ngIf="modelingRoute" (click)="navigateToEditor(element, modelingRoute)">
-          <mat-icon hover-accent-icon>widgets</mat-icon>
+          <mat-icon>widgets</mat-icon>
         </button>
         <button mat-icon-button [matMenuTriggerFor]="dataSourceMenu" [matMenuTriggerData]="element">
           <mat-icon>more_vert</mat-icon>

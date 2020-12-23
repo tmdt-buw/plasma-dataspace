@@ -18,7 +18,7 @@ export class PlsDataSourceDialogComponent {
   /**
    * Confirm close on active uploads
    */
-  close(refresh: boolean) {
+  close(refresh: boolean): void {
     this.dialog.close(refresh);
   }
 

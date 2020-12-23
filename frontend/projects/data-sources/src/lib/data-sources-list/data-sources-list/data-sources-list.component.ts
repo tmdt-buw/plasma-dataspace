@@ -38,7 +38,7 @@ export class PlsDataSourcesComponent implements OnInit {
   /**
    * Perform actions to init view
    */
-  ngOnInit() {
+  ngOnInit(): void {
     this.dataSources.sort = this.sort;
     this.getDataSources();
     this.$refresh.subscribe(() => {

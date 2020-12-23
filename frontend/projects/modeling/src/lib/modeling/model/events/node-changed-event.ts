@@ -6,7 +6,7 @@ import {
   PrimitiveDTO,
   SchemaNodeDTO,
   SetNodeDTO
-} from '../../api/generated/dms';
+} from '../../../api/generated/dms';
 
 export class NodeChangedEvent {
   type: 'syntax' | 'semantic';

@@ -1,5 +1,5 @@
 import { NgModule } from '@angular/core';
-import * as sas from 'schema-analysis';
+import * as sas from '@plasma/sas';
 import { environment } from '../../environments/environment';
 import { CommonModule } from '@angular/common';
 import { FlexLayoutModule } from '@angular/flex-layout';
@@ -11,9 +11,9 @@ import { SAS_ROUTES } from './schema-analysis.routes';
 @NgModule({
   declarations: [SchemaAnalysisComponent],
   imports: [
-    //Plasma
+    // Plasma
     sas.PlsSchemaAnalysisModule.setBasePath(environment.baseUrl),
-    //Angular
+    // Angular
     CommonModule,
     FlexLayoutModule,
     EditorModule,

@@ -16,17 +16,21 @@
       "dom"
     ],
     "paths": {
-      "data-sources": [
+      "@plasma/dss": [
         "dist/data-sources/data-sources",
         "dist/data-sources"
       ],
-      "modeling": [
+      "@plasma/dms": [
         "dist/modeling/modeling",
         "dist/modeling"
       ],
-      "schema-analysis": [
+      "@plasma/sas": [
         "dist/schema-analysis/schema-analysis",
         "dist/schema-analysis"
+      ],
+      "@plasma/common": [
+        "dist/common/common",
+        "dist/common"
       ]
     }
   }

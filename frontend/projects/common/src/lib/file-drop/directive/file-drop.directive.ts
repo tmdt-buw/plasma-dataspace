@@ -57,7 +57,7 @@ export class PlsFileDropDirective {
     transfer.dropEffect = this.typeCheck(transfer.types);
     if (
       this.disabled ||
-      (!this.multiple && ((transfer.items && transfer.items.length > 1) || (<any>transfer).mozItemCount > 1))
+      (!this.multiple && ((transfer.items && transfer.items.length > 1) || (transfer as any).mozItemCount > 1))
     ) {
       transfer.dropEffect = 'none';
     } else {
@@ -88,8 +88,8 @@ export class PlsFileDropDirective {
     let dropEffect: string = 'none';
     if (
       types &&
-      (((<any>types).contains && (<any>types).contains('Files')) ||
-        ((<any>types).indexOf && (<any>types).indexOf('Files') !== -1))
+      (((types as any).contains && (types as any).contains('Files')) ||
+        ((types as any).indexOf && (types as any).indexOf('Files') !== -1))
     ) {
       dropEffect = 'copy';
     }
