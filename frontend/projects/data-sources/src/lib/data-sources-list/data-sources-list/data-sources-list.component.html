@@ -24,10 +24,10 @@
         <button mat-icon-button (click)="showDataSourceLongDescription(element)" matTooltip="Info">
           <mat-icon>info</mat-icon>
         </button>
-        <button mat-icon-button matTooltip="Schema analysis" *ngIf="schemaAnalysisRoute" (click)="navigateToEditor(element, schemaAnalysisRoute)">
+        <button mat-icon-button color="primary" matTooltip="Schema analysis" *ngIf="schemaAnalysisRoute" (click)="navigateToEditor(element, schemaAnalysisRoute)">
           <mat-icon>graphic_eq</mat-icon>
         </button>
-        <button mat-icon-button matTooltip="Modeling" *ngIf="modelingRoute" (click)="navigateToEditor(element, modelingRoute)">
+        <button mat-icon-button color="primary" matTooltip="Modeling" *ngIf="modelingRoute" (click)="navigateToEditor(element, modelingRoute)">
           <mat-icon>widgets</mat-icon>
         </button>
         <button mat-icon-button [matMenuTriggerFor]="dataSourceMenu" [matMenuTriggerData]="element">

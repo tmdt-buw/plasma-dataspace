@@ -1,0 +1,11 @@
+.loading-button {
+  position: relative;
+
+  .loading-spinner {
+    position: absolute;
+    left: calc(50% - 10px);
+    top: calc(50% - 10px);
+    right: 0;
+    bottom: 0;
+  }
+}

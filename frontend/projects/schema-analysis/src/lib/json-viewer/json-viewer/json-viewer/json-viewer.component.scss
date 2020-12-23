@@ -1,0 +1,63 @@
+:host {
+  font-size: 14px;
+  font-family: monospace;
+
+  $type-colors: (
+    string: #FF6B6B,
+    number: #009688,
+    boolean: #b938a4,
+    date: #05668D,
+
+    array: #999,
+    object: #999,
+    function: #999,
+
+    'null': #ec4b2f,
+    undefined: #ec4b2f
+  );
+
+  @each $type, $color in $type-colors {
+    .node-type-#{$type} {
+      color: $color;
+    }
+  }
+
+  .node-key {
+    color: #4E187C;
+  }
+
+  .node-value {
+    margin-left: 5px;
+  }
+
+  .node-description {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: #999;
+  }
+
+  .toggle-button {
+    width: 24px;
+    height: 24px;
+    line-height: 24px;
+  }
+
+  .tree-invisible {
+    display: none;
+  }
+
+  .tree ul,
+  .tree li {
+    margin-top: 0;
+    margin-bottom: 0;
+    list-style-type: none;
+  }
+  .tree-node {
+    display: block;
+  }
+
+  .tree-node .tree-node {
+    padding-left: 40px;
+  }
+}

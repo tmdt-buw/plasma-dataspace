@@ -10,6 +10,8 @@ import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { PlsLoadingButtonModule } from '@plasma/common';
+import { JsonViewerModule } from './json-viewer/json-viewer.module';
 
 
 
@@ -18,6 +20,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
   imports: [
     // Plasma
     ApiModule,
+    PlsLoadingButtonModule,
     // Angular
     CommonModule,
     FlexLayoutModule,
@@ -28,7 +31,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
     MatSelectModule,
     MatProgressSpinnerModule,
     FormsModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    JsonViewerModule
   ],
   exports: [PlsSchemaAnalysisComponent]
 })
