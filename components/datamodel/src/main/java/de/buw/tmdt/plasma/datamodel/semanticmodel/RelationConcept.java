@@ -39,14 +39,13 @@ public class RelationConcept extends CombinedModelElement implements Serializabl
 
 	@JsonCreator
 	public RelationConcept(
-			@Nullable @JsonProperty(UUID_PROPERTY) String uuid,
-			@Nullable @JsonProperty(DATABASE_ID_PROPERTY) Long databaseId,
+			@NotNull @JsonProperty(UUID_PROPERTY) String uuid,
 			@NotNull @JsonProperty(LABEL_PROPERTY) String label,
 			@NotNull @JsonProperty(DESCRIPTION_PROPERTY) String description,
 			@NotNull @JsonProperty(SOURCE_URI_PROPERTY) String sourceURI,
 			@NotNull @JsonProperty(PROPERTIES_PROPERTY) Set<String> properties
 	) {
-		super(				uuid,databaseId,label);
+		super(				uuid,label);
 		this.description = description;
 		this.sourceURI = sourceURI;
 		this.properties = properties;

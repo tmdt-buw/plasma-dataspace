@@ -26,14 +26,13 @@ public class CollisionSchema extends SchemaNode {
 	public CollisionSchema(
 
 			@JsonProperty(UUID_PROPERTY) @NotNull String uuid,
-			@Nullable @JsonProperty(DATABASE_ID_PROPERTY) Long databaseId,
 			@JsonProperty(LABEL_PROPERTY) @NotNull String label,
 			@Nullable @JsonProperty(X_COORDINATE_PROPERTY) Double xCoordinate,
 			@Nullable @JsonProperty(Y_COORDINATE_PROPERTY) Double yCoordinate,
 			@JsonProperty(OPERATIONS_PROPERTY) @NotNull List<SyntacticOperationDTO> operations,
 			@JsonProperty(IS_VALID_PROPERTY) boolean isValid
 	) {
-		super( uuid, databaseId,label, xCoordinate, yCoordinate,operations, isValid);
+		super( uuid, label, xCoordinate, yCoordinate,operations, isValid);
 	}
 
 	@Override

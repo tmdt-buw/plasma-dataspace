@@ -16,12 +16,12 @@ public class SemanticModel {
 	public static final String NODES_PROPERTY = "nodes";
 	private static final String EDGES_PROPERTY = "edges";
 
-	private final List<Instantiation> nodes;
+	private final List<EntityType> nodes;
 	private final List<Relation> edges;
 
 	@JsonCreator
 	public SemanticModel(
-			@JsonProperty(NODES_PROPERTY) List<Instantiation> nodes,
+			@JsonProperty(NODES_PROPERTY) List<EntityType> nodes,
 			@JsonProperty(EDGES_PROPERTY) List<Relation> edges
 	) {
 		this.nodes = nodes != null ? new ArrayList<>(nodes) : Collections.emptyList();
@@ -29,7 +29,7 @@ public class SemanticModel {
 	}
 
 	@JsonProperty(NODES_PROPERTY)
-	public List<Instantiation> getNodes() {
+	public List<EntityType> getNodes() {
 		return nodes;
 	}
 

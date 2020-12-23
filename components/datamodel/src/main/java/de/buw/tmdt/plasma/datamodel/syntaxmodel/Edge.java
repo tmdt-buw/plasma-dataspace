@@ -43,20 +43,19 @@ public class Edge extends CombinedModelElement {
 	}
 
 	public Edge(@NotNull String fromUuid, @NotNull String toUuid, String key) {
-		this(UUID.randomUUID().toString(),null,"",fromUuid, toUuid, key, null);
+		this(UUID.randomUUID().toString(),"",fromUuid, toUuid, key, null);
 	}
 
 	@JsonCreator
 	public Edge(
 			@JsonProperty(UUID_PROPERTY) @NotNull String uuid,
-			@Nullable @JsonProperty(DATABASE_ID_PROPERTY) Long databaseId,
 			@NotNull @JsonProperty(LABEL_PROPERTY) String label,
 			@JsonProperty(FROM_PROPERTY) @NotNull String fromUuid,
 			@JsonProperty(TO_PROPERTY) @NotNull String toUuid,
 			@JsonProperty(KEY_PROPERTY) @Nullable String key,
 			@JsonProperty(OPERATIONS_PROPERTY) @Nullable List<SyntacticOperationDTO> operations
 	) {
-		super(uuid,databaseId,label);
+		super(uuid,label);
 			this.from =fromUuid;
 			this.to = toUuid;
 		this.key = key;

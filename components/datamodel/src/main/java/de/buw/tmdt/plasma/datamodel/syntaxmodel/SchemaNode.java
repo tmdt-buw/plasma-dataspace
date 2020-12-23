@@ -20,13 +20,16 @@ import java.util.Objects;
 		@JsonSubTypes.Type(value = CollisionSchema.class, name = "CollisionSchema"),
 		@JsonSubTypes.Type(value = CompositeNode.class, name = "Composite")
 })
-public class SchemaNode extends PositionedCombinedModelElement {
+public abstract class SchemaNode extends PositionedCombinedModelElement {
 
 	protected static final String IS_VALID_PROPERTY = "isValid";
 	protected static final String OPERATIONS_PROPERTY = "operations";
 	private static final long serialVersionUID = 8398288916936841021L;
 
 	private final boolean isValid;
+	/**
+	 * Holds a set of possible specific operations that are possible on this element.
+	 */
 	private final ArrayList<SyntacticOperationDTO> operations;
 
 	public SchemaNode(
@@ -45,14 +48,13 @@ public class SchemaNode extends PositionedCombinedModelElement {
 	@JsonCreator
 	public SchemaNode(
 			@NotNull @JsonProperty(UUID_PROPERTY)  String uuid,
-			@Nullable @JsonProperty(DATABASE_ID_PROPERTY) Long databaseId,
 			@NotNull @JsonProperty(LABEL_PROPERTY) String label,
 			@Nullable @JsonProperty(X_COORDINATE_PROPERTY) Double xCoordinate,
 			@Nullable @JsonProperty(Y_COORDINATE_PROPERTY) Double yCoordinate,
 			@NotNull @JsonProperty(OPERATIONS_PROPERTY)  List<SyntacticOperationDTO> operations,
 			@JsonProperty(IS_VALID_PROPERTY) boolean isValid
 	) {
-		super(uuid,databaseId,label,xCoordinate, yCoordinate);
+		super(uuid,label,xCoordinate, yCoordinate);
 		this.isValid = isValid;
 		if (CollectionUtilities.containsNull(operations)) {
 			throw new IllegalArgumentException("Operations must not contain null.");

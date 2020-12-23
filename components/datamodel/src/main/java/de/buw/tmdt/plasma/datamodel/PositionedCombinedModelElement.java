@@ -42,12 +42,11 @@ public abstract class PositionedCombinedModelElement extends CombinedModelElemen
 	@JsonCreator
 	public PositionedCombinedModelElement(
 			@NotNull @JsonProperty(UUID_PROPERTY) String uuid,
-			@Nullable @JsonProperty(DATABASE_ID_PROPERTY) Long databaseId,
 			@NotNull @JsonProperty(LABEL_PROPERTY) String label,
 			@Nullable @JsonProperty(X_COORDINATE_PROPERTY) Double xCoordinate,
 			@Nullable @JsonProperty(Y_COORDINATE_PROPERTY) Double yCoordinate
 	) {
-		super(uuid,databaseId,label);
+		super(uuid,label);
 		this.xCoordinate = xCoordinate;
 		this.yCoordinate = yCoordinate;
 	}

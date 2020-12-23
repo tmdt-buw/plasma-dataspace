@@ -9,15 +9,12 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.Serializable;
 import java.util.Objects;
-import java.util.UUID;
-
-import static de.buw.tmdt.plasma.datamodel.PositionedCombinedModelElement.X_COORDINATE_PROPERTY;
 
 /**
  * An instantiation resembles the use of a concept inside a semantic model in a combined model.
  * After modeling, will be converted into an Entity Concept
  */
-public class Instantiation extends PositionedCombinedModelElement implements Serializable {
+public class EntityType extends PositionedCombinedModelElement implements Serializable {
 
     private static final long serialVersionUID = 4109691502825894813L;
 
@@ -33,31 +30,34 @@ public class Instantiation extends PositionedCombinedModelElement implements Ser
      */
     private String entityId;
     /**
-     * The id of the syntax {@link de.buw.tmdt.plasma.datamodel.syntaxmodel.PrimitiveNode}  this object is mapped to.
-     * Will be null if not mapped
+     * The id of the syntax {@link de.buw.tmdt.plasma.datamodel.syntaxmodel.PrimitiveNode} this object is mapped to.
+     * Will be null if not mapped.
      */
     private String syntaxNodeUuid;
     /**
-     * The original label of an attribute if this instantiation is mapped to one, null otherwise
+     * The original label of an attribute if this instantiation is mapped to one, null otherwise.
      */
     private String originalLabel;
 
     private String description;
-    private final Concept concept;
+    /**
+     * The assigned {@link EntityConcept} that defines this {@link EntityType}
+     */
+    private final EntityConcept entityConcept;
 
     /**
      * Constructor to use for a new unmapped instantiation
      *
      * @param label       The label to show
      * @param description A description for this object, optional
-     * @param concept     The concept to represent
+     * @param entityConcept     The concept to represent
      */
-    public Instantiation(@NotNull String label,
-                         String description,
-                         Concept concept) {
+    public EntityType(@NotNull String label,
+                      String description,
+                      EntityConcept entityConcept) {
         super(label);
         this.description = description;
-        this.concept = concept;
+        this.entityConcept = entityConcept;
     }
 
     /**
@@ -67,16 +67,16 @@ public class Instantiation extends PositionedCombinedModelElement implements Ser
      * @param xCoordinate X coordinate
      * @param yCoordinate Y coordinate
      * @param description A description for this object, optional
-     * @param concept     The concept to represent
+     * @param entityConcept     The concept to represent
      */
-    public Instantiation(@NotNull String label,
-                         @NotNull Double xCoordinate,
-                         @NotNull Double yCoordinate,
-                         @Nullable String description,
-                         @NotNull Concept concept) {
+    public EntityType(@NotNull String label,
+                      @NotNull Double xCoordinate,
+                      @NotNull Double yCoordinate,
+                      @Nullable String description,
+                      @NotNull EntityConcept entityConcept) {
         super(label, xCoordinate, yCoordinate);
         this.description = description;
-        this.concept = concept;
+        this.entityConcept = entityConcept;
     }
 
     /**
@@ -89,27 +89,26 @@ public class Instantiation extends PositionedCombinedModelElement implements Ser
      *                       Should be equal to a {@link PrimitiveNode#getUuid()}
      * @param originalLabel  The original attributes label
      * @param description    A description for this object, optional
-     * @param concept        The concept to represent
+     * @param entityConcept        The concept to represent
      */
-    public Instantiation(@NotNull String label,
-                         @Nullable Double xCoordinate,
-                         @Nullable Double yCoordinate,
-                         @NotNull String syntaxNodeUuid,
-                         @NotNull String originalLabel,
-                         @Nullable String description,
-                         @NotNull Concept concept) {
+    public EntityType(@NotNull String label,
+                      @Nullable Double xCoordinate,
+                      @Nullable Double yCoordinate,
+                      @NotNull String syntaxNodeUuid,
+                      @NotNull String originalLabel,
+                      @Nullable String description,
+                      @NotNull EntityConcept entityConcept) {
         super(label, xCoordinate, yCoordinate);
         this.syntaxNodeUuid = syntaxNodeUuid;
         this.originalLabel = originalLabel;
         this.description = description;
-        this.concept = concept;
+        this.entityConcept = entityConcept;
     }
 
     /**
      * Constructor to use for a new mapped instantiation at a specific place
      *
      * @param uuid           The object uuid
-     * @param databaseId     The database id if it has already been persisted
      * @param entityId       The entity id, only set if this has beem submitted to the knowledge base
      * @param label          The label to show
      * @param xCoordinate    X coordinate
@@ -118,27 +117,26 @@ public class Instantiation extends PositionedCombinedModelElement implements Ser
      *                       Should be equal to a {@link PrimitiveNode#getUuid()}
      * @param originalLabel  The original attributes label
      * @param description    A description for this object, optional
-     * @param concept        The concept to represent
+     * @param entityConcept        The concept to represent
      */
     @JsonCreator
-    public Instantiation(
+    public EntityType(
             @NotNull @JsonProperty(UUID_PROPERTY) String uuid,
-            @Nullable @JsonProperty(DATABASE_ID_PROPERTY) Long databaseId,
             @Nullable @JsonProperty(ENTITY_ID_PROPERTY) String entityId,
             @NotNull @JsonProperty(LABEL_PROPERTY) String label,
             @NotNull @JsonProperty(SYNTAX_NODE_ID_PROPERTY) String syntaxNodeUuid,
             @NotNull @JsonProperty(ORIGINAL_LABEL_PROPERTY) String originalLabel,
             @NotNull @JsonProperty(DESCRIPTION_PROPERTY) String description,
-            @NotNull @JsonProperty(CONCEPT_PROPERTY) Concept concept,
+            @NotNull @JsonProperty(CONCEPT_PROPERTY) EntityConcept entityConcept,
             @Nullable @JsonProperty(X_COORDINATE_PROPERTY) Double xCoordinate,
             @Nullable @JsonProperty(Y_COORDINATE_PROPERTY) Double yCoordinate
     ) {
-        super(uuid, databaseId, label, xCoordinate, yCoordinate);
+        super(uuid,  label, xCoordinate, yCoordinate);
         this.entityId = entityId;
         this.syntaxNodeUuid = syntaxNodeUuid;
         this.originalLabel = originalLabel;
         this.description = description;
-        this.concept = concept;
+        this.entityConcept = entityConcept;
     }
 
     /* Getter */
@@ -163,8 +161,8 @@ public class Instantiation extends PositionedCombinedModelElement implements Ser
     }
 
     @JsonProperty(CONCEPT_PROPERTY)
-    public Concept getConcept() {
-        return concept;
+    public EntityConcept getEntityConcept() {
+        return entityConcept;
     }
 
     @JsonProperty(MAPPED_TO_DATA_PROPERTY)
@@ -192,7 +190,7 @@ public class Instantiation extends PositionedCombinedModelElement implements Ser
 
     @Override
     public int hashCode() {
-        return Objects.hash(getUuid(), originalLabel, description, concept);
+        return Objects.hash(getUuid(), originalLabel, description, entityConcept);
     }
 
     @Override
@@ -203,7 +201,7 @@ public class Instantiation extends PositionedCombinedModelElement implements Ser
         if (o == null || !getClass().equals(o.getClass())) {
             return false;
         }
-        Instantiation that = (Instantiation) o;
+        EntityType that = (EntityType) o;
         return Objects.equals(getUuid(), that.getUuid());
     }
 
@@ -212,7 +210,6 @@ public class Instantiation extends PositionedCombinedModelElement implements Ser
     public String toString() {
         return "{\"@class\":\"EntityConceptDTO\""
                 + ", \"uuid\":\"" + getUuid() + '"'
-                + ", \"databaseId\":\"" + getDatabaseId() + '"'
                 + ", \"entityId\":\"" + entityId + '"'
                 + ", \"label\":\"" + getLabel() + '"'
                 + ", \"syntaxNodeUuid\":\"" + syntaxNodeUuid + '"'

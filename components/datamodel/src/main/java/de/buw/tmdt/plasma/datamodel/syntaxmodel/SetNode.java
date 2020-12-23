@@ -10,6 +10,9 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
+/**
+ * Represents a set. All outgoing {@link Edge}s' target nodes represent members of that set.
+ */
 @JsonTypeName("SetNode")
 public class SetNode extends SchemaNode {
 
@@ -26,14 +29,13 @@ public class SetNode extends SchemaNode {
 	@JsonCreator
 	public SetNode(
 			@JsonProperty(UUID_PROPERTY) @NotNull String uuid,
-			@Nullable @JsonProperty(DATABASE_ID_PROPERTY) Long databaseId,
 			@JsonProperty(LABEL_PROPERTY) @NotNull String label,
 			@Nullable @JsonProperty(PositionedCombinedModelElement.X_COORDINATE_PROPERTY) Double xCoordinate,
 			@Nullable @JsonProperty(PositionedCombinedModelElement.Y_COORDINATE_PROPERTY) Double yCoordinate,
 			@JsonProperty(OPERATIONS_PROPERTY) @NotNull List<SyntacticOperationDTO> operations,
 			@JsonProperty(IS_VALID_PROPERTY) boolean isValid
 	) {
-		super( uuid,databaseId, label,xCoordinate, yCoordinate, operations, isValid);
+		super( uuid, label,xCoordinate, yCoordinate, operations, isValid);
 	}
 
 	@Override

@@ -15,7 +15,7 @@ public class SyntaxModel implements Serializable {
 
 	private static final String ROOT_PROPERTY = "root";
 	public static final String NODES_PROPERTY = "nodes";
-	private static final String EDGES_PROPERTY = "edges";
+	public static final String EDGES_PROPERTY = "edges";
 	private static final long serialVersionUID = -7924812162247359979L;
 
 	private final String root;

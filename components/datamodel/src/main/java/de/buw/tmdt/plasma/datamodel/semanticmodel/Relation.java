@@ -45,13 +45,12 @@ public class Relation extends CombinedModelElement implements Serializable {
 	@JsonCreator
 	public Relation(
 			@NotNull @JsonProperty(UUID_PROPERTY) String uuid,
-			@Nullable @JsonProperty(DATABASE_ID_PROPERTY) Long databaseId,
 			@NotNull @JsonProperty(FROM_ID_PROPERTY) String fromId,
 			@NotNull @JsonProperty(TO_ID_PROPERTY) String toId,
 			@NotNull @JsonProperty(DESCRIPTION_PROPERTY) String description,
 			@NotNull @JsonProperty(CONCEPT_PROPERTY) RelationConcept concept
 	) {
-		super(uuid,databaseId,"");
+		super(uuid,"");
 				this.fromId = fromId;
 				this.toId = toId;
 				this.description = description;

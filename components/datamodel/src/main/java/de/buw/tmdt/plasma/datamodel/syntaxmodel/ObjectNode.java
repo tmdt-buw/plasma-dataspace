@@ -9,6 +9,10 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
+/**
+ * This node represents a node that is the root of an object.
+ * All outgoing edges are to be considered child nodes are to be considered to represent attributes.
+ */
 @JsonTypeName("ObjectNode")
 public class ObjectNode extends SchemaNode {
 
@@ -25,14 +29,13 @@ public class ObjectNode extends SchemaNode {
 	@JsonCreator
 	public ObjectNode(
 			@NotNull @JsonProperty(UUID_PROPERTY) String uuid,
-			@Nullable @JsonProperty(DATABASE_ID_PROPERTY) Long databaseId,
 			@NotNull @JsonProperty(LABEL_PROPERTY) String label,
 			@Nullable @JsonProperty(X_COORDINATE_PROPERTY) Double xCoordinate,
 			@Nullable @JsonProperty(Y_COORDINATE_PROPERTY) Double yCoordinate,
 			@JsonProperty(OPERATIONS_PROPERTY) @NotNull List<SyntacticOperationDTO> operations,
 			@JsonProperty(IS_VALID_PROPERTY) boolean isValid
 	) {
-		super( uuid, databaseId,label,xCoordinate, yCoordinate, operations, isValid);
+		super( uuid, label,xCoordinate, yCoordinate, operations, isValid);
 	}
 
 	@Override

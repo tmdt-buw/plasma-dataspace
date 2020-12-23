@@ -10,10 +10,7 @@ import org.jetbrains.annotations.Nullable;
 import java.io.Serializable;
 import java.util.Objects;
 
-import static de.buw.tmdt.plasma.datamodel.CombinedModelElement.DATABASE_ID_PROPERTY;
-import static de.buw.tmdt.plasma.datamodel.CombinedModelElement.UUID_PROPERTY;
-
-public class Concept extends CombinedModelElement implements Serializable {
+public class EntityConcept extends CombinedModelElement implements Serializable {
     private static final long serialVersionUID = 2351939502355153654L;
 
     public static final String ENTITY_ID_PROPERTY = "entityId";
@@ -27,7 +24,7 @@ public class Concept extends CombinedModelElement implements Serializable {
     private final String description;
     private final String sourceURI;
 
-    public Concept(
+    public EntityConcept(
             @NotNull @JsonProperty(LABEL_PROPERTY) String label,
             @Nullable @JsonProperty(DESCRIPTION_PROPERTY) String description,
             @Nullable @JsonProperty(SOURCE_URI_PROPERTY) String sourceURI
@@ -39,15 +36,14 @@ public class Concept extends CombinedModelElement implements Serializable {
     }
 
     @JsonCreator
-    public Concept(
+    public EntityConcept(
             @NotNull @JsonProperty(UUID_PROPERTY) String uuid,
-            @Nullable @JsonProperty(DATABASE_ID_PROPERTY) Long databaseId,
             @NotNull @JsonProperty(LABEL_PROPERTY) String label,
             @Nullable @JsonProperty(ENTITY_ID_PROPERTY) String entityId,
             @Nullable @JsonProperty(DESCRIPTION_PROPERTY) String description,
             @Nullable @JsonProperty(SOURCE_URI_PROPERTY) String sourceURI
     ) {
-        super(uuid,databaseId,label);
+        super(uuid,label);
         this.entityId = entityId;
         this.description = description;
         this.sourceURI = sourceURI;
@@ -80,7 +76,7 @@ public class Concept extends CombinedModelElement implements Serializable {
         if (this == o) {
             return true;
         } else if (o != null && this.getClass().equals(o.getClass())) {
-            Concept that = (Concept) o;
+            EntityConcept that = (EntityConcept) o;
             return Objects.equals(this.getUuid(), that.getUuid());
         } else {
             return false;
@@ -92,7 +88,6 @@ public class Concept extends CombinedModelElement implements Serializable {
     public String toString() {
         return "{\"@class\":\"EntityConceptDTO\""
                 + ", \"uuid\":\"" + getUuid() + '"'
-               + ", \"databaseId\":\"" + getDatabaseId() + '"'
                + ", \"entityId\":\"" + entityId + '"'
                + ", \"label\":\"" + getLabel()+ '"'
                + ", \"sourceURI\":\"" + sourceURI + '"'
