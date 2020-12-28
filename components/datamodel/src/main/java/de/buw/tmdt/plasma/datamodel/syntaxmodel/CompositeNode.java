@@ -10,9 +10,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.UUID;
-
-import static de.buw.tmdt.plasma.datamodel.PositionedCombinedModelElement.X_COORDINATE_PROPERTY;
 
 /**
  * A composite node is existed as a primitive node but was splitted using one or more {@link Splitting} objects.
@@ -48,7 +45,7 @@ public class CompositeNode extends SchemaNode {
 			@Nullable @JsonProperty(Y_COORDINATE_PROPERTY) Double yCoordinate,
 			@NotNull @JsonProperty(OPERATIONS_PROPERTY) List<SyntacticOperationDTO> operations,
 			@JsonProperty(IS_VALID_PROPERTY) boolean isValid,
-			@NotNull @JsonProperty(CLEANSING_PATTERN_PROPERTY) String cleansingPattern,
+			@JsonProperty(CLEANSING_PATTERN_PROPERTY) String cleansingPattern,
 			@NotNull @JsonProperty(SPLITTER_PROPERTY) List<Splitting> splitter
 	) {
 		super( uuid, label, xCoordinate, yCoordinate,operations, isValid);
@@ -57,7 +54,6 @@ public class CompositeNode extends SchemaNode {
 	}
 
 	@JsonProperty(CLEANSING_PATTERN_PROPERTY)
-	@NotNull
 	public String getCleansingPattern() {
 		return cleansingPattern;
 	}

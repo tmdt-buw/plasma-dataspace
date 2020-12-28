@@ -8,9 +8,11 @@ import de.buw.tmdt.plasma.utilities.misc.StringUtilities;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
-@JsonTypeName("PrimitiveDTO")
+@JsonTypeName("PrimitiveNode")
 public class PrimitiveNode extends SchemaNode {
 
 	private static final long serialVersionUID = -144653268470507986L;
@@ -62,7 +64,7 @@ public class PrimitiveNode extends SchemaNode {
 
 	@JsonProperty(EXAMPLES_PROPERTY)
 	public List<String> getExamples() {
-		return Collections.unmodifiableList(examples);
+		return examples;
 	}
 
 	@JsonProperty(DATA_TYPE_PROPERTY)
@@ -85,29 +87,12 @@ public class PrimitiveNode extends SchemaNode {
 	@Override
 	@SuppressWarnings("MagicCharacter")
 	public String toString() {
-		return "{\"@class\":\"PrimitiveDTO\""
-		       + ", \"@super\":" + super.toString()
-		       + ", \"cleansingPattern\":\"" + cleansingPattern + '"'
-		       + ", \"examples\":" + StringUtilities.listToJson(examples)
-		       + ", \"dataType\":\"" + dataType + '"'
-		       + '}';
-	}
-
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) {
-			return true;
-		}
-		if (o == null || getClass() != o.getClass()) {
-			return false;
-		}
-		if (!super.equals(o)) {
-			return false;
-		}
-		PrimitiveNode that = (PrimitiveNode) o;
-		return 	       Objects.equals(cleansingPattern, that.cleansingPattern) &&
-		       Objects.equals(examples, that.examples) &&
-		       Objects.equals(dataType, that.dataType);
+		return "{\"@class\":\"PrimitiveNode\""
+				+ ", \"@super\":" + super.toString()
+				+ ", \"cleansingPattern\":\"" + cleansingPattern + '"'
+				+ ", \"examples\":" + StringUtilities.listToJson(examples)
+				+ ", \"dataType\":\"" + dataType + '"'
+				+ '}';
 	}
 
 	@Override

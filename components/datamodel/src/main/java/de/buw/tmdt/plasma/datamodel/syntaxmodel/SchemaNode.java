@@ -1,6 +1,9 @@
 package de.buw.tmdt.plasma.datamodel.syntaxmodel;
 
-import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import de.buw.tmdt.plasma.datamodel.PositionedCombinedModelElement;
 import de.buw.tmdt.plasma.datamodel.modification.operation.SyntacticOperationDTO;
 import de.buw.tmdt.plasma.utilities.collections.CollectionUtilities;
@@ -86,21 +89,21 @@ public abstract class SchemaNode extends PositionedCombinedModelElement {
 		if (this == o) {
 			return true;
 		}
-		if (o == null || !getClass().equals(o.getClass())) {
+		if (!(o instanceof SchemaNode)) {
 			return false;
 		}
 		SchemaNode that = (SchemaNode) o;
-		return 		       Objects.equals(getUuid(), that.getUuid());
+		return Objects.equals(getUuid(), that.getUuid());
 	}
 
 	@Override
 	@SuppressWarnings("MagicCharacter")
 	public String toString() {
-		return "{\"@class\":\"SchemaNodeDTO\""
-		       + ", \"@super\":" + super.toString()
-		       + ", \"uuid\":" + getUuid()
-		       + ", \"isValid\":\"" + isValid + '"'
-		       + ", \"operations\":" + StringUtilities.listToJson(operations)
-		       + '}';
+		return "{\"@class\":\"SchemaNode\""
+				+ ", \"@super\":" + super.toString()
+				+ ", \"uuid\":" + getUuid()
+				+ ", \"isValid\":\"" + isValid + '"'
+				+ ", \"operations\":" + StringUtilities.listToJson(operations)
+				+ '}';
 	}
 }

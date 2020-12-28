@@ -2,15 +2,19 @@ package de.buw.tmdt.plasma.datamodel;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import de.buw.tmdt.plasma.datamodel.modification.DeltaModification;
-import de.buw.tmdt.plasma.datamodel.semanticmodel.EntityType;
-import de.buw.tmdt.plasma.datamodel.semanticmodel.Relation;
+import de.buw.tmdt.plasma.datamodel.modification.operation.DataType;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.SemanticModel;
-import de.buw.tmdt.plasma.datamodel.syntaxmodel.SyntaxModel;
+import de.buw.tmdt.plasma.datamodel.syntaxmodel.*;
+import de.buw.tmdt.plasma.utilities.misc.Pair;
 import de.buw.tmdt.plasma.utilities.misc.StringUtilities;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * The combined model contains all elements that model the current state of the syntactic
@@ -87,15 +91,17 @@ public class CombinedModel implements Serializable {
 	}
 
 	public void apply(DeltaModification delta) {
-		if(finalized){
+		if (finalized) {
 			throw new UnsupportedOperationException("Model is finalized. No more modifications possible");
 		}
-		// apply syntactic operations
-// update nodes
+		// apply syntactic modifications
+		// update nodes
+		List<SchemaNode> nodesToBeReplaced = new ArrayList<>();
 		if (delta.getNodes() != null) {
 			// as we match by uuid only, we can use removeAll and addAll
 			// remove all nodes that are to be overwritten (i.e. uuids match)
-			syntaxModel.getNodes().removeAll(delta.getNodes());
+			nodesToBeReplaced = syntaxModel.getNodes().stream().filter(schemaNode -> delta.getNodes().contains(schemaNode)).collect(Collectors.toList());
+			syntaxModel.getNodes().removeAll(nodesToBeReplaced);
 			// now add the new ones with the same uuids but new content
 			syntaxModel.getNodes().addAll(delta.getNodes());
 		}
@@ -108,6 +114,57 @@ public class CombinedModel implements Serializable {
 			syntaxModel.getEdges().addAll(delta.getEdges());
 		}
 
+		// check if any additional syntactic modifications have to be done, e.g. after splitting operation
+
+		// check if he have a split going on
+		List<CompositeNode> compositeNodes = delta.getNodes().stream().filter(schemaNode -> schemaNode instanceof CompositeNode).map(schemaNode -> (CompositeNode) schemaNode).collect(Collectors.toList());
+		for (CompositeNode compositeNode : compositeNodes) {
+			// get the replaced node
+			SchemaNode replacedNode = nodesToBeReplaced.stream().filter(schemaNode -> schemaNode.equals(compositeNode)).findFirst().orElse(null);
+			if (replacedNode == null) {
+				// nothing to be done here, something has gone wrong
+				continue;
+			}
+			if (replacedNode instanceof CompositeNode) {
+				// check if the patterns match, as this was split before
+				// TODO
+			}
+			if (replacedNode instanceof PrimitiveNode) {
+				// we split a previous primitive node
+				PrimitiveNode replaced = (PrimitiveNode) replacedNode;
+				List<Splitting> splitter = compositeNode.getSplitter();
+
+				// generate new nodes
+				List<PrimitiveNode> components = new ArrayList<>(splitter.size() + 1);
+				for (int i = 0; i < splitter.size() + 1; i++) {
+					components.add(new PrimitiveNode(replaced.getLabel() + "-" + i, replaced.getOperations(), true, DataType.UNKNOWN.name(), new ArrayList<>(), null));
+				}
+
+				// split example values
+				for (String example : replaced.getExamples()) {
+
+					String leftOver = example;
+					for (int i = 0; i < splitter.size(); i++) {
+						Pair<String, String> split = splitter.get(i).apply(leftOver);
+						components.get(i).getExamples().add(split.getLeft());
+						leftOver = split.getRight();
+					}
+					components.get(components.size() - 1).getExamples().add(leftOver);
+				}
+
+				// create edges to new nodes
+				List<Edge> newEdges = new ArrayList<>(components.size());
+				for (PrimitiveNode node : components) {
+					Edge e = new Edge(compositeNode.getUuid(), node.getUuid());
+					newEdges.add(e);
+				}
+
+				// add new nodes and edges to model
+				syntaxModel.getNodes().addAll(components);
+				syntaxModel.getEdges().addAll(newEdges);
+			}
+		}
+
 		// update entities
 		if (delta.getEntities() != null) {
 			// as we match by uuid only, we can use removeAll and addAll
@@ -116,6 +173,25 @@ public class CombinedModel implements Serializable {
 			// now add the new ones with the same uuids but new content
 			semanticModel.getNodes().addAll(delta.getEntities());
 		}
+		if (delta.getNodes().stream().anyMatch(schemaNode -> schemaNode instanceof CompositeNode)) {
+			// check that possible changes to the syntax model (e.g. splits) are properly reflected in the entities
+			semanticModel.getNodes().stream()
+					.filter(entityType -> entityType.getSyntaxNodeUuid() != null)
+					.forEach(entityType -> {
+						// search for the corresponding syntax node and check if it is still a primary node
+						Optional<SchemaNode> match = delta.getNodes().stream().filter(schemaNode -> schemaNode.getUuid().equals(entityType.getSyntaxNodeUuid())).findFirst();
+						if (match.isPresent() && !(match.get() instanceof PrimitiveNode)) {
+							// not a primitive node any more, remove the link
+							entityType.setSyntaxNodeUuid(null);
+							entityType.setOriginalLabel(null);
+
+							// also remove the explicit mapping
+							getPrimitiveEntityTypeMappings().removeIf(mapping -> mapping.getPrimitiveUUID().equals(match.get().getUuid()));
+						}
+					});
+		}
+
+
 		// update relations
 		if (delta.getRelations() != null) {
 			// as we match by uuid only, we can use removeAll and addAll
