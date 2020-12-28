@@ -13,21 +13,35 @@ import java.util.UUID;
 public class Relation extends CombinedModelElement implements Serializable {
 	private static final long serialVersionUID = -2964347710102077197L;
 
+	public static final String ENTITY_ID_PROPERTY = "entityId";
 	public static final String FROM_ID_PROPERTY = "from";
 	public static final String TO_ID_PROPERTY = "to";
 	private static final String DESCRIPTION_PROPERTY = "description";
 	public static final String CONCEPT_PROPERTY = "concept";
 
 	/**
+	 * Knowledge base ID, set once sent to the KGS
+	 */
+	private String entityId;
+
+	/**
 	 * The uuid of the origin element, identified by CombinedModelElement#uuid
 	 */
-	private final String fromId;
+	private String fromId;
 	/**
 	 * The uuid of the destination element, identified by CombinedModelElement#uuid
 	 */
-	private final String toId;
-	private final String description;
-	private final RelationConcept concept;
+	private  String toId;
+	private String description;
+	private RelationConcept concept;
+
+	public Relation(
+			String fromId,
+			String toId,
+			RelationConcept concept
+	) {
+		this(fromId,toId,"",concept);
+	}
 
 	public Relation(
 			String fromId,
@@ -57,6 +71,11 @@ public class Relation extends CombinedModelElement implements Serializable {
 				this.concept = concept;
 	}
 
+	@JsonProperty(ENTITY_ID_PROPERTY)
+	public String getEntityId() {
+		return entityId;
+	}
+
 	@JsonProperty(FROM_ID_PROPERTY)
 	public String getFromId() {
 		return fromId;
@@ -75,6 +94,26 @@ public class Relation extends CombinedModelElement implements Serializable {
 	@JsonProperty(CONCEPT_PROPERTY)
 	public RelationConcept getConcept() {
 		return concept;
+	}
+
+	public void setEntityId(String entityId) {
+		this.entityId = entityId;
+	}
+
+	public void setFromId(String fromId) {
+		this.fromId = fromId;
+	}
+
+	public void setToId(String toId) {
+		this.toId = toId;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	public void setConcept(RelationConcept concept) {
+		this.concept = concept;
 	}
 
 	@Override

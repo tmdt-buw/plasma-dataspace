@@ -2,15 +2,15 @@ package de.buw.tmdt.plasma.datamodel;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import de.buw.tmdt.plasma.datamodel.modification.DeltaModification;
+import de.buw.tmdt.plasma.datamodel.semanticmodel.EntityType;
+import de.buw.tmdt.plasma.datamodel.semanticmodel.Relation;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.SemanticModel;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.SyntaxModel;
 import de.buw.tmdt.plasma.utilities.misc.StringUtilities;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * The combined model contains all elements that model the current state of the syntactic
@@ -27,7 +27,7 @@ public class CombinedModel implements Serializable {
 
 	private final SyntaxModel syntaxModel;
 	private final SemanticModel semanticModel;
-	private final ArrayList<PrimitiveEntityTypeEdgeDTO> primitiveEntityTypeEdgeDTOs;
+	private final ArrayList<PrimitiveEntityTypeMapping> primitiveEntityTypeMappings;
 	/**
 	 * Recommendations represent suggested modifications for the current state of models
 	 */
@@ -35,18 +35,18 @@ public class CombinedModel implements Serializable {
 	/**
 	 * A finalized model should not be changed any more
 	 */
-	private final boolean finalized;
+	private boolean finalized;
 
 	public CombinedModel(
 			@JsonProperty(SYNTAX_MODEL_PROPERTY) @NotNull SyntaxModel syntaxModel,
 			@JsonProperty(SEMANTIC_MODEL_PROPERTY) SemanticModel semanticModel,
-			@JsonProperty(PRIMITIVE_ENTITY_TYPE_LIST) List<? extends PrimitiveEntityTypeEdgeDTO> primitiveEntityTypeEdgeDTOs,
+			@JsonProperty(PRIMITIVE_ENTITY_TYPE_LIST) List<? extends PrimitiveEntityTypeMapping> primitiveEntityTypeEdgeDTOs,
 			@JsonProperty(RECOMMENDATION_LIST) List<DeltaModification> recommendations,
 			@JsonProperty(value = FINALIZED, defaultValue = "false") boolean finalized
 	) {
 		this.syntaxModel = syntaxModel;
 		this.semanticModel = semanticModel == null ? new SemanticModel(null,null) : semanticModel;
-		this.primitiveEntityTypeEdgeDTOs = primitiveEntityTypeEdgeDTOs == null ? new ArrayList<>() : new ArrayList<>(primitiveEntityTypeEdgeDTOs);
+		this.primitiveEntityTypeMappings = primitiveEntityTypeEdgeDTOs == null ? new ArrayList<>() : new ArrayList<>(primitiveEntityTypeEdgeDTOs);
 		this.finalized = finalized;
 		this.recommendations = recommendations == null ? new ArrayList<>() : new ArrayList<>(recommendations);
 	}
@@ -67,8 +67,8 @@ public class CombinedModel implements Serializable {
 	}
 
 	@JsonProperty(PRIMITIVE_ENTITY_TYPE_LIST)
-	public List<PrimitiveEntityTypeEdgeDTO> getPrimitiveEntityTypeEdgeDTOs() {
-		return primitiveEntityTypeEdgeDTOs;
+	public List<PrimitiveEntityTypeMapping> getPrimitiveEntityTypeMappings() {
+		return primitiveEntityTypeMappings;
 	}
 
 	@NotNull
@@ -77,10 +77,55 @@ public class CombinedModel implements Serializable {
 		return recommendations;
 	}
 
+	public void finalizeModel() {
+		this.finalized = true;
+	}
+
 	// we allow later injections of recommendations, will be solved with new data model
 	public void setRecommendations(ArrayList<DeltaModification> recommendations) {
 		this.recommendations = recommendations;
 	}
+
+	public void apply(DeltaModification delta) {
+		if(finalized){
+			throw new UnsupportedOperationException("Model is finalized. No more modifications possible");
+		}
+		// apply syntactic operations
+// update nodes
+		if (delta.getNodes() != null) {
+			// as we match by uuid only, we can use removeAll and addAll
+			// remove all nodes that are to be overwritten (i.e. uuids match)
+			syntaxModel.getNodes().removeAll(delta.getNodes());
+			// now add the new ones with the same uuids but new content
+			syntaxModel.getNodes().addAll(delta.getNodes());
+		}
+		// update edges
+		if (delta.getEdges() != null) {
+			// as we match by uuid only, we can use removeAll and addAll
+			// remove all edges that are to be overwritten (i.e. uuids match)
+			syntaxModel.getEdges().removeAll(delta.getEdges());
+			// now add the new ones with the same uuids but new content
+			syntaxModel.getEdges().addAll(delta.getEdges());
+		}
+
+		// update entities
+		if (delta.getEntities() != null) {
+			// as we match by uuid only, we can use removeAll and addAll
+			// remove all edges that are to be overwritten (i.e. uuids match)
+			semanticModel.getNodes().removeAll(delta.getEntities());
+			// now add the new ones with the same uuids but new content
+			semanticModel.getNodes().addAll(delta.getEntities());
+		}
+		// update relations
+		if (delta.getRelations() != null) {
+			// as we match by uuid only, we can use removeAll and addAll
+			// remove all edges that are to be overwritten (i.e. uuids match)
+			semanticModel.getEdges().removeAll(delta.getRelations());
+			// now add the new ones with the same uuids but new content
+			semanticModel.getEdges().addAll(delta.getRelations());
+		}
+	}
+
 
 	@Override
 	public int hashCode() {
@@ -106,7 +151,7 @@ public class CombinedModel implements Serializable {
 		return "{\"@class\":\"DataSourceSchemaDTO\""
 		       + ", \"syntaxModelDTO\":" + syntaxModel
 		       + ", \"semanticModelDTO\":" + semanticModel
-		       + ", \"primitiveEntityTypeEdgeDTOs\":" + StringUtilities.listToJson(primitiveEntityTypeEdgeDTOs)
+		       + ", \"primitiveEntityTypeEdgeDTOs\":" + StringUtilities.listToJson(primitiveEntityTypeMappings)
 				+ ", \"recommendations\":" + StringUtilities.listToJson(recommendations)
 		       + '}';
 	}

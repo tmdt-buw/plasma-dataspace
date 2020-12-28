@@ -208,7 +208,7 @@ public class EntityType extends PositionedCombinedModelElement implements Serial
     @Override
     @SuppressWarnings("MagicCharacter")
     public String toString() {
-        return "{\"@class\":\"EntityConceptDTO\""
+        return "{\"@class\":\"EntityType\""
                 + ", \"uuid\":\"" + getUuid() + '"'
                 + ", \"entityId\":\"" + entityId + '"'
                 + ", \"label\":\"" + getLabel() + '"'

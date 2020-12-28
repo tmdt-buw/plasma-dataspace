@@ -18,8 +18,8 @@ public abstract class PositionedCombinedModelElement extends CombinedModelElemen
 	public static final String Y_COORDINATE_PROPERTY = "y";
 	private static final long serialVersionUID = -3619721225687115309L;
 
-	private final Double xCoordinate;
-	private final Double yCoordinate;
+	private  Double xCoordinate;
+	private  Double yCoordinate;
 
 	public PositionedCombinedModelElement(
 			@NotNull @JsonProperty(LABEL_PROPERTY) String label
@@ -61,6 +61,14 @@ public abstract class PositionedCombinedModelElement extends CombinedModelElemen
 	@JsonProperty(Y_COORDINATE_PROPERTY)
 	public Double getYCoordinate() {
 		return yCoordinate;
+	}
+
+	public void setXCoordinate(Double xCoordinate) {
+		this.xCoordinate = xCoordinate;
+	}
+
+	public void setYCoordinate(Double yCoordinate) {
+		this.yCoordinate = yCoordinate;
 	}
 
 	@Override

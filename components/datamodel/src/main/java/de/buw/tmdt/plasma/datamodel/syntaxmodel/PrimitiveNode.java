@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import de.buw.tmdt.plasma.datamodel.modification.operation.SyntacticOperationDTO;
 import de.buw.tmdt.plasma.utilities.misc.StringUtilities;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
@@ -18,16 +19,30 @@ public class PrimitiveNode extends SchemaNode {
 	private static final String EXAMPLES_PROPERTY = "examples";
 	private static final String DATA_TYPE_PROPERTY = "dataType";
 
-	private final String cleansingPattern;
-	private final ArrayList<String> examples;
-	private final String dataType;
+	private  String cleansingPattern;
+	private ArrayList<String> examples;
+	private  String dataType;
+
+	public PrimitiveNode(
+			 @NotNull String label,
+			@Nullable List<@NotNull SyntacticOperationDTO> operations,
+			 boolean isValid,
+			@NotNull String dataType,
+			@Nullable List<String> examples,
+			@Nullable  String cleansingPattern
+	) {
+		super( label, operations == null ? new ArrayList<>() : operations, isValid);
+		this.dataType = dataType;
+		this.examples = examples != null ? new ArrayList<>(examples) : new ArrayList<>();
+		this.cleansingPattern = cleansingPattern;
+	}
 
 	@JsonCreator
 	public PrimitiveNode(
-			@JsonProperty(X_COORDINATE_PROPERTY) Double xCoordinate,
-			@JsonProperty(Y_COORDINATE_PROPERTY) Double yCoordinate,
 			@NotNull @JsonProperty(UUID_PROPERTY) String uuid,
 			@JsonProperty(LABEL_PROPERTY) @NotNull String label,
+			@JsonProperty(X_COORDINATE_PROPERTY) Double xCoordinate,
+			@JsonProperty(Y_COORDINATE_PROPERTY) Double yCoordinate,
 			@NotNull @JsonProperty(OPERATIONS_PROPERTY) List<@NotNull SyntacticOperationDTO> operations,
 			@JsonProperty(IS_VALID_PROPERTY) boolean isValid,
 			@NotNull @JsonProperty(DATA_TYPE_PROPERTY) String dataType,
@@ -53,6 +68,18 @@ public class PrimitiveNode extends SchemaNode {
 	@JsonProperty(DATA_TYPE_PROPERTY)
 	public String getDataType() {
 		return dataType;
+	}
+
+	public void setCleansingPattern(String cleansingPattern) {
+		this.cleansingPattern = cleansingPattern;
+	}
+
+	public void setExamples(ArrayList<String> examples) {
+		this.examples = examples;
+	}
+
+	public void setDataType(String dataType) {
+		this.dataType = dataType;
 	}
 
 	@Override

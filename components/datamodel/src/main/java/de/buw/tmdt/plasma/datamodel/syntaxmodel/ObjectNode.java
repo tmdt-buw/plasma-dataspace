@@ -7,6 +7,7 @@ import de.buw.tmdt.plasma.datamodel.modification.operation.SyntacticOperationDTO
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -20,10 +21,10 @@ public class ObjectNode extends SchemaNode {
 
 	public ObjectNode(
 			@NotNull  String label,
-			 @NotNull List<SyntacticOperationDTO> operations,
+			 @Nullable List<SyntacticOperationDTO> operations,
 			 boolean isValid
 	) {
-		super( label,operations,  isValid);
+		super( label,operations == null ? new ArrayList<>():operations,  isValid);
 	}
 
 	@JsonCreator

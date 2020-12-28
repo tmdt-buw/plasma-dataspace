@@ -8,6 +8,7 @@ import de.buw.tmdt.plasma.datamodel.modification.operation.SyntacticOperationDTO
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -19,11 +20,10 @@ public class SetNode extends SchemaNode {
 	private static final long serialVersionUID = -5424468053886038114L;
 
 	public SetNode(
-			@JsonProperty(LABEL_PROPERTY) @NotNull String label,
-			@JsonProperty(OPERATIONS_PROPERTY) @NotNull List<SyntacticOperationDTO> operations,
-			@JsonProperty(IS_VALID_PROPERTY) boolean isValid
+			 @Nullable List<SyntacticOperationDTO> operations,
+			 boolean isValid
 	) {
-		super( label, operations,isValid);
+		super( "", operations,isValid);
 	}
 
 	@JsonCreator

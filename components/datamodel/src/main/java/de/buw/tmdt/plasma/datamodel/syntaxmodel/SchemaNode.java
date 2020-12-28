@@ -34,11 +34,14 @@ public abstract class SchemaNode extends PositionedCombinedModelElement {
 
 	public SchemaNode(
 			 String label,
-			 List<SyntacticOperationDTO> operations,
+			 @Nullable List<SyntacticOperationDTO> operations,
 			 boolean isValid
 	) {
 		super(label);
 		this.isValid = isValid;
+		if(operations == null){
+			operations = new ArrayList<>();
+		}
 		if (CollectionUtilities.containsNull(operations)) {
 			throw new IllegalArgumentException("Operations must not contain null.");
 		}
@@ -87,9 +90,7 @@ public abstract class SchemaNode extends PositionedCombinedModelElement {
 			return false;
 		}
 		SchemaNode that = (SchemaNode) o;
-		return isValid == that.isValid &&
-		       Objects.equals(getUuid(), getUuid()) &&
-		       Objects.equals(operations, that.operations);
+		return 		       Objects.equals(getUuid(), that.getUuid());
 	}
 
 	@Override

@@ -8,6 +8,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.Serializable;
+import java.util.Objects;
 import java.util.UUID;
 
 /**
@@ -27,7 +28,7 @@ public class CombinedModelElement implements Serializable {
 	/**
 	 * The label which is a readable form
 	 */
-	private final String label;
+	private String label;
 
 	public CombinedModelElement(
 			@NotNull @JsonProperty(LABEL_PROPERTY) String label
@@ -54,6 +55,23 @@ public class CombinedModelElement implements Serializable {
 	@NotNull
 	public String getLabel() {
 		return label;
+	}
+
+	public void setLabel(String label) {
+		this.label = label;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		CombinedModelElement that = (CombinedModelElement) o;
+		return Objects.equals(getUuid(), that.getUuid());
+	}
+
+	@Override
+	public int hashCode() {
+		return getUuid().hashCode();
 	}
 
 	@Override

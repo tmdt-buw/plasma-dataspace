@@ -24,15 +24,15 @@ public class Edge extends CombinedModelElement {
 	/**
 	 * An identifier of the origin node, references to a {@link SchemaNode#getUuid()}
 	 */
-	private final String from;
+	private String from;
 	/**
 	 * An identifier of the target node, references to a {@link SchemaNode#getUuid()}
 	 */
-	private final String to;
+	private String to;
 	/**
 	 * ?
 	 */
-	private final String key;
+	private String key;
 	/**
 	 * List of possible operations performable on this edge.
 	 */
@@ -86,6 +86,18 @@ public class Edge extends CombinedModelElement {
 		return Collections.unmodifiableList(operations);
 	}
 
+	public void setFrom(String from) {
+		this.from = from;
+	}
+
+	public void setTo(String to) {
+		this.to = to;
+	}
+
+	public void setKey(String key) {
+		this.key = key;
+	}
+
 	@Override
 	public int hashCode() {
 
@@ -101,10 +113,7 @@ public class Edge extends CombinedModelElement {
 			return false;
 		}
 		Edge edge = (Edge) o;
-		return Objects.equals(from, edge.from) &&
-		       Objects.equals(to, edge.to) &&
-		       Objects.equals(key, edge.key) &&
-		       Objects.equals(operations, edge.operations);
+		return Objects.equals(getUuid(), edge.getUuid());
 	}
 
 	@Override
