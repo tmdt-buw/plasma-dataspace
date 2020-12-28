@@ -119,11 +119,11 @@ public class Edge extends CombinedModelElement {
 	@Override
 	@SuppressWarnings("MagicCharacter")
 	public String toString() {
-		return "{\"@class\":\"EdgeDTO\""
-		       + ", \"from\":" + from
-		       + ", \"to\":" + to
-		       + ", \"key\":\"" + key + '"'
-		       + ", \"operations\":" + StringUtilities.listToJson(operations)
-		       + '}';
+		return "{\"@class\":\"Edge\""
+				+ ", \"from\":" + from
+				+ ", \"to\":" + to
+				+ ", \"key\":\"" + key + '"'
+				+ ", \"operations\":" + StringUtilities.listToJson(operations)
+				+ '}';
 	}
 }

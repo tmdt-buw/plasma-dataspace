@@ -4,11 +4,9 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import de.buw.tmdt.plasma.datamodel.CombinedModelElement;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.Serializable;
 import java.util.Objects;
-import java.util.UUID;
 
 public class Relation extends CombinedModelElement implements Serializable {
 	private static final long serialVersionUID = -2964347710102077197L;
@@ -139,11 +137,11 @@ public class Relation extends CombinedModelElement implements Serializable {
 	@Override
 	@SuppressWarnings("MagicCharacter")
 	public String toString() {
-		return "{\"@class\":\"RelationDTO\""
-		       + ", \"fromId\":\"" + fromId + '"'
-		       + ", \"toId\":\"" + toId + '"'
-		       + ", \"description\":\"" + description + '"'
-		       + ", \"concept\":" + concept
-		       + '}';
+		return "{\"@class\":\"Relation\""
+				+ ", \"fromId\":\"" + fromId + '"'
+				+ ", \"toId\":\"" + toId + '"'
+				+ ", \"description\":\"" + description + '"'
+				+ ", \"concept\":" + concept
+				+ '}';
 	}
 }

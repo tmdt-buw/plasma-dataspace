@@ -59,10 +59,10 @@ public class SemanticModel {
 	@Override
 	@SuppressWarnings("MagicCharacter")
 	public String toString() {
-		return "{\"@class\":\"SemanticModelDTO\""
-		       + ", \"@super\":" + super.toString()
-		       + ", \"nodes\":" + StringUtilities.listToJson(nodes)
-		       + ", \"edges\":" + StringUtilities.listToJson(edges)
-		       + '}';
+		return "{\"@class\":\"" + this.getClass().getSimpleName() + "\""
+				+ ", \"@super\":" + super.toString()
+				+ ", \"nodes\":" + StringUtilities.listToJson(nodes)
+				+ ", \"edges\":" + StringUtilities.listToJson(edges)
+				+ '}';
 	}
 }

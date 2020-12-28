@@ -1,12 +1,10 @@
 package de.buw.tmdt.plasma.datamodel;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
-import java.util.UUID;
 
 public class PrimitiveEntityTypeMapping implements Serializable {
 
@@ -70,10 +68,10 @@ public class PrimitiveEntityTypeMapping implements Serializable {
 
 	@Override
 	public String toString() {
-		return "PrimitiveEntityTypeEdgeDTO{" +
-		       "parentUUID=" + parentUUID +
-		       ", entityTypeId=" + entityTypeId +
-		       ", primitiveUUID=" + primitiveUUID +
-		       '}';
+		return "PrimitiveEntityTypeMapping{" +
+				"parentUUID=" + parentUUID +
+				", entityTypeId=" + entityTypeId +
+				", primitiveUUID=" + primitiveUUID +
+				'}';
 	}
 }

@@ -44,13 +44,13 @@ public class CombinedModel implements Serializable {
 	public CombinedModel(
 			@JsonProperty(SYNTAX_MODEL_PROPERTY) @NotNull SyntaxModel syntaxModel,
 			@JsonProperty(SEMANTIC_MODEL_PROPERTY) SemanticModel semanticModel,
-			@JsonProperty(PRIMITIVE_ENTITY_TYPE_LIST) List<? extends PrimitiveEntityTypeMapping> primitiveEntityTypeEdgeDTOs,
+			@JsonProperty(PRIMITIVE_ENTITY_TYPE_LIST) List<? extends PrimitiveEntityTypeMapping> primitiveEntityTypeMappings,
 			@JsonProperty(RECOMMENDATION_LIST) List<DeltaModification> recommendations,
 			@JsonProperty(value = FINALIZED, defaultValue = "false") boolean finalized
 	) {
 		this.syntaxModel = syntaxModel;
-		this.semanticModel = semanticModel == null ? new SemanticModel(null,null) : semanticModel;
-		this.primitiveEntityTypeMappings = primitiveEntityTypeEdgeDTOs == null ? new ArrayList<>() : new ArrayList<>(primitiveEntityTypeEdgeDTOs);
+		this.semanticModel = semanticModel == null ? new SemanticModel(null, null) : semanticModel;
+		this.primitiveEntityTypeMappings = primitiveEntityTypeMappings == null ? new ArrayList<>() : new ArrayList<>(primitiveEntityTypeMappings);
 		this.finalized = finalized;
 		this.recommendations = recommendations == null ? new ArrayList<>() : new ArrayList<>(recommendations);
 	}
@@ -224,11 +224,11 @@ public class CombinedModel implements Serializable {
 	@Override
 	@SuppressWarnings("MagicCharacter")
 	public String toString() {
-		return "{\"@class\":\"DataSourceSchemaDTO\""
-		       + ", \"syntaxModelDTO\":" + syntaxModel
-		       + ", \"semanticModelDTO\":" + semanticModel
-		       + ", \"primitiveEntityTypeEdgeDTOs\":" + StringUtilities.listToJson(primitiveEntityTypeMappings)
+		return "{\"@class\":\"CombinedModel\""
+				+ ", \"syntaxModel\":" + syntaxModel
+				+ ", \"semanticModel\":" + semanticModel
+				+ ", \"primitiveEntityTypeMappings\":" + StringUtilities.listToJson(primitiveEntityTypeMappings)
 				+ ", \"recommendations\":" + StringUtilities.listToJson(recommendations)
-		       + '}';
+				+ '}';
 	}
 }

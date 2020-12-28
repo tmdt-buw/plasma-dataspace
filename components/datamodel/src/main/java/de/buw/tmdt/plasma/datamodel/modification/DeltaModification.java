@@ -9,7 +9,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 
 import static de.buw.tmdt.plasma.datamodel.syntaxmodel.SyntaxModel.EDGES_PROPERTY;
 import static de.buw.tmdt.plasma.datamodel.syntaxmodel.SyntaxModel.NODES_PROPERTY;
@@ -116,7 +118,7 @@ public class DeltaModification implements Serializable {
 
     @Override
     public String toString() {
-        return "DeltaRecommendationDTO{" +
+        return "DeltaModification{" +
                 "reference='" + reference + '\'' +
                 ", entities=" + entities +
                 ", relations=" + relations +

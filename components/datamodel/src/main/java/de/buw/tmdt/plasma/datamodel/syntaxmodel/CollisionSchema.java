@@ -38,8 +38,8 @@ public class CollisionSchema extends SchemaNode {
 	@Override
 	@SuppressWarnings("MagicCharacter")
 	public String toString() {
-		return "{\"@class\":\"CollisionSchemaDTO\""
-		       + ", \"@super\":" + super.toString()
-		       + '}';
-	}
+        return "{\"@class\":\"CollisionSchema\""
+                + ", \"@super\":" + super.toString()
+                + '}';
+    }
 }

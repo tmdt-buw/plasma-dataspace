@@ -35,7 +35,7 @@ public class Splitting implements Serializable {
 	@Override
 	@SuppressWarnings("MagicCharacter")
 	public String toString() {
-		return "{\"@class\":\"SplitterDTO\""
+		return "{\"@class\":\"" + this.getClass().getSimpleName() + "\""
 				+ ", \"pattern\":" + pattern
 				+ '}';
 	}

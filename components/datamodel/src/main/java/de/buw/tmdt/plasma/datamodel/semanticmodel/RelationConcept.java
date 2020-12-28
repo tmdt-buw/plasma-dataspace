@@ -1,12 +1,10 @@
 package de.buw.tmdt.plasma.datamodel.semanticmodel;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import de.buw.tmdt.plasma.datamodel.CombinedModelElement;
 import de.buw.tmdt.plasma.utilities.misc.StringUtilities;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.Serializable;
 import java.util.Collections;
@@ -85,10 +83,10 @@ public class RelationConcept extends CombinedModelElement implements Serializabl
 	@Override
 	@SuppressWarnings("MagicCharacter")
 	public String toString() {
-		return "{\"@class\":\"RelationConceptDTO\""
-		       + ", \"parent\":\"" + super.toString() + '"'
-		       + ", \"description\":\"" + description + '"'
-		       + ", \"properties\":" + StringUtilities.setToJson(properties)
-		       + '}';
+		return "{\"@class\":\"RelationConcept\""
+				+ ", \"parent\":\"" + super.toString() + '"'
+				+ ", \"description\":\"" + description + '"'
+				+ ", \"properties\":" + StringUtilities.setToJson(properties)
+				+ '}';
 	}
 }

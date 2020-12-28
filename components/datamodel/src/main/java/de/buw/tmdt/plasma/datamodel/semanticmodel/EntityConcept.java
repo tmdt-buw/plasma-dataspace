@@ -86,12 +86,12 @@ public class EntityConcept extends CombinedModelElement implements Serializable 
     @Override
     @SuppressWarnings("MagicCharacter")
     public String toString() {
-        return "{\"@class\":\"EntityConceptDTO\""
+        return "{\"@class\":\"EntityConcept\""
                 + ", \"uuid\":\"" + getUuid() + '"'
-               + ", \"entityId\":\"" + entityId + '"'
-               + ", \"label\":\"" + getLabel()+ '"'
-               + ", \"sourceURI\":\"" + sourceURI + '"'
-               + ", \"description\":\"" + description + '"'
-               + '}';
+                + ", \"entityId\":\"" + entityId + '"'
+                + ", \"label\":\"" + getLabel() + '"'
+                + ", \"sourceURI\":\"" + sourceURI + '"'
+                + ", \"description\":\"" + description + '"'
+                + '}';
     }
 }

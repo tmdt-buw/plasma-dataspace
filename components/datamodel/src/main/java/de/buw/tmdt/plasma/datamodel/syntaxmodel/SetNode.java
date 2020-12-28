@@ -8,7 +8,6 @@ import de.buw.tmdt.plasma.datamodel.modification.operation.SyntacticOperationDTO
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -41,8 +40,8 @@ public class SetNode extends SchemaNode {
 	@Override
 	@SuppressWarnings("MagicCharacter")
 	public String toString() {
-		return "{\"@class\":\"SetNodeDTO\""
-		       + ", \"@super\":" + super.toString()
-		       + '}';
+		return "{\"@class\":\"" + this.getClass().getSimpleName() + "\""
+				+ ", \"@super\":" + super.toString()
+				+ '}';
 	}
 }

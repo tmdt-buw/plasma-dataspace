@@ -9,7 +9,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.UUID;
 
 public class SyntaxModel implements Serializable {
 
@@ -76,10 +75,10 @@ public class SyntaxModel implements Serializable {
 	@Override
 	@SuppressWarnings("MagicCharacter")
 	public String toString() {
-		return "{\"@class\":\"SyntaxModelDTO\""
-		       + ", \"root\":" + root
-		       + ", \"nodes\":" + StringUtilities.listToJson(nodes)
-		       + ", \"edges\":" + StringUtilities.listToJson(edges)
-		       + '}';
+		return "{\"@class\":\"" + this.getClass().getSimpleName() + "\""
+				+ ", \"root\":" + root
+				+ ", \"nodes\":" + StringUtilities.listToJson(nodes)
+				+ ", \"edges\":" + StringUtilities.listToJson(edges)
+				+ '}';
 	}
 }
