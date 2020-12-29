@@ -135,4 +135,14 @@ public final class CollectionUtilities {
         }
         return result;
     }
+
+    /**
+     * Checks if a collection contains any elements
+     *
+     * @param collection The collection to check
+     * @return False if the collection is null or empty
+     */
+    public static boolean hasElements(@Nullable Collection<?> collection) {
+        return collection != null && !collection.isEmpty();
+    }
 }

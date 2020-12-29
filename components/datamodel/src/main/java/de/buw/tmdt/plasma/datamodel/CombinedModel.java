@@ -5,6 +5,7 @@ import de.buw.tmdt.plasma.datamodel.modification.DeltaModification;
 import de.buw.tmdt.plasma.datamodel.modification.operation.DataType;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.SemanticModel;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.*;
+import de.buw.tmdt.plasma.utilities.collections.CollectionUtilities;
 import de.buw.tmdt.plasma.utilities.misc.Pair;
 import de.buw.tmdt.plasma.utilities.misc.StringUtilities;
 import org.jetbrains.annotations.NotNull;
@@ -97,16 +98,24 @@ public class CombinedModel implements Serializable {
 		// apply syntactic modifications
 		// update nodes
 		List<SchemaNode> nodesToBeReplaced = new ArrayList<>();
-		if (delta.getNodes() != null) {
+		if (CollectionUtilities.hasElements(delta.getNodes())) {
+			if (delta.isDeletion()) {
+				throw new UnsupportedOperationException("Cannot remove syntax nodes");
+			}
 			// as we match by uuid only, we can use removeAll and addAll
 			// remove all nodes that are to be overwritten (i.e. uuids match)
 			nodesToBeReplaced = syntaxModel.getNodes().stream().filter(schemaNode -> delta.getNodes().contains(schemaNode)).collect(Collectors.toList());
 			syntaxModel.getNodes().removeAll(nodesToBeReplaced);
+
+
 			// now add the new ones with the same uuids but new content
 			syntaxModel.getNodes().addAll(delta.getNodes());
 		}
 		// update edges
-		if (delta.getEdges() != null) {
+		if (CollectionUtilities.hasElements(delta.getEdges())) {
+			if (delta.isDeletion()) {
+				throw new UnsupportedOperationException("Cannot remove syntax nodes");
+			}
 			// as we match by uuid only, we can use removeAll and addAll
 			// remove all edges that are to be overwritten (i.e. uuids match)
 			syntaxModel.getEdges().removeAll(delta.getEdges());
@@ -115,65 +124,69 @@ public class CombinedModel implements Serializable {
 		}
 
 		// check if any additional syntactic modifications have to be done, e.g. after splitting operation
-
-		// check if he have a split going on
-		List<CompositeNode> compositeNodes = delta.getNodes().stream().filter(schemaNode -> schemaNode instanceof CompositeNode).map(schemaNode -> (CompositeNode) schemaNode).collect(Collectors.toList());
-		for (CompositeNode compositeNode : compositeNodes) {
-			// get the replaced node
-			SchemaNode replacedNode = nodesToBeReplaced.stream().filter(schemaNode -> schemaNode.equals(compositeNode)).findFirst().orElse(null);
-			if (replacedNode == null) {
-				// nothing to be done here, something has gone wrong
-				continue;
-			}
-			if (replacedNode instanceof CompositeNode) {
-				// check if the patterns match, as this was split before
-				// TODO
-			}
-			if (replacedNode instanceof PrimitiveNode) {
-				// we split a previous primitive node
-				PrimitiveNode replaced = (PrimitiveNode) replacedNode;
-				List<Splitting> splitter = compositeNode.getSplitter();
-
-				// generate new nodes
-				List<PrimitiveNode> components = new ArrayList<>(splitter.size() + 1);
-				for (int i = 0; i < splitter.size() + 1; i++) {
-					components.add(new PrimitiveNode(replaced.getLabel() + "-" + i, replaced.getOperations(), true, DataType.UNKNOWN.name(), new ArrayList<>(), null));
+		if (!delta.isDeletion()) { // cannot delete from syntax model
+			// check if he have a split going on
+			List<CompositeNode> compositeNodes = delta.getNodes().stream().filter(schemaNode -> schemaNode instanceof CompositeNode).map(schemaNode -> (CompositeNode) schemaNode).collect(Collectors.toList());
+			for (CompositeNode compositeNode : compositeNodes) {
+				// get the replaced node
+				SchemaNode replacedNode = nodesToBeReplaced.stream().filter(schemaNode -> schemaNode.equals(compositeNode)).findFirst().orElse(null);
+				if (replacedNode == null) {
+					// nothing to be done here, something has gone wrong
+					continue;
 				}
+				if (replacedNode instanceof CompositeNode) {
+					// check if the patterns match, as this was split before
+					// TODO
+				}
+				if (replacedNode instanceof PrimitiveNode) {
+					// we split a previous primitive node
+					PrimitiveNode replaced = (PrimitiveNode) replacedNode;
+					List<Splitting> splitter = compositeNode.getSplitter();
 
-				// split example values
-				for (String example : replaced.getExamples()) {
-
-					String leftOver = example;
-					for (int i = 0; i < splitter.size(); i++) {
-						Pair<String, String> split = splitter.get(i).apply(leftOver);
-						components.get(i).getExamples().add(split.getLeft());
-						leftOver = split.getRight();
+					// generate new nodes
+					List<PrimitiveNode> components = new ArrayList<>(splitter.size() + 1);
+					for (int i = 0; i < splitter.size() + 1; i++) {
+						components.add(new PrimitiveNode(replaced.getLabel() + "-" + i, replaced.getOperations(), true, DataType.UNKNOWN.name(), new ArrayList<>(), null));
 					}
-					components.get(components.size() - 1).getExamples().add(leftOver);
-				}
 
-				// create edges to new nodes
-				List<Edge> newEdges = new ArrayList<>(components.size());
-				for (PrimitiveNode node : components) {
-					Edge e = new Edge(compositeNode.getUuid(), node.getUuid());
-					newEdges.add(e);
-				}
+					// split example values
+					for (String example : replaced.getExamples()) {
 
-				// add new nodes and edges to model
-				syntaxModel.getNodes().addAll(components);
-				syntaxModel.getEdges().addAll(newEdges);
+						String leftOver = example;
+						for (int i = 0; i < splitter.size(); i++) {
+							Pair<String, String> split = splitter.get(i).apply(leftOver);
+							components.get(i).getExamples().add(split.getLeft());
+							leftOver = split.getRight();
+						}
+						components.get(components.size() - 1).getExamples().add(leftOver);
+					}
+
+					// create edges to new nodes
+					List<Edge> newEdges = new ArrayList<>(components.size());
+					for (PrimitiveNode node : components) {
+						Edge e = new Edge(compositeNode.getUuid(), node.getUuid());
+						newEdges.add(e);
+					}
+
+					// add new nodes and edges to model
+					syntaxModel.getNodes().addAll(components);
+					syntaxModel.getEdges().addAll(newEdges);
+				}
 			}
 		}
 
 		// update entities
-		if (delta.getEntities() != null) {
+		if (CollectionUtilities.hasElements(delta.getEntities())) {
 			// as we match by uuid only, we can use removeAll and addAll
 			// remove all edges that are to be overwritten (i.e. uuids match)
 			semanticModel.getNodes().removeAll(delta.getEntities());
-			// now add the new ones with the same uuids but new content
-			semanticModel.getNodes().addAll(delta.getEntities());
+			if (!delta.isDeletion()) {
+				// now add the new ones with the same uuids but new content
+				semanticModel.getNodes().addAll(delta.getEntities());
+			}
 		}
-		if (delta.getNodes().stream().anyMatch(schemaNode -> schemaNode instanceof CompositeNode)) {
+
+		if (!delta.isDeletion() && CollectionUtilities.hasElements(delta.getNodes()) && delta.getNodes().stream().anyMatch(schemaNode -> schemaNode instanceof CompositeNode)) {
 			// check that possible changes to the syntax model (e.g. splits) are properly reflected in the entities
 			semanticModel.getNodes().stream()
 					.filter(entityType -> entityType.getSyntaxNodeUuid() != null)
@@ -193,12 +206,24 @@ public class CombinedModel implements Serializable {
 
 
 		// update relations
-		if (delta.getRelations() != null) {
+		if (CollectionUtilities.hasElements(delta.getRelations())) {
 			// as we match by uuid only, we can use removeAll and addAll
 			// remove all edges that are to be overwritten (i.e. uuids match)
 			semanticModel.getEdges().removeAll(delta.getRelations());
-			// now add the new ones with the same uuids but new content
-			semanticModel.getEdges().addAll(delta.getRelations());
+			if (!delta.isDeletion()) {
+				// now add the new ones with the same uuids but new content
+				semanticModel.getEdges().addAll(delta.getRelations());
+			}
+		}
+
+		// check consistency of semantic model in case elements have been removed
+		if (delta.isDeletion()) {
+			List<String> deletedTypeIds = delta.getEntities().stream().map(CombinedModelElement::getUuid).collect(Collectors.toList());
+			// remove dangling edges
+			semanticModel.getEdges().removeIf(relation -> deletedTypeIds.contains(relation.getFromId()) || deletedTypeIds.contains(relation.getToId()));
+
+			// remove mappings that mapped deleted entities to syntax nodes
+			getPrimitiveEntityTypeMappings().removeIf(mapping -> deletedTypeIds.contains(mapping.getEntityTypeId()));
 		}
 	}
 
