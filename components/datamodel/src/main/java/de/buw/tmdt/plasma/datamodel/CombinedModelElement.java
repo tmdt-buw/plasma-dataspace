@@ -1,11 +1,8 @@
 package de.buw.tmdt.plasma.datamodel;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import de.buw.tmdt.plasma.utilities.misc.StringUtilities;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.Serializable;
 import java.util.Objects;
@@ -59,6 +56,10 @@ public class CombinedModelElement implements Serializable {
 
 	public void setLabel(String label) {
 		this.label = label;
+	}
+
+	public CombinedModelElement clone() {
+		return new CombinedModelElement(getUuid(), getLabel());
 	}
 
 	@Override

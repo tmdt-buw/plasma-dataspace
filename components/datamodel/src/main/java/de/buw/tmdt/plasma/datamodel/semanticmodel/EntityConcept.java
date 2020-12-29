@@ -68,6 +68,15 @@ public class EntityConcept extends CombinedModelElement implements Serializable 
         return description;
     }
 
+    /**
+     * Clones this {@link EntityConcept}
+     *
+     * @return the cloned concept
+     */
+    public EntityConcept clone() {
+        return new EntityConcept(getUuid(), getLabel(), getEntityId(), getDescription(), getSourceURI());
+    }
+
     public int hashCode() {
         return getUuid().hashCode();
     }

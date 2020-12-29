@@ -15,21 +15,23 @@ public class CombinedModelGenerator {
         SchemaNode root = new ObjectNode("ROOT", new ArrayList<>(), true);
         List<String> examples = Arrays.asList("10-11", "20-21", "test-test");
         PrimitiveNode identifierNode = new PrimitiveNode("ident", null, true, DataType.STRING.name(), examples, null);
+        PrimitiveNode timeNode = new PrimitiveNode("time", null, true, DataType.STRING.name(), null, null);
         ObjectNode companyNode = new ObjectNode("carrier", null, true);
         PrimitiveNode nameNode = new PrimitiveNode("name", null, true, DataType.STRING.name(), null, null);
 
         SetNode codesNode = new SetNode(null, true);
         PrimitiveNode codeNode = new PrimitiveNode("codes1", null, true, DataType.STRING.name(), null, null);
 
-        List<SchemaNode> nodes = Arrays.asList(root, identifierNode, companyNode, nameNode, codesNode, codeNode);
+        List<SchemaNode> nodes = Arrays.asList(root, identifierNode, timeNode, companyNode, nameNode, codesNode, codeNode);
 
         Edge rootIdentifierEdge = new Edge(root.getUuid(), identifierNode.getUuid());
+        Edge rootTimeEdge = new Edge(root.getUuid(), timeNode.getUuid());
         Edge rootCompanyEdge = new Edge(root.getUuid(), companyNode.getUuid());
         Edge companyNameEdge = new Edge(companyNode.getUuid(), nameNode.getUuid());
         Edge companyCodesEdge = new Edge(companyNode.getUuid(), codeNode.getUuid());
         Edge codesCodeEdge = new Edge(codesNode.getUuid(), codeNode.getUuid());
 
-        List<Edge> edges = Arrays.asList(rootIdentifierEdge, rootCompanyEdge, companyNameEdge, companyCodesEdge, codesCodeEdge);
+        List<Edge> edges = Arrays.asList(rootIdentifierEdge, rootTimeEdge, rootCompanyEdge, companyNameEdge, companyCodesEdge, codesCodeEdge);
 
         SyntaxModel syntaxModel = new SyntaxModel(root.getUuid(), nodes, edges);
 

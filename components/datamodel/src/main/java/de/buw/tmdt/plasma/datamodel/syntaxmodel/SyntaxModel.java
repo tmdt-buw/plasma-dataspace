@@ -53,6 +53,16 @@ public class SyntaxModel implements Serializable {
 		return edges;
 	}
 
+	@NotNull
+	public SchemaNode getParentNodeFor(String nodeUuid) {
+		Edge edgeToParent = getEdges().stream()
+				.filter(edge -> edge.getTo().equals(nodeUuid))
+				.findFirst().orElseThrow();
+		return getNodes().stream()
+				.filter(schemaNode -> schemaNode.getUuid().equals(edgeToParent.getFrom()))
+				.findFirst().orElseThrow();
+	}
+
 	@Override
 	public int hashCode() {
 		return Objects.hash(nodes, edges);

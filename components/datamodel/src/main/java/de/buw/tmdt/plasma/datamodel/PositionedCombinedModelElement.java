@@ -1,9 +1,7 @@
 package de.buw.tmdt.plasma.datamodel;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import de.buw.tmdt.plasma.utilities.misc.StringUtilities;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -71,13 +69,20 @@ public abstract class PositionedCombinedModelElement extends CombinedModelElemen
 		this.yCoordinate = yCoordinate;
 	}
 
+	public PositionedCombinedModelElement clone() {
+		PositionedCombinedModelElement clone = (PositionedCombinedModelElement) super.clone();
+		clone.setXCoordinate(getXCoordinate());
+		clone.setYCoordinate(getYCoordinate());
+		return clone;
+	}
+
 	@Override
 	@SuppressWarnings("MagicCharacter")
 	public String toString() {
 		return "{\"@class\":\"Positioned\""
-		+    ",\"parent\":\"" + super.toString()+ '"'
-		       + ",\"xCoordinate\":\"" + xCoordinate + '"'
-		       + ",\"yCoordinate\":\"" + yCoordinate + '"'
-		       + '}';
+				+ ",\"parent\":\"" + super.toString() + '"'
+				+ ",\"xCoordinate\":\"" + xCoordinate + '"'
+				+ ",\"yCoordinate\":\"" + yCoordinate + '"'
+				+ '}';
 	}
 }

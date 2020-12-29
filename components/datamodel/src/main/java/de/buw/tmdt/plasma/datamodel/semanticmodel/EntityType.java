@@ -188,6 +188,23 @@ public class EntityType extends PositionedCombinedModelElement implements Serial
         this.description = description;
     }
 
+    /**
+     * Creates a deep clone of the current entity
+     *
+     * @return The cloned entity with also the EntityConcept cloned
+     */
+    public EntityType clone() {
+        return new EntityType(getUuid(),
+                getEntityId(),
+                getLabel(),
+                getSyntaxNodeUuid(),
+                getOriginalLabel(),
+                getDescription(),
+                getEntityConcept().clone(),
+                getXCoordinate(),
+                getYCoordinate());
+    }
+
     @Override
     public int hashCode() {
         return Objects.hash(getUuid(), originalLabel, description, entityConcept);

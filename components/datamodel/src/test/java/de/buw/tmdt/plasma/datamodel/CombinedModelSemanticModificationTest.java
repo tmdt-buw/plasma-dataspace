@@ -5,6 +5,8 @@ import de.buw.tmdt.plasma.datamodel.semanticmodel.EntityConcept;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.EntityType;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.Relation;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.RelationConcept;
+import de.buw.tmdt.plasma.datamodel.syntaxmodel.PrimitiveNode;
+import de.buw.tmdt.plasma.datamodel.syntaxmodel.SchemaNode;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
@@ -98,6 +100,92 @@ public class CombinedModelSemanticModificationTest {
         assertTrue(model.getSemanticModel().getNodes().stream().noneMatch(entityType -> entityType.getLabel().equals(iataCodeType.getLabel())), "Old entity type is not completely replaced");
         assertTrue(model.getSemanticModel().getNodes().stream().noneMatch(entityType -> entityType.getEntityConcept().getSourceURI().equals(iataCodeType.getEntityConcept().getSourceURI())), "Old entity concept is still lingering");
         assertEquals(getCombinedModel().getSemanticModel().getEdges().size(), model.getSemanticModel().getEdges().size(), "Number of expected relations does not match");
+    }
+
+    @Test
+    public void testApplyMapOneEntityToPrimitiveNode() {
+        CombinedModel model = getCombinedModel();
+
+        // get the target node we want to map to
+        SchemaNode timeNode = model.getSyntaxModel().getNodes().stream().filter(schemaNode -> schemaNode.getLabel().equals("time")).findFirst().orElseThrow();
+
+        // check that the node is not already mapped for some reason
+        assertTrue(timeNode instanceof PrimitiveNode);
+        assertTrue(model.getPrimitiveEntityTypeMappings().stream().noneMatch(mapping -> mapping.getPrimitiveUUID().equals(timeNode.getUuid())));
+        assertTrue(model.getSemanticModel().getNodes().stream().noneMatch(node -> Objects.equals(node.getSyntaxNodeUuid(), timeNode.getUuid())));
+
+        // create the new type and concept
+        EntityConcept timeConcept = new EntityConcept("time", "A time", "plasma:time");
+        EntityType timeType = new EntityType(timeConcept.getLabel(), "", timeConcept);
+        timeType.setSyntaxNodeUuid(timeNode.getUuid());
+
+        DeltaModification modification = new DeltaModification("mod_testApplyMapOneEntityToSPrimitiveNode", Collections.singleton(timeType), null, null, null, 0.0);
+
+        model.apply(modification);
+
+        // check numbers
+        assertEquals(getCombinedModel().getSemanticModel().getNodes().size() + 1, model.getSemanticModel().getNodes().size(), "Number of expected entities does not match");
+        assertEquals(getCombinedModel().getSemanticModel().getEdges().size(), model.getSemanticModel().getEdges().size(), "Number of expected relations does not match");
+
+        // check entity properties
+        EntityType addedTimeEntity = model.getSemanticModel().getNodes().stream().filter(entityType -> Objects.equals(entityType.getUuid(), timeType.getUuid())).findFirst().orElseThrow();
+        assertEquals(timeType.getUuid(), addedTimeEntity.getUuid(), "Added type does not have the same id as added entity");
+        assertEquals(timeNode.getLabel(), addedTimeEntity.getOriginalLabel(), "New entity type's original label is not set properly");
+        assertEquals(timeNode.getUuid(), addedTimeEntity.getSyntaxNodeUuid(), "New entity type's mapping uuid is not set properly");
+
+        // ensure that the explicit mapping from entity to syntax has been created
+        assertTrue(model.getPrimitiveEntityTypeMappings().stream().anyMatch(mapping -> mapping.getEntityTypeId().equals(addedTimeEntity.getUuid())));
+    }
+
+    @Test
+    public void testApplyMapOneEntityToNonPrimitiveNode() {
+        CombinedModel model = getCombinedModel();
+
+        // get the target node we want to map to
+        SchemaNode schemaNode = model.getSyntaxModel().getNodes().stream().filter(node -> !(node instanceof PrimitiveNode)).findFirst().orElseThrow();
+
+        // check that the node is a valid candidate
+        assertFalse(schemaNode instanceof PrimitiveNode);
+        assertTrue(model.getPrimitiveEntityTypeMappings().stream().noneMatch(mapping -> mapping.getPrimitiveUUID().equals(schemaNode.getUuid())));
+        assertTrue(model.getSemanticModel().getNodes().stream().noneMatch(node -> Objects.equals(node.getSyntaxNodeUuid(), schemaNode.getUuid())));
+
+        // create the new type and concept
+        EntityConcept timeConcept = new EntityConcept("time", "A time", "plasma:time");
+        EntityType timeType = new EntityType(timeConcept.getLabel(), "", timeConcept);
+        timeType.setSyntaxNodeUuid(schemaNode.getUuid());
+
+        DeltaModification modification = new DeltaModification("mod_testApplyMapOneEntityToSPrimitiveNode", Collections.singleton(timeType), null, null, null, 0.0);
+
+        assertThrows(UnsupportedOperationException.class, () -> model.apply(modification), "Error message not thrown when mapping to non-primitive node " + schemaNode.getUuid());
+
+    }
+
+    @Test
+    public void testApplyUnmapOneEntityFromSyntaxNode() {
+        CombinedModel model = getCombinedModel();
+
+        EntityType iataCodeType = model.getSemanticModel().getNodes().stream().filter(entityType -> entityType.getEntityConcept().getSourceURI().equals("plasma:iata_code")).findFirst().orElseThrow();
+
+        EntityType replacementType = iataCodeType.clone();
+
+        replacementType.setSyntaxNodeUuid(null);
+        // we leave the original label set here on purpose...
+
+        DeltaModification modification = new DeltaModification("mod_testApplyUnmapOneEntityFromSyntaxNode", Collections.singleton(replacementType), null, null, null, 0.0);
+
+        model.apply(modification);
+
+        assertEquals(getCombinedModel().getSemanticModel().getNodes().size(), model.getSemanticModel().getNodes().size(), "Number of expected entities does not match");
+
+        EntityType replacementEntity = model.getSemanticModel().getNodes().stream().filter(entityType -> Objects.equals(entityType.getUuid(), replacementType.getUuid())).findFirst().orElseThrow();
+        assertEquals(replacementType.getUuid(), replacementEntity.getUuid(), "Replacement type does not have the same id as replaced entity");
+        assertNull(replacementEntity.getOriginalLabel(), "New entity type's original label is not unset");
+        assertNull(replacementEntity.getSyntaxNodeUuid(), "New entity type's mapping uuid is not unset");
+
+        assertEquals(getCombinedModel().getSemanticModel().getEdges().size(), model.getSemanticModel().getEdges().size(), "Number of expected relations does not match");
+
+        // ensure that the explicit mapping from entity to syntax has been deleted
+        assertTrue(model.getPrimitiveEntityTypeMappings().stream().noneMatch(mapping -> mapping.getEntityTypeId().equals(replacementEntity.getUuid())));
     }
 
     @Test

@@ -3,6 +3,7 @@ package de.buw.tmdt.plasma.datamodel;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import de.buw.tmdt.plasma.datamodel.modification.DeltaModification;
 import de.buw.tmdt.plasma.datamodel.modification.operation.DataType;
+import de.buw.tmdt.plasma.datamodel.semanticmodel.EntityType;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.SemanticModel;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.*;
 import de.buw.tmdt.plasma.utilities.collections.CollectionUtilities;
@@ -177,17 +178,41 @@ public class CombinedModel implements Serializable {
 
 		// update entities
 		if (CollectionUtilities.hasElements(delta.getEntities())) {
-			// as we match by uuid only, we can use removeAll and addAll
-			// remove all edges that are to be overwritten (i.e. uuids match)
-			semanticModel.getNodes().removeAll(delta.getEntities());
-			if (!delta.isDeletion()) {
+			// if we just want to remove stuff, finish this first
+			if (delta.isDeletion()) {
 				// now add the new ones with the same uuids but new content
-				semanticModel.getNodes().addAll(delta.getEntities());
+				semanticModel.getNodes().removeAll(delta.getEntities());
+			} else {
+
+				List<EntityType> modifiedEntities = new ArrayList<>();
+				for (EntityType entity : delta.getEntities()) {
+					// get node that is to be overwritten (i.e. uuids match)
+					EntityType replacedNode = semanticModel.getNodes().stream().filter(entityType -> entityType.getUuid().equals(entity.getUuid())).findFirst().orElse(null);
+
+					if (entity.getSyntaxNodeUuid() != null && (replacedNode == null || replacedNode.getSyntaxNodeUuid() == null)) {
+						// we have to add a mapping
+						PrimitiveEntityTypeMapping explicitMapping = createExplicitMapping(entity);
+						getPrimitiveEntityTypeMappings().add(explicitMapping);
+					} else if (entity.getSyntaxNodeUuid() == null && replacedNode != null && replacedNode.getSyntaxNodeUuid() != null) {
+						// we have to remove a mapping
+						entity.setOriginalLabel(null);
+						getPrimitiveEntityTypeMappings().removeIf(mapping -> mapping.getEntityTypeId().equals(replacedNode.getUuid()));
+					} else if (replacedNode != null && !Objects.equals(entity.getSyntaxNodeUuid(), replacedNode.getSyntaxNodeUuid())) {
+						// there has been a re-assignment use the new one and adjust mapping
+						PrimitiveEntityTypeMapping explicitMapping = createExplicitMapping(entity);
+						getPrimitiveEntityTypeMappings().add(explicitMapping);
+					}
+					modifiedEntities.add(entity);
+					// remove replaced node
+					semanticModel.getNodes().remove(replacedNode);
+				}
+				semanticModel.getNodes().addAll(modifiedEntities);
 			}
 		}
 
+		// check that possible changes to the syntax model (e.g. splits) are properly reflected in the entities
 		if (!delta.isDeletion() && CollectionUtilities.hasElements(delta.getNodes()) && delta.getNodes().stream().anyMatch(schemaNode -> schemaNode instanceof CompositeNode)) {
-			// check that possible changes to the syntax model (e.g. splits) are properly reflected in the entities
+
 			semanticModel.getNodes().stream()
 					.filter(entityType -> entityType.getSyntaxNodeUuid() != null)
 					.forEach(entityType -> {
@@ -225,6 +250,29 @@ public class CombinedModel implements Serializable {
 			// remove mappings that mapped deleted entities to syntax nodes
 			getPrimitiveEntityTypeMappings().removeIf(mapping -> deletedTypeIds.contains(mapping.getEntityTypeId()));
 		}
+	}
+
+	/**
+	 * Creates an explicit {@link PrimitiveEntityTypeMapping} for the given {@link EntityType} and a syntax node.
+	 * The syntax node is identified by {@link EntityType#getSyntaxNodeUuid()}.
+	 * If a mapping already exists for the given entity, this one is deleted first.
+	 *
+	 * @param entity The entity to map
+	 * @return The new mapping
+	 */
+	private PrimitiveEntityTypeMapping createExplicitMapping(EntityType entity) {
+		getPrimitiveEntityTypeMappings().removeIf(mapping -> mapping.getEntityTypeId().equals(entity.getUuid()));
+		SchemaNode syntaxNode = syntaxModel.getNodes().stream()
+				.filter(schemaNode -> schemaNode.getUuid().equals(entity.getSyntaxNodeUuid()))
+				.findFirst().orElseThrow();
+		if (!(syntaxNode instanceof PrimitiveNode)) {
+			throw new UnsupportedOperationException("Cannot map to syntax node " + syntaxNode.getUuid() + ". Not a primitive node");
+		}
+		entity.setOriginalLabel(syntaxNode.getLabel());
+		// now get parent
+		SchemaNode parentNode = syntaxModel.getParentNodeFor(syntaxNode.getUuid());
+		// create new explicit mapping
+		return new PrimitiveEntityTypeMapping(syntaxNode.getUuid(), entity.getUuid(), parentNode.getUuid());
 	}
 
 
