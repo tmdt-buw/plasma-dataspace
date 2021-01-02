@@ -57,7 +57,7 @@ public class CombinedModelSemanticModificationTest {
         EntityConcept companyConcept = new EntityConcept("company", "A company", "plasma:company");
         EntityType companyType = new EntityType(companyConcept.getLabel(), "", companyConcept);
 
-        RelationConcept isARelationConcept = new RelationConcept("isA", "Indicates that something is a superclass of something", "plasma:isA", new HashSet<>());
+        RelationConcept isARelationConcept = new RelationConcept("isA", "Indicates that something is a superclass of something", null, "plasma:isA", new HashSet<>());
         Relation airlineCompanyRelation = new Relation(airlineType.getUuid(), companyType.getUuid(), isARelationConcept);
 
         DeltaModification modification = new DeltaModification("mod_testApplyAddOneEntityAndOneRelation", Collections.singleton(companyType), Collections.singleton(airlineCompanyRelation), null, null, 0.0);
@@ -154,7 +154,7 @@ public class CombinedModelSemanticModificationTest {
         EntityType timeType = new EntityType(timeConcept.getLabel(), "", timeConcept);
         timeType.setSyntaxNodeUuid(schemaNode.getUuid());
 
-        DeltaModification modification = new DeltaModification("mod_testApplyMapOneEntityToSPrimitiveNode", Collections.singleton(timeType), null, null, null, 0.0);
+        DeltaModification modification = new DeltaModification("mod_testApplyMapOneEntityToNonPrimitiveNode", Collections.singleton(timeType), null, null, null, 0.0);
 
         assertThrows(UnsupportedOperationException.class, () -> model.apply(modification), "Error message not thrown when mapping to non-primitive node " + schemaNode.getUuid());
 

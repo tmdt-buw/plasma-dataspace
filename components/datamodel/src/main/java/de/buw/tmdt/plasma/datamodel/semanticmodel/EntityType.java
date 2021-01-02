@@ -124,7 +124,7 @@ public class EntityType extends PositionedCombinedModelElement implements Serial
             @NotNull @JsonProperty(UUID_PROPERTY) String uuid,
             @Nullable @JsonProperty(ENTITY_ID_PROPERTY) String entityId,
             @NotNull @JsonProperty(LABEL_PROPERTY) String label,
-            @NotNull @JsonProperty(SYNTAX_NODE_ID_PROPERTY) String syntaxNodeUuid,
+            @Nullable @JsonProperty(SYNTAX_NODE_ID_PROPERTY) String syntaxNodeUuid,
             @NotNull @JsonProperty(ORIGINAL_LABEL_PROPERTY) String originalLabel,
             @NotNull @JsonProperty(DESCRIPTION_PROPERTY) String description,
             @NotNull @JsonProperty(CONCEPT_PROPERTY) EntityConcept entityConcept,
@@ -160,6 +160,7 @@ public class EntityType extends PositionedCombinedModelElement implements Serial
         return description;
     }
 
+    @NotNull
     @JsonProperty(CONCEPT_PROPERTY)
     public EntityConcept getEntityConcept() {
         return entityConcept;
@@ -187,6 +188,7 @@ public class EntityType extends PositionedCombinedModelElement implements Serial
     public void setDescription(String description) {
         this.description = description;
     }
+
 
     /**
      * Creates a deep clone of the current entity

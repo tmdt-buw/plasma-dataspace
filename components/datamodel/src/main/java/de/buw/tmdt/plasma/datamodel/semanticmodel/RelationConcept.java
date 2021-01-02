@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import de.buw.tmdt.plasma.datamodel.CombinedModelElement;
 import de.buw.tmdt.plasma.utilities.misc.StringUtilities;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.Serializable;
 import java.util.Collections;
@@ -14,11 +15,16 @@ import java.util.Set;
 
 public class RelationConcept extends CombinedModelElement implements Serializable {
 	private static final long serialVersionUID = -5112996969222323409L;
-	private static final String UUID_PROPERTY = "uuid";
+
+	private static final String ENTITY_ID_PROPERTY = "entityId";
 	private static final String DESCRIPTION_PROPERTY = "description";
 	private static final String SOURCE_URI_PROPERTY = "sourceURI";
 	private static final String PROPERTIES_PROPERTY = "properties";
 
+	/**
+	 * Entity ID, set once persisted in the KGS
+	 */
+	private final String entityId;
 	private final String description;
 	private final String sourceURI;
 	private final Set<String> properties;
@@ -26,10 +32,12 @@ public class RelationConcept extends CombinedModelElement implements Serializabl
 	public RelationConcept(
 			@NotNull String label,
 			@NotNull String description,
+			@Nullable String entityId,
 			@NotNull String sourceURI,
 			@NotNull Set<String> properties
 	) {
 		super(label);
+		this.entityId = entityId;
 		this.description = description;
 		this.sourceURI = sourceURI;
 		this.properties = new HashSet<>(properties);
@@ -39,16 +47,22 @@ public class RelationConcept extends CombinedModelElement implements Serializabl
 	public RelationConcept(
 			@NotNull @JsonProperty(UUID_PROPERTY) String uuid,
 			@NotNull @JsonProperty(LABEL_PROPERTY) String label,
+			@Nullable @JsonProperty(ENTITY_ID_PROPERTY) String entityId,
 			@NotNull @JsonProperty(DESCRIPTION_PROPERTY) String description,
 			@NotNull @JsonProperty(SOURCE_URI_PROPERTY) String sourceURI,
 			@NotNull @JsonProperty(PROPERTIES_PROPERTY) Set<String> properties
 	) {
-		super(				uuid,label);
+		super(uuid, label);
+		this.entityId = entityId;
 		this.description = description;
 		this.sourceURI = sourceURI;
 		this.properties = properties;
 	}
 
+	@JsonProperty(ENTITY_ID_PROPERTY)
+	public String getEntityId() {
+		return entityId;
+	}
 
 	@JsonProperty(DESCRIPTION_PROPERTY)
 	public String getDescription() {
