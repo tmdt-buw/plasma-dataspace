@@ -16,6 +16,7 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+@SuppressWarnings("JpaObjectClassSignatureInspection")
 @Entity
 @DynamicUpdate
 @Table(name = "composite_nodes")
@@ -200,10 +201,10 @@ public class CompositeNode extends Node implements RawDataContainer {
 	@SuppressWarnings("MagicCharacter")
 	public String toString() {
 		return "{\"@class\":\"CompositeNode\""
-		       + ", \"@super\":" + super.toString()
-		       + ", \"components\":" + StringUtilities.listToJson(components)
-		       + ", \"splitter\":" + StringUtilities.listToJson(splitter)
-		       + ", \"cleansingPattern\":\"" + cleansingPattern + '"'
-		       + '}';
+				+ ", \"@super\":" + super.toString()
+				+ ", \"components\":" + StringUtilities.listToJson(components)
+				+ ", \"splitter\":" + StringUtilities.listToJson(splitter)
+				+ ", \"cleansingPattern\":\"" + cleansingPattern + '"'
+				+ '}';
 	}
 }

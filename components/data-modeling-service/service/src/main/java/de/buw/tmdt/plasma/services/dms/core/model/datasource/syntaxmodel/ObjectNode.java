@@ -13,6 +13,7 @@ import javax.persistence.*;
 import java.util.*;
 import java.util.function.Consumer;
 
+@SuppressWarnings("JpaObjectClassSignatureInspection")
 @Entity
 @DynamicUpdate
 @Table(name = "object_nodes")
@@ -151,8 +152,8 @@ public class ObjectNode extends Node {
 	@SuppressWarnings("MagicCharacter")
 	public String toString() {
 		return "{\"@class\":\"ObjectNode\""
-		       + ", \"@super\":" + super.toString()
-		       + ", \"children\":" + StringUtilities.mapToJson(children)
-		       + '}';
+				+ ", \"@super\":" + super.toString()
+				+ ", \"children\":" + StringUtilities.mapToJson(children)
+				+ '}';
 	}
 }

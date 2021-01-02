@@ -14,6 +14,7 @@ import javax.persistence.Table;
 import java.util.*;
 import java.util.function.Consumer;
 
+@SuppressWarnings("JpaObjectClassSignatureInspection")
 @Entity
 @DynamicUpdate
 @Table(name = "collision_nodes")
@@ -196,10 +197,10 @@ public class CollisionNode extends Node {
 	@SuppressWarnings("MagicCharacter")
 	public String toString() {
 		return "{\"@class\":\"CollisionNode\""
-		       + ", \"@super\":" + super.toString()
-		       + ", \"primitiveNode\":" + primitiveNode
-		       + ", \"objectNode\":" + objectNode
-		       + ", \"setNode\":" + setNode
-		       + '}';
+				+ ", \"@super\":" + super.toString()
+				+ ", \"primitiveNode\":" + primitiveNode
+				+ ", \"objectNode\":" + objectNode
+				+ ", \"setNode\":" + setNode
+				+ '}';
 	}
 }

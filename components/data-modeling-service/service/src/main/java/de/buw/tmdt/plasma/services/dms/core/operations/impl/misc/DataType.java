@@ -7,7 +7,8 @@ public enum DataType {
 	BOOLEAN("Boolean"),
 	STRING("String"),
 	NUMBER("Number"),
-	BINARY("Binary");
+	BINARY("Binary"),
+	UNKNOWN("Unknown");
 
 	private final String serialization;
 

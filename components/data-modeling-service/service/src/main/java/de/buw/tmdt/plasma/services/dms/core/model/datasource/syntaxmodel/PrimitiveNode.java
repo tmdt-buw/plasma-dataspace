@@ -4,7 +4,7 @@ import de.buw.tmdt.plasma.services.dms.core.model.Position;
 import de.buw.tmdt.plasma.services.dms.core.model.Traversable;
 import de.buw.tmdt.plasma.services.dms.core.model.datasource.semanticmodel.EntityType;
 import de.buw.tmdt.plasma.services.dms.core.model.datasource.syntaxmodel.members.EntityConceptSuggestion;
-import de.buw.tmdt.plasma.services.dms.shared.dto.syntaxmodel.operation.DataType;
+import de.buw.tmdt.plasma.services.dms.core.operations.impl.misc.DataType;
 import de.buw.tmdt.plasma.utilities.collections.CollectionUtilities;
 import de.buw.tmdt.plasma.utilities.misc.ObjectUtilities;
 import de.buw.tmdt.plasma.utilities.misc.StringUtilities;
@@ -17,6 +17,7 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+@SuppressWarnings("JpaObjectClassSignatureInspection")
 @Entity
 @DynamicUpdate
 @Table(name = "primitive_nodes")
@@ -31,8 +32,8 @@ public class PrimitiveNode extends Node implements RawDataContainer {
 	private final List<String> examples;
 	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<EntityConceptSuggestion> entityConceptSuggestions;
-	//Hibernate constructor
 
+	//Hibernate constructor
 	//creates invalid state if not properly initialized afterwards
 	private PrimitiveNode() {
 		entityType = null;
@@ -227,20 +228,20 @@ public class PrimitiveNode extends Node implements RawDataContainer {
 		}
 		PrimitiveNode primitive = (PrimitiveNode) o;
 		return Objects.equals(cleansingPattern, primitive.cleansingPattern) &&
-		       Objects.equals(examples, primitive.examples) &&
-		       Objects.equals(entityConceptSuggestions, primitive.entityConceptSuggestions);
+				Objects.equals(examples, primitive.examples) &&
+				Objects.equals(entityConceptSuggestions, primitive.entityConceptSuggestions);
 	}
 
 	@Override
 	@SuppressWarnings("MagicCharacter")
 	public String toString() {
 		return "{\"@class\":\"PrimitiveNode\""
-		       + ", \"@super\":" + super.toString()
-		       + ", \"entityType\":" + entityType
-		       + ", \"dataType\":\"" + dataType + '"'
-		       + ", \"cleansingPattern\":\"" + cleansingPattern + '"'
-		       + ", \"examples\":" + StringUtilities.listToJson(examples)
-		       + ", \"entityConceptSuggestions\":" + StringUtilities.listToJson(entityConceptSuggestions)
-		       + '}';
+				+ ", \"@super\":" + super.toString()
+				+ ", \"entityType\":" + entityType
+				+ ", \"dataType\":\"" + dataType + '"'
+				+ ", \"cleansingPattern\":\"" + cleansingPattern + '"'
+				+ ", \"examples\":" + StringUtilities.listToJson(examples)
+				+ ", \"entityConceptSuggestions\":" + StringUtilities.listToJson(entityConceptSuggestions)
+				+ '}';
 	}
 }
