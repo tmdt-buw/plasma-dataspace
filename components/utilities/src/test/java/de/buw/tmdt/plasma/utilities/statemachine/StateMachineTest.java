@@ -204,7 +204,7 @@ public class StateMachineTest {
 
 	@Test
 	public void createWithNullArgs() {
-		Assertions.assertThrows(NullPointerException.class, () -> {
+		Assertions.assertThrows(IllegalArgumentException.class, () -> {
 			new StateMachine<>(TEST_NAME, null, null, null);
 			//noinspection ConstantConditions
 		});
@@ -212,7 +212,7 @@ public class StateMachineTest {
 
 	@Test
 	public void buildStateMachineWithNull() {
-		Assertions.assertThrows(NullPointerException.class, () -> {
+		Assertions.assertThrows(IllegalArgumentException.class, () -> {
 			StateMachine.Builder<TestState> builder = new StateMachine.Builder<>(TEST_NAME);
 			builder.build();
 		});
