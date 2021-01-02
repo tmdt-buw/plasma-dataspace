@@ -28,9 +28,7 @@ public class KnowledgeGraphServiceDTO2CombinedModelConverter {
      * @throws IllegalStateException If a relation points to a non-existing {@link EntityTypeDTO} id.
      */
     @NotNull
-    protected SemanticModel convert(
-            @NotNull SemanticModelDTO semanticModelDTO
-    ) {
+    protected SemanticModel convert(@NotNull SemanticModelDTO semanticModelDTO) throws IllegalStateException {
         /*
          * Maps KGS ET database ids, identified by {@link EntityTypeDTO#id} to {@link EntityType#uuid}s in converted elements.
          * Needed to instantiate edges.
@@ -100,7 +98,7 @@ public class KnowledgeGraphServiceDTO2CombinedModelConverter {
     @NotNull
     protected Relation convert(
             @NotNull RelationDTO kgsDto,
-            HashMap<String, String> entityTypeIdMap) {
+            HashMap<String, String> entityTypeIdMap) throws IllegalStateException {
         String fromUuid = entityTypeIdMap.get(kgsDto.getFromId());
         if (fromUuid == null) {
             throw new IllegalStateException("Undefined reference in 'from' field: " + kgsDto.getFromId());
