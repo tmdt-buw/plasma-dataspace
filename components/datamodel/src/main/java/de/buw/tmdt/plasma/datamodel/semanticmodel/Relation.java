@@ -38,35 +38,37 @@ public class Relation extends CombinedModelElement implements Serializable {
 			String toId,
 			RelationConcept concept
 	) {
-		this(fromId,toId,"",concept);
+		this(null, fromId, toId, concept);
 	}
 
 	public Relation(
+			String entityId,
 			String fromId,
 			String toId,
-			String description,
 			RelationConcept concept
 	) {
 		super("");
+		this.entityId = entityId;
 		this.fromId = fromId;
 		this.toId = toId;
-		this.description = description;
 		this.concept = concept;
 	}
 
 	@JsonCreator
 	public Relation(
 			@NotNull @JsonProperty(UUID_PROPERTY) String uuid,
+			@NotNull @JsonProperty(ENTITY_ID_PROPERTY) String entityId,
 			@NotNull @JsonProperty(FROM_ID_PROPERTY) String fromId,
 			@NotNull @JsonProperty(TO_ID_PROPERTY) String toId,
 			@NotNull @JsonProperty(DESCRIPTION_PROPERTY) String description,
 			@NotNull @JsonProperty(CONCEPT_PROPERTY) RelationConcept concept
 	) {
-		super(uuid,"");
-				this.fromId = fromId;
-				this.toId = toId;
-				this.description = description;
-				this.concept = concept;
+		super(uuid, "");
+		this.entityId = entityId;
+		this.fromId = fromId;
+		this.toId = toId;
+		this.description = description;
+		this.concept = concept;
 	}
 
 	@JsonProperty(ENTITY_ID_PROPERTY)

@@ -56,6 +56,26 @@ public class EntityType extends PositionedCombinedModelElement implements Serial
                       String description,
                       EntityConcept entityConcept) {
         super(label);
+
+        this.description = description;
+        this.entityConcept = entityConcept;
+    }
+
+    /**
+     * Constructor to use for a new unmapped instantiation.
+     * This constructor also accepts an {@link #entityId} if there exists a representation of this element somewhere.
+     *
+     * @param label         The label to show
+     * @param entityId      An entity id indicating an existing representation
+     * @param description   A description for this object, optional
+     * @param entityConcept The concept to represent
+     */
+    public EntityType(@NotNull String label,
+                      @NotNull String entityId,
+                      String description,
+                      EntityConcept entityConcept) {
+        super(label);
+        this.entityId = entityId;
         this.description = description;
         this.entityConcept = entityConcept;
     }
@@ -63,11 +83,11 @@ public class EntityType extends PositionedCombinedModelElement implements Serial
     /**
      * Constructor to use for a new unmapped instantiation at a specific place
      *
-     * @param label       The label to show
-     * @param xCoordinate X coordinate
-     * @param yCoordinate Y coordinate
-     * @param description A description for this object, optional
-     * @param entityConcept     The concept to represent
+     * @param label         The label to show
+     * @param xCoordinate   X coordinate
+     * @param yCoordinate   Y coordinate
+     * @param description   A description for this object, optional
+     * @param entityConcept The concept to represent
      */
     public EntityType(@NotNull String label,
                       @NotNull Double xCoordinate,
@@ -75,6 +95,28 @@ public class EntityType extends PositionedCombinedModelElement implements Serial
                       @Nullable String description,
                       @NotNull EntityConcept entityConcept) {
         super(label, xCoordinate, yCoordinate);
+        this.description = description;
+        this.entityConcept = entityConcept;
+    }
+
+    /**
+     * Constructor to use for a new unmapped instantiation at a specific place
+     *
+     * @param label         The label to show
+     * @param entityId      An existing entity id of this element
+     * @param xCoordinate   X coordinate
+     * @param yCoordinate   Y coordinate
+     * @param description   A description for this object, optional
+     * @param entityConcept The concept to represent
+     */
+    public EntityType(@NotNull String label,
+                      @NotNull String entityId,
+                      @NotNull Double xCoordinate,
+                      @NotNull Double yCoordinate,
+                      @Nullable String description,
+                      @NotNull EntityConcept entityConcept) {
+        super(label, xCoordinate, yCoordinate);
+        this.entityId = entityId;
         this.description = description;
         this.entityConcept = entityConcept;
     }

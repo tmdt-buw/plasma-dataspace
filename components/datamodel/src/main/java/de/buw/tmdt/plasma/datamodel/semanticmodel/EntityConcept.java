@@ -92,6 +92,18 @@ public class EntityConcept extends CombinedModelElement implements Serializable 
         }
     }
 
+    /**
+     * Identifies if two {@link EntityConcept}s represent the same concept.
+     * Needed as there might exist mulitple {@link EntityConcept} instances that actually represent the same concept
+     * but have different uuids.
+     *
+     * @param ec The {@link EntityConcept} to check
+     * @return true of the {@link #sourceURI}s of both instances match
+     */
+    public boolean sameAs(EntityConcept ec) {
+        return getSourceURI().equals(ec.getSourceURI());
+    }
+
     @Override
     @SuppressWarnings("MagicCharacter")
     public String toString() {
