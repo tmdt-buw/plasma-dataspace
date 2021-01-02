@@ -1,10 +1,10 @@
 package de.buw.tmdt.plasma.services.dms.core.operations;
 
+import de.buw.tmdt.plasma.datamodel.modification.operation.ParameterDefinition;
+import de.buw.tmdt.plasma.datamodel.modification.operation.Type;
 import de.buw.tmdt.plasma.services.dms.core.model.datasource.DataSourceSchema;
 import de.buw.tmdt.plasma.services.dms.core.model.datasource.syntaxmodel.Node;
 import de.buw.tmdt.plasma.services.dms.core.operations.exceptions.ParameterParsingException;
-import de.buw.tmdt.plasma.services.dms.shared.dto.syntaxmodel.operation.ParameterDefinition;
-import de.buw.tmdt.plasma.services.dms.shared.dto.syntaxmodel.operation.Type;
 import de.buw.tmdt.plasma.utilities.misc.ObjectUtilities;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

@@ -1,4 +1,4 @@
-package de.buw.tmdt.plasma.services.dms.shared.deserializer;
+package de.buw.tmdt.plasma.services.dms.deserializer;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonParser;
@@ -7,8 +7,8 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import de.buw.tmdt.plasma.services.dms.shared.dto.syntaxmodel.operation.Type;
-import de.buw.tmdt.plasma.services.dms.shared.dto.syntaxmodel.operation.TypeDefinitionDTO;
+import de.buw.tmdt.plasma.datamodel.modification.operation.Type;
+import de.buw.tmdt.plasma.datamodel.modification.operation.TypeDefinitionDTO;
 import de.buw.tmdt.plasma.utilities.misc.ReflectionUtilities;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -23,7 +23,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.StreamSupport;
 
-import static de.buw.tmdt.plasma.services.dms.shared.dto.syntaxmodel.operation.TypeDefinitionDTO.*;
+import static de.buw.tmdt.plasma.datamodel.modification.operation.TypeDefinitionDTO.*;
+
 
 @Service
 public class TypeDefinitionDeserializer extends JsonDeserializer<TypeDefinitionDTO<?>> {

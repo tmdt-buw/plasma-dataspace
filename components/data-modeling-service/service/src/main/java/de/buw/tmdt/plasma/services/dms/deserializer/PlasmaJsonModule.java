@@ -1,7 +1,7 @@
-package de.buw.tmdt.plasma.services.dms.shared.deserializer;
+package de.buw.tmdt.plasma.services.dms.deserializer;
 
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import de.buw.tmdt.plasma.services.dms.shared.dto.syntaxmodel.operation.TypeDefinitionDTO;
+import de.buw.tmdt.plasma.datamodel.modification.operation.TypeDefinitionDTO;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
