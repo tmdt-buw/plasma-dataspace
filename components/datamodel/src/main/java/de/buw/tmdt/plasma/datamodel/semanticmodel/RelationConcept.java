@@ -94,6 +94,33 @@ public class RelationConcept extends CombinedModelElement implements Serializabl
 		}
 	}
 
+	/**
+	 * Creates a deep clone of the current entity
+	 *
+	 * @return The cloned entity with also the RelationConcept cloned
+	 */
+	public RelationConcept clone() {
+		return new RelationConcept(
+				getUuid(),
+				getEntityId(),
+				getDescription(),
+				getSourceURI(),
+				getProperties()
+		);
+	}
+
+	/**
+	 * Identifies if two {@link RelationConcept}s represent the same concept.
+	 * Needed as there might exist multiple {@link RelationConcept} instances that actually represent the same concept
+	 * but have different uuids.
+	 *
+	 * @param relationConcept The {@link RelationConcept} to check
+	 * @return true of the {@link #sourceURI}s of both instances match
+	 */
+	public boolean sameAs(RelationConcept relationConcept) {
+		return Objects.equals(getSourceURI(), relationConcept.getSourceURI());
+	}
+
 	@Override
 	@SuppressWarnings("MagicCharacter")
 	public String toString() {
@@ -103,4 +130,5 @@ public class RelationConcept extends CombinedModelElement implements Serializabl
 				+ ", \"properties\":" + StringUtilities.setToJson(properties)
 				+ '}';
 	}
+
 }

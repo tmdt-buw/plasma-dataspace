@@ -1,5 +1,6 @@
 package de.buw.tmdt.plasma.datamodel;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import de.buw.tmdt.plasma.datamodel.modification.DeltaModification;
 import de.buw.tmdt.plasma.datamodel.modification.operation.DataType;
@@ -24,6 +25,7 @@ import java.util.stream.Collectors;
  */
 public class CombinedModel implements Serializable {
 
+	public static final String DATA_SOURCE_UUID = "dataSourceUuid";
 	public static final String SYNTAX_MODEL_PROPERTY = "syntaxModel";
 	public static final String SEMANTIC_MODEL_PROPERTY = "semanticModel";
 	private static final String PRIMITIVE_ENTITY_TYPE_LIST = "primitiveToEntityTypeList";
@@ -31,6 +33,8 @@ public class CombinedModel implements Serializable {
 	private static final String FINALIZED = "finalized";
 	private static final long serialVersionUID = 1069167546126071914L;
 
+
+	private final String dataSourceUuid;
 	private final SyntaxModel syntaxModel;
 	private final SemanticModel semanticModel;
 	private final ArrayList<PrimitiveEntityTypeMapping> primitiveEntityTypeMappings;
@@ -43,18 +47,26 @@ public class CombinedModel implements Serializable {
 	 */
 	private boolean finalized;
 
+	@JsonCreator
 	public CombinedModel(
+			@JsonProperty(DATA_SOURCE_UUID) @NotNull String dataSourceUuid,
 			@JsonProperty(SYNTAX_MODEL_PROPERTY) @NotNull SyntaxModel syntaxModel,
 			@JsonProperty(SEMANTIC_MODEL_PROPERTY) SemanticModel semanticModel,
 			@JsonProperty(PRIMITIVE_ENTITY_TYPE_LIST) List<? extends PrimitiveEntityTypeMapping> primitiveEntityTypeMappings,
 			@JsonProperty(RECOMMENDATION_LIST) List<DeltaModification> recommendations,
 			@JsonProperty(value = FINALIZED, defaultValue = "false") boolean finalized
 	) {
+		this.dataSourceUuid = dataSourceUuid;
 		this.syntaxModel = syntaxModel;
-		this.semanticModel = semanticModel == null ? new SemanticModel(null, null) : semanticModel;
+		this.semanticModel = semanticModel == null ? new SemanticModel(null, null, null) : semanticModel;
 		this.primitiveEntityTypeMappings = primitiveEntityTypeMappings == null ? new ArrayList<>() : new ArrayList<>(primitiveEntityTypeMappings);
 		this.finalized = finalized;
 		this.recommendations = recommendations == null ? new ArrayList<>() : new ArrayList<>(recommendations);
+	}
+
+	@JsonProperty(DATA_SOURCE_UUID)
+	public String getDataSourceUuid() {
+		return dataSourceUuid;
 	}
 
 	@JsonProperty(SYNTAX_MODEL_PROPERTY)
@@ -304,4 +316,6 @@ public class CombinedModel implements Serializable {
 				+ ", \"recommendations\":" + StringUtilities.listToJson(recommendations)
 				+ '}';
 	}
+
+
 }

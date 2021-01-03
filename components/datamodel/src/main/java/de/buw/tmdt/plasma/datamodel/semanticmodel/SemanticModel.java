@@ -3,12 +3,11 @@ package de.buw.tmdt.plasma.datamodel.semanticmodel;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import de.buw.tmdt.plasma.utilities.misc.StringUtilities;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class SemanticModel {
 
@@ -53,9 +52,59 @@ public class SemanticModel {
 		return edges;
 	}
 
+	/**
+	 * Returns a copy of this model where similar concepts are merged to one.
+	 * This results in two {@link EntityType}s that reference {@link EntityConcept}s for which
+	 * {@link EntityConcept#sameAs(EntityConcept)} is {@code true}, those will be merged and the reference from
+	 * all subsequent {@link EntityType} instances will be changed to reference the only {@link EntityConcept} instance
+	 * for the given {@code sourceURI}.
+	 * Procedure for {@link Relation}s and {@link RelationConcept}s is analogous.
+	 *
+	 * @return A copy of the current {@link SemanticModel} with merged same {@link EntityConcept}s and {@link RelationConcept}s
+	 */
+	public SemanticModel mergeConcepts() {
+		SemanticModel model = clone();
+		// merge all entity concepts
+		HashMap<String, EntityConcept> seenConcepts = new HashMap<>();
+		model.getNodes().forEach(et -> {
+			if (seenConcepts.containsKey(et.getEntityConcept().getSourceURI())) {
+				EntityConcept ec = seenConcepts.get(et.getEntityConcept().getSourceURI());
+				et.setEntityConcept(ec);
+			} else {
+				seenConcepts.put(et.getEntityConcept().getSourceURI(), et.getEntityConcept());
+			}
+		});
+		// merge all relation concepts
+		HashMap<String, RelationConcept> seenRelations = new HashMap<>();
+		model.getEdges().forEach(r -> {
+			if (seenRelations.containsKey(r.getConcept().getSourceURI())) {
+				RelationConcept rc = seenRelations.get(r.getConcept().getSourceURI());
+				r.setConcept(rc);
+			} else {
+				seenRelations.put(r.getConcept().getSourceURI(), r.getConcept());
+			}
+		});
+		return model;
+	}
+
+	/**
+	 * Creates a deep clone of the current entity
+	 *
+	 * @return The cloned entity with also the {@link EntityType}s and {@link Relation}s cloned
+	 */
+	@Override
+	public SemanticModel clone() {
+		return new SemanticModel(
+				getEntityId(),
+				getNodes().stream().map(EntityType::clone).collect(Collectors.toList()),
+				getEdges().stream().map(Relation::clone).collect(Collectors.toList())
+		);
+	}
+
+
 	@Override
 	public int hashCode() {
-		return Objects.hash( nodes, edges);
+		return Objects.hash(nodes, edges);
 	}
 
 	@Override
@@ -68,7 +117,7 @@ public class SemanticModel {
 		}
 		SemanticModel that = (SemanticModel) o;
 		return 		       Objects.equals(nodes, that.nodes) &&
-		       Objects.equals(edges, that.edges);
+				Objects.equals(edges, that.edges);
 	}
 
 	@Override
@@ -79,5 +128,27 @@ public class SemanticModel {
 				+ ", \"nodes\":" + StringUtilities.listToJson(nodes)
 				+ ", \"edges\":" + StringUtilities.listToJson(edges)
 				+ '}';
+	}
+
+	/**
+	 * Returns all provisional {@link EntityConcept}s in this model
+	 *
+	 * @return A list of provisional {@link EntityConcept}s in the model
+	 */
+	@NotNull
+	public Collection<EntityConcept> getProvisionalEntityConcepts() {
+		// TODO add provisional entity concepts here
+		return new ArrayList<>();
+	}
+
+	/**
+	 * Returns all provisional {@link RelationConcept}s in this model
+	 *
+	 * @return A list of provisional {@link RelationConcept}s in the model
+	 */
+	@NotNull
+	public Collection<RelationConcept> getProvisionalRelationConcepts() {
+		// TODO add provisional relation concepts here
+		return new ArrayList<>();
 	}
 }

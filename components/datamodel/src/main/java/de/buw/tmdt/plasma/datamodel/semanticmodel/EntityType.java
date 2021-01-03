@@ -43,7 +43,7 @@ public class EntityType extends PositionedCombinedModelElement implements Serial
     /**
      * The assigned {@link EntityConcept} that defines this {@link EntityType}
      */
-    private final EntityConcept entityConcept;
+    private EntityConcept entityConcept;
 
     /**
      * Constructor to use for a new unmapped instantiation
@@ -231,6 +231,9 @@ public class EntityType extends PositionedCombinedModelElement implements Serial
         this.description = description;
     }
 
+    public void setEntityConcept(EntityConcept entityConcept) {
+        this.entityConcept = entityConcept;
+    }
 
     /**
      * Creates a deep clone of the current entity

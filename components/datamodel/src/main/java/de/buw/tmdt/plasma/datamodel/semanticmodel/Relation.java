@@ -116,6 +116,21 @@ public class Relation extends CombinedModelElement implements Serializable {
 		this.concept = concept;
 	}
 
+	/**
+	 * Creates a deep clone of the current entity
+	 *
+	 * @return The cloned entity with also the RelationConcept cloned
+	 */
+	public Relation clone() {
+		return new Relation(getUuid(),
+				getEntityId(),
+				getFromId(),
+				getToId(),
+				getDescription(),
+				getConcept().clone()
+		);
+	}
+
 	@Override
 	public int hashCode() {
 		return Objects.hash(fromId, toId, description, concept);
