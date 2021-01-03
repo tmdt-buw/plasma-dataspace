@@ -6,13 +6,11 @@ import de.buw.tmdt.plasma.services.kgs.shared.dto.knowledgegraph.RelationConcept
 import de.buw.tmdt.plasma.services.kgs.shared.dto.semanticmodel.EntityTypeDTO;
 import de.buw.tmdt.plasma.services.kgs.shared.dto.semanticmodel.RelationDTO;
 import de.buw.tmdt.plasma.services.kgs.shared.dto.semanticmodel.SemanticModelDTO;
+import de.buw.tmdt.plasma.utilities.collections.CollectionUtilities;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * Converter between the KGS data model and the shared CombinedModel
@@ -83,7 +81,7 @@ public class KnowledgeGraphServiceDTO2CombinedModelConverter {
     }
 
     @NotNull
-    protected EntityConcept convert(
+    public EntityConcept convert(
             @NotNull EntityConceptDTO entityConceptDTO
     ) {
         return new EntityConcept(
@@ -116,7 +114,7 @@ public class KnowledgeGraphServiceDTO2CombinedModelConverter {
     }
 
     @NotNull
-    protected RelationConcept convert(
+    public RelationConcept convert(
             @NotNull RelationConceptDTO kgsDto
     ) {
         return new RelationConcept(
@@ -127,4 +125,91 @@ public class KnowledgeGraphServiceDTO2CombinedModelConverter {
                 kgsDto.getProperties()
         );
     }
+
+    @NotNull
+    public SemanticModelDTO convert(@NotNull SemanticModel semanticModel, @NotNull String dataSourceId) {
+        String semanticModelId = semanticModel.getEntityId() != null ? semanticModel.getEntityId() : UUID.randomUUID().toString();
+
+        final ArrayList<@NotNull EntityTypeDTO> entityTypes = CollectionUtilities.map(
+                semanticModel.getNodes(),
+                this::convert,
+                ArrayList::new
+        );
+        final ArrayList<@NotNull RelationDTO> relations = CollectionUtilities.map(
+                semanticModel.getEdges(),
+                this::convert,
+                ArrayList::new
+        );
+
+        return new SemanticModelDTO(
+                semanticModelId,
+                dataSourceId,
+                null,
+                entityTypes,
+                relations,
+                dataSourceId
+        );
+    }
+
+    @NotNull
+    protected EntityTypeDTO convert(@NotNull EntityType entityType) {
+
+        final EntityConceptDTO entityConceptDTO = convert(entityType.getEntityConcept());
+
+        final EntityTypeDTO entityTypeDTO = new EntityTypeDTO(
+                entityType.getUuid(),
+                entityType.getLabel(),
+                entityType.getOriginalLabel(),
+                entityConceptDTO,
+                entityType.getXCoordinate() == null ? 0 : entityType.getXCoordinate(),
+                entityType.getYCoordinate() == null ? 0 : entityType.getYCoordinate(),
+                entityType.getDescription(),
+                entityType.isMappedToData()
+        );
+
+        return entityTypeDTO;
+    }
+
+
+    @NotNull
+    protected EntityConceptDTO convert(@NotNull EntityConcept entityConcept) {
+        final EntityConceptDTO entityConceptDTO = new EntityConceptDTO(
+                entityConcept.getUuid(),
+                entityConcept.getLabel(),
+                entityConcept.getDescription(),
+                entityConcept.getSourceURI()
+        );
+
+        return entityConceptDTO;
+    }
+
+    @NotNull
+    protected RelationDTO convert(@NotNull Relation relation) {
+
+        final RelationConceptDTO relationConceptDTO = convert(relation.getConcept());
+
+        final RelationDTO relationDTO = new RelationDTO(
+                relation.getUuid(),
+                relation.getFromId(),
+                relation.getToId(),
+                relationConceptDTO
+        );
+
+        return relationDTO;
+    }
+
+    @NotNull
+    protected RelationConceptDTO convert(@NotNull RelationConcept relationConcept) {
+
+        final RelationConceptDTO relationConceptDTO = new RelationConceptDTO(
+                relationConcept.getUuid(),
+                relationConcept.getLabel(),
+                relationConcept.getDescription(),
+                relationConcept.getSourceURI(),
+                new HashSet<>() // TODO adjust once finished
+        );
+
+        return relationConceptDTO;
+    }
+
 }

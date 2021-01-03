@@ -287,6 +287,12 @@ public class CombinedModel implements Serializable {
 		return new PrimitiveEntityTypeMapping(syntaxNode.getUuid(), entity.getUuid(), parentNode.getUuid());
 	}
 
+	/**
+	 * Validates the state of the current model
+	 */
+	public void validate() {
+		// TODO
+	}
 
 	@Override
 	public int hashCode() {
