@@ -4,10 +4,7 @@ import de.buw.tmdt.plasma.datamodel.modification.operation.DataType;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.*;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.*;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 public class CombinedModelGenerator {
 
@@ -60,17 +57,17 @@ public class CombinedModelGenerator {
 
         List<EntityType> entities = Arrays.asList(flightType, identifierType, airlineType, nameType, iataCodeType);
 
-        RelationConcept hasRelationConcept = new RelationConcept("has", "Indicates that something is in possession of something or has something associated or assigned to it", "plasma:has", new HashSet<>());
+        RelationConcept hasRelationConcept = new RelationConcept("has", "Indicates that something is in possession of something or has something associated or assigned to it", null, "plasma:has", new HashSet<>());
         Relation flightIdentifierRelation = new Relation(flightType.getUuid(), identifierType.getUuid(), hasRelationConcept);
         Relation airlineNameRelation = new Relation(airlineType.getUuid(), nameType.getUuid(), hasRelationConcept);
         Relation airlineIATACodeRelation = new Relation(airlineType.getUuid(), iataCodeType.getUuid(), hasRelationConcept);
 
-        RelationConcept operatesRelationConcept = new RelationConcept("operates", "Indicates that something is managed by something else", "plasma:operates", new HashSet<>());
+        RelationConcept operatesRelationConcept = new RelationConcept("operates", "Indicates that something is managed by something else", null, "plasma:operates", new HashSet<>());
         Relation flightAirlineRelation = new Relation(flightType.getUuid(), airlineType.getUuid(), operatesRelationConcept);
 
         List<Relation> relations = Arrays.asList(flightIdentifierRelation, flightAirlineRelation, airlineNameRelation, airlineIATACodeRelation);
 
-        SemanticModel semanticModel = new SemanticModel(entities, relations);
+        SemanticModel semanticModel = new SemanticModel(null, entities, relations);
 
         PrimitiveEntityTypeMapping identifierMapping = new PrimitiveEntityTypeMapping(identifierNode.getUuid(), identifierType.getUuid(), root.getUuid());
         PrimitiveEntityTypeMapping nameMapping = new PrimitiveEntityTypeMapping(nameNode.getUuid(), nameType.getUuid(), companyNode.getUuid());
@@ -78,7 +75,7 @@ public class CombinedModelGenerator {
 
         List<PrimitiveEntityTypeMapping> mappings = Arrays.asList(identifierMapping, nameMapping, codeMapping);
 
-        CombinedModel combinedModel = new CombinedModel(syntaxModel, semanticModel, mappings, new ArrayList<>(), false);
+        CombinedModel combinedModel = new CombinedModel(UUID.randomUUID().toString(), syntaxModel, semanticModel, mappings, new ArrayList<>(), false);
 
         return combinedModel;
     }

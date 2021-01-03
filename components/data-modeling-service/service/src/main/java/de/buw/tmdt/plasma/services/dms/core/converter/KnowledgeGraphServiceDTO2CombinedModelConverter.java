@@ -1,5 +1,6 @@
 package de.buw.tmdt.plasma.services.dms.core.converter;
 
+import de.buw.tmdt.plasma.datamodel.CombinedModelIntegrityException;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.*;
 import de.buw.tmdt.plasma.services.kgs.shared.dto.knowledgegraph.EntityConceptDTO;
 import de.buw.tmdt.plasma.services.kgs.shared.dto.knowledgegraph.RelationConceptDTO;
@@ -26,7 +27,7 @@ public class KnowledgeGraphServiceDTO2CombinedModelConverter {
      * @throws IllegalStateException If a relation points to a non-existing {@link EntityTypeDTO} id.
      */
     @NotNull
-    protected SemanticModel convert(@NotNull SemanticModelDTO semanticModelDTO) throws IllegalStateException {
+    public SemanticModel convert(@NotNull SemanticModelDTO semanticModelDTO) throws IllegalStateException {
         /*
          * Maps KGS ET database ids, identified by {@link EntityTypeDTO#id} to {@link EntityType#uuid}s in converted elements.
          * Needed to instantiate edges.
@@ -126,10 +127,44 @@ public class KnowledgeGraphServiceDTO2CombinedModelConverter {
         );
     }
 
+    /**
+     * Converts a {@link SemanticModel} to a {@link SemanticModelDTO}.
+     * Existing entityIds are preserved and used as ids in the DTO.
+     *
+     * @param originalSemanticModel The {@link SemanticModel} to convert
+     * @param dataSourceId          The data source uuid
+     * @return The converted DTO
+     * @throws CombinedModelIntegrityException If any integrity issues arose during the id conversion
+     */
     @NotNull
-    public SemanticModelDTO convert(@NotNull SemanticModel semanticModel, @NotNull String dataSourceId) {
-        String semanticModelId = semanticModel.getEntityId() != null ? semanticModel.getEntityId() : UUID.randomUUID().toString();
+    public SemanticModelDTO convert(@NotNull SemanticModel originalSemanticModel, @NotNull String dataSourceId) throws CombinedModelIntegrityException {
+        // as we do some modifications here, create a separate instance
+        SemanticModel semanticModel = originalSemanticModel.clone();
 
+        // convert all objects to use the existing entityId if available, otherwise keep the UUID (will be dropped)
+        // map to hold conversions from UUID -> EntityID if applied to any object (needed to adjust relations)
+        HashMap<String, String> idMappings = new HashMap<>();
+
+        // NOTE: we do  not change the actual uuids here, this will be done automatically during conversion of the elements
+        // Entity Types
+        semanticModel.getNodes().stream().filter(element -> element.getEntityId() != null)
+                .forEach(element -> idMappings.put(element.getUuid(), element.getEntityId()));
+
+        // now we have built the index, adjust the relations (as a separate step for clarity)
+        semanticModel.getEdges().forEach(relation -> {
+            // adjust fromId
+            if (idMappings.containsKey(relation.getFromId())) {
+                relation.setFromId(idMappings.get(relation.getFromId()));
+            }
+            // adjust toId
+            if (idMappings.containsKey(relation.getToId())) {
+                relation.setToId(idMappings.get(relation.getToId()));
+            }
+        });
+
+        semanticModel.vaidate();
+
+        // now that we have adjusted the ids, convert the elements
         final ArrayList<@NotNull EntityTypeDTO> entityTypes = CollectionUtilities.map(
                 semanticModel.getNodes(),
                 this::convert,
@@ -142,8 +177,8 @@ public class KnowledgeGraphServiceDTO2CombinedModelConverter {
         );
 
         return new SemanticModelDTO(
-                semanticModelId,
-                dataSourceId,
+                semanticModel.getEntityId() != null ? semanticModel.getEntityId() : UUID.randomUUID().toString(),
+                dataSourceId, // add meta information like versions here should this exist someday
                 null,
                 entityTypes,
                 relations,
@@ -157,7 +192,7 @@ public class KnowledgeGraphServiceDTO2CombinedModelConverter {
         final EntityConceptDTO entityConceptDTO = convert(entityType.getEntityConcept());
 
         final EntityTypeDTO entityTypeDTO = new EntityTypeDTO(
-                entityType.getUuid(),
+                entityType.getEntityId() == null ? entityType.getUuid() : entityType.getEntityId(),
                 entityType.getLabel(),
                 entityType.getOriginalLabel(),
                 entityConceptDTO,
@@ -166,15 +201,13 @@ public class KnowledgeGraphServiceDTO2CombinedModelConverter {
                 entityType.getDescription(),
                 entityType.isMappedToData()
         );
-
         return entityTypeDTO;
     }
-
 
     @NotNull
     protected EntityConceptDTO convert(@NotNull EntityConcept entityConcept) {
         final EntityConceptDTO entityConceptDTO = new EntityConceptDTO(
-                entityConcept.getUuid(),
+                entityConcept.getEntityId() == null ? entityConcept.getUuid() : entityConcept.getEntityId(),
                 entityConcept.getLabel(),
                 entityConcept.getDescription(),
                 entityConcept.getSourceURI()
@@ -185,11 +218,10 @@ public class KnowledgeGraphServiceDTO2CombinedModelConverter {
 
     @NotNull
     protected RelationDTO convert(@NotNull Relation relation) {
-
         final RelationConceptDTO relationConceptDTO = convert(relation.getConcept());
 
         final RelationDTO relationDTO = new RelationDTO(
-                relation.getUuid(),
+                relation.getEntityId() == null ? relation.getUuid() : relation.getEntityId(),
                 relation.getFromId(),
                 relation.getToId(),
                 relationConceptDTO
@@ -202,14 +234,13 @@ public class KnowledgeGraphServiceDTO2CombinedModelConverter {
     protected RelationConceptDTO convert(@NotNull RelationConcept relationConcept) {
 
         final RelationConceptDTO relationConceptDTO = new RelationConceptDTO(
-                relationConcept.getUuid(),
+                relationConcept.getEntityId() == null ? relationConcept.getUuid() : relationConcept.getEntityId(),
                 relationConcept.getLabel(),
                 relationConcept.getDescription(),
                 relationConcept.getSourceURI(),
-                new HashSet<>() // TODO adjust once finished
+                new HashSet<>() // TODO adjust once properly filled
         );
 
         return relationConceptDTO;
     }
-
 }

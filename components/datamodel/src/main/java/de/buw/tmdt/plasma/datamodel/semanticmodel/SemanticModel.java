@@ -2,6 +2,7 @@ package de.buw.tmdt.plasma.datamodel.semanticmodel;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import de.buw.tmdt.plasma.datamodel.CombinedModelIntegrityException;
 import de.buw.tmdt.plasma.utilities.misc.StringUtilities;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -88,6 +89,43 @@ public class SemanticModel {
 	}
 
 	/**
+	 * Validates the interal integrity of the {@link SemanticModel}
+	 * Checks that:
+	 * 1. All {@link EntityType}s have an {@link EntityConcept} assigend
+	 * 2. All Relations have valid (existing and unique) 'from' and 'to' ids matching existing EntityType ids
+	 * 3. All Relations have a {@link RelationConcept} assigned
+	 *
+	 * @throws CombinedModelIntegrityException If one or more errors occur
+	 */
+	public void vaidate() throws CombinedModelIntegrityException {
+		List<String> errors = new ArrayList<>();
+		for (EntityType entityType : getNodes()) {
+			EntityConcept entityConcept = entityType.getEntityConcept();
+			if (entityConcept == null) {
+				errors.add("EntityType " + entityType.getUuid() + " has no EntityConcept assigned");
+			}
+		}
+		for (Relation edge : getEdges()) {
+			long fromCount = getNodes().stream().filter(entityType -> Objects.equals(entityType.getUuid(), edge.getFromId())).count();
+			if (fromCount != 1) {
+				errors.add("Relation " + edge.getUuid() + " fromId matches " + fromCount + " EntityTypes (must be 1)");
+			}
+			long toCount = getNodes().stream().filter(entityType -> Objects.equals(entityType.getUuid(), edge.getToId())).count();
+			if (toCount != 1) {
+				errors.add("Relation " + edge.getUuid() + " toId matches " + toCount + " EntityTypes (must be 1)");
+			}
+			RelationConcept concept = edge.getConcept();
+			if (concept == null) {
+				errors.add("Relation " + edge.getUuid() + " has no RelationConcept assigned");
+			}
+		}
+		if (!errors.isEmpty()) {
+			String errorMessage = String.join("\n", errors);
+			throw new CombinedModelIntegrityException(errorMessage);
+		}
+	}
+
+	/**
 	 * Creates a deep clone of the current entity
 	 *
 	 * @return The cloned entity with also the {@link EntityType}s and {@link Relation}s cloned
@@ -151,4 +189,6 @@ public class SemanticModel {
 		// TODO add provisional relation concepts here
 		return new ArrayList<>();
 	}
+
+
 }

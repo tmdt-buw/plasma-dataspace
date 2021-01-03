@@ -56,7 +56,6 @@ public class EntityType extends PositionedCombinedModelElement implements Serial
                       String description,
                       EntityConcept entityConcept) {
         super(label);
-
         this.description = description;
         this.entityConcept = entityConcept;
     }
@@ -202,7 +201,6 @@ public class EntityType extends PositionedCombinedModelElement implements Serial
         return description;
     }
 
-    @NotNull
     @JsonProperty(CONCEPT_PROPERTY)
     public EntityConcept getEntityConcept() {
         return entityConcept;

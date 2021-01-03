@@ -2,24 +2,19 @@ package de.buw.tmdt.plasma.services.dms.core.handler;
 
 import de.buw.tmdt.plasma.datamodel.CombinedModel;
 import de.buw.tmdt.plasma.datamodel.CombinedModelElement;
+import de.buw.tmdt.plasma.datamodel.CombinedModelIntegrityException;
 import de.buw.tmdt.plasma.datamodel.PositionedCombinedModelElement;
+import de.buw.tmdt.plasma.datamodel.modification.DeltaModification;
 import de.buw.tmdt.plasma.datamodel.modification.operation.SyntacticOperationDTO;
-import de.buw.tmdt.plasma.datamodel.semanticmodel.EntityConcept;
-import de.buw.tmdt.plasma.datamodel.semanticmodel.EntityType;
-import de.buw.tmdt.plasma.datamodel.semanticmodel.RelationConcept;
-import de.buw.tmdt.plasma.datamodel.semanticmodel.SemanticModel;
+import de.buw.tmdt.plasma.datamodel.semanticmodel.*;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.PrimitiveNode;
+import de.buw.tmdt.plasma.datamodel.syntaxmodel.SchemaNode;
 import de.buw.tmdt.plasma.services.dms.core.converter.CombinedModelConverter;
 import de.buw.tmdt.plasma.services.dms.core.converter.KnowledgeGraphServiceDTO2CombinedModelConverter;
 import de.buw.tmdt.plasma.services.dms.core.converter.SchemaAnalysisDTOConverter;
 import de.buw.tmdt.plasma.services.dms.core.converter.SchemaOperationDTOConverter;
-import de.buw.tmdt.plasma.services.dms.core.model.Position;
-import de.buw.tmdt.plasma.services.dms.core.model.Traversable;
 import de.buw.tmdt.plasma.services.dms.core.model.datasource.DataSourceModel;
 import de.buw.tmdt.plasma.services.dms.core.model.datasource.DataSourceSchema;
-import de.buw.tmdt.plasma.services.dms.core.model.datasource.semanticmodel.Relation;
-import de.buw.tmdt.plasma.services.dms.core.model.datasource.syntaxmodel.Node;
-import de.buw.tmdt.plasma.services.dms.core.operations.impl.SetEntityType;
 import de.buw.tmdt.plasma.services.dms.core.repository.*;
 import de.buw.tmdt.plasma.services.dms.core.services.DataSourceModelInitService;
 import de.buw.tmdt.plasma.services.kgs.shared.dto.semanticmodel.SemanticModelCreationResponse;
@@ -28,9 +23,6 @@ import de.buw.tmdt.plasma.services.kgs.shared.feignclient.LocalKnowledgeApiClien
 import de.buw.tmdt.plasma.services.kgs.shared.feignclient.UniversalKnowledgeApiClient;
 import de.buw.tmdt.plasma.services.srs.feignclient.SemanticRecommendationApiClient;
 import de.buw.tmdt.plasma.utilities.collections.CollectionUtilities;
-import de.buw.tmdt.plasma.utilities.collections.MapUtilities;
-import de.buw.tmdt.plasma.utilities.misc.ObjectUtilities;
-import de.buw.tmdt.plasma.utilities.misc.Pair;
 import feign.FeignException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -66,6 +58,9 @@ public class DataModelingHandler {
     private final SemanticRecommendationApiClient semanticRecommendationApiClient;
     private final SchemaAnalysisDTOConverter schemaAnalysisDTOConverter;
     private final CombinedModelConverter combinedModelConverter;
+
+    // TODO ensure this does not grow infinitely
+    private final HashMap<String, CombinedModel> combinedModelCache = new HashMap<>();
 
     @Autowired
     public DataModelingHandler(
@@ -120,7 +115,7 @@ public class DataModelingHandler {
 
     @NotNull
     public DataSourceSchema getDataSourceSchema(@NotNull UUID dataSourceUuid) {
-        return peekDataSourceSchema(findDataSourceOrThrow(dataSourceUuid), false);
+        return getCombinedModel(findDataSourceOrThrow(dataSourceUuid), false);
     }
 
     /**
@@ -145,7 +140,7 @@ public class DataModelingHandler {
         }
 
         // Retrieve the concepts that were created within this semantic model...
-        CombinedModel schema = peekDataSourceSchema(findDataSourceOrThrow(dataSourceUuid), false);
+        CombinedModel schema = getCombinedModel(findDataSourceOrThrow(dataSourceUuid), false);
         schema.getSemanticModel().getProvisionalEntityConcepts().stream()
                 .filter(entityConcept -> entityConcept.getLabel().startsWith(prefix))
                 // ... and add them to the ones from the KGS while ensuring that there are no conflicts
@@ -173,7 +168,7 @@ public class DataModelingHandler {
         }
 
         // Retrieve the concepts that were created within this semantic model...
-        CombinedModel schema = peekDataSourceSchema(findDataSourceOrThrow(dataSourceUuid), false);
+        CombinedModel schema = getCombinedModel(findDataSourceOrThrow(dataSourceUuid), false);
         schema.getSemanticModel().getProvisionalRelationConcepts().stream()
                 .filter(relationConcept -> relationConcept.getLabel().startsWith(prefix))
                 // ... and add them to the ones from the KGS while ensuring that there are no conflicts
@@ -185,40 +180,42 @@ public class DataModelingHandler {
                 .collect(Collectors.toList());
     }
 
+    /* SYNTAX NODE OPERATIONS */
+
     /**
-     * This function updates the positions of the given movedElements.
-     * All other changes are ignored, only the position information is updated.
+     * Updates the position of a {@link SchemaNode} in the {@link CombinedModel}.
      *
-     * @param dataSourceUuid The data source uuid identifying the {@link CombinedModel} to update
-     * @param movedElements  A list of elements with updated positions, can be syntactic and semantic elements
+     * @param dataSourceUuid The data source uuid identifying the {@link CombinedModel}
+     * @param schemaNode     The {@link SchemaNode} to place
+     * @param schemaNodeUuid The reference uuid of the existing {@link SchemaNode} to update
+     * @deprecated Legacy function, use {@link #applyModification(UUID, DeltaModification)} instead
      */
     @Transactional
-    public void updatePositions(@NotNull UUID dataSourceUuid, @NotNull List<PositionedCombinedModelElement> movedElements) {
-        //load referenced data source
-        DataSourceModel dataSourceModel = findDataSourceOrThrow(dataSourceUuid);
-        CombinedModel combinedModel = peekDataSourceSchema(dataSourceModel, true);
-
-        // create a map for quick lookups
-        final Map<String, PositionedCombinedModelElement> elementLookup =
-                combinedModel.getSyntaxModel().getNodes().stream()
-                        .map(schemaNode -> (PositionedCombinedModelElement) schemaNode)
-                        .collect(Collectors.toMap(CombinedModelElement::getUuid, Function.identity()));
-
-        combinedModel.getSemanticModel().getNodes().stream()
-                .map(semanticNode -> (PositionedCombinedModelElement) semanticNode)
-                .forEach(node -> elementLookup.put(node.getUuid(), node));
-
-        for (PositionedCombinedModelElement movedElement : movedElements) {
-            PositionedCombinedModelElement current = elementLookup.get(movedElement.getUuid());
-            if (current == null) {
-                logger.warn("Could not update position for non-existing element in CombinedModel: {}", movedElement.getUuid());
-                continue;
+    @Deprecated
+    public void placeSchemaNode(@NotNull UUID dataSourceUuid, @NotNull UUID schemaNodeUuid, @NotNull SchemaNode schemaNode) {
+        if (!schemaNodeUuid.toString().equals(schemaNode.getUuid())) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Passed uuid in syntax model node is inconsistent to resource to update. "
+                            + "Resource: " + schemaNodeUuid + " Payload: " + schemaNode.getUuid()
+            );
+        }
+        if (schemaNode.getXCoordinate() == null || schemaNode.getYCoordinate() == null) {
+            StringJoiner stringJoiner = new StringJoiner(" and ", "Missing ", " coordinate in SchemaNode.");
+            if (schemaNode.getXCoordinate() == null) {
+                stringJoiner.add("X");
             }
-            current.setXCoordinate(movedElement.getXCoordinate());
-            current.setYCoordinate(movedElement.getYCoordinate());
+            if (schemaNode.getYCoordinate() == null) {
+                stringJoiner.add("Y");
+            }
+            //noinspection HardcodedFileSeparator
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    stringJoiner.toString()
+            );
         }
 
-        dataSourceRepository.save(dataSourceModel);
+        updatePositions(dataSourceUuid, Collections.singletonList(schemaNode));
     }
 
     @NotNull
@@ -247,109 +244,81 @@ public class DataModelingHandler {
         throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Currently not available.");
     }
 
+    /* SEMANTIC MODEL OPERATIONS */
+
+    /**
+     * Adds a new {@link EntityType} to the {@link CombinedModel}.
+     *
+     * @param dataSourceUuid    The data source uuid identifying the {@link CombinedModel}
+     * @param entityType        The {@link EntityType} to add
+     * @param primitiveNodeUuid The uuid of the {@link PrimitiveNode} this is to be applied.
+     *                          If null, will not be applied to any syntax node.
+     * @return The updated model
+     * @deprecated Legacy function, use {@link #applyModification(UUID, DeltaModification)} instead
+     */
     @Transactional
     @NotNull
-    public DataSourceSchema addEntityType(@NotNull UUID dataSourceUuid, @NotNull EntityTypeDTO entityTypeDTO, @Nullable UUID primitiveNodeUuid) {
-        //deserialize
-        de.buw.tmdt.plasma.services.dms.core.model.datasource.semanticmodel.EntityType receivedEntityType = semanticModelDTOConverter.fromDTO(entityTypeDTO);
+    @Deprecated
+    public CombinedModel addEntityType(@NotNull UUID dataSourceUuid, @NotNull EntityType entityType, @Nullable UUID primitiveNodeUuid) {
 
-        if (receivedEntityType.getId() != null) {
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "New entity type must not have an id."
-            );
-        }
-
-        //load
-        DataSourceModel dataSourceModel = findDataSourceOrThrow(dataSourceUuid);
-        DataSourceSchema newSchema = peekDataSourceSchema(dataSourceModel, true).copy();
-
-        //compute entity concept
-        final de.buw.tmdt.plasma.services.dms.core.model.datasource.semanticmodel.EntityConcept usedEntityConcept;
-        if (receivedEntityType.getEntityConcept().getId() != null) {
-            usedEntityConcept = loadFromRepository(receivedEntityType.getEntityConcept(), de.buw.tmdt.plasma.services.dms.core.model.datasource.semanticmodel.EntityConcept::getUuid, entityConceptRepository);
-        } else {
-            usedEntityConcept = getAndUpdateCache(receivedEntityType.getEntityConcept(), de.buw.tmdt.plasma.services.dms.core.model.datasource.semanticmodel.EntityConcept::getUuid, newSchema.getEntityConceptCache());
-        }
-
-        //update model
-        receivedEntityType.setEntityConcept(usedEntityConcept);
-        newSchema.getSemanticModel().getEntityTypes().add(receivedEntityType);
-
-        //link entity type to primitive node if one [primitive node] was provided
         if (primitiveNodeUuid != null) {
-            Traversable traversable = newSchema.getSyntaxModel().find(new Traversable.Identity<>(primitiveNodeUuid));
-            if (!(traversable instanceof de.buw.tmdt.plasma.services.dms.core.model.datasource.syntaxmodel.PrimitiveNode)) {
-                throw new ResponseStatusException(
-                        HttpStatus.BAD_REQUEST,
-                        "Referenced syntax model node was not of type `" + de.buw.tmdt.plasma.services.dms.core.model.datasource.syntaxmodel.PrimitiveNode.class.getSimpleName()
-                                + "` but was " + (traversable != null ? traversable.getClass().getSimpleName() : null)
-                );
-            }
-            de.buw.tmdt.plasma.services.dms.core.model.datasource.syntaxmodel.PrimitiveNode primitiveNode = (de.buw.tmdt.plasma.services.dms.core.model.datasource.syntaxmodel.PrimitiveNode) traversable;
-            final de.buw.tmdt.plasma.services.dms.core.model.datasource.semanticmodel.EntityType oldEntityType = primitiveNode.getEntityType();
-            if (oldEntityType != null) {
-                newSchema.remove(oldEntityType.getIdentity());
-            }
-            primitiveNode.setEntityType(receivedEntityType);
-            if (primitiveNode.getDataType() == DataType.UNKNOWN) {
-                // if data type is still unknown, try to determine one
-                primitiveNode.setDataType(SetEntityType.determineDataType(primitiveNode.getExamples()));
-            }
-            receivedEntityType.setPosition(primitiveNode.getPosition());
+            entityType.setSyntaxNodeUuid(primitiveNodeUuid.toString());
         }
-        dataSourceModel.pushDataSourceSchema(newSchema);
-        //persist and return copy
-        dataSourceModel = dataSourceRepository.save(dataSourceModel);
-        return dataSourceModel.peekDataSourceSchema();
+
+        DeltaModification modification = new DeltaModification("internal_mod", Collections.singleton(entityType), null, null, null, 0.0);
+
+        return applyModification(dataSourceUuid, modification);
     }
 
+    /**
+     * Updates an {@link EntityType} in the {@link CombinedModel}.
+     *
+     * @param dataSourceUuid       The data source uuid identifying the {@link CombinedModel}
+     * @param entityType           The {@link EntityType} to add
+     * @param entityTypeResourceId The reference uuid of the existing {@link EntityType} to update
+     * @return The updated model
+     * @deprecated Legacy function, use {@link #applyModification(UUID, DeltaModification)} instead
+     */
     @NotNull
     @Transactional
-    public DataSourceSchema updateEntityType(@NotNull UUID dataSourceUuid, @NotNull Long entityTypeResourceId, @NotNull EntityTypeDTO entityTypeDTO) {
-        final de.buw.tmdt.plasma.services.dms.core.model.datasource.semanticmodel.EntityType retrievedEntityType = semanticModelDTOConverter.fromDTO(entityTypeDTO);
-        if (!entityTypeResourceId.equals(entityTypeDTO.getId())) {
+    @Deprecated
+    public CombinedModel updateEntityType(@NotNull UUID dataSourceUuid, @NotNull String entityTypeResourceId, @NotNull EntityType entityType) {
+        if (!entityTypeResourceId.equals(entityType.getUuid())) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
-                    "Passed id in entity type is inconsistent to resource to update. Resource: " + entityTypeResourceId + " Payload: " + entityTypeDTO.getId()
+                    "Passed id in entity type is inconsistent to resource to update. Resource: " + entityTypeResourceId + " Payload: " + entityType.getUuid()
             );
         }
 
-        if (retrievedEntityType.getEntityConcept().getId() == null && retrievedEntityType.getEntityConcept().getUuid() == null) {
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "Creating new entity concepts is not supported on updating an entity type. Either set id or uuid of referenced entity concept."
-            );
-        }
+        DeltaModification modification = new DeltaModification("internal_mod", Collections.singleton(entityType), null, null, null, 0.0);
 
-        //load schema copy
-        DataSourceModel dataSourceModel = findDataSourceOrThrow(dataSourceUuid);
-        final DataSourceSchema newSchema = peekDataSourceSchema(dataSourceModel, true).copy();
+        return applyModification(dataSourceUuid, modification);
 
-        de.buw.tmdt.plasma.services.dms.core.model.datasource.semanticmodel.EntityConcept entityConcept = loadFromRepository(retrievedEntityType.getEntityConcept(), de.buw.tmdt.plasma.services.dms.core.model.datasource.semanticmodel.EntityConcept::getUuid, entityConceptRepository);
-        retrievedEntityType.setEntityConcept(entityConcept);
-        de.buw.tmdt.plasma.services.dms.core.model.datasource.semanticmodel.EntityType newEntityType = retrievedEntityType.copy();
-        newSchema.replace(retrievedEntityType.getIdentity(), newEntityType);
-        dataSourceModel.pushDataSourceSchema(newSchema);
-
-        dataSourceModel = dataSourceRepository.save(dataSourceModel);
-        return dataSourceModel.peekDataSourceSchema();
     }
 
+    /**
+     * Updates the position of an {@link EntityType} in the {@link CombinedModel}.
+     *
+     * @param dataSourceUuid       The data source uuid identifying the {@link CombinedModel}
+     * @param entityType           The {@link EntityType} to add
+     * @param entityTypeResourceId The reference uuid of the existing {@link EntityType} to update
+     * @deprecated Legacy function, use {@link #applyModification(UUID, DeltaModification)} instead
+     */
     @Transactional
-    public void placeEntityType(@NotNull UUID dataSourceUuid, @NotNull Long entityTypeResourceId, @NotNull EntityTypeDTO entityTypeDTO) {
-        if (!entityTypeResourceId.equals(entityTypeDTO.getId())) {
+    public void placeEntityType(@NotNull UUID dataSourceUuid, @NotNull String entityTypeResourceId, @NotNull EntityType entityType) {
+        if (!entityTypeResourceId.equals(entityType.getUuid())) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
-                    "Passed id in entity type is inconsistent to resource to update. Resource: " + entityTypeResourceId + " Payload: " + entityTypeDTO.getId()
+                    "Passed id in entity type is inconsistent to resource to update. Resource: " + entityTypeResourceId + " Payload: " + entityType.getUuid()
             );
         }
-        if (entityTypeDTO.getXCoordinate() == null || entityTypeDTO.getYCoordinate() == null) {
-            StringJoiner stringJoiner = new StringJoiner(" and ", "Missing ", " coordinate in entity type dto.");
-            if (entityTypeDTO.getXCoordinate() == null) {
+
+        if (entityType.getXCoordinate() == null || entityType.getYCoordinate() == null) {
+            StringJoiner stringJoiner = new StringJoiner(" and ", "Missing ", " coordinate in entity type.");
+            if (entityType.getXCoordinate() == null) {
                 stringJoiner.add("X");
             }
-            if (entityTypeDTO.getYCoordinate() == null) {
+            if (entityType.getYCoordinate() == null) {
                 stringJoiner.add("Y");
             }
             //noinspection HardcodedFileSeparator
@@ -358,151 +327,147 @@ public class DataModelingHandler {
                     stringJoiner.toString()
             );
         }
-        final DataSourceSchema loadedSchema = peekDataSourceSchema(findDataSourceOrThrow(dataSourceUuid), true);
-        for (de.buw.tmdt.plasma.services.dms.core.model.datasource.semanticmodel.EntityType entityType : loadedSchema.getSemanticModel().getEntityTypes()) {
-            if (entityType.getId().equals(entityTypeResourceId)) {
-                Double xCoordinate = entityTypeDTO.getXCoordinate();
-                Double yCoordinate = entityTypeDTO.getYCoordinate();
-                if (xCoordinate != null && yCoordinate != null) {
-                    entityType.setPosition(new Position(xCoordinate, yCoordinate));
-                    entityTypeRepository.save(entityType);
-                }
-                return;
+        updatePositions(dataSourceUuid, Collections.singletonList(entityType));
+    }
+
+    /**
+     * Removes an {@link EntityType} from the {@link CombinedModel}.
+     *
+     * @param dataSourceUuid       The data source uuid identifying the {@link CombinedModel}
+     * @param entityTypeResourceId The reference uuid of the existing {@link EntityType} to remove
+     * @deprecated Legacy function, use {@link #applyModification(UUID, DeltaModification)} with {@link DeltaModification#isDeletion()} instead
+     */
+    @NotNull
+    @Transactional
+    @Deprecated
+    public CombinedModel removeEntityTypeFromSchema(@NotNull UUID dataSourceUuid, @NotNull String entityTypeResourceId) {
+
+        EntityType entityType = new EntityType(entityTypeResourceId, null, "delete", null, "delete", "", null, null, null);
+
+        DeltaModification modification = new DeltaModification("internal_mod", Collections.singleton(entityType), null, null, null, 0.0);
+        modification.setDeletion(true);
+
+        return applyModification(dataSourceUuid, modification);
+    }
+
+    /**
+     * Adds a new {@link Relation} to the {@link CombinedModel}.
+     *
+     * @param dataSourceUuid The data source uuid identifying the {@link CombinedModel}
+     * @param relation       The {@link Relation} to add
+     * @return The updated model
+     * @deprecated Legacy function, use {@link #applyModification(UUID, DeltaModification)} instead
+     */
+    @NotNull
+    @Transactional
+    @Deprecated
+    public CombinedModel addRelation(@NotNull UUID dataSourceUuid, @NotNull Relation relation) {
+
+        DeltaModification modification = new DeltaModification("internal_mod", null, Collections.singleton(relation), null, null, 0.0);
+
+        return applyModification(dataSourceUuid, modification);
+    }
+
+    /**
+     * Updates a {@link Relation} in the {@link CombinedModel}.
+     *
+     * @param dataSourceUuid     The data source uuid identifying the {@link CombinedModel}
+     * @param relation           The {@link Relation} to update
+     * @param relationResourceId The reference uuid of the existing {@link Relation} to update
+     * @return The updated model
+     * @deprecated Legacy function, use {@link #applyModification(UUID, DeltaModification)} instead
+     */
+    @NotNull
+    @Transactional
+    @Deprecated
+    public CombinedModel updateRelation(@NotNull UUID dataSourceUuid, @NotNull String relationResourceId, @NotNull Relation relation) {
+        if (!relationResourceId.equals(relation.getUuid())) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Passed id in entity type is inconsistent to resource to update. Resource: " + relationResourceId + " Payload: " + relation.getUuid()
+            );
+        }
+        DeltaModification modification = new DeltaModification("internal_mod", null, Collections.singleton(relation), null, null, 0.0);
+        return applyModification(dataSourceUuid, modification);
+    }
+
+    /**
+     * Removes a {@link Relation} from the {@link CombinedModel}.
+     *
+     * @param dataSourceUuid     The data source uuid identifying the {@link CombinedModel}
+     * @param relationResourceId The reference uuid of the existing {@link Relation} to remove
+     * @return The updated model
+     * @deprecated Legacy function, use {@link #applyModification(UUID, DeltaModification)} with {@link DeltaModification#isDeletion()} instead
+     */
+    @NotNull
+    @Transactional
+    public CombinedModel removeRelationFromSchema(@NotNull UUID dataSourceUuid, @NotNull String relationResourceId) {
+        Relation relation = new Relation(relationResourceId, "delete", "delete", "delete", "", null);
+        DeltaModification modification = new DeltaModification("internal_mod", null, Collections.singleton(relation), null, null, 0.0);
+        return applyModification(dataSourceUuid, modification);
+    }
+
+    /**
+     * Applies all modifications stored in the modification object to the {@link CombinedModel} for the data source
+     * identified by dataSourceUuid.
+     *
+     * @param dataSourceUuid The data source uuid identifying the model
+     * @param modification   The modifications. All modifications are applied in one step
+     * @return The updated {@link CombinedModel}
+     */
+    @NotNull
+    @Transactional
+    public CombinedModel applyModification(@NotNull UUID dataSourceUuid, @NotNull DeltaModification modification) {
+
+        //load schema - DON'T COPY since caching of transient concepts is not "undoable"
+        DataSourceModel dataSourceModel = findDataSourceOrThrow(dataSourceUuid);
+        CombinedModel combinedModel = getCombinedModel(dataSourceModel, true);
+
+        combinedModel.apply(modification);
+
+        // persist new state
+        // TODO
+
+        return combinedModel;
+    }
+
+    /**
+     * This function updates the positions of the given movedElements.
+     * All other changes are ignored, only the position information is updated.
+     *
+     * @param dataSourceUuid The data source uuid identifying the {@link CombinedModel} to update
+     * @param movedElements  A list of elements with updated positions, can be syntactic and semantic elements
+     */
+    @Transactional
+    public void updatePositions(@NotNull UUID dataSourceUuid, @NotNull List<PositionedCombinedModelElement> movedElements) {
+        //load referenced data source
+        DataSourceModel dataSourceModel = findDataSourceOrThrow(dataSourceUuid);
+        CombinedModel combinedModel = getCombinedModel(dataSourceModel, true);
+
+        // create a map for quick lookups
+        final Map<String, PositionedCombinedModelElement> elementLookup =
+                combinedModel.getSyntaxModel().getNodes().stream()
+                        .map(schemaNode -> (PositionedCombinedModelElement) schemaNode)
+                        .collect(Collectors.toMap(CombinedModelElement::getUuid, Function.identity()));
+
+        combinedModel.getSemanticModel().getNodes().stream()
+                .map(semanticNode -> (PositionedCombinedModelElement) semanticNode)
+                .forEach(node -> elementLookup.put(node.getUuid(), node));
+
+        for (PositionedCombinedModelElement movedElement : movedElements) {
+            PositionedCombinedModelElement current = elementLookup.get(movedElement.getUuid());
+            if (current == null) {
+                logger.warn("Could not update position for non-existing element in CombinedModel: {}", movedElement.getUuid());
+                continue;
             }
+            current.setXCoordinate(movedElement.getXCoordinate());
+            current.setYCoordinate(movedElement.getYCoordinate());
         }
-        throw new ResponseStatusException(
-                HttpStatus.NOT_FOUND,
-                "Datasource {" + dataSourceUuid + "} does not contain specified entity type {" + entityTypeDTO + "}."
-        );
+
+        dataSourceRepository.save(dataSourceModel);
     }
 
-    @NotNull
-    @Transactional
-    public DataSourceSchema removeEntityTypeFromSchema(@NotNull UUID dataSourceUuid, @NotNull Long entityTypeResourceId) {
-        //load schema copy
-        DataSourceModel dataSourceModel = findDataSourceOrThrow(dataSourceUuid);
-        final DataSourceSchema newSchema = peekDataSourceSchema(dataSourceModel, true).copy();
-
-        if (!newSchema.remove(new Traversable.Identity<>(entityTypeResourceId))) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to remove entity type. Removing would cause inconsistencies.");
-        }
-        dataSourceModel.pushDataSourceSchema(newSchema);
-        dataSourceModel = dataSourceRepository.save(dataSourceModel);
-        return dataSourceModel.peekDataSourceSchema();
-    }
-
-    @NotNull
-    @Transactional
-    public DataSourceSchema addRelation(@NotNull UUID dataSourceUuid, @NotNull RelationDTO relationDTO) {
-        //deserialize
-        Relation receivedRelation = semanticModelDTOConverter.fromDTO(relationDTO);
-
-        if (receivedRelation.getId() != null) {
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "New relation must not have an id."
-            );
-        }
-
-        //load
-        DataSourceModel dataSourceModel = findDataSourceOrThrow(dataSourceUuid);
-        DataSourceSchema newSchema = peekDataSourceSchema(dataSourceModel, true).copy();
-
-        //compute relation concept
-        final de.buw.tmdt.plasma.services.dms.core.model.datasource.semanticmodel.RelationConcept usedRelationConcept;
-        if (receivedRelation.getRelationConcept().getId() != null) {
-            usedRelationConcept = loadFromRepository(receivedRelation.getRelationConcept(), de.buw.tmdt.plasma.services.dms.core.model.datasource.semanticmodel.RelationConcept::getUuid, relationConceptRepository);
-        } else {
-            usedRelationConcept = getAndUpdateCache(receivedRelation.getRelationConcept(), de.buw.tmdt.plasma.services.dms.core.model.datasource.semanticmodel.RelationConcept::getUuid, newSchema.getRelationConceptCache());
-        }
-
-        //update referenced entity types to matching ones from schema copy
-        Traversable from = newSchema.find(receivedRelation.getFrom().getIdentity());
-        if (from == null) {
-            logger.warn(
-                    "Failed to find tail entity type with id {} and identity {} in schema copy.",
-                    receivedRelation.getFrom().getId(),
-                    receivedRelation.getFrom().getIdentity()
-            );
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Id of tail entity of relation is not valid: " + receivedRelation.getFrom().getId());
-        }
-
-        Traversable to = newSchema.find(receivedRelation.getTo().getIdentity());
-        if (to == null) {
-            logger.warn(
-                    "Failed to find head entity type with id {} and identity {} in schema copy.",
-                    receivedRelation.getTo().getId(),
-                    receivedRelation.getTo().getIdentity()
-            );
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Id of head entity of relation is not valid: " + receivedRelation.getTo().getId());
-        }
-
-        final de.buw.tmdt.plasma.services.dms.core.model.datasource.semanticmodel.EntityType fromEntityType = ObjectUtilities.checkedReturn(from, de.buw.tmdt.plasma.services.dms.core.model.datasource.semanticmodel.EntityType.class);
-        final de.buw.tmdt.plasma.services.dms.core.model.datasource.semanticmodel.EntityType toEntityType = ObjectUtilities.checkedReturn(to, de.buw.tmdt.plasma.services.dms.core.model.datasource.semanticmodel.EntityType.class);
-
-        //update model
-        receivedRelation.setRelationConcept(usedRelationConcept);
-        receivedRelation.setFrom(fromEntityType);
-        receivedRelation.setTo(toEntityType);
-        newSchema.getSemanticModel().getRelations().add(receivedRelation);
-
-        //persist and return copy
-        dataSourceModel.pushDataSourceSchema(newSchema);
-        dataSourceModel = dataSourceRepository.save(dataSourceModel);
-        return dataSourceModel.peekDataSourceSchema();
-    }
-
-    @NotNull
-    @Transactional
-    public DataSourceSchema updateRelation(@NotNull UUID dataSourceUuid, @NotNull Long relationResourceId, @NotNull RelationDTO relationDTO) {
-        final Relation retrievedRelation = semanticModelDTOConverter.fromDTO(relationDTO);
-        if (!relationResourceId.equals(relationDTO.getId())) {
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "Passed id in relation is inconsistent to resource to update. Resource: " + relationResourceId + " Payload: " + relationDTO.getId()
-            );
-        }
-
-        if (retrievedRelation.getRelationConcept().getId() == null && retrievedRelation.getRelationConcept().getUuid() == null) {
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "Creating new relation concepts is not supported on updating a relation. Either set id or uuid of referenced relation concept."
-            );
-        }
-
-        //load schema copy
-        DataSourceModel dataSourceModel = findDataSourceOrThrow(dataSourceUuid);
-        final DataSourceSchema newSchema = peekDataSourceSchema(dataSourceModel, true).copy();
-
-        de.buw.tmdt.plasma.services.dms.core.model.datasource.semanticmodel.RelationConcept relationConcept = loadFromRepository(retrievedRelation.getRelationConcept(), de.buw.tmdt.plasma.services.dms.core.model.datasource.semanticmodel.RelationConcept::getUuid, relationConceptRepository);
-        retrievedRelation.setRelationConcept(relationConcept);
-
-        Relation newRelation = retrievedRelation.copy();
-
-        newSchema.replace(retrievedRelation.getIdentity(), newRelation);
-
-        dataSourceModel.pushDataSourceSchema(newSchema);
-        dataSourceModel = dataSourceRepository.save(dataSourceModel);
-        return dataSourceModel.peekDataSourceSchema();
-    }
-
-    @NotNull
-    @Transactional
-    public DataSourceSchema removeRelationFromSchema(@NotNull UUID dataSourceUuid, @NotNull Long relationResourceId) {
-        //load schema copy
-        DataSourceModel dataSourceModel = findDataSourceOrThrow(dataSourceUuid);
-        final DataSourceSchema newSchema = peekDataSourceSchema(dataSourceModel, true).copy();
-
-        if (!newSchema.remove(new Traversable.Identity<>(relationResourceId))) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to remove entity type. Removing would cause inconsistencies.");
-        }
-
-        dataSourceModel.pushDataSourceSchema(newSchema);
-        dataSourceModel = dataSourceRepository.save(dataSourceModel);
-        return dataSourceModel.peekDataSourceSchema();
-    }
-
-    /* Caching operations */
+    /* CACHING OPERATIONS */
 
     @Transactional
     public EntityConcept cacheEntityConcept(@NotNull UUID dataSourceUuid, @NotNull EntityConcept entityConcept) {
@@ -516,7 +481,7 @@ public class DataModelingHandler {
 
         //load schema - DON'T COPY since caching of transient concepts is not "undoable"
         DataSourceModel dataSourceModel = findDataSourceOrThrow(dataSourceUuid);
-        CombinedModel combinedModel = peekDataSourceSchema(dataSourceModel, true);
+        CombinedModel combinedModel = getCombinedModel(dataSourceModel, true);
 
         //compute entity concept
         final EntityConcept usedEntityConcept = getAndUpdateCache(entityConcept, EntityConcept::getUuid, combinedModel.getEntityConceptCache());
@@ -538,7 +503,7 @@ public class DataModelingHandler {
     @Transactional
     public void uncacheEntityConcept(@NotNull UUID dataSourceUuid, String entityConceptUuid) {
         DataSourceModel dataSourceModel = findDataSourceOrThrow(dataSourceUuid);
-        CombinedModel combinedModel = peekDataSourceSchema(dataSourceModel, true);
+        CombinedModel combinedModel = getCombinedModel(dataSourceModel, true);
 
         boolean change = combinedModel.getSemanticModel().getProvisionalEntityConcepts().removeIf(o -> o.getUuid().equals(entityConceptUuid));
         if (change) {
@@ -558,7 +523,7 @@ public class DataModelingHandler {
 
         //load schema - DON'T COPY since caching of transient concepts is not "undoable"
         DataSourceModel dataSourceModel = findDataSourceOrThrow(dataSourceUuid);
-        CombinedModel combinedModel = peekDataSourceSchema(dataSourceModel, true);
+        CombinedModel combinedModel = getCombinedModel(dataSourceModel, true);
 
         //compute entity concept
         final RelationConcept usedRelationConcept = getAndUpdateCache(
@@ -585,54 +550,12 @@ public class DataModelingHandler {
     @Transactional
     public void uncacheRelationConcept(@NotNull UUID dataSourceUuid, String relationConceptUuid) {
         DataSourceModel dataSourceModel = findDataSourceOrThrow(dataSourceUuid);
-        CombinedModel combinedModel = peekDataSourceSchema(dataSourceModel, true);
+        CombinedModel combinedModel = getCombinedModel(dataSourceModel, true);
 
         boolean change = combinedModel.getSemanticModel().getProvisionalRelationConcepts().removeIf(o -> o.getUuid().equals(relationConceptUuid));
         if (change) {
             dataSourceRepository.save(dataSourceModel);
         }
-    }
-
-
-
-
-
-    /**
-     * NOTE: this has side effects on the passed list
-     * Finds the entry in the cache which is equivalent to {@code element} concerning it's identity function and returns it. If there is none it uses the
-     * passed element and adds it to the cache. <i>Equivalence</i> of two elements {@code x} and {@code y} here means:
-     * {@code identityFunction.apply(x).equals(identityFunction.apply(y)}
-     *
-     * @param element          the entry which is looked for
-     * @param identityFunction the function which maps an element to it's {@link UUID} (usually just a method reference to T::getUuid)
-     * @param elementCache     the cache of known entries
-     * @return an entity concept which is equivalent to {@code entityConcept}
-     */
-    private <T extends ModelBase> T getAndUpdateCache(
-            @NotNull T element,
-            @NotNull Function<T, String> identityFunction,
-            @NotNull List<T> elementCache
-    ) {
-        final T result;
-        if (element.getId() != null) {
-            throw new IllegalArgumentException("Element to cache must not have a numeric id.");
-        }
-        String uuid = identityFunction.apply(element);
-        //if uuid exists see if one exists in the cache all-ready
-        if (uuid != null) {
-            Optional<T> cachedEntityConcept = elementCache.stream()
-                    .filter(ec -> identityFunction.apply(ec) != null && uuid.equals(identityFunction.apply(ec)))
-                    .findAny();
-            result = cachedEntityConcept.orElse(element);
-            if (cachedEntityConcept.isEmpty()) {
-                elementCache.add(result);
-            }
-        } else {
-            result = element;
-            elementCache.add(result);
-        }
-
-        return result;
     }
 
     /* UNDO / REDO Functions */
@@ -677,23 +600,29 @@ public class DataModelingHandler {
                         "Data Source does not exists"
                 ));
 
-        final CombinedModel combinedModel = dataSourceModel.peekDataSourceSchema();
+        final CombinedModel combinedModel = getCombinedModel(dataSourceModel, false);
 
         combinedModel.validate();
 
-        final Pair<SemanticModel, Map<Long, String>> semanticModelCreationResult = createSemanticModel(combinedModel, dataSourceUuid.toString());
-        SemanticModel semanticModel = semanticModelCreationResult.getLeft();
-        final Map<Long, String> middlewareToActualUUIDMapping = semanticModelCreationResult.getRight();
+        final SemanticModel semanticModel;
+        try {
+            semanticModel = createSemanticModel(combinedModel, dataSourceUuid.toString());
+        } catch (CombinedModelIntegrityException e) {
+            e.printStackTrace();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error occurred during conversion.");
+        }
+        // prevent any further modifications
+        combinedModel.finalizeModel();
 
-        DataSourceSchema finalDataSourceSchema = createFinalDataSourceSchema(combinedModel, semanticModel, middlewareToActualUUIDMapping);
         dataSourceModel.pushDataSourceSchema(finalDataSourceSchema);
         DataSourceModel finalDataSource = dataSourceRepository.save(dataSourceModel);
         return finalDataSource.peekDataSourceSchema();
     }
 
     @NotNull
-    private Pair<SemanticModel, Map<Long, String>> createSemanticModel(@NotNull CombinedModel combinedModel, @NotNull String dataSourceUuid) {
+    private SemanticModel createSemanticModel(@NotNull CombinedModel combinedModel, @NotNull String dataSourceUuid) throws CombinedModelIntegrityException {
         // merge the concepts to not create possible new concepts twice
+        // TODO do a clone here?
         SemanticModel semanticModel = combinedModel.getSemanticModel().mergeConcepts();
 
         //create request
@@ -709,83 +638,86 @@ public class DataModelingHandler {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error when creating semantic model in the KGS", e);
         }
 
-        //parse response and resolve id mapping
-        final Map<Long, String> middlewareToActualKGSIdLookup = MapUtilities.compose(
-                middlewareToRequestIdLookup,
-                MapUtilities.mapValues(semanticModelCreationResponse.getOldToNewIdLookup(), Function.identity())
-        );
-        final SemanticModel convertedModel = knowledgeGraphServiceDTO2ModelConverter.convert(semanticModelCreationResponse.getSemanticModelDTO());
+        // parse response and get id mapping
+        // id mapping links KGS ids of newly created elements to the original given UUIDs from the original CombinedModel
+        Map<String, String> kgsIdToUuidMapping = semanticModelCreationResponse.getOldToNewIdLookup();
+        // currently unused as the coverter maps the KGS Ids to the entityId field by default.
+        // New element UUIDs are created anyway during that step.
 
-        return Pair.of(convertedModel, middlewareToActualKGSIdLookup);
+        final SemanticModel convertedModel = kgs2CMConverter.convert(semanticModelCreationResponse.getSemanticModelDTO());
+
+        return convertedModel;
     }
 
-    @NotNull
-    private DataSourceSchema createFinalDataSourceSchema(
-            @NotNull DataSourceSchema currentDataSourceSchema,
-            @NotNull SemanticModel retrievedSemanticModel,
-            @NotNull Map<Long, String> modeling2KGSmapping
-    ) {
-        Map<Traversable.Identity<?>, Traversable> oldIdentityToNewTraversable = new HashMap<>();
-        final Node newSyntaxModel = currentDataSourceSchema.getSyntaxModel().copy(oldIdentityToNewTraversable);
+    /* Probably unused, needs to be adjusted to new data model if still needed or deleted if not */
 
-        //find all entity types which are mapped by a primitive node
-        final Set<EntityType> mappedEntityTypes = oldIdentityToNewTraversable.values().stream()
-                .filter(PrimitiveNode.class::isInstance)
-                .map(PrimitiveNode.class::cast)
-                .filter(p -> p.getEntityType() != null)
-                .map(PrimitiveNode::getEntityType)
-                .collect(Collectors.toSet());
-
-        for (EntityType mappedEntityType : mappedEntityTypes) {
-            final Traversable.Identity<?> oldEntityTypeIdentity = MapUtilities.keyOfValue(oldIdentityToNewTraversable, mappedEntityType);
-            final Traversable traversable = currentDataSourceSchema.find(oldEntityTypeIdentity);
-            assert traversable instanceof EntityType;
-            EntityType oldEntityType = (EntityType) traversable;
-            final String actualEntityTypeUuid = modeling2KGSmapping.get(oldEntityType.getId());
-
-            EntityType replacement = null;
-            for (EntityType entityType : retrievedSemanticModel.getEntityTypes()) {
-                if (actualEntityTypeUuid.equals(entityType.getUuid())) {
-                    replacement = entityType;
-                    break;
-                }
-            }
-            if (replacement == null) {
-                logger.warn(
-                        "Defective response for semantic model creation.\n" + "Mapping: {}\n" + "SemanticModel: {}",
-                        modeling2KGSmapping,
-                        retrievedSemanticModel
-                );
-                throw new RuntimeException(
-                        "Failed to find entity type for id `" + oldEntityType.getId() + "` which should be mapped to `" + actualEntityTypeUuid + "`."
-                );
-            }
-            newSyntaxModel.replace(mappedEntityType.getIdentity(), replacement);
-        }
-
-        //Update positions
-        //Create a map between all old entity types and their new backend ID
-        Map<String, EntityType> backendIDtoOldEntityTypeMapping =
-                currentDataSourceSchema.getSemanticModel().getEntityTypes().stream().collect(Collectors.toMap(
-                        x -> modeling2KGSmapping.get(x.getId()),
-                        Function.identity()
-                ));
-
-        //Update positions
-        for (EntityType entityType : retrievedSemanticModel.getEntityTypes()) {
-            entityType.setPosition(backendIDtoOldEntityTypeMapping.get(entityType.getUuid()).getPosition());
-        }
-
-        DataSourceSchema finalSchema = new DataSourceSchema(
-                currentDataSourceSchema.getOwningNode(),
-                newSyntaxModel,
-                retrievedSemanticModel,
-                Collections.emptyList(),
-                Collections.emptyList()
-        );
-        finalSchema.setFinalized(true);
-        return finalSchema;
-    }
+//    @NotNull
+//    private DataSourceSchema createFinalDataSourceSchema(
+//            @NotNull DataSourceSchema currentDataSourceSchema,
+//            @NotNull SemanticModel retrievedSemanticModel,
+//            @NotNull Map<Long, String> modeling2KGSmapping
+//    ) {
+//        Map<Traversable.Identity<?>, Traversable> oldIdentityToNewTraversable = new HashMap<>();
+//        final Node newSyntaxModel = currentDataSourceSchema.getSyntaxModel().copy(oldIdentityToNewTraversable);
+//
+//        //find all entity types which are mapped by a primitive node
+//        final Set<EntityType> mappedEntityTypes = oldIdentityToNewTraversable.values().stream()
+//                .filter(PrimitiveNode.class::isInstance)
+//                .map(PrimitiveNode.class::cast)
+//                .filter(p -> p.getEntityType() != null)
+//                .map(PrimitiveNode::getEntityType)
+//                .collect(Collectors.toSet());
+//
+//        for (EntityType mappedEntityType : mappedEntityTypes) {
+//            final Traversable.Identity<?> oldEntityTypeIdentity = MapUtilities.keyOfValue(oldIdentityToNewTraversable, mappedEntityType);
+//            final Traversable traversable = currentDataSourceSchema.find(oldEntityTypeIdentity);
+//            assert traversable instanceof EntityType;
+//            EntityType oldEntityType = (EntityType) traversable;
+//            final String actualEntityTypeUuid = modeling2KGSmapping.get(oldEntityType.getId());
+//
+//            EntityType replacement = null;
+//            for (EntityType entityType : retrievedSemanticModel.getEntityTypes()) {
+//                if (actualEntityTypeUuid.equals(entityType.getUuid())) {
+//                    replacement = entityType;
+//                    break;
+//                }
+//            }
+//            if (replacement == null) {
+//                logger.warn(
+//                        "Defective response for semantic model creation.\n" + "Mapping: {}\n" + "SemanticModel: {}",
+//                        modeling2KGSmapping,
+//                        retrievedSemanticModel
+//                );
+//                throw new RuntimeException(
+//                        "Failed to find entity type for id `" + oldEntityType.getId() + "` which should be mapped to `" + actualEntityTypeUuid + "`."
+//                );
+//            }
+//            newSyntaxModel.replace(mappedEntityType.getIdentity(), replacement);
+//        }
+//
+//        //Update positions
+//        //Create a map between all old entity types and their new backend ID
+//        Map<String, EntityType> backendIDtoOldEntityTypeMapping =
+//                currentDataSourceSchema.getSemanticModel().getEntityTypes().stream().collect(Collectors.toMap(
+//                        x -> modeling2KGSmapping.get(x.getId()),
+//                        Function.identity()
+//                ));
+//
+//        //Update positions
+//        for (EntityType entityType : retrievedSemanticModel.getEntityTypes()) {
+//            entityType.setPosition(backendIDtoOldEntityTypeMapping.get(entityType.getUuid()).getPosition());
+//        }
+//
+//        DataSourceSchema finalSchema = new DataSourceSchema(
+//                currentDataSourceSchema.getOwningNode(),
+//                newSyntaxModel,
+//                retrievedSemanticModel,
+//                Collections.emptyList(),
+//                Collections.emptyList()
+//        );
+//        finalSchema.setFinalized(true);
+//        return finalSchema;
+//    }
 
     @Transactional
     public void deleteModel(@NotNull UUID dataSourceUuid) {
@@ -836,12 +768,39 @@ public class DataModelingHandler {
     }
 
     @NotNull
-    private DataSourceSchema peekDataSourceSchema(@NotNull DataSourceModel dataSourceModel, boolean schemaWillBeModified) {
-        DataSourceSchema currentSchema = dataSourceModel.peekDataSourceSchema();
-        if (schemaWillBeModified && currentSchema.isFinalized()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Finalized models are not allowed to be modified");
+    private void persistCombinedModel(@NotNull UUID dataSourceUuid, @NotNull CombinedModel combinedModel) {
+        DataSourceModel dataSourceModel = findDataSourceOrThrow(dataSourceUuid);
+        DataSourceSchema dataSourceSchema = combinedModelConverter.fromDTO(combinedModel);
+        dataSourceModel.pushDataSourceSchema(dataSourceSchema);
+        dataSourceRepository.save(dataSourceModel);
+    }
+
+
+    @NotNull
+    private CombinedModel getCombinedModel(@NotNull UUID dataSourceUuid, boolean modelWillBeModified) {
+        DataSourceModel dataSourceModel = findDataSourceOrThrow(dataSourceUuid);
+        return getCombinedModel(dataSourceModel, modelWillBeModified);
+    }
+
+    @NotNull
+    private CombinedModel getCombinedModel(@NotNull DataSourceModel dataSourceModel, boolean modelWillBeModified) {
+        CombinedModel currentModel;
+        if (combinedModelCache.containsKey(dataSourceModel.getUuid().toString())) {
+            // use the cached version, no need to reload from database
+            currentModel = combinedModelCache.get(dataSourceModel.getUuid().toString());
+            if (modelWillBeModified && currentModel.isFinalized()) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Finalized models are not allowed to be modified");
+            }
+        } else {
+            DataSourceSchema dataSourceSchema = dataSourceModel.peekDataSourceSchema();
+            if (modelWillBeModified && dataSourceSchema.isFinalized()) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Finalized models are not allowed to be modified");
+            }
+            currentModel = combinedModelConverter.toCombinedModel(dataSourceSchema);
+            combinedModelCache.put(dataSourceModel.getUuid().toString(), currentModel);
+
         }
-        return currentSchema;
+        return currentModel;
     }
 
 
