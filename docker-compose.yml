@@ -78,15 +78,33 @@ services:
       retries: 3
       start_period: 5s
     ports:
-     - 3308:3306 
-      
-########################### Service Infrastructure ######################################
+      - 3308:3306
+  mariadb-ars-m-sm:
+    image: mariadb:latest
+    hostname: mariadb-ars-m-sm
+    restart: unless-stopped
+    command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    environment:
+      - MYSQL_DATABASE=plasma-ars-m-sm
+      - MYSQL_ROOT_PASSWORD=plasma
+    volumes:
+      - mariadb_ars_m_sm:/var/lib/mysql
+    healthcheck:
+      test: bash -c "mariadb -h 127.0.0.1 -p$$MYSQL_ROOT_PASSWORD  -e \"show databases;\""
+      interval: 10s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+    ports:
+      - 3310:3306
+
+  ########################### Service Infrastructure ######################################
   discovery:
     image: "plasma/discovery:${PLASMA_VERSION}"
     hostname: plasma-discovery-service
     restart: unless-stopped
     ports:
-     - 8761:8761  
+      - 8761:8761
 
   admin:
     image: "plasma/admin:${PLASMA_VERSION}"
@@ -190,3 +208,4 @@ volumes:
   mariadb_dss: 
   mariadb_sas:   
   mariadb_dms:
+  mariadb_ars_m_sm:
