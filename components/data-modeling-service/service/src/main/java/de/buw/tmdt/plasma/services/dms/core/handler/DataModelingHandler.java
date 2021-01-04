@@ -13,11 +13,12 @@ import de.buw.tmdt.plasma.services.dms.core.converter.KnowledgeGraphServiceDTO2C
 import de.buw.tmdt.plasma.services.dms.core.model.ModelBase;
 import de.buw.tmdt.plasma.services.dms.core.model.datasource.DataSourceModel;
 import de.buw.tmdt.plasma.services.dms.core.repository.DataSourceRepository;
-import de.buw.tmdt.plasma.services.dms.core.services.DataSourceModelInitService;
 import de.buw.tmdt.plasma.services.kgs.shared.dto.semanticmodel.SemanticModelCreationResponse;
 import de.buw.tmdt.plasma.services.kgs.shared.dto.semanticmodel.SemanticModelDTO;
 import de.buw.tmdt.plasma.services.kgs.shared.feignclient.LocalKnowledgeApiClient;
 import de.buw.tmdt.plasma.services.kgs.shared.feignclient.UniversalKnowledgeApiClient;
+import de.buw.tmdt.plasma.services.sas.shared.dto.syntaxmodel.NodeDTO;
+import de.buw.tmdt.plasma.services.sas.shared.feignclient.SchemaAnalysisApiClient;
 import de.buw.tmdt.plasma.services.srs.feignclient.SemanticRecommendationApiClient;
 import de.buw.tmdt.plasma.utilities.collections.CollectionUtilities;
 import feign.FeignException;
@@ -45,7 +46,7 @@ public class DataModelingHandler {
     private final UniversalKnowledgeApiClient universalKnowledgeApiClient;
     private final KnowledgeGraphServiceDTO2CombinedModelConverter kgs2CMConverter;
     private final DataSourceRepository dataSourceRepository;
-    private final DataSourceModelInitService dataSourceModelInitService;
+    private final SchemaAnalysisApiClient schemaAnalysisApiClient;
     private final SemanticRecommendationApiClient semanticRecommendationApiClient;
 
     // TODO ensure this does not grow infinitely
@@ -57,13 +58,13 @@ public class DataModelingHandler {
             @NotNull UniversalKnowledgeApiClient universalKnowledgeApiClient,
             @NotNull KnowledgeGraphServiceDTO2CombinedModelConverter kgs2CMConverter,
             @NotNull DataSourceRepository dataSourceRepository,
-            @NotNull DataSourceModelInitService dataSourceModelInitService,
-            SemanticRecommendationApiClient semanticRecommendationApiClient) {
+            @NotNull SchemaAnalysisApiClient schemaAnalysisApiClient,
+            @NotNull SemanticRecommendationApiClient semanticRecommendationApiClient) {
         this.localKnowledgeApiClient = localKnowledgeApiClient;
         this.universalKnowledgeApiClient = universalKnowledgeApiClient;
         this.kgs2CMConverter = kgs2CMConverter;
         this.dataSourceRepository = dataSourceRepository;
-        this.dataSourceModelInitService = dataSourceModelInitService;
+        this.schemaAnalysisApiClient = schemaAnalysisApiClient;
         this.semanticRecommendationApiClient = semanticRecommendationApiClient;
     }
 
@@ -80,10 +81,52 @@ public class DataModelingHandler {
             dataSourceModel = dataSourceRepository.saveAndFlush(dsm);
             logger.info("Created a new data source");
         }
-        dataSourceModel.pushCombinedModel(dataSourceModelInitService.createInitialSchema(uuid, exampleLimit, dataSourceModel));
+        dataSourceModel.pushCombinedModel(createInitialSchema(uuid, exampleLimit, dataSourceModel));
 
         //store the schema
         dataSourceRepository.save(dataSourceModel);
+    }
+
+    private CombinedModel createInitialSchema(UUID dataSourceUuid, int exampleLimit, DataSourceModel dataSourceModel) {
+        NodeDTO result;
+        try {
+            result = schemaAnalysisApiClient.getResult(dataSourceUuid.toString(), exampleLimit);
+        } catch (FeignException e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Could not reach SchemaAnalysisService", e);
+        }
+        SemanticModel semanticModel;
+        semanticModel = new SemanticModel(
+                null,
+                new ArrayList<>(),
+                new ArrayList<>()
+        );
+
+        CombinedModel schema = new CombinedModel(
+                dataSourceUuid.toString(),
+                schemaAnalysisDTOConverter.fromNodeDTO(result),
+                semanticModel,
+                new ArrayList<>(),
+                new ArrayList<>(),
+                false
+        );
+
+        dataSourceModel.pushCombinedModel(schema);
+        dataSourceModel = dataSourceRepository.save(dataSourceModel);
+
+        // request semantic labeling
+        CombinedModel combinedModel = dataSourceModel.getCurrentModel();
+        combinedModel.getSyntaxModel().getNodes().forEach(node -> {
+            // no operations when sending to other services
+            node.getOperations().clear();
+        });
+        CombinedModel modifiedCombinedModel = semanticRecommendationApiClient.performSemanticLabeling(
+                dataSourceUuid.toString(), combinedModel);
+
+        // request semantic modeling
+        modifiedCombinedModel = semanticRecommendationApiClient.performSemanticModeling(
+                dataSourceUuid.toString(), modifiedCombinedModel);
+
+        return modifiedCombinedModel;
     }
 
     public @NotNull CombinedModel getCombinedModel(@NotNull UUID dataSourceUuid) {
@@ -549,7 +592,7 @@ public class DataModelingHandler {
     }
 
     /* UNDO / REDO Functions */
-// TODO check how to realize (versioning, storage...)
+
     @Transactional
     public @NotNull CombinedModel undoModelModification(@NotNull UUID dataSourceUuid) {
         //Get the data source from the repository

@@ -41,6 +41,7 @@ import java.util.stream.Collectors;
  * and the local {@link DataSourceSchema}
  */
 @Service
+@Deprecated
 public class CombinedModelConverter {
 
 	private static final Logger logger = LoggerFactory.getLogger(CombinedModelConverter.class);
