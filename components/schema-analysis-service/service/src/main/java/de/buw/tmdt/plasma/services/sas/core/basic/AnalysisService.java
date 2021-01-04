@@ -1,11 +1,8 @@
 package de.buw.tmdt.plasma.services.sas.core.basic;
 
-import de.buw.tmdt.plasma.services.sas.core.converter.RuleDTOConverter;
-import de.buw.tmdt.plasma.services.sas.core.converter.SemanticModelDTOConverter;
 import de.buw.tmdt.plasma.services.sas.core.model.Analysis;
 import de.buw.tmdt.plasma.services.sas.core.model.syntaxmodel.Node;
 import de.buw.tmdt.plasma.services.sas.core.repository.AnalysisRepository;
-import de.buw.tmdt.plasma.services.sas.core.repository.StandardRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -20,10 +17,7 @@ public class AnalysisService {
     private final AnalysisRepository analysisRepository;
 
     @Autowired
-    public AnalysisService(AnalysisRepository analysisRepository,
-                           SemanticModelDTOConverter semanticModelDTOConverter,
-                           RuleDTOConverter ruleDTOConverter,
-                           StandardRepository standardRepository) {
+    public AnalysisService(AnalysisRepository analysisRepository) {
         this.analysisRepository = analysisRepository;
     }
 

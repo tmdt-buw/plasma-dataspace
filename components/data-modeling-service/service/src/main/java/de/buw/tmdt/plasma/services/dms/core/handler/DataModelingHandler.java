@@ -9,6 +9,7 @@ import de.buw.tmdt.plasma.datamodel.modification.operation.SyntacticOperationDTO
 import de.buw.tmdt.plasma.datamodel.semanticmodel.*;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.PrimitiveNode;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.SchemaNode;
+import de.buw.tmdt.plasma.datamodel.syntaxmodel.SyntaxModel;
 import de.buw.tmdt.plasma.services.dms.core.converter.KnowledgeGraphServiceDTO2CombinedModelConverter;
 import de.buw.tmdt.plasma.services.dms.core.model.ModelBase;
 import de.buw.tmdt.plasma.services.dms.core.model.datasource.DataSourceModel;
@@ -17,7 +18,6 @@ import de.buw.tmdt.plasma.services.kgs.shared.dto.semanticmodel.SemanticModelCre
 import de.buw.tmdt.plasma.services.kgs.shared.dto.semanticmodel.SemanticModelDTO;
 import de.buw.tmdt.plasma.services.kgs.shared.feignclient.LocalKnowledgeApiClient;
 import de.buw.tmdt.plasma.services.kgs.shared.feignclient.UniversalKnowledgeApiClient;
-import de.buw.tmdt.plasma.services.sas.shared.dto.syntaxmodel.NodeDTO;
 import de.buw.tmdt.plasma.services.sas.shared.feignclient.SchemaAnalysisApiClient;
 import de.buw.tmdt.plasma.services.srs.feignclient.SemanticRecommendationApiClient;
 import de.buw.tmdt.plasma.utilities.collections.CollectionUtilities;
@@ -88,9 +88,9 @@ public class DataModelingHandler {
     }
 
     private CombinedModel createInitialSchema(UUID dataSourceUuid, int exampleLimit, DataSourceModel dataSourceModel) {
-        NodeDTO result;
+        @NotNull SyntaxModel syntaxModel;
         try {
-            result = schemaAnalysisApiClient.getResult(dataSourceUuid.toString(), exampleLimit);
+            syntaxModel = schemaAnalysisApiClient.getResult(dataSourceUuid.toString(), exampleLimit);
         } catch (FeignException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Could not reach SchemaAnalysisService", e);
         }
@@ -103,7 +103,7 @@ public class DataModelingHandler {
 
         CombinedModel schema = new CombinedModel(
                 dataSourceUuid.toString(),
-                schemaAnalysisDTOConverter.fromNodeDTO(result),
+                syntaxModel,
                 semanticModel,
                 new ArrayList<>(),
                 new ArrayList<>(),

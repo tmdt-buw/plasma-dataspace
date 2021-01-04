@@ -34,6 +34,11 @@
             <artifactId>utilities</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
+        <dependency>
+            <groupId>de.buw.tmdt.plasma</groupId>
+            <artifactId>datamodel</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
 
         <!-- Testing -->
         <dependency>
