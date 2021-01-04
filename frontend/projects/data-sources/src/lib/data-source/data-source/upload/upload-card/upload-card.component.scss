@@ -1,0 +1,26 @@
+:host {
+  width: 100%;
+
+  .close-button {
+    position: absolute;
+    right: 5px;
+    top: 5px;
+    cursor: pointer;
+  }
+
+  .action-button {
+    cursor: pointer;
+  }
+
+  .disabled-close {
+    color: rgba(0, 0, 0, 0.26);
+  }
+
+  .icon-failed {
+    color: darkred;
+  }
+
+  .icon-finished {
+    color: darkgreen;
+  }
+}

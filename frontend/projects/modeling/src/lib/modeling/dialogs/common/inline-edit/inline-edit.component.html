@@ -1,0 +1,18 @@
+<div *ngIf="editing">
+  <mat-form-field appearance="{{ type === 'textarea' ? 'outline' : 'standard' }}">
+    <span matPrefix [innerHTML]="prefix"></span>
+    <input *ngIf="type !== 'textarea'" matInput [readonly]="!editing" [required]="required" (keypress)="keypress($event)" [name]="value" [(ngModel)]="value" [type]="type" [placeholder]="label"/>
+    <textarea *ngIf="type === 'textarea'" matInput [readonly]="!editing" [required]="required" (keypress)="keypress($event)" [name]="value" [(ngModel)]="value" [type]="type" [placeholder]="label"></textarea>
+    <span matSuffix>
+			<button mat-icon-button [color]="cancelColor" (click)="cancel($event)"><mat-icon>clear</mat-icon></button>
+		</span>
+  </mat-form-field>
+</div>
+
+<div *ngIf="!editing">
+  <ng-container *ngIf="value">
+    <span *ngIf="type !== 'textarea'">{{ value }}</span>
+    <p *ngIf="type === 'textarea'">{{ value }}</p>
+  </ng-container>
+  <i *ngIf="!value">{{ empty }}</i>
+</div>

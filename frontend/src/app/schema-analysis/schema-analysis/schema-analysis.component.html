@@ -1,0 +1,16 @@
+<app-editor *ngIf="dataSource">
+  <ng-container editorContentHeaderText>Schema Analysis</ng-container>
+
+  <ng-container editorContentHeaderButtons>
+    <!-- placeholder for buttons -->
+  </ng-container>
+
+  <ng-container editorContentHeaderSubtext>
+    Analyze the schema of your data source.
+  </ng-container>
+
+  <ng-container editorContentBody>
+    <pls-schema-analysis [dataSource]="dataSource"></pls-schema-analysis>
+  </ng-container>
+
+</app-editor>

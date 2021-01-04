@@ -1,0 +1,37 @@
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "baseUrl": "./",
+    "outDir": "./dist/out-tsc",
+    "sourceMap": true,
+    "declaration": false,
+    "downlevelIteration": true,
+    "experimentalDecorators": true,
+    "moduleResolution": "node",
+    "importHelpers": true,
+    "target": "es2015",
+    "module": "es2020",
+    "lib": [
+      "es2018",
+      "dom"
+    ],
+    "paths": {
+      "@plasma/dss": [
+        "dist/data-sources/data-sources",
+        "dist/data-sources"
+      ],
+      "@plasma/dms": [
+        "dist/modeling/modeling",
+        "dist/modeling"
+      ],
+      "@plasma/sas": [
+        "dist/schema-analysis/schema-analysis",
+        "dist/schema-analysis"
+      ],
+      "@plasma/common": [
+        "dist/common/common",
+        "dist/common"
+      ]
+    }
+  }
+}

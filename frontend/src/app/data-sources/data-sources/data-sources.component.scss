@@ -1,0 +1,23 @@
+.content {
+  padding: 50px 7% 0 7%;
+  margin-bottom: 50px;
+
+  .content-header {
+    .mat-h2 {
+      font-weight: 300;
+      margin: 0;
+      padding: 24px 0;
+      font-size: 20px;
+    }
+
+    .content-header-button {
+      margin-top: 15px;
+
+      .mat-icon {
+        margin-right: 5px;
+        line-height: 17px;
+        height: 17px;
+      }
+    }
+  }
+}

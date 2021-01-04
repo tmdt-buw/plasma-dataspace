@@ -1,0 +1,4 @@
+<button mat-raised-button [disabled]="loading || disabled" class="loading-button">
+  <mat-spinner *ngIf="loading" [diameter]="diameter" class="loading-spinner"></mat-spinner>
+  <ng-content></ng-content>
+</button>

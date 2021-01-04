@@ -1,0 +1,13 @@
+<h2 mat-dialog-title fxLayout="row" fxLayoutAlign="space-between center" fxLayoutGap="15px" class="dialog-header">
+  <pls-inline-edit [(ngModel)]="data.node.label" [editing]="edit"></pls-inline-edit>
+  <button mat-icon-button *ngIf="!edit" (click)="startEdit()"><mat-icon>edit</mat-icon></button>
+  <button mat-icon-button *ngIf="edit" (click)="acceptEdit()"><mat-icon>check</mat-icon></button>
+  <mat-icon class="close-icon" [mat-dialog-close]="true">close</mat-icon></h2>
+<i *ngIf="data.node.originalLabel" class="dialog-subtitle">({{ data.node.originalLabel }})</i>
+<mat-dialog-content fxLayout="column" fxLayoutGap="15px">
+  <mat-divider></mat-divider>
+  <pls-inline-edit [type]="'textarea'" [(ngModel)]="data.node.description" [editing]="edit" [empty]="'No description'"></pls-inline-edit>
+  <mat-divider></mat-divider>
+  <h4>Entity concept: {{ data.node.concept.name }}</h4>
+  <p>{{ data.node.concept.description }}</p>
+</mat-dialog-content>
