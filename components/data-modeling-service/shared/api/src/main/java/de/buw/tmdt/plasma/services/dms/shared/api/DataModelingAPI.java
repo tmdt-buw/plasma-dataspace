@@ -1,6 +1,7 @@
 package de.buw.tmdt.plasma.services.dms.shared.api;
 
 import de.buw.tmdt.plasma.datamodel.CombinedModel;
+import de.buw.tmdt.plasma.datamodel.PositionedCombinedModelElement;
 import de.buw.tmdt.plasma.datamodel.modification.DeltaModification;
 import de.buw.tmdt.plasma.datamodel.modification.operation.SyntacticOperationDTO;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.EntityConcept;
@@ -29,10 +30,10 @@ public interface DataModelingAPI {
 
 	@NotNull
 	@GetMapping(value = "/{uuid}/schema", produces = MediaType.APPLICATION_JSON_VALUE)
-	CombinedModel getDataSourceSchema(@NotNull @PathVariable("uuid") String uuid);
+	CombinedModel getCombinedModel(@NotNull @PathVariable("uuid") String uuid);
 
 	@PatchMapping(value = "/{uuid}/schema", consumes = MediaType.APPLICATION_JSON_VALUE)
-	void updatePositions(@NotNull @PathVariable("uuid") String uuid, @NotNull @RequestBody CombinedModel dataSourceSchemaDTO);
+	void updatePositions(@NotNull @PathVariable("uuid") String uuid, @NotNull @RequestBody List<PositionedCombinedModelElement> elements);
 
 	@NotNull
 	@GetMapping(value = "/{uuid}/entityconcepts", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -63,7 +64,7 @@ public interface DataModelingAPI {
 	@DeleteMapping(value = "/{dataSourceUuid}/entityconcept/{entityConceptId}", produces = MediaType.APPLICATION_JSON_VALUE)
 	List<EntityConcept> uncacheEntityConcept(
 			@NotNull @PathVariable("dataSourceUuid") String dataSourceUuid,
-			@NotNull @PathVariable("entityConceptId") Long entityConceptId
+			@NotNull @PathVariable("entityConceptId") String entityConceptId
 	);
 
 	@NotNull
@@ -74,7 +75,7 @@ public interface DataModelingAPI {
 	@DeleteMapping(value = "/{dataSourceUuid}/relationconcept/{relationConceptId}", produces = MediaType.APPLICATION_JSON_VALUE)
 	List<RelationConcept> uncacheRelationConcept(
 			@NotNull @PathVariable("dataSourceUuid") String dataSourceUuid,
-			@NotNull @PathVariable("relationConceptId") Long relationConceptId
+			@NotNull @PathVariable("relationConceptId") String relationConceptId
 	);
 
 	/* Modeling operations (EntityTypes)*/
@@ -91,20 +92,20 @@ public interface DataModelingAPI {
 	@PutMapping(value = "/{uuid}/entitytype/{entityTypeId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	CombinedModel updateEntityType(
 			@NotNull @PathVariable("uuid") String uuid,
-			@NotNull @PathVariable("entityTypeId") Long entityTypeId,
+			@NotNull @PathVariable("entityTypeId") String entityTypeId,
 			@NotNull @RequestBody EntityType entityTypeDTO
 	);
 
 	@PatchMapping(value = "/{uuid}/entitytype/{entityTypeId}", consumes = MediaType.APPLICATION_JSON_VALUE)
 	void positionEntityType(
 			@NotNull @PathVariable("uuid") String uuid,
-			@NotNull @PathVariable("entityTypeId") Long entityTypeId,
+			@NotNull @PathVariable("entityTypeId") String entityTypeId,
 			@NotNull @RequestBody EntityType entityTypeDTO
 	);
 
 	@NotNull
 	@DeleteMapping(value = "/{uuid}/entitytype/{entityTypeId}", produces = MediaType.APPLICATION_JSON_VALUE)
-	CombinedModel removeEntityType(@NotNull @PathVariable("uuid") String uuid, @NotNull @PathVariable("entityTypeId") Long entityTypeId);
+	CombinedModel removeEntityType(@NotNull @PathVariable("uuid") String uuid, @NotNull @PathVariable("entityTypeId") String entityTypeId);
 
 	/* Modeling operations (Relations)*/
 
@@ -116,13 +117,13 @@ public interface DataModelingAPI {
 	@PutMapping(value = "/{uuid}/relation/{relationId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	CombinedModel updateRelation(
 			@NotNull @PathVariable("uuid") String uuid,
-			@NotNull @PathVariable("relationId") Long entityTypeId,
+			@NotNull @PathVariable("relationId") String entityTypeId,
 			@NotNull @RequestBody Relation relationDto
 	);
 
 	@NotNull
 	@DeleteMapping(value = "/{uuid}/relation/{relationId}", produces = MediaType.APPLICATION_JSON_VALUE)
-	CombinedModel removeRelation(@NotNull @PathVariable("uuid") String uuid, @NotNull @PathVariable("relationId") Long entityTypeId);
+	CombinedModel removeRelation(@NotNull @PathVariable("uuid") String uuid, @NotNull @PathVariable("relationId") String entityTypeId);
 
 	/* Recommendation */
 
@@ -134,11 +135,11 @@ public interface DataModelingAPI {
 
 	@NotNull
 	@PostMapping(value = "/{uuid}/schema/undo", produces = MediaType.APPLICATION_JSON_VALUE)
-	CombinedModel undoDataSourceSchemaModification(@NotNull @PathVariable("uuid") String uuid);
+	CombinedModel undoModification(@NotNull @PathVariable("uuid") String uuid);
 
 	@NotNull
 	@PostMapping(value = "/{uuid}/schema/redo", produces = MediaType.APPLICATION_JSON_VALUE)
-	CombinedModel redoDataSourceSchemaModification(@NotNull @PathVariable("uuid") String uuid);
+	CombinedModel redoModification(@NotNull @PathVariable("uuid") String uuid);
 
 	@NotNull
 	@PostMapping(value = "/{uuid}/schema/finish")
