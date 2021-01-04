@@ -1,9 +1,6 @@
 package de.buw.tmdt.plasma.services.dms.core.converter;
 
-import de.buw.tmdt.plasma.datamodel.CombinedModel;
-import de.buw.tmdt.plasma.datamodel.CombinedModelElement;
-import de.buw.tmdt.plasma.datamodel.PositionedCombinedModelElement;
-import de.buw.tmdt.plasma.datamodel.PrimitiveEntityTypeMapping;
+import de.buw.tmdt.plasma.datamodel.*;
 import de.buw.tmdt.plasma.datamodel.modification.operation.SyntacticOperationDTO;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.EntityType;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.SemanticModel;
@@ -12,6 +9,7 @@ import de.buw.tmdt.plasma.datamodel.syntaxmodel.SchemaNode;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.Splitting;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.SyntaxModel;
 import de.buw.tmdt.plasma.services.dms.core.model.Position;
+import de.buw.tmdt.plasma.services.dms.core.model.datasource.DataSourceModel;
 import de.buw.tmdt.plasma.services.dms.core.model.datasource.DataSourceSchema;
 import de.buw.tmdt.plasma.services.dms.core.model.datasource.semanticmodel.EntityConcept;
 import de.buw.tmdt.plasma.services.dms.core.model.datasource.semanticmodel.Relation;
@@ -35,6 +33,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -77,11 +76,13 @@ public class CombinedModelConverter {
 		Pair<SyntaxModel, List<PrimitiveEntityTypeMapping>> syntaxModel = toCombinedModel(dataSourceSchema.getSyntaxModel(), serializationContext);
 
 		SemanticModel modifiedSemanticModel = new SemanticModel(
+				dataSourceSchema.getSemanticModel().getUuid(),
 				new ArrayList<>(serializationContext.entityTypes.values()),
 				sharedSemanticModel.getEdges()
 		);
 
 		return new CombinedModel(
+				dataSourceSchema.getSyntaxModel().getUuid().toString(),
 				syntaxModel.getLeft(),
 				modifiedSemanticModel,
 				syntaxModel.getRight(),
@@ -339,7 +340,7 @@ public class CombinedModelConverter {
 	/* Semantic model conversion */
 
 	@NotNull
-	public de.buw.tmdt.plasma.datamodel.semanticmodel.SemanticModel toCombinedModel(@NotNull de.buw.tmdt.plasma.services.dms.core.model.datasource.semanticmodel.SemanticModel semanticModel, SerializationContext serializationContext) {
+	public SemanticModel toCombinedModel(@NotNull de.buw.tmdt.plasma.services.dms.core.model.datasource.semanticmodel.SemanticModel semanticModel, SerializationContext serializationContext) {
 		List<de.buw.tmdt.plasma.datamodel.semanticmodel.EntityType> entityTypeLookUp = semanticModel.getEntityTypes().stream()
 				.map(entityType -> toCombinedModel(entityType, serializationContext))
 				.collect(de.buw.tmdt.plasma.utilities.collections.Collectors.getSerializableListCollector());
@@ -349,6 +350,7 @@ public class CombinedModelConverter {
 				.collect(de.buw.tmdt.plasma.utilities.collections.Collectors.getSerializableListCollector());
 
 		return new de.buw.tmdt.plasma.datamodel.semanticmodel.SemanticModel(
+				semanticModel.getUuid(),
 				new ArrayList<>(entityTypeLookUp),
 				new ArrayList<>(relations)
 		);
@@ -430,10 +432,8 @@ public class CombinedModelConverter {
 				.findFirst().orElseThrow(() -> new RuntimeException("Missing entity type in semantic model which was referenced in 'to' by: " + relation));
 
 		return new de.buw.tmdt.plasma.datamodel.semanticmodel.Relation(
-				UUID.randomUUID().toString(),
 				fromUuid,
 				toUuid,
-				relation.getDescription(),
 				toCombinedModel(relation.getRelationConcept())
 		);
 	}
@@ -457,25 +457,124 @@ public class CombinedModelConverter {
 		);
 	}
 
-	/* Coversion methods CombinedModel  ===>  DMS model   */
+	/* Conversion methods CombinedModel  ===>  DMS model   */
 
-	public @NotNull Relation fromDTO(@NotNull de.buw.tmdt.plasma.datamodel.semanticmodel.Relation relationDTO) {
-		final de.buw.tmdt.plasma.services.dms.core.model.datasource.semanticmodel.EntityType from = entityTypeRepository.findById(Long.valueOf(relationDTO.getFromId()))
+	/**
+	 * Converts the given {@link CombinedModel} to a {@link DataSourceSchema}
+	 *
+	 * @param combinedModel The {@link CombinedModel} to convert
+	 * @return The converted {@link DataSourceSchema}
+	 */
+	public @NotNull DataSourceSchema fromCombinedModel(@NotNull DataSourceModel dataSourceModel, @NotNull CombinedModel combinedModel) throws CombinedModelIntegrityException {
+
+		Map<String, de.buw.tmdt.plasma.services.dms.core.model.datasource.semanticmodel.EntityType> entityTypes =
+				combinedModel.getSemanticModel().getNodes().stream()
+						.collect(Collectors.toMap(EntityType::getUuid, this::fromCombinedModel));
+
+		List<Relation> relations = combinedModel.getSemanticModel().getEdges().stream()
+				.map(relationDTO -> fromCombinedModel(relationDTO, entityTypes))
+				.collect(Collectors.toList());
+
+		de.buw.tmdt.plasma.services.dms.core.model.datasource.semanticmodel.SemanticModel semanticModel =
+				new de.buw.tmdt.plasma.services.dms.core.model.datasource.semanticmodel.SemanticModel(
+						null,
+						"",
+						"",
+						new ArrayList<>(entityTypes.values()),
+						relations,
+						null);
+
+		Node root = fromCombinedModel(combinedModel.getSyntaxModel());
+
+		return new DataSourceSchema(dataSourceModel, root, semanticModel, new ArrayList<>(), new ArrayList<>());
+	}
+
+	private Node fromCombinedModel(SyntaxModel syntaxModel) throws CombinedModelIntegrityException {
+		Map<String, SchemaNode> nodes = syntaxModel.getNodes().stream().collect(Collectors.toMap(CombinedModelElement::getUuid, Function.identity()));
+		List<Edge> edges = new ArrayList<>(syntaxModel.getEdges());
+		SchemaNode root = nodes.get(syntaxModel.getRoot());
+		if (root == null) {
+			throw new CombinedModelIntegrityException("Root node " + syntaxModel.getRoot() + " is not present.");
+		}
+		convertSyntaxNode(root, nodes, edges);
+		// TODO
+		return null;
+	}
+
+	private @NotNull Node convertSyntaxNode(SchemaNode schemaNode, Map<String, SchemaNode> nodes, List<Edge> edges) {
+		Node node = null;
+
+		// get outgoing edges
+		List<Edge> outgoing = edges.stream()
+				.filter(edge -> edge.getFrom().equals(schemaNode.getUuid()))
+				.collect(Collectors.toList());
+
+		// recursively call for all child nodes
+		Set<Node> children = outgoing.stream().map(edge -> nodes.get(edge.getFrom()))
+				.map(targetNode -> convertSyntaxNode(targetNode, nodes, edges))
+				.collect(Collectors.toSet());
+
+		// convert the node
+		if (schemaNode instanceof de.buw.tmdt.plasma.datamodel.syntaxmodel.SetNode) {
+			SetNode setNode = new SetNode(children);
+			Position p = getPosition(schemaNode);
+			if (p != null) {
+				setNode.setPosition(p);
+			}
+			node = setNode;
+		} else if (schemaNode instanceof de.buw.tmdt.plasma.datamodel.syntaxmodel.ObjectNode) {
+			// TODO
+		} else if (schemaNode instanceof de.buw.tmdt.plasma.datamodel.syntaxmodel.CompositeNode) {
+			// TODO
+		} else if (schemaNode instanceof de.buw.tmdt.plasma.datamodel.syntaxmodel.PrimitiveNode) {
+			// TODO
+		}
+
+		return node;
+	}
+
+
+	public @NotNull Relation fromCombinedModel(
+			@NotNull de.buw.tmdt.plasma.datamodel.semanticmodel.Relation relation,
+			@NotNull Map<String, de.buw.tmdt.plasma.services.dms.core.model.datasource.semanticmodel.EntityType> entityTypes) {
+
+		final de.buw.tmdt.plasma.services.dms.core.model.datasource.semanticmodel.EntityType from =
+				entityTypes.get(relation.getFromId());
+		if (from == null) {
+			throw new ResponseStatusException(
+					HttpStatus.BAD_REQUEST,
+					"Entity type id in relation is invalid."
+			);
+		}
+
+		final de.buw.tmdt.plasma.services.dms.core.model.datasource.semanticmodel.EntityType to =
+				entityTypes.get(relation.getToId());
+		if (to == null) {
+			throw new ResponseStatusException(
+					HttpStatus.BAD_REQUEST,
+					"Entity type id in relation is invalid."
+			);
+		}
+		return new Relation(relation.getEntityId(), from, to, fromCombinedModel(relation.getConcept()), relation.getDescription(), null);
+	}
+
+	public @NotNull Relation fromCombinedModel(@NotNull de.buw.tmdt.plasma.datamodel.semanticmodel.Relation relation) {
+		final de.buw.tmdt.plasma.services.dms.core.model.datasource.semanticmodel.EntityType from = entityTypeRepository.findById(Long.valueOf(relation.getFromId()))
 				.orElseThrow(() -> new ResponseStatusException(
 						HttpStatus.BAD_REQUEST,
 						"Entity type id in relation is invalid."
 				));
 
-		final de.buw.tmdt.plasma.services.dms.core.model.datasource.semanticmodel.EntityType to = entityTypeRepository.findById(Long.valueOf(relationDTO.getToId()))
+		final de.buw.tmdt.plasma.services.dms.core.model.datasource.semanticmodel.EntityType to = entityTypeRepository.findById(Long.valueOf(relation.getToId()))
 				.orElseThrow(() -> new ResponseStatusException(
 						HttpStatus.BAD_REQUEST,
 						"Entity type id in relation is invalid."
 				));
-		return new Relation(relationDTO.getEntityId(), from, to, fromDTO(relationDTO.getConcept()), relationDTO.getDescription(), null);
+		return new Relation(relation.getEntityId(), from, to, fromCombinedModel(relation.getConcept()), relation.getDescription(), null);
 	}
 
 	@NotNull
-	public RelationConcept fromDTO(@NotNull de.buw.tmdt.plasma.datamodel.semanticmodel.RelationConcept concept) {
+	public RelationConcept fromCombinedModel(@NotNull de.buw.tmdt.plasma.datamodel.semanticmodel.RelationConcept concept) {
 		Set<RelationConcept.Property> properties = new HashSet<>(relationConceptPropertyRepository.findAllByNameIn(concept.getProperties()));
 		return new RelationConcept(
 				concept.getEntityId(),
@@ -488,24 +587,24 @@ public class CombinedModelConverter {
 	}
 
 	@NotNull
-	public de.buw.tmdt.plasma.services.dms.core.model.datasource.semanticmodel.EntityType fromDTO(@NotNull de.buw.tmdt.plasma.datamodel.semanticmodel.EntityType entityTypeDTO) {
+	public de.buw.tmdt.plasma.services.dms.core.model.datasource.semanticmodel.EntityType fromCombinedModel(@NotNull de.buw.tmdt.plasma.datamodel.semanticmodel.EntityType entityType) {
 		return new de.buw.tmdt.plasma.services.dms.core.model.datasource.semanticmodel.EntityType(
-				entityTypeDTO.getEntityId(),
-				entityTypeDTO.getLabel(),
-				entityTypeDTO.getOriginalLabel(),
-				entityTypeDTO.getDescription(),
-				fromDTO(entityTypeDTO.getEntityConcept()),
-				getPosition(entityTypeDTO)
+				entityType.getEntityId(),
+				entityType.getLabel(),
+				entityType.getOriginalLabel(),
+				entityType.getDescription(),
+				fromCombinedModel(entityType.getEntityConcept()),
+				getPosition(entityType)
 		);
 	}
 
 	@NotNull
-	public EntityConcept fromDTO(@NotNull de.buw.tmdt.plasma.datamodel.semanticmodel.EntityConcept entityConceptDTO) {
+	public EntityConcept fromCombinedModel(@NotNull de.buw.tmdt.plasma.datamodel.semanticmodel.EntityConcept entityConcept) {
 		return new EntityConcept(
-				entityConceptDTO.getEntityId(),
-				entityConceptDTO.getLabel(),
-				entityConceptDTO.getDescription(),
-				entityConceptDTO.getSourceURI(),
+				entityConcept.getEntityId(),
+				entityConcept.getLabel(),
+				entityConcept.getDescription(),
+				entityConcept.getSourceURI(),
 				null
 		);
 
