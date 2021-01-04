@@ -4,7 +4,9 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import de.buw.tmdt.plasma.datamodel.modification.DeltaModification;
 import de.buw.tmdt.plasma.datamodel.modification.operation.DataType;
+import de.buw.tmdt.plasma.datamodel.semanticmodel.EntityConcept;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.EntityType;
+import de.buw.tmdt.plasma.datamodel.semanticmodel.RelationConcept;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.SemanticModel;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.*;
 import de.buw.tmdt.plasma.utilities.collections.CollectionUtilities;
@@ -37,6 +39,18 @@ public class CombinedModel implements Serializable {
 	private final String dataSourceUuid;
 	private final SyntaxModel syntaxModel;
 	private final SemanticModel semanticModel;
+	/**
+	 * Stores provisional {@link EntityConcept}s that the user created but are not yet in the knowledge base.
+	 * Only valid for this model.
+	 */
+	private List<EntityConcept> provisionalEntityConcepts;
+
+	/**
+	 * Stores provisional {@link RelationConcept}s that the user created but are not yet in the knowledge base
+	 * Only valid for this model.
+	 */
+	private List<RelationConcept> provisionalRelationConcepts;
+
 	private final ArrayList<PrimitiveEntityTypeMapping> primitiveEntityTypeMappings;
 	/**
 	 * Recommendations represent suggested modifications for the current state of models
@@ -102,6 +116,26 @@ public class CombinedModel implements Serializable {
 	// we allow later injections of recommendations, will be solved with new data model
 	public void setRecommendations(ArrayList<DeltaModification> recommendations) {
 		this.recommendations = recommendations;
+	}
+
+	/**
+	 * Returns all provisional {@link EntityConcept}s in this model
+	 *
+	 * @return A list of provisional {@link EntityConcept}s in the model
+	 */
+	@NotNull
+	public List<EntityConcept> getProvisionalEntityConcepts() {
+		return provisionalEntityConcepts;
+	}
+
+	/**
+	 * Returns all provisional {@link RelationConcept}s in this model
+	 *
+	 * @return A list of provisional {@link RelationConcept}s in the model
+	 */
+	@NotNull
+	public List<RelationConcept> getProvisionalRelationConcepts() {
+		return provisionalRelationConcepts;
 	}
 
 	public void apply(DeltaModification delta) {

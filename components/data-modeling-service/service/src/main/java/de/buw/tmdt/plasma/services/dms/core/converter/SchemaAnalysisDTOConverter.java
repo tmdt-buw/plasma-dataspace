@@ -4,7 +4,7 @@ import de.buw.tmdt.plasma.services.dms.core.model.datasource.semanticmodel.Entit
 import de.buw.tmdt.plasma.services.dms.core.model.datasource.semanticmodel.EntityType;
 import de.buw.tmdt.plasma.services.dms.core.model.datasource.syntaxmodel.*;
 import de.buw.tmdt.plasma.services.dms.core.model.datasource.syntaxmodel.members.*;
-import de.buw.tmdt.plasma.services.dms.shared.dto.syntaxmodel.operation.DataType;
+import de.buw.tmdt.plasma.services.dms.core.operations.impl.misc.DataType;
 import de.buw.tmdt.plasma.services.sas.shared.dto.semanticmodel.EntityConceptDTO;
 import de.buw.tmdt.plasma.services.sas.shared.dto.syntaxmodel.*;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -173,6 +173,6 @@ public class SchemaAnalysisDTOConverter {
 
 	@NotNull
 	private DataType fromDataTypeDTO(@NotNull PrimitiveNodeDTO.DataTypeDTO dataTypeDTO) {
-		return DataType.fromIdentifier(dataTypeDTO.identifier);
+		return DataType.getDeserialization(dataTypeDTO.identifier);
 	}
 }

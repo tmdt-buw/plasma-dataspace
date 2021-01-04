@@ -9,13 +9,10 @@ import de.buw.tmdt.plasma.datamodel.modification.operation.SyntacticOperationDTO
 import de.buw.tmdt.plasma.datamodel.semanticmodel.*;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.PrimitiveNode;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.SchemaNode;
-import de.buw.tmdt.plasma.services.dms.core.converter.CombinedModelConverter;
 import de.buw.tmdt.plasma.services.dms.core.converter.KnowledgeGraphServiceDTO2CombinedModelConverter;
-import de.buw.tmdt.plasma.services.dms.core.converter.SchemaAnalysisDTOConverter;
-import de.buw.tmdt.plasma.services.dms.core.converter.SchemaOperationDTOConverter;
+import de.buw.tmdt.plasma.services.dms.core.model.ModelBase;
 import de.buw.tmdt.plasma.services.dms.core.model.datasource.DataSourceModel;
-import de.buw.tmdt.plasma.services.dms.core.model.datasource.DataSourceSchema;
-import de.buw.tmdt.plasma.services.dms.core.repository.*;
+import de.buw.tmdt.plasma.services.dms.core.repository.DataSourceRepository;
 import de.buw.tmdt.plasma.services.dms.core.services.DataSourceModelInitService;
 import de.buw.tmdt.plasma.services.kgs.shared.dto.semanticmodel.SemanticModelCreationResponse;
 import de.buw.tmdt.plasma.services.kgs.shared.dto.semanticmodel.SemanticModelDTO;
@@ -46,18 +43,10 @@ public class DataModelingHandler {
 
     private final LocalKnowledgeApiClient localKnowledgeApiClient;
     private final UniversalKnowledgeApiClient universalKnowledgeApiClient;
-    private final SchemaOperationDTOConverter schemaOperationDTOConverter;
-    private final KnowledgeGraphServiceDTO2CombinedModelConverter knowledgeGraphServiceDTO2ModelConverter;
     private final KnowledgeGraphServiceDTO2CombinedModelConverter kgs2CMConverter;
     private final DataSourceRepository dataSourceRepository;
-    private final SchemaNodeRepository schemaNodeRepository;
-    private final EntityConceptRepository entityConceptRepository;
-    private final EntityTypeRepository entityTypeRepository;
-    private final RelationConceptRepository relationConceptRepository;
     private final DataSourceModelInitService dataSourceModelInitService;
     private final SemanticRecommendationApiClient semanticRecommendationApiClient;
-    private final SchemaAnalysisDTOConverter schemaAnalysisDTOConverter;
-    private final CombinedModelConverter combinedModelConverter;
 
     // TODO ensure this does not grow infinitely
     private final HashMap<String, CombinedModel> combinedModelCache = new HashMap<>();
@@ -66,32 +55,16 @@ public class DataModelingHandler {
     public DataModelingHandler(
             @NotNull LocalKnowledgeApiClient localKnowledgeApiClient,
             @NotNull UniversalKnowledgeApiClient universalKnowledgeApiClient,
-            @NotNull SchemaOperationDTOConverter schemaOperationDTOConverter,
-            @NotNull KnowledgeGraphServiceDTO2CombinedModelConverter knowledgeGraphServiceDTO2ModelConverter,
             @NotNull KnowledgeGraphServiceDTO2CombinedModelConverter kgs2CMConverter,
             @NotNull DataSourceRepository dataSourceRepository,
-            @NotNull SchemaNodeRepository schemaNodeRepository,
-            @NotNull EntityConceptRepository entityConceptRepository,
-            @NotNull EntityTypeRepository entityTypeRepository,
-            @NotNull RelationConceptRepository relationConceptRepository,
             @NotNull DataSourceModelInitService dataSourceModelInitService,
-            SemanticRecommendationApiClient semanticRecommendationApiClient,
-            SchemaAnalysisDTOConverter schemaAnalysisDTOConverter,
-            CombinedModelConverter combinedModelConverter) {
+            SemanticRecommendationApiClient semanticRecommendationApiClient) {
         this.localKnowledgeApiClient = localKnowledgeApiClient;
         this.universalKnowledgeApiClient = universalKnowledgeApiClient;
-        this.schemaOperationDTOConverter = schemaOperationDTOConverter;
-        this.combinedModelConverter = combinedModelConverter;
-        this.knowledgeGraphServiceDTO2ModelConverter = knowledgeGraphServiceDTO2ModelConverter;
         this.kgs2CMConverter = kgs2CMConverter;
         this.dataSourceRepository = dataSourceRepository;
-        this.schemaNodeRepository = schemaNodeRepository;
-        this.entityConceptRepository = entityConceptRepository;
-        this.entityTypeRepository = entityTypeRepository;
-        this.relationConceptRepository = relationConceptRepository;
         this.dataSourceModelInitService = dataSourceModelInitService;
         this.semanticRecommendationApiClient = semanticRecommendationApiClient;
-        this.schemaAnalysisDTOConverter = schemaAnalysisDTOConverter;
     }
 
     public void initDataSourceSchema(@NotNull UUID uuid, int exampleLimit) {
@@ -107,14 +80,13 @@ public class DataModelingHandler {
             dataSourceModel = dataSourceRepository.saveAndFlush(dsm);
             logger.info("Created a new data source");
         }
-        dataSourceModel.pushDataSourceSchema(dataSourceModelInitService.createInitialSchema(uuid, exampleLimit, dataSourceModel));
+        dataSourceModel.pushCombinedModel(dataSourceModelInitService.createInitialSchema(uuid, exampleLimit, dataSourceModel));
 
         //store the schema
         dataSourceRepository.save(dataSourceModel);
     }
 
-    @NotNull
-    public DataSourceSchema getDataSourceSchema(@NotNull UUID dataSourceUuid) {
+    public @NotNull CombinedModel getCombinedModel(@NotNull UUID dataSourceUuid) {
         return getCombinedModel(findDataSourceOrThrow(dataSourceUuid), false);
     }
 
@@ -140,8 +112,8 @@ public class DataModelingHandler {
         }
 
         // Retrieve the concepts that were created within this semantic model...
-        CombinedModel schema = getCombinedModel(findDataSourceOrThrow(dataSourceUuid), false);
-        schema.getSemanticModel().getProvisionalEntityConcepts().stream()
+        CombinedModel combinedModel = getCombinedModel(findDataSourceOrThrow(dataSourceUuid), false);
+        combinedModel.getProvisionalEntityConcepts().stream()
                 .filter(entityConcept -> entityConcept.getLabel().startsWith(prefix))
                 // ... and add them to the ones from the KGS while ensuring that there are no conflicts
                 .filter(entityConcept -> availableEntityConcepts.stream().noneMatch(aec -> aec.sameAs(entityConcept)))
@@ -168,8 +140,8 @@ public class DataModelingHandler {
         }
 
         // Retrieve the concepts that were created within this semantic model...
-        CombinedModel schema = getCombinedModel(findDataSourceOrThrow(dataSourceUuid), false);
-        schema.getSemanticModel().getProvisionalRelationConcepts().stream()
+        CombinedModel combinedModel = getCombinedModel(findDataSourceOrThrow(dataSourceUuid), false);
+        combinedModel.getProvisionalRelationConcepts().stream()
                 .filter(relationConcept -> relationConcept.getLabel().startsWith(prefix))
                 // ... and add them to the ones from the KGS while ensuring that there are no conflicts
                 .filter(relationConcept -> availableRelationConcepts.stream().noneMatch(arc -> arc.sameAs(relationConcept)))
@@ -218,9 +190,8 @@ public class DataModelingHandler {
         updatePositions(dataSourceUuid, Collections.singletonList(schemaNode));
     }
 
-    @NotNull
     @Transactional
-    public DataSourceSchema modifySchema(@NotNull UUID uuid, @NotNull SyntacticOperationDTO syntacticOperationDTO) {
+    public @NotNull CombinedModel modifySchema(@NotNull UUID uuid, @NotNull SyntacticOperationDTO syntacticOperationDTO) {
 //        //load referenced data source
 //        DataSourceModel dataSourceModel = findDataSourceOrThrow(uuid);
 //        DataSourceSchema loadedSchema = peekDataSourceSchema(dataSourceModel, true);
@@ -484,20 +455,14 @@ public class DataModelingHandler {
         CombinedModel combinedModel = getCombinedModel(dataSourceModel, true);
 
         //compute entity concept
-        final EntityConcept usedEntityConcept = getAndUpdateCache(entityConcept, EntityConcept::getUuid, combinedModel.getEntityConceptCache());
+        final EntityConcept usedEntityConcept = getAndUpdateCache(
+                entityConcept,
+                EntityConcept::getUuid,
+                combinedModel.getProvisionalEntityConcepts());
 
         dataSourceRepository.save(dataSourceModel);
 
-        if (usedEntityConcept.getId() != null) {
-            return usedEntityConcept;
-        } else {
-            for (EntityConcept entityConcept : combinedModel.getEntityConceptCache()) {
-                if (entityConcept.getName().equals(usedEntityConcept.getName()) && entityConcept.getDescription().equals(usedEntityConcept.getDescription())) {
-                    return entityConcept;
-                }
-            }
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to cache entity concept.");
-        }
+        return usedEntityConcept;
     }
 
     @Transactional
@@ -505,7 +470,7 @@ public class DataModelingHandler {
         DataSourceModel dataSourceModel = findDataSourceOrThrow(dataSourceUuid);
         CombinedModel combinedModel = getCombinedModel(dataSourceModel, true);
 
-        boolean change = combinedModel.getSemanticModel().getProvisionalEntityConcepts().removeIf(o -> o.getUuid().equals(entityConceptUuid));
+        boolean change = combinedModel.getProvisionalEntityConcepts().removeIf(o -> o.getUuid().equals(entityConceptUuid));
         if (change) {
             dataSourceRepository.save(dataSourceModel);
         }
@@ -524,27 +489,17 @@ public class DataModelingHandler {
         //load schema - DON'T COPY since caching of transient concepts is not "undoable"
         DataSourceModel dataSourceModel = findDataSourceOrThrow(dataSourceUuid);
         CombinedModel combinedModel = getCombinedModel(dataSourceModel, true);
-
         //compute entity concept
         final RelationConcept usedRelationConcept = getAndUpdateCache(
-                receivedRelationConcept,
+                relationConcept,
                 RelationConcept::getUuid,
-                combinedModel.getRelationConceptCache()
+                combinedModel.getProvisionalRelationConcepts()
         );
 
         dataSourceRepository.save(dataSourceModel);
 
-        if (usedRelationConcept.getId() != null) {
             return usedRelationConcept;
-        } else {
-            for (RelationConcept relationConcept : combinedModel.getRelationConceptCache()) {
-                if (relationConcept.getName().equals(usedRelationConcept.getName()) && relationConcept.getDescription().equals(usedRelationConcept
-                        .getDescription())) {
-                    return relationConcept;
-                }
-            }
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to cache entity concept.");
-        }
+
     }
 
     @Transactional
@@ -552,31 +507,64 @@ public class DataModelingHandler {
         DataSourceModel dataSourceModel = findDataSourceOrThrow(dataSourceUuid);
         CombinedModel combinedModel = getCombinedModel(dataSourceModel, true);
 
-        boolean change = combinedModel.getSemanticModel().getProvisionalRelationConcepts().removeIf(o -> o.getUuid().equals(relationConceptUuid));
+        boolean change = combinedModel.getProvisionalRelationConcepts().removeIf(o -> o.getUuid().equals(relationConceptUuid));
         if (change) {
             dataSourceRepository.save(dataSourceModel);
         }
     }
 
-    /* UNDO / REDO Functions */
-// TODO check how to realize (versioning, storage...)
-    @NotNull
-    @Transactional
-    public DataSourceSchema undoDataSourceSchemaModification(@NotNull UUID dataSourceUuid) {
-        //Get the data source from the repository
-        DataSourceModel dataSourceModel = dataSourceRepository.findById(dataSourceUuid)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "Data Source does not exists"
-                ));
-        dataSourceModel.popDataSourceSchema();
-        dataSourceModel = dataSourceRepository.save(dataSourceModel);
-        return dataSourceModel.peekDataSourceSchema();
+    /**
+     * NOTE: this has side effects on the passed list
+     * Finds the entry in the cache which is equivalent to {@code element} concerning it's identity function and returns it. If there is none it uses the
+     * passed element and adds it to the cache. <i>Equivalence</i> of two elements {@code x} and {@code y} here means:
+     * {@code identityFunction.apply(x).equals(identityFunction.apply(y)}
+     *
+     * @param element          the entry which is looked for
+     * @param identityFunction the function which maps an element to it's {@link UUID} (usually just a method reference to T::getUuid)
+     * @param elementCache     the cache of known entries
+     * @return an entity concept which is equivalent to {@code entityConcept}
+     */
+    private <T extends CombinedModelElement> T getAndUpdateCache(
+            @NotNull T element,
+            @NotNull Function<T, String> identityFunction,
+            @NotNull List<T> elementCache
+    ) {
+        final T result;
+        String uuid = identityFunction.apply(element);
+        //if uuid exists see if one exists in the cache all-ready
+        if (uuid != null) {
+            Optional<T> cachedEntityConcept = elementCache.stream()
+                    .filter(ec -> identityFunction.apply(ec) != null && uuid.equals(identityFunction.apply(ec)))
+                    .findAny();
+            result = cachedEntityConcept.orElse(element);
+            if (cachedEntityConcept.isEmpty()) {
+                elementCache.add(result);
+            }
+        } else {
+            result = element;
+            elementCache.add(result);
+        }
+
+        return result;
     }
 
-    @NotNull
+    /* UNDO / REDO Functions */
+// TODO check how to realize (versioning, storage...)
     @Transactional
-    public DataSourceSchema redoDataSourceSchemaModification(@NotNull UUID dataSourceUuid) {
+    public @NotNull CombinedModel undoModelModification(@NotNull UUID dataSourceUuid) {
+        //Get the data source from the repository
+        DataSourceModel dataSourceModel = dataSourceRepository.findById(dataSourceUuid)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Data Source does not exists"
+                ));
+        dataSourceModel.popCombinedModel();
+        dataSourceModel = dataSourceRepository.save(dataSourceModel);
+        return dataSourceModel.getCurrentModel();
+    }
+
+    @Transactional
+    public @NotNull CombinedModel redoModelModification(@NotNull UUID dataSourceUuid) {
         //Get the data source from the repository
         DataSourceModel dataSourceModel = dataSourceRepository.findById(dataSourceUuid)
                 .orElseThrow(() -> new ResponseStatusException(
@@ -584,15 +572,15 @@ public class DataModelingHandler {
                         "Data Source does not exists"
                 ));
 
-        DataSourceSchema schema = dataSourceModel.restoreDataSourceSchema();
+        CombinedModel model = dataSourceModel.restoreCombinedModel();
         dataSourceRepository.save(dataSourceModel);
-        return schema;
+        return model;
     }
 
     /* Finish operations */
 
     @NotNull
-    public DataSourceSchema finishModeling(@NotNull UUID dataSourceUuid) {
+    public CombinedModel finishModeling(@NotNull UUID dataSourceUuid) {
         //Load the data source from the repository.
         DataSourceModel dataSourceModel = dataSourceRepository.findById(dataSourceUuid)
                 .orElseThrow(() -> new ResponseStatusException(
@@ -614,9 +602,9 @@ public class DataModelingHandler {
         // prevent any further modifications
         combinedModel.finalizeModel();
 
-        dataSourceModel.pushDataSourceSchema(finalDataSourceSchema);
+        dataSourceModel.pushCombinedModel(combinedModel);
         DataSourceModel finalDataSource = dataSourceRepository.save(dataSourceModel);
-        return finalDataSource.peekDataSourceSchema();
+        return finalDataSource.getCurrentModel();
     }
 
     @NotNull
@@ -767,11 +755,10 @@ public class DataModelingHandler {
         return result;
     }
 
-    @NotNull
-    private void persistCombinedModel(@NotNull UUID dataSourceUuid, @NotNull CombinedModel combinedModel) {
+    @Transactional
+    void persistCombinedModel(@NotNull UUID dataSourceUuid, @NotNull CombinedModel combinedModel) {
         DataSourceModel dataSourceModel = findDataSourceOrThrow(dataSourceUuid);
-        DataSourceSchema dataSourceSchema = combinedModelConverter.fromDTO(combinedModel);
-        dataSourceModel.pushDataSourceSchema(dataSourceSchema);
+        dataSourceModel.pushCombinedModel(combinedModel);
         dataSourceRepository.save(dataSourceModel);
     }
 
@@ -785,20 +772,15 @@ public class DataModelingHandler {
     @NotNull
     private CombinedModel getCombinedModel(@NotNull DataSourceModel dataSourceModel, boolean modelWillBeModified) {
         CombinedModel currentModel;
-        if (combinedModelCache.containsKey(dataSourceModel.getUuid().toString())) {
+        if (!combinedModelCache.containsKey(dataSourceModel.getUuid().toString())) {
+            currentModel = dataSourceModel.getCurrentModel();
+            combinedModelCache.put(dataSourceModel.getUuid().toString(), currentModel);
+        } else {
             // use the cached version, no need to reload from database
             currentModel = combinedModelCache.get(dataSourceModel.getUuid().toString());
-            if (modelWillBeModified && currentModel.isFinalized()) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Finalized models are not allowed to be modified");
-            }
-        } else {
-            DataSourceSchema dataSourceSchema = dataSourceModel.peekDataSourceSchema();
-            if (modelWillBeModified && dataSourceSchema.isFinalized()) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Finalized models are not allowed to be modified");
-            }
-            currentModel = combinedModelConverter.toCombinedModel(dataSourceSchema);
-            combinedModelCache.put(dataSourceModel.getUuid().toString(), currentModel);
-
+        }
+        if (modelWillBeModified && currentModel.isFinalized()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Finalized models are not allowed to be modified");
         }
         return currentModel;
     }
@@ -808,5 +790,9 @@ public class DataModelingHandler {
     private DataSourceModel findDataSourceOrThrow(@NotNull UUID dataSourceUuid) {
         return dataSourceRepository.findById(dataSourceUuid)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid data source uuid " + dataSourceUuid + ". "));
+    }
+
+    public CombinedModel requestRecommendations(String dataSourceUuid, CombinedModel combinedModel) {
+        return null;
     }
 }

@@ -162,7 +162,7 @@ public class KnowledgeGraphServiceDTO2CombinedModelConverter {
             }
         });
 
-        semanticModel.vaidate();
+        semanticModel.validate();
 
         // now that we have adjusted the ids, convert the elements
         final ArrayList<@NotNull EntityTypeDTO> entityTypes = CollectionUtilities.map(

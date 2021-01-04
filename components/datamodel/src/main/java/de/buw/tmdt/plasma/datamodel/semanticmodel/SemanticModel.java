@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import de.buw.tmdt.plasma.datamodel.CombinedModelIntegrityException;
 import de.buw.tmdt.plasma.utilities.misc.StringUtilities;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -97,7 +96,7 @@ public class SemanticModel {
 	 *
 	 * @throws CombinedModelIntegrityException If one or more errors occur
 	 */
-	public void vaidate() throws CombinedModelIntegrityException {
+	public void validate() throws CombinedModelIntegrityException {
 		List<String> errors = new ArrayList<>();
 		for (EntityType entityType : getNodes()) {
 			EntityConcept entityConcept = entityType.getEntityConcept();
@@ -168,27 +167,7 @@ public class SemanticModel {
 				+ '}';
 	}
 
-	/**
-	 * Returns all provisional {@link EntityConcept}s in this model
-	 *
-	 * @return A list of provisional {@link EntityConcept}s in the model
-	 */
-	@NotNull
-	public Collection<EntityConcept> getProvisionalEntityConcepts() {
-		// TODO add provisional entity concepts here
-		return new ArrayList<>();
-	}
 
-	/**
-	 * Returns all provisional {@link RelationConcept}s in this model
-	 *
-	 * @return A list of provisional {@link RelationConcept}s in the model
-	 */
-	@NotNull
-	public Collection<RelationConcept> getProvisionalRelationConcepts() {
-		// TODO add provisional relation concepts here
-		return new ArrayList<>();
-	}
 
 
 }

@@ -1,37 +1,29 @@
 package de.buw.tmdt.plasma.services.dms.core.model.datasource;
 
-import de.buw.tmdt.plasma.utilities.misc.StringUtilities;
-import org.hibernate.annotations.DynamicUpdate;
+import de.buw.tmdt.plasma.datamodel.CombinedModel;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.data.annotation.Id;
 
-import javax.persistence.*;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
-@SuppressWarnings("DefaultAnnotationParam - explicit > implicit")
-@DynamicUpdate
-@Entity
-@Table(name = "data_sources")
 public class DataSourceModel {
 
 	@Id
-	@Column(nullable = false, unique = true, updatable = false, length = 16)
 	private UUID uuid;
 
 	//The value is only set after the schema analysis
-	@JoinColumn(name = "owningNode_uuid")
-	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-	private List<DataSourceSchema> dataSourceSchemaStack = new ArrayList<>();
+	// Map <Version, CombinedModel>
+	private Map<Integer, CombinedModel> combinedModelVersions = new HashMap<>();
 
-	@Column(nullable = false)
-	private int stackIndexPointer;
+	private int versionPointer;
 
-	@OneToOne(cascade = CascadeType.ALL, optional = true)
-	private DataSourceSchema currentSchema;
 
 	public DataSourceModel() {
-		this.stackIndexPointer = -1;
+		this.versionPointer = 0;
 	}
 
 	public DataSourceModel(UUID uuid) {
@@ -40,28 +32,24 @@ public class DataSourceModel {
 	}
 
 	@NotNull
-	public List<DataSourceSchema> getDataSourceSchemaStack() {
-		return new ArrayList<>(this.dataSourceSchemaStack.subList(0, stackIndexPointer + 1));
+	public List<CombinedModel> getAllCombinedModels() {
+		return this.combinedModelVersions.entrySet().stream()
+				.sorted(Map.Entry.comparingByKey())
+				.map(Map.Entry::getValue)
+				.collect(Collectors.toList());
 	}
 
-	@SuppressWarnings("AssignmentOrReturnOfFieldWithMutableType - hibernate uses proxies which must not be rewrapped")
-	public void setDataSourceSchemaStack(@NotNull List<DataSourceSchema> schemaDefinitionStack) {
-		this.dataSourceSchemaStack.clear();
-		this.dataSourceSchemaStack.addAll(schemaDefinitionStack);
-		final int lastStackIndex = this.dataSourceSchemaStack.size() - 1;
-		this.currentSchema = lastStackIndex >= 0 ? this.dataSourceSchemaStack.get(lastStackIndex) : null;
-		this.stackIndexPointer = lastStackIndex;
+	public Map<Integer, CombinedModel> getAllCombinedModelVersions() {
+		return this.combinedModelVersions == null ? new HashMap<>() : this.combinedModelVersions;
 	}
 
-	public void pushDataSourceSchema(@NotNull DataSourceSchema schema) {
-		if (stackIndexPointer >= 0 && stackIndexPointer != dataSourceSchemaStack.size() - 1) {
-			if (dataSourceSchemaStack.size() > stackIndexPointer + 1) {
-				dataSourceSchemaStack.subList(stackIndexPointer + 1, dataSourceSchemaStack.size()).clear();
+	public void pushCombinedModel(@NotNull CombinedModel model) {
+		if (versionPointer >= 1 && versionPointer != combinedModelVersions.size()) {
+			if (combinedModelVersions.size() > versionPointer) {
+				combinedModelVersions.entrySet().removeIf(versionedModel -> versionedModel.getKey() > versionPointer);
 			}
 		}
-		dataSourceSchemaStack.add(schema);
-		stackIndexPointer = dataSourceSchemaStack.size() - 1;
-		this.currentSchema = schema;
+		combinedModelVersions.put(++versionPointer, model);
 	}
 
 	@NotNull
@@ -70,32 +58,34 @@ public class DataSourceModel {
 	}
 
 	@NotNull
-	public DataSourceSchema peekDataSourceSchema() {
-		return this.currentSchema;
+	public CombinedModel getCurrentModel() {
+		return combinedModelVersions.get(versionPointer);
 	}
 
-	public void popDataSourceSchema() {
-		if (stackIndexPointer == -1 || stackIndexPointer == 0) {
+	public void popCombinedModel() {
+		if (versionPointer == 0) {
 			return;
 		}
-		this.currentSchema = this.dataSourceSchemaStack.get(--this.stackIndexPointer);
+		--this.versionPointer;
 	}
 
 	@NotNull
-	public DataSourceSchema restoreDataSourceSchema() {
-		if (stackIndexPointer >= this.dataSourceSchemaStack.size() - 1) {
+	public CombinedModel restoreCombinedModel() {
+		if (versionPointer >= this.combinedModelVersions.size() - 1) {
 			throw new RuntimeException("Schema cannot be null");
 		}
-		this.currentSchema = this.dataSourceSchemaStack.get(++this.stackIndexPointer);
-		return this.currentSchema;
+		++this.versionPointer;
+		return getCurrentModel();
 	}
+
 
 	@Override
 	@SuppressWarnings("MagicCharacter")
 	public String toString() {
 		return "{\"@class\":\"DataSourceModel\""
-		       + ", \"@super\":" + super.toString()
-		       + ", \"dataSourceSchemaStack\":" + StringUtilities.listToJson(dataSourceSchemaStack)
-		       + '}';
+				+ ", \"@super\":" + super.toString()
+				+ ", \"currentVersion\":" + versionPointer
+				+ ", \"maxVersion\":" + combinedModelVersions.size()
+				+ '}';
 	}
 }
