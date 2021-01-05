@@ -34,6 +34,8 @@ public class CombinedModel implements Serializable {
 	private static final String PRIMITIVE_ENTITY_TYPE_LIST = "primitiveToEntityTypeList";
 	private static final String RECOMMENDATION_LIST = "recommendations";
 	private static final String FINALIZED = "finalized";
+	private static final String PROVISIONAL_ENTITY_CONCEPTS_PROPERTY = "provisionalEntityConcepts";
+	private static final String PROVISIONAL_RELATION_CONCEPTS_PROPERTY = "provisionalRelationConcepts";
 	private static final long serialVersionUID = 1069167546126071914L;
 
 
@@ -70,6 +72,18 @@ public class CombinedModel implements Serializable {
 		this(dataSourceUuid, syntaxModel, semanticModel, null, null, false);
 	}
 
+	public CombinedModel(
+			@NotNull String dataSourceUuid,
+			@NotNull SyntaxModel syntaxModel,
+			SemanticModel semanticModel,
+			List<? extends PrimitiveEntityTypeMapping> primitiveEntityTypeMappings,
+			List<DeltaModification> recommendations,
+			boolean finalized
+	) {
+		this(dataSourceUuid, syntaxModel, semanticModel, primitiveEntityTypeMappings, recommendations, finalized, null, null);
+
+	}
+
 	@JsonCreator
 	public CombinedModel(
 			@JsonProperty(DATA_SOURCE_UUID) @NotNull String dataSourceUuid,
@@ -77,7 +91,10 @@ public class CombinedModel implements Serializable {
 			@JsonProperty(SEMANTIC_MODEL_PROPERTY) SemanticModel semanticModel,
 			@JsonProperty(PRIMITIVE_ENTITY_TYPE_LIST) List<? extends PrimitiveEntityTypeMapping> primitiveEntityTypeMappings,
 			@JsonProperty(RECOMMENDATION_LIST) List<DeltaModification> recommendations,
-			@JsonProperty(value = FINALIZED, defaultValue = "false") boolean finalized
+			@JsonProperty(value = FINALIZED, defaultValue = "false") boolean finalized,
+			@JsonProperty(PROVISIONAL_ENTITY_CONCEPTS_PROPERTY) List<EntityConcept> provisionalEntityConcepts,
+			@JsonProperty(PROVISIONAL_RELATION_CONCEPTS_PROPERTY) List<RelationConcept> provisionalRelationConcepts
+
 	) {
 		this.dataSourceUuid = dataSourceUuid;
 		this.syntaxModel = syntaxModel;
@@ -85,6 +102,8 @@ public class CombinedModel implements Serializable {
 		this.primitiveEntityTypeMappings = primitiveEntityTypeMappings == null ? new ArrayList<>() : new ArrayList<>(primitiveEntityTypeMappings);
 		this.finalized = finalized;
 		this.recommendations = recommendations == null ? new ArrayList<>() : new ArrayList<>(recommendations);
+		this.provisionalEntityConcepts = provisionalEntityConcepts == null ? new ArrayList<>() : provisionalEntityConcepts;
+		this.provisionalRelationConcepts = provisionalRelationConcepts == null ? new ArrayList<>() : provisionalRelationConcepts;
 	}
 
 	@JsonProperty(DATA_SOURCE_UUID)
@@ -133,6 +152,7 @@ public class CombinedModel implements Serializable {
 	 * @return A list of provisional {@link EntityConcept}s in the model
 	 */
 	@NotNull
+	@JsonProperty(PROVISIONAL_ENTITY_CONCEPTS_PROPERTY)
 	public List<EntityConcept> getProvisionalEntityConcepts() {
 		return provisionalEntityConcepts;
 	}
@@ -143,6 +163,7 @@ public class CombinedModel implements Serializable {
 	 * @return A list of provisional {@link RelationConcept}s in the model
 	 */
 	@NotNull
+	@JsonProperty(PROVISIONAL_RELATION_CONCEPTS_PROPERTY)
 	public List<RelationConcept> getProvisionalRelationConcepts() {
 		return provisionalRelationConcepts;
 	}
