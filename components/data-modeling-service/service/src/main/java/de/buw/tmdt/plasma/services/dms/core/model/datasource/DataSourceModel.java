@@ -69,22 +69,21 @@ public class DataSourceModel {
 		return uuid;
 	}
 
-	@NotNull
 	public CombinedModel getCurrentModel() {
 		return combinedModelVersions.get(versionPointer);
 	}
 
-	public void popCombinedModel() {
+	public void popCombinedModel() throws UnsupportedOperationException {
 		if (versionPointer == 0) {
-			return;
+			throw new UnsupportedOperationException("No schema available.");
 		}
 		--this.versionPointer;
 	}
 
 	@NotNull
-	public CombinedModel restoreCombinedModel() {
-		if (versionPointer >= this.combinedModelVersions.size() - 1) {
-			throw new RuntimeException("Schema cannot be null");
+	public CombinedModel restoreCombinedModel() throws UnsupportedOperationException {
+		if (versionPointer == this.combinedModelVersions.size()) {
+			throw new UnsupportedOperationException("Already on latest schema.");
 		}
 		++this.versionPointer;
 		return getCurrentModel();

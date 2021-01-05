@@ -546,7 +546,7 @@ public class DataModelingHandler {
 
         dataSourceRepository.save(dataSourceModel);
 
-            return usedRelationConcept;
+        return usedRelationConcept;
 
     }
 
@@ -606,7 +606,15 @@ public class DataModelingHandler {
                         HttpStatus.NOT_FOUND,
                         "Data Source does not exists"
                 ));
-        dataSourceModel.popCombinedModel();
+        try {
+            dataSourceModel.popCombinedModel();
+        } catch (UnsupportedOperationException e) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    e.getMessage()
+            );
+        }
+
         dataSourceModel = dataSourceRepository.save(dataSourceModel);
         return dataSourceModel.getCurrentModel();
     }
@@ -619,8 +627,16 @@ public class DataModelingHandler {
                         HttpStatus.NOT_FOUND,
                         "Data Source does not exists"
                 ));
+        CombinedModel model;
+        try {
+            model = dataSourceModel.restoreCombinedModel();
+        } catch (UnsupportedOperationException e) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    e.getMessage()
+            );
+        }
 
-        CombinedModel model = dataSourceModel.restoreCombinedModel();
         dataSourceRepository.save(dataSourceModel);
         return model;
     }
@@ -647,6 +663,7 @@ public class DataModelingHandler {
             e.printStackTrace();
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error occurred during conversion.");
         }
+        // TODO use altered semantic model here!
         // prevent any further modifications
         combinedModel.finalizeModel();
 
