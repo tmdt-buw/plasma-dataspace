@@ -29,7 +29,7 @@ public class CompositeNode extends SchemaNode {
 			@NotNull String label,
 			@NotNull List<SyntacticOperationDTO> operations,
 			boolean isValid,
-			@NotNull String cleansingPattern,
+			@Nullable String cleansingPattern,
 			@NotNull List<Splitting> splitter
 	) {
 		super(label, operations, isValid);
