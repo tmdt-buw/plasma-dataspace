@@ -11,8 +11,12 @@ import de.buw.tmdt.plasma.datamodel.syntaxmodel.PrimitiveNode;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.SchemaNode;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.SyntaxModel;
 import de.buw.tmdt.plasma.services.dms.core.converter.KnowledgeGraphServiceDTO2CombinedModelConverter;
+import de.buw.tmdt.plasma.services.dms.core.converter.SchemaOperationDTOConverter;
 import de.buw.tmdt.plasma.services.dms.core.model.ModelBase;
 import de.buw.tmdt.plasma.services.dms.core.model.datasource.DataSourceModel;
+import de.buw.tmdt.plasma.services.dms.core.operations.Operation;
+import de.buw.tmdt.plasma.services.dms.core.operations.OperationLookUp;
+import de.buw.tmdt.plasma.services.dms.core.operations.exceptions.ParameterParsingException;
 import de.buw.tmdt.plasma.services.dms.core.repository.DataSourceRepository;
 import de.buw.tmdt.plasma.services.kgs.shared.dto.semanticmodel.SemanticModelCreationResponse;
 import de.buw.tmdt.plasma.services.kgs.shared.dto.semanticmodel.SemanticModelDTO;
@@ -48,6 +52,8 @@ public class DataModelingHandler {
     private final DataSourceRepository dataSourceRepository;
     private final SchemaAnalysisApiClient schemaAnalysisApiClient;
     private final SemanticRecommendationApiClient semanticRecommendationApiClient;
+    private final SchemaOperationDTOConverter schemaOperationDTOConverter;
+    private final OperationLookUp operationLookUp;
 
     // TODO ensure this does not grow infinitely
     private final HashMap<String, CombinedModel> combinedModelCache = new HashMap<>();
@@ -59,13 +65,15 @@ public class DataModelingHandler {
             @NotNull KnowledgeGraphServiceDTO2CombinedModelConverter kgs2CMConverter,
             @NotNull DataSourceRepository dataSourceRepository,
             @NotNull SchemaAnalysisApiClient schemaAnalysisApiClient,
-            @NotNull SemanticRecommendationApiClient semanticRecommendationApiClient) {
+            @NotNull SemanticRecommendationApiClient semanticRecommendationApiClient, SchemaOperationDTOConverter schemaOperationDTOConverter, OperationLookUp operationLookUp) {
         this.localKnowledgeApiClient = localKnowledgeApiClient;
         this.universalKnowledgeApiClient = universalKnowledgeApiClient;
         this.kgs2CMConverter = kgs2CMConverter;
         this.dataSourceRepository = dataSourceRepository;
         this.schemaAnalysisApiClient = schemaAnalysisApiClient;
         this.semanticRecommendationApiClient = semanticRecommendationApiClient;
+        this.schemaOperationDTOConverter = schemaOperationDTOConverter;
+        this.operationLookUp = operationLookUp;
     }
 
     public void initDataSourceSchema(@NotNull UUID uuid, int exampleLimit) {
@@ -235,27 +243,26 @@ public class DataModelingHandler {
 
     @Transactional
     public @NotNull CombinedModel modifySchema(@NotNull UUID uuid, @NotNull SyntacticOperationDTO syntacticOperationDTO) {
-//        //load referenced data source
-//        DataSourceModel dataSourceModel = findDataSourceOrThrow(uuid);
-//        DataSourceSchema loadedSchema = peekDataSourceSchema(dataSourceModel, true);
-//        DataSourceSchema newSchema = loadedSchema.copy();
-//
-//        //deserialize syntactic operation
-//        Operation.Handle handle = schemaOperationDTOConverter.fromDTO(syntacticOperationDTO);
-//
-//        final DataSourceSchema modifiedSchema;
-//        try {
-//            modifiedSchema = handle.invoke(newSchema);
-//        } catch (ParameterParsingException e) {
-//            logger.warn("Failed to execute operation: {}", syntacticOperationDTO, e);
-//            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Parametrization for operation " + syntacticOperationDTO.getName() + " was invalid.");
-//        }
-//
-//        //persist and return copy
-//        dataSourceModel.pushDataSourceSchema(modifiedSchema);
-//        dataSourceModel = dataSourceRepository.save(dataSourceModel);
-//        return dataSourceModel.peekDataSourceSchema();
-        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Currently not available.");
+        //load referenced data source
+        DataSourceModel dataSourceModel = findDataSourceOrThrow(uuid);
+
+        CombinedModel combinedModel = getCombinedModel(dataSourceModel, true); // TODO restore clone here?
+
+        //deserialize syntactic operation
+        Operation.Handle handle = schemaOperationDTOConverter.fromDTO(syntacticOperationDTO);
+
+        final CombinedModel modifiedModel;
+        try {
+            modifiedModel = handle.invoke(combinedModel);
+        } catch (ParameterParsingException e) {
+            logger.warn("Failed to execute operation: {}", syntacticOperationDTO, e);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Parametrization for operation " + syntacticOperationDTO.getName() + " was invalid.");
+        }
+
+        //persist and return copy
+        dataSourceModel.pushCombinedModel(modifiedModel);
+        dataSourceModel = dataSourceRepository.save(dataSourceModel);
+        return dataSourceModel.getCurrentModel();
     }
 
     /* SEMANTIC MODEL OPERATIONS */
