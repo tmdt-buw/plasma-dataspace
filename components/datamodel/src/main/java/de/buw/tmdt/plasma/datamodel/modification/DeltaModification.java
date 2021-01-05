@@ -60,6 +60,14 @@ public class DeltaModification implements Serializable {
                              @Nullable Set<EntityType> entities,
                              @Nullable Set<Relation> relations,
                              @Nullable Set<SchemaNode> nodes,
+                             @Nullable Set<Edge> edges) {
+        this(reference, entities, relations, nodes, edges, 0.0);
+    }
+
+    public DeltaModification(@NotNull String reference,
+                             @Nullable Set<EntityType> entities,
+                             @Nullable Set<Relation> relations,
+                             @Nullable Set<SchemaNode> nodes,
                              @Nullable Set<Edge> edges,
                              @Nullable Double confidence) {
         this.reference = reference;
