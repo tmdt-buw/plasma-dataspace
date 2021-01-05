@@ -1,5 +1,6 @@
 package de.buw.tmdt.plasma.datamodel.syntaxmodel;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import de.buw.tmdt.plasma.utilities.collections.CollectionUtilities;
 import de.buw.tmdt.plasma.utilities.misc.StringUtilities;
@@ -9,6 +10,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class SyntaxModel implements Serializable {
 
@@ -53,25 +56,46 @@ public class SyntaxModel implements Serializable {
 		return edges;
 	}
 
-	@NotNull
-	public SchemaNode getParentNodeFor(String nodeUuid) {
-		Edge edgeToParent = getEdges().stream()
-				.filter(edge -> edge.getTo().equals(nodeUuid))
-				.findFirst().orElseThrow();
-		return getNodes().stream()
-				.filter(schemaNode -> schemaNode.getUuid().equals(edgeToParent.getFrom()))
-				.findFirst().orElseThrow();
-	}
+    @NotNull
+    @JsonIgnore
+    public SchemaNode getParentNodeFor(String nodeUuid) {
+        Edge edgeToParent = getEdges().stream()
+                .filter(edge -> edge.getTo().equals(nodeUuid))
+                .findFirst().orElseThrow();
+        return getNodes().stream()
+                .filter(schemaNode -> schemaNode.getUuid().equals(edgeToParent.getFrom()))
+                .findFirst().orElseThrow();
+    }
 
-	@Override
-	public int hashCode() {
-		return Objects.hash(nodes, edges);
-	}
+    @NotNull
+    @JsonIgnore
+    public Set<SchemaNode> getChildNodesForNode(String nodeUuid) {
+        List<String> childNodeUuids = getEdges().stream()
+                .filter(edge -> edge.getFrom().equals(nodeUuid))
+                .map(Edge::getTo)
+                .collect(Collectors.toList());
+        return getNodes().stream()
+                .filter(schemaNode -> childNodeUuids.contains(schemaNode.getUuid()))
+                .collect(Collectors.toSet());
+    }
 
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) {
-			return true;
+    @JsonIgnore
+    public SchemaNode getNode(@NotNull String nodeUuid) {
+        return getNodes().stream()
+                .filter(schemaNode -> nodeUuid.equals(schemaNode.getUuid()))
+                .findFirst().orElse(null);
+    }
+
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(nodes, edges);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
 		}
 		if (o == null || !getClass().equals(o.getClass())) {
 			return false;

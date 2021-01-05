@@ -1,9 +1,11 @@
 package de.buw.tmdt.plasma.datamodel.semanticmodel;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import de.buw.tmdt.plasma.datamodel.CombinedModelIntegrityException;
 import de.buw.tmdt.plasma.utilities.misc.StringUtilities;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -62,6 +64,7 @@ public class SemanticModel {
 	 *
 	 * @return A copy of the current {@link SemanticModel} with merged same {@link EntityConcept}s and {@link RelationConcept}s
 	 */
+	@JsonIgnore
 	public SemanticModel mergeConcepts() {
 		SemanticModel model = clone();
 		// merge all entity concepts
@@ -85,6 +88,19 @@ public class SemanticModel {
 			}
 		});
 		return model;
+	}
+
+	/**
+	 * Retrieves an {@link EntityType} from the model
+	 *
+	 * @param entityTypeUuid The types uuid
+	 * @return a matching type or null if not found
+	 */
+	@JsonIgnore
+	public EntityType getEntityType(@NotNull String entityTypeUuid) {
+		return getNodes().stream()
+				.filter(schemaNode -> entityTypeUuid.equals(schemaNode.getUuid()))
+				.findFirst().orElse(null);
 	}
 
 	/**
