@@ -17,11 +17,12 @@
         <module>components/spring-boot-admin</module>
         <module>components/discovery-service</module>
         <module>components/gateway-service</module>
-		<module>components/semantic-recommendation-service</module>
-		<module>components/semantic-database-service</module>
-		<module>components/utilities</module>
-		<module>components/datasource-service</module>
-		<module>auxiliary_services/ARS-L-label-matching</module>
+        <module>components/semantic-recommendation-service</module>
+        <module>components/semantic-database-service</module>
+        <module>components/utilities</module>
+        <module>components/datasource-service</module>
+        <module>auxiliary_services/ARS-L-label-matching</module>
+        <module>auxiliary_services/ARS-M-standard-matching</module>
     </modules>
 
     <properties>
