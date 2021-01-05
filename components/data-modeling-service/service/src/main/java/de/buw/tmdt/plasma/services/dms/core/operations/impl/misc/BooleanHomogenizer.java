@@ -17,7 +17,7 @@ public class BooleanHomogenizer extends AbstractSyntaxHomogenizer {
 		super(DataType.BOOLEAN);
 	}
 
-	public static boolean parseHomogenizedRepresentation(@NotNull String homogenizedValue) throws SLTDataTypeException {
+	public static boolean parseHomogenizedRepresentation(@NotNull String homogenizedValue) throws DataTypeException {
 		for (String falseConstant : FALSE_CANDIDATES) {
 			if (falseConstant.equalsIgnoreCase(homogenizedValue)) {
 				return false;
@@ -30,10 +30,10 @@ public class BooleanHomogenizer extends AbstractSyntaxHomogenizer {
 			}
 		}
 
-		throw new SLTDataTypeException(
+		throw new DataTypeException(
 				"Passed raw value \"" + homogenizedValue + "\" was neither \"" +
-				BooleanHomogenizer.TRUE_CONSTANT + "\" nor \"" +
-				BooleanHomogenizer.FALSE_CONSTANT + "\"."
+						BooleanHomogenizer.TRUE_CONSTANT + "\" nor \"" +
+						BooleanHomogenizer.FALSE_CONSTANT + "\"."
 		);
 	}
 
@@ -59,7 +59,7 @@ public class BooleanHomogenizer extends AbstractSyntaxHomogenizer {
 			} else {
 				return FALSE_CONSTANT;
 			}
-		} catch (SLTDataTypeException ignored) {
+		} catch (DataTypeException ignored) {
 			logger.trace("Failed to match the value against any of the known constants.");
 		}
 

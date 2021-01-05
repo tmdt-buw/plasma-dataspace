@@ -19,11 +19,11 @@ public class NumberHomogenizer extends AbstractSyntaxHomogenizer {
 		this.numberFormat = NumberFormat.getNumberInstance(Locale.ENGLISH);
 	}
 
-	public static double parseHomogenizedRepresentation(@NotNull String homogenizedValue) throws SLTDataTypeException {
+	public static double parseHomogenizedRepresentation(@NotNull String homogenizedValue) throws DataTypeException {
 		try {
 			return Double.parseDouble(homogenizedValue);
 		} catch (NumberFormatException e) {
-			throw new SLTDataTypeException(e);
+			throw new DataTypeException(e);
 		}
 	}
 
@@ -45,7 +45,7 @@ public class NumberHomogenizer extends AbstractSyntaxHomogenizer {
 		assertDataTypeValidity(dataType, NumberHomogenizer.class.getName());
 		try {
 			return String.valueOf(NumberHomogenizer.parseHomogenizedRepresentation(value));
-		} catch (SLTDataTypeException e) {
+		} catch (DataTypeException e) {
 			logger.debug("Value \"{}\" was not parsable as double.", value, e);
 		}
 
