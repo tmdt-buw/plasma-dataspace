@@ -62,6 +62,7 @@ public class LabelMatchingHandler {
                     if (parentNode.isPresent()) {
                         PrimitiveEntityTypeMapping mapping = new PrimitiveEntityTypeMapping(
                                 node.getUuid(),
+                                et.getUuid(),
                                 parentNode.get().getUuid());
 
                         combined.getPrimitiveEntityTypeMappings().add(mapping);
