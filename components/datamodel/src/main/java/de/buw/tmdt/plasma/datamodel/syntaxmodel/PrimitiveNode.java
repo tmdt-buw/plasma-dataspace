@@ -27,13 +27,28 @@ public class PrimitiveNode extends SchemaNode {
 
 	public PrimitiveNode(
 			@NotNull String label,
+			@NotNull String dataType
+	) {
+		this(label, null, true, dataType, new ArrayList<>(), null);
+	}
+
+	public PrimitiveNode(
+			@NotNull String label,
+			boolean isValid,
+			@NotNull String dataType
+	) {
+		this(label, null, isValid, dataType, new ArrayList<>(), null);
+	}
+
+	public PrimitiveNode(
+			@NotNull String label,
 			@Nullable List<@NotNull SyntacticOperationDTO> operations,
 			boolean isValid,
 			@NotNull String dataType,
 			@Nullable List<String> examples,
 			@Nullable String cleansingPattern
 	) {
-		super( label, operations == null ? new ArrayList<>() : operations, isValid);
+		super(label, operations == null ? new ArrayList<>() : operations, isValid);
 		this.dataType = dataType;
 		this.examples = examples != null ? new ArrayList<>(examples) : new ArrayList<>();
 		this.cleansingPattern = cleansingPattern;
