@@ -10,7 +10,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 public class SyntaxModel implements Serializable {
@@ -69,14 +68,14 @@ public class SyntaxModel implements Serializable {
 
     @NotNull
     @JsonIgnore
-    public Set<SchemaNode> getChildNodesForNode(String nodeUuid) {
-        List<String> childNodeUuids = getEdges().stream()
-                .filter(edge -> edge.getFrom().equals(nodeUuid))
-                .map(Edge::getTo)
-                .collect(Collectors.toList());
-        return getNodes().stream()
-                .filter(schemaNode -> childNodeUuids.contains(schemaNode.getUuid()))
-                .collect(Collectors.toSet());
+    public List<SchemaNode> getChildNodesForNode(String nodeUuid) {
+	    List<String> childNodeUuids = getEdges().stream()
+			    .filter(edge -> edge.getFrom().equals(nodeUuid))
+			    .map(Edge::getTo)
+			    .collect(Collectors.toList());
+	    return getNodes().stream()
+			    .filter(schemaNode -> childNodeUuids.contains(schemaNode.getUuid()))
+			    .collect(Collectors.toList());
     }
 
     @JsonIgnore

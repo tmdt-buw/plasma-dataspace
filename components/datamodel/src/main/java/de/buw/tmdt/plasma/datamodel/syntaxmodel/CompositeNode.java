@@ -17,17 +17,19 @@ import java.util.Objects;
 public class CompositeNode extends SchemaNode {
 
 	private static final long serialVersionUID = 5858068735685107958L;
+	private static final String EXAMPLES_PROPERTY = "examples";
 	private static final String SPLITTER_PROPERTY = "splitter";
 	private static final String CLEANSING_PATTERN_PROPERTY = "cleansingPattern";
 
-	private final List<Splitting> splitter;
-	private final String cleansingPattern;
+	private List<Splitting> splitter;
+	private List<String> examples;
+	private String cleansingPattern;
 
 	public CompositeNode(
 			@NotNull String label,
 			@NotNull List<SyntacticOperationDTO> operations,
-			 boolean isValid,
-			@NotNull  String cleansingPattern,
+			boolean isValid,
+			@NotNull String cleansingPattern,
 			@NotNull List<Splitting> splitter
 	) {
 		super(label, operations, isValid);
@@ -44,12 +46,15 @@ public class CompositeNode extends SchemaNode {
 			@Nullable @JsonProperty(Y_COORDINATE_PROPERTY) Double yCoordinate,
 			@NotNull @JsonProperty(OPERATIONS_PROPERTY) List<SyntacticOperationDTO> operations,
 			@JsonProperty(IS_VALID_PROPERTY) boolean isValid,
+			@JsonProperty(EXAMPLES_PROPERTY) List<String> examples,
 			@JsonProperty(CLEANSING_PATTERN_PROPERTY) String cleansingPattern,
 			@NotNull @JsonProperty(SPLITTER_PROPERTY) List<Splitting> splitter
 	) {
 		super(uuid, label, xCoordinate, yCoordinate, operations, isValid);
+		this.examples = examples;
 		this.cleansingPattern = cleansingPattern;
 		this.splitter = splitter;
+
 	}
 
 	@JsonProperty(CLEANSING_PATTERN_PROPERTY)
@@ -61,6 +66,23 @@ public class CompositeNode extends SchemaNode {
 	@JsonProperty(SPLITTER_PROPERTY)
 	public List<Splitting> getSplitter() {
 		return splitter;
+	}
+
+	@JsonProperty(EXAMPLES_PROPERTY)
+	public List<String> getExamples() {
+		return examples;
+	}
+
+	public void setCleansingPattern(String cleansingPattern) {
+		this.cleansingPattern = cleansingPattern;
+	}
+
+	public void setExamples(List<String> examples) {
+		this.examples = examples;
+	}
+
+	public void setSplitter(List<Splitting> splitter) {
+		this.splitter = splitter;
 	}
 
 	@Override

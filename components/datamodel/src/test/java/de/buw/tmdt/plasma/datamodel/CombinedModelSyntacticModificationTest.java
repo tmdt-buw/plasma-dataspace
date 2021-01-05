@@ -26,7 +26,7 @@ public class CombinedModelSyntacticModificationTest {
         Splitting splitting1 = new Splitting("-");
 
         // by just defining the split, needed new nodes should be generated automatically
-        CompositeNode compositeNode = new CompositeNode(identNode.getUuid(), "", identNode.getXCoordinate(), identNode.getYCoordinate(), new ArrayList<>(), true, identNode.getCleansingPattern(), Arrays.asList(splitting1));
+        CompositeNode compositeNode = new CompositeNode(identNode.getUuid(), "", identNode.getXCoordinate(), identNode.getYCoordinate(), new ArrayList<>(), true, new ArrayList<>(), identNode.getCleansingPattern(), Arrays.asList(splitting1));
 
         DeltaModification modification = new DeltaModification("mod_testSplitPrimitiveNode", null, null, Collections.singleton(compositeNode), null, 0.0);
 
@@ -75,7 +75,10 @@ public class CombinedModelSyntacticModificationTest {
         assertTrue(generatedNodes.get(0).getExamples().containsAll(Arrays.asList("10", "20", "test")), "First generated nodes example values do not match");
         assertTrue(generatedNodes.get(1).getExamples().containsAll(Arrays.asList("11", "21", "test")), "Second generated nodes example values do not match");
 
+        // TODO assert that example values, coordinates and cleansing pattern are correctly copied to composite node
+        // TODO assert that a potential m apping to the old primitive node is detached!
     }
 
+    // TODO add test re-split
 
 }

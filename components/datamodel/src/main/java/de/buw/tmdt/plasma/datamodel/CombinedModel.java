@@ -182,12 +182,61 @@ public class CombinedModel implements Serializable {
 					continue;
 				}
 				if (replacedNode instanceof CompositeNode) {
-					// check if the patterns match, as this was split before
-					// TODO
-				}
-				if (replacedNode instanceof PrimitiveNode) {
+					// this was split before. we change the splitting patterns
+					CompositeNode replacedCompositeNode = (CompositeNode) replacedNode;
+					ArrayList<PrimitiveNode> newComponents = new ArrayList<>(compositeNode.getSplitter().size() + 1);
+					// get all child nodes of the composite node
+					List<PrimitiveNode> oldComponents = getSyntaxModel().getChildNodesForNode(replacedNode.getUuid()).stream()
+							.map(schemaNode -> (PrimitiveNode) schemaNode)
+							.collect(Collectors.toList());
+
+					// recycle old components or create new ones if not enough existing
+					for (int i = 0; i < compositeNode.getSplitter().size() + 1; i++) {
+						if (i < oldComponents.size()) {
+							newComponents.add(oldComponents.get(i));
+						} else {
+							newComponents.add(new PrimitiveNode(
+									replacedNode.getLabel() + "-" + i,
+									new ArrayList<>(),
+									true,
+									DataType.UNKNOWN.name(),
+									new ArrayList<>(),
+									null));
+						}
+					}
+
+					// split and distribute the example values again
+					for (String example : replacedCompositeNode.getExamples()) {
+						String leftOver = example;
+						for (int i = 0; i < compositeNode.getSplitter().size(); i++) {
+							Pair<String, String> split = compositeNode.getSplitter().get(i).apply(leftOver);
+							newComponents.get(i).getExamples().add(split.getLeft());
+							leftOver = split.getRight();
+						}
+						newComponents.get(newComponents.size() - 1).getExamples().add(leftOver);
+					}
+
+					// remove all oldComponents
+					syntaxModel.getNodes().removeAll(oldComponents);
+					// now add newComponents (restoring some or all of the old components to the model)
+					syntaxModel.getNodes().addAll(newComponents);
+
+					// finally, remove obsolete edges that linked to oldComponents that have been removed
+					// needed if newComponents.size() < oldComponents.size()
+					oldComponents.removeAll(newComponents);
+					// get the ids of the remaining elements and delete edges going to them
+					List<String> obsoleteOldComponentIds = oldComponents.stream().map(CombinedModelElement::getUuid)
+							.collect(Collectors.toList());
+					getSyntaxModel().getEdges().removeIf(edge -> obsoleteOldComponentIds.contains(edge.getTo()));
+				} else if (replacedNode instanceof PrimitiveNode) {
 					// we split a previous primitive node
 					PrimitiveNode replaced = (PrimitiveNode) replacedNode;
+					// copy existing example values, cleansing pattern and coordinates to composite node
+					compositeNode.setExamples(replaced.getExamples());
+					compositeNode.setXCoordinate(replaced.getXCoordinate());
+					compositeNode.setYCoordinate(replaced.getYCoordinate());
+					compositeNode.setCleansingPattern(replaced.getCleansingPattern());
+
 					List<Splitting> splitter = compositeNode.getSplitter();
 
 					// generate new nodes
