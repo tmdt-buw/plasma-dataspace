@@ -183,9 +183,6 @@ public abstract class Operation<I> {
 			if (!(testee.getMaxCardinality() == 1 || testee.getMinCardinality() == 1)) {
 				//noinspection HardcodedFileSeparator
 				throw new ParameterParsingException(
-						"Something was changed on the Complex types. " +
-								"Have a look here: http://youtrack.zlw-ima.rwth-aachen.de/issue/DP-686 " +
-								"or you just created a malformed Complex parameterDefinition"
 				);
 			}
 

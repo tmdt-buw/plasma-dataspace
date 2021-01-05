@@ -1,17 +1,15 @@
 package de.buw.tmdt.plasma.services.dms.core.operations.impl;
 
-import de.buw.tmdt.plasma.services.dms.core.model.Position;
-import de.buw.tmdt.plasma.services.dms.core.model.datasource.DataSourceSchema;
-import de.buw.tmdt.plasma.services.dms.core.model.datasource.semanticmodel.EntityConcept;
-import de.buw.tmdt.plasma.services.dms.core.model.datasource.semanticmodel.EntityType;
-import de.buw.tmdt.plasma.services.dms.core.model.datasource.syntaxmodel.Node;
-import de.buw.tmdt.plasma.services.dms.core.model.datasource.syntaxmodel.ObjectNode;
-import de.buw.tmdt.plasma.services.dms.core.model.datasource.syntaxmodel.PrimitiveNode;
+import de.buw.tmdt.plasma.datamodel.CombinedModel;
+import de.buw.tmdt.plasma.datamodel.modification.operation.DataType;
+import de.buw.tmdt.plasma.datamodel.modification.operation.ParameterDefinition;
+import de.buw.tmdt.plasma.datamodel.modification.operation.Type;
+import de.buw.tmdt.plasma.datamodel.semanticmodel.EntityConcept;
+import de.buw.tmdt.plasma.datamodel.semanticmodel.EntityType;
+import de.buw.tmdt.plasma.datamodel.semanticmodel.SemanticModel;
+import de.buw.tmdt.plasma.datamodel.syntaxmodel.*;
 import de.buw.tmdt.plasma.services.dms.core.operations.OperationLookUp;
 import de.buw.tmdt.plasma.services.dms.core.operations.exceptions.ParameterParsingException;
-import de.buw.tmdt.plasma.services.dms.shared.dto.syntaxmodel.operation.DataType;
-import de.buw.tmdt.plasma.services.dms.shared.dto.syntaxmodel.operation.ParameterDefinition;
-import de.buw.tmdt.plasma.services.dms.shared.dto.syntaxmodel.operation.Type;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,24 +17,23 @@ import org.junit.jupiter.api.TestInstance;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class SetEntityTypeTest {
 
-	private static final long ENTITY_TYPE_ID = 1L;
-
 	@Mock
 	private OperationLookUp lookUpMock;
-	@Mock
-	private DataSourceSchema dataSourceSchemaMock;
+
+	private CombinedModel combinedModel;
 
 	private EntityType entityType;
 	private SetEntityType testee;
@@ -46,13 +43,9 @@ class SetEntityTypeTest {
 		MockitoAnnotations.initMocks(this);
 
 		entityType = new EntityType(
-				null,
 				"label",
-				"originalLabel",
 				"description",
-				new EntityConcept(UUID.randomUUID().toString(), "ECName", "ECDescription", "ECSourceURI", null),
-				new Position(0, 0),
-				ENTITY_TYPE_ID
+				new EntityConcept(UUID.randomUUID().toString(), "ECName", "ECDescription", "ECSourceURI", null)
 		);
 
 		testee = new SetEntityType(lookUpMock);
@@ -60,113 +53,143 @@ class SetEntityTypeTest {
 
 	@Test
 	void testInvoke() throws ParameterParsingException {
-		PrimitiveNode root = new PrimitiveNode(
-				null,
-				DataType.UNKNOWN,
-				"",
-				Collections.emptyList(),
-				null,
-				Collections.emptyList(),
-				UUID.randomUUID()
+		SchemaNode root = new ObjectNode("root", new ArrayList<>(), true);
+
+		SchemaNode node = new PrimitiveNode(
+				"label",
+				DataType.UNKNOWN.identifier
 		);
-		when(dataSourceSchemaMock.getSyntaxModel()).thenReturn(root);
-		when(dataSourceSchemaMock.find(root.getIdentity())).thenReturn(root);
-		when(dataSourceSchemaMock.find(entityType.getIdentity())).thenReturn(entityType);
+		Edge edge = new Edge(root.getUuid(), node.getUuid());
 
-		assertNull(root.getEntityType());
+		SyntaxModel syntaxModel = new SyntaxModel(root.getUuid(), new ArrayList<>(Arrays.asList(root, node)), new ArrayList<>(Collections.singletonList(edge)));
+		SemanticModel semanticModel = new SemanticModel(null, new ArrayList<>(Collections.singletonList(entityType)), new ArrayList<>());
 
-		testee.invoke(dataSourceSchemaMock, setParameters(root.getUuid(), ENTITY_TYPE_ID));
-		assertEquals(entityType, root.getEntityType());
-		assertEquals(DataType.UNKNOWN, root.getDataType());
+		combinedModel = new CombinedModel("", syntaxModel, semanticModel);
+
+		testee.invoke(combinedModel, setParameters(node.getUuid(), entityType.getUuid()));
+
+		entityType = combinedModel.getSemanticModel().getEntityType(entityType.getUuid());
+		node = combinedModel.getSyntaxModel().getNode(node.getUuid());
+
+		assertEquals(node.getUuid(), entityType.getSyntaxNodeUuid());
+		assertTrue(node instanceof PrimitiveNode);
+		assertEquals(DataType.UNKNOWN.identifier, ((PrimitiveNode) node).getDataType());
 	}
 
+	// TODO move if functionality in operation is moved
 	@Test
 	void testInvokeStringDataType() throws ParameterParsingException {
-		PrimitiveNode root = new PrimitiveNode(
-				null,
-				DataType.UNKNOWN,
-				"",
-				Collections.emptyList(),
-				null,
-				Arrays.asList("0", "myExampleString"),
-				UUID.randomUUID()
+		SchemaNode root = new ObjectNode("root", new ArrayList<>(), true);
+
+		SchemaNode node = new PrimitiveNode(
+				"label",
+				DataType.UNKNOWN.identifier
 		);
-		when(dataSourceSchemaMock.getSyntaxModel()).thenReturn(root);
-		when(dataSourceSchemaMock.find(root.getIdentity())).thenReturn(root);
-		when(dataSourceSchemaMock.find(entityType.getIdentity())).thenReturn(entityType);
+		Edge edge = new Edge(root.getUuid(), node.getUuid());
 
-		assertNull(root.getEntityType());
+		((PrimitiveNode) node).setExamples(Arrays.asList("0", "myExampleString"));
 
-		testee.invoke(dataSourceSchemaMock, setParameters(root.getUuid(), ENTITY_TYPE_ID));
-		assertEquals(entityType, root.getEntityType());
-		assertEquals(DataType.STRING, root.getDataType());
+		SyntaxModel syntaxModel = new SyntaxModel(root.getUuid(), new ArrayList<>(Arrays.asList(root, node)), new ArrayList<>(Collections.singletonList(edge)));
+		SemanticModel semanticModel = new SemanticModel(null, new ArrayList<>(Collections.singletonList(entityType)), new ArrayList<>());
+
+		combinedModel = new CombinedModel("", syntaxModel, semanticModel);
+
+		testee.invoke(combinedModel, setParameters(node.getUuid(), entityType.getUuid()));
+
+		entityType = combinedModel.getSemanticModel().getEntityType(entityType.getUuid());
+		node = combinedModel.getSyntaxModel().getNode(node.getUuid());
+
+		assertEquals(node.getUuid(), entityType.getSyntaxNodeUuid());
+		assertTrue(node instanceof PrimitiveNode);
+		assertEquals(DataType.STRING.identifier, ((PrimitiveNode) node).getDataType());
 	}
 
 	@Test
 	void testInvokeNumberDataType() throws ParameterParsingException {
-		PrimitiveNode root = new PrimitiveNode(
-				null,
-				DataType.UNKNOWN,
-				"",
-				Collections.emptyList(),
-				null,
-				Arrays.asList("0", "42", "1", "0.0"),
-				UUID.randomUUID()
+		SchemaNode root = new ObjectNode("root", new ArrayList<>(), true);
+
+		SchemaNode node = new PrimitiveNode(
+				"label",
+				DataType.UNKNOWN.identifier
 		);
-		when(dataSourceSchemaMock.getSyntaxModel()).thenReturn(root);
-		when(dataSourceSchemaMock.find(root.getIdentity())).thenReturn(root);
-		when(dataSourceSchemaMock.find(entityType.getIdentity())).thenReturn(entityType);
+		Edge edge = new Edge(root.getUuid(), node.getUuid());
 
-		assertNull(root.getEntityType());
+		((PrimitiveNode) node).setExamples(Arrays.asList("0", "42", "1", "0.0"));
 
-		testee.invoke(dataSourceSchemaMock, setParameters(root.getUuid(), ENTITY_TYPE_ID));
-		assertEquals(entityType, root.getEntityType());
-		assertEquals(DataType.NUMBER, root.getDataType());
+		SyntaxModel syntaxModel = new SyntaxModel(root.getUuid(), new ArrayList<>(Arrays.asList(root, node)), new ArrayList<>(Collections.singletonList(edge)));
+		SemanticModel semanticModel = new SemanticModel(null, new ArrayList<>(Collections.singletonList(entityType)), new ArrayList<>());
+
+		combinedModel = new CombinedModel("", syntaxModel, semanticModel);
+
+		testee.invoke(combinedModel, setParameters(node.getUuid(), entityType.getUuid()));
+		entityType = combinedModel.getSemanticModel().getEntityType(entityType.getUuid());
+		node = combinedModel.getSyntaxModel().getNode(node.getUuid());
+
+		assertEquals(node.getUuid(), entityType.getSyntaxNodeUuid());
+		assertTrue(node instanceof PrimitiveNode);
+		assertEquals(DataType.NUMBER.identifier, ((PrimitiveNode) node).getDataType());
 	}
 
 	@Test
 	void testInvokeBooleanDataType() throws ParameterParsingException {
-		PrimitiveNode root = new PrimitiveNode(
-				null,
-				DataType.UNKNOWN,
-				"",
-				Collections.emptyList(),
-				null,
-				Arrays.asList("0", "1", "t", "f", "true", "false"),
-				UUID.randomUUID()
+		SchemaNode root = new ObjectNode("root", new ArrayList<>(), true);
+
+		SchemaNode node = new PrimitiveNode(
+				"label",
+				DataType.UNKNOWN.identifier
 		);
-		when(dataSourceSchemaMock.getSyntaxModel()).thenReturn(root);
-		when(dataSourceSchemaMock.find(root.getIdentity())).thenReturn(root);
-		when(dataSourceSchemaMock.find(entityType.getIdentity())).thenReturn(entityType);
+		Edge edge = new Edge(root.getUuid(), node.getUuid());
 
-		assertNull(root.getEntityType());
+		((PrimitiveNode) node).setExamples(Arrays.asList("0", "1", "t", "f", "true", "false"));
 
-		testee.invoke(dataSourceSchemaMock, setParameters(root.getUuid(), ENTITY_TYPE_ID));
-		assertEquals(entityType, root.getEntityType());
-		assertEquals(DataType.BOOLEAN, root.getDataType());
+		// actually create both models as they contain some useful methods
+		SyntaxModel syntaxModel = new SyntaxModel(root.getUuid(), new ArrayList<>(Arrays.asList(root, node)), new ArrayList<>(Collections.singletonList(edge)));
+		SemanticModel semanticModel = new SemanticModel(null, new ArrayList<>(Collections.singletonList(entityType)), new ArrayList<>());
+
+		combinedModel = new CombinedModel("", syntaxModel, semanticModel);
+
+		testee.invoke(combinedModel, setParameters(node.getUuid(), entityType.getUuid()));
+
+		entityType = combinedModel.getSemanticModel().getEntityType(entityType.getUuid());
+		node = combinedModel.getSyntaxModel().getNode(node.getUuid());
+
+		assertEquals(node.getUuid(), entityType.getSyntaxNodeUuid());
+		assertTrue(node instanceof PrimitiveNode);
+		assertEquals(DataType.BOOLEAN.identifier, ((PrimitiveNode) node).getDataType());
 	}
 
 	@Test
 	void wrongNodeId() {
+		SchemaNode node = new PrimitiveNode("node1", DataType.UNKNOWN.identifier);
+
+		SyntaxModel syntaxModel = new SyntaxModel(node.getUuid(), new ArrayList<>(Collections.singletonList(node)), new ArrayList<>());
+
+		combinedModel = new CombinedModel("", syntaxModel, null);
+
 		Assertions.assertThrows(ParameterParsingException.class, () -> {
-			Node root = new PrimitiveNode(null, DataType.STRING);
-			ParameterDefinition parameterDefinition = setParameters(null, ENTITY_TYPE_ID);
+			testee.parseParameterDefinition(combinedModel, setParameters(node.getUuid(), null));
+		});
 
-			when(dataSourceSchemaMock.getSyntaxModel()).thenReturn(root);
 
-			testee.parseParameterDefinition(dataSourceSchemaMock, parameterDefinition);
+		Assertions.assertThrows(ParameterParsingException.class, () -> {
+			testee.parseParameterDefinition(combinedModel, setParameters(null, null));
+		});
+
+		Assertions.assertThrows(ParameterParsingException.class, () -> {
+			testee.parseParameterDefinition(combinedModel, setParameters(UUID.randomUUID().toString(), null));
 		});
 	}
 
 	@Test
 	void wrongNodeType() {
+		SchemaNode node = new SetNode(new ArrayList<>(), true);
+
+		SyntaxModel syntaxModel = new SyntaxModel(node.getUuid(), new ArrayList<>(Collections.singletonList(node)), new ArrayList<>());
+
+		combinedModel = new CombinedModel("", syntaxModel, null);
+
 		Assertions.assertThrows(ParameterParsingException.class, () -> {
-			Node root = new ObjectNode(new HashMap<>(), null, UUID.randomUUID());
-			ParameterDefinition parameterDefinition = setParameters(root.getUuid(), ENTITY_TYPE_ID);
-
-			when(dataSourceSchemaMock.getSyntaxModel()).thenReturn(root);
-
-			testee.parseParameterDefinition(dataSourceSchemaMock, parameterDefinition);
+			testee.parseParameterDefinition(combinedModel, setParameters(node.getUuid(), null));
 		});
 	}
 
@@ -175,7 +198,7 @@ class SetEntityTypeTest {
 		verify(lookUpMock, times(1)).registerOperation(testee);
 	}
 
-	private ParameterDefinition setParameters(UUID uuid, Long entityTypeId) {
+	private ParameterDefinition setParameters(String nodeUuid, String entityTypeId) {
 		return new ParameterDefinition<>(
 				Type.COMPLEX,
 				"",
@@ -191,7 +214,7 @@ class SetEntityTypeTest {
 						1,
 						1,
 						true,
-						uuid
+						nodeUuid
 				),
 				new ParameterDefinition<>(
 						Type.ENTITY_TYPE_ID,

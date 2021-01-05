@@ -1,15 +1,17 @@
 package de.buw.tmdt.plasma.services.dms.core.operations.impl;
 
-import de.buw.tmdt.plasma.services.dms.core.model.datasource.DataSourceSchema;
-import de.buw.tmdt.plasma.services.dms.core.model.datasource.semanticmodel.EntityType;
-import de.buw.tmdt.plasma.services.dms.core.model.datasource.syntaxmodel.Node;
-import de.buw.tmdt.plasma.services.dms.core.model.datasource.syntaxmodel.ObjectNode;
-import de.buw.tmdt.plasma.services.dms.core.model.datasource.syntaxmodel.PrimitiveNode;
+import de.buw.tmdt.plasma.datamodel.CombinedModel;
+import de.buw.tmdt.plasma.datamodel.PrimitiveEntityTypeMapping;
+import de.buw.tmdt.plasma.datamodel.modification.operation.ParameterDefinition;
+import de.buw.tmdt.plasma.datamodel.modification.operation.Type;
+import de.buw.tmdt.plasma.datamodel.semanticmodel.EntityConcept;
+import de.buw.tmdt.plasma.datamodel.semanticmodel.EntityType;
+import de.buw.tmdt.plasma.datamodel.semanticmodel.SemanticModel;
+import de.buw.tmdt.plasma.datamodel.syntaxmodel.ObjectNode;
+import de.buw.tmdt.plasma.datamodel.syntaxmodel.PrimitiveNode;
+import de.buw.tmdt.plasma.datamodel.syntaxmodel.SyntaxModel;
 import de.buw.tmdt.plasma.services.dms.core.operations.OperationLookUp;
 import de.buw.tmdt.plasma.services.dms.core.operations.exceptions.ParameterParsingException;
-import de.buw.tmdt.plasma.services.dms.shared.dto.syntaxmodel.operation.DataType;
-import de.buw.tmdt.plasma.services.dms.shared.dto.syntaxmodel.operation.ParameterDefinition;
-import de.buw.tmdt.plasma.services.dms.shared.dto.syntaxmodel.operation.Type;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,11 +19,12 @@ import org.junit.jupiter.api.TestInstance;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.List;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -29,10 +32,12 @@ class RemoveEntityTypeTest {
 
 	@Mock
 	private OperationLookUp lookUpMock;
+
 	@Mock
-	private EntityType entityTypeMock;
+	private PrimitiveNode primitiveNodeMock;
+
 	@Mock
-	private DataSourceSchema dataSourceSchemaMock;
+	private EntityConcept entityConceptMock;
 
 	private RemoveEntityType testee;
 
@@ -44,22 +49,24 @@ class RemoveEntityTypeTest {
 
 	@Test
 	void testInvoke() throws ParameterParsingException {
-		UUID uuid = UUID.randomUUID();
-		PrimitiveNode node = new PrimitiveNode(
-				entityTypeMock,
-				DataType.STRING,
-				"",
-				Collections.emptyList(),
-				null,
-				Collections.emptyList(),
-				uuid
-		);
+		String primitiveUuid = UUID.randomUUID().toString();
 
-		when(dataSourceSchemaMock.getSyntaxModel()).thenReturn(node);
-		when(dataSourceSchemaMock.find(node.getIdentity())).thenReturn(node);
+		when(primitiveNodeMock.getUuid()).thenReturn(primitiveUuid);
+
+		EntityType entityType = new EntityType("entityType", "", entityConceptMock);
+		entityType.setSyntaxNodeUuid(primitiveUuid);
+		entityType.setOriginalLabel("TO BE REMOVED");
+
+		SyntaxModel syntaxModel = new SyntaxModel(primitiveUuid, new ArrayList<>(Collections.singletonList(primitiveNodeMock)), new ArrayList<>());
+		SemanticModel semanticModel = new SemanticModel(null, new ArrayList<>(Collections.singletonList(entityType)), new ArrayList<>());
+		PrimitiveEntityTypeMapping mapping = new PrimitiveEntityTypeMapping(primitiveUuid, entityType.getUuid(), UUID.randomUUID().toString());
+
+		List<PrimitiveEntityTypeMapping> mappings = new ArrayList<>(Collections.singletonList(mapping));
+
+		CombinedModel combinedModel = new CombinedModel("blub", syntaxModel, semanticModel, mappings, new ArrayList<>(), false);
 
 		testee.invoke(
-				dataSourceSchemaMock,
+				combinedModel,
 				new ParameterDefinition<>(
 						Type.SYNTAX_NODE_ID,
 						"NodeId",
@@ -68,21 +75,34 @@ class RemoveEntityTypeTest {
 						1,
 						1,
 						true,
-						uuid
+						primitiveUuid
 				)
 		);
 
-		assertNull(node.getEntityType());
+		// validate results
+
+		EntityType updatedEntityType = combinedModel.getSemanticModel().getEntityType(entityType.getUuid());
+
+		assertNotNull(updatedEntityType);
+		assertNull(updatedEntityType.getSyntaxNodeUuid());
+		assertNull(updatedEntityType.getOriginalLabel());
+
+		// check that the explicit mapping has been removed
+		assertTrue(combinedModel.getPrimitiveEntityTypeMappings().isEmpty());
 	}
 
 	@Test
 	void wrongNodeId() {
+		String primitiveUuid = UUID.randomUUID().toString();
+		when(primitiveNodeMock.getUuid()).thenReturn(primitiveUuid);
+
+
+		SyntaxModel syntaxModel = new SyntaxModel(primitiveUuid, new ArrayList<>(Collections.singletonList(primitiveNodeMock)), new ArrayList<>());
+
+		CombinedModel combinedModel = new CombinedModel("blub", syntaxModel, null);
+
 		Assertions.assertThrows(ParameterParsingException.class, () -> {
-			Node root = new PrimitiveNode(null, DataType.STRING);
-
-			when(dataSourceSchemaMock.getSyntaxModel()).thenReturn(root);
-
-			testee.parseParameterDefinition(dataSourceSchemaMock, new ParameterDefinition<>(
+			testee.parseParameterDefinition(combinedModel, new ParameterDefinition<>(
 					Type.SYNTAX_NODE_ID,
 					"NodeId",
 					"",
@@ -96,22 +116,21 @@ class RemoveEntityTypeTest {
 
 	@Test
 	void wrongNodeType() {
+		ObjectNode objectNode = new ObjectNode("objectNode", new ArrayList<>(), true);
+
+		SyntaxModel syntaxModel = new SyntaxModel(objectNode.getUuid(), new ArrayList<>(Collections.singletonList(objectNode)), new ArrayList<>());
+
+		CombinedModel combinedModel = new CombinedModel("blub", syntaxModel, null);
+
 		Assertions.assertThrows(ParameterParsingException.class, () -> {
-			Node root = new ObjectNode(new HashMap<>(), null);
-			UUID uuid = UUID.randomUUID();
-			root.setUuid(uuid);
-
-			when(dataSourceSchemaMock.getSyntaxModel()).thenReturn(root);
-
-			testee.parseParameterDefinition(dataSourceSchemaMock, new ParameterDefinition<>(
+			testee.parseParameterDefinition(combinedModel, new ParameterDefinition<>(
 					Type.SYNTAX_NODE_ID,
 					"NodeId",
 					"",
 					"",
 					1,
 					1,
-					true,
-					uuid
+					true
 			));
 		});
 	}

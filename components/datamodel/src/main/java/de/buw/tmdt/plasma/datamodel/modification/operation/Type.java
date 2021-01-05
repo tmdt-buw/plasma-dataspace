@@ -6,7 +6,6 @@ import org.jetbrains.annotations.NotNull;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Objects;
-import java.util.UUID;
 import java.util.function.Function;
 
 /**
@@ -15,10 +14,10 @@ import java.util.function.Function;
 public final class Type<TRaw extends Serializable, TParsed extends Serializable> implements Serializable {
 	//INSTANCES
 	public static final Type<TypeDefinitionDTO, ParameterDefinition> COMPLEX;
-	public static final Type<String, UUID> SYNTAX_NODE_ID;
+	public static final Type<String, String> SYNTAX_NODE_ID;
 	public static final Type<Integer, Integer> INTEGER;
 	public static final Type<String, String> PATTERN;
-	public static final Type<Long, Long> ENTITY_TYPE_ID;
+	public static final Type<String, String> ENTITY_TYPE_ID;
 	public static final Type<String, DataType> DATA_TYPE;
 	//LOOKUP
 	private static final HashMap<String, Type<?, ?>> NAME_LOOK_UP;
@@ -37,9 +36,9 @@ public final class Type<TRaw extends Serializable, TParsed extends Serializable>
 		SYNTAX_NODE_ID = new Type<>(
 				"SyntaxNodeId",
 				String.class,
-				UUID.class,
-				UUID::fromString,
-				UUID::toString
+				String.class,
+				SerializableFunction.identity(),
+				SerializableFunction.identity()
 		);
 		INTEGER = new Type<>(
 				"Integer",
@@ -57,8 +56,8 @@ public final class Type<TRaw extends Serializable, TParsed extends Serializable>
 		);
 		ENTITY_TYPE_ID = new Type<>(
 				"EntityTypeId",
-				Long.class,
-				Long.class,
+				String.class,
+				String.class,
 				SerializableFunction.identity(),
 				SerializableFunction.identity()
 		);

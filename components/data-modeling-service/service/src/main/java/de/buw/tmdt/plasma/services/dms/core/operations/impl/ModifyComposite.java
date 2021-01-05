@@ -77,7 +77,7 @@ public class ModifyComposite extends Operation<Pair<CompositeNode, List<Splittin
 			CombinedModel model,
 			ParameterDefinition<?, ?> parameterDefinition
 	) throws ParameterParsingException {
-		final UUID nodeId;
+		final String nodeId;
 		final String[] patterns;
 
 		validateParameterDefinition(parameterDefinition);

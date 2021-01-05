@@ -78,7 +78,7 @@ public class SetEntityType extends Operation<Pair<PrimitiveNode, EntityType>> {
 	public Pair<PrimitiveNode, EntityType> parseParameterDefinition(
 			CombinedModel model, ParameterDefinition<?, ?> parameterDefinition
 	) throws ParameterParsingException {
-		final UUID nodeId;
+		final String nodeId;
 		final EntityType entityType;
 
 		validateParameterDefinition(parameterDefinition);
@@ -97,7 +97,7 @@ public class SetEntityType extends Operation<Pair<PrimitiveNode, EntityType>> {
 		if (entityTypeIdDefinition == null) {
 			throw new ParameterParsingException("entityTypeIdDefinition is missing");
 		}
-		final Long entityTypeId = getValueAs(entityTypeIdDefinition, Type.ENTITY_TYPE_ID, 0, false);
+		final String entityTypeId = getValueAs(entityTypeIdDefinition, Type.ENTITY_TYPE_ID, 0, false);
 
 		entityType = model.getSemanticModel().getEntityType(entityTypeId.toString());
 		if (entityType == null) {
@@ -167,18 +167,20 @@ public class SetEntityType extends Operation<Pair<PrimitiveNode, EntityType>> {
 		PrimitiveNode primitiveNode = input.getLeft();
 		EntityType entityType = input.getRight();
 
-		entityType.setSyntaxNodeUuid(primitiveNode.getUuid());
-		entityType.setOriginalLabel(primitiveNode.getLabel());
+		EntityType modifiedEntityType = entityType.clone();
+
+		modifiedEntityType.setSyntaxNodeUuid(primitiveNode.getUuid());
+		modifiedEntityType.setOriginalLabel(primitiveNode.getLabel());
 		if (DataType.UNKNOWN.identifier.equals(primitiveNode.getDataType())) {
 			// if data type is still unknown, try to determine one
 			// TODO why is this here?????
 			DataType dataType = SetEntityType.determineDataType(primitiveNode.getExamples());
 			primitiveNode.setDataType(dataType.identifier);
 		}
-		entityType.setXCoordinate(primitiveNode.getXCoordinate());
-		entityType.setYCoordinate(primitiveNode.getYCoordinate());
+		modifiedEntityType.setXCoordinate(primitiveNode.getXCoordinate());
+		modifiedEntityType.setYCoordinate(primitiveNode.getYCoordinate());
 
-		DeltaModification modification = new DeltaModification("local_operation", Set.of(entityType), null, null, null);
+		DeltaModification modification = new DeltaModification("local_operation", Set.of(modifiedEntityType), null, null, null);
 		model.apply(modification); // this will also create the explicit mapping
 
 		return model;

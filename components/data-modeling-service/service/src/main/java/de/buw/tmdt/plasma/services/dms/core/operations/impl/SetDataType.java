@@ -16,7 +16,10 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 import static de.buw.tmdt.plasma.services.dms.core.operations.Operation.Strings.PRIMITIVE_NODE_IDENTIFIER;
 
@@ -74,7 +77,7 @@ public class SetDataType extends Operation<Pair<PrimitiveNode, DataType>> {
 	public Pair<PrimitiveNode, DataType> parseParameterDefinition(
 			CombinedModel model, ParameterDefinition<?, ?> parameterDefinition
 	) throws ParameterParsingException {
-		final UUID nodeId;
+		final String nodeId;
 		final DataType dataType;
 
 		validateParameterDefinition(parameterDefinition);
@@ -95,7 +98,7 @@ public class SetDataType extends Operation<Pair<PrimitiveNode, DataType>> {
 		}
 		dataType = getValueAs(dataTypeDefinition, Type.DATA_TYPE, 0, false);
 
-		SchemaNode node = model.getSyntaxModel().getNode(nodeId.toString());
+		SchemaNode node = model.getSyntaxModel().getNode(nodeId);
 		if (node == null) {
 			throw new ParameterParsingException("Did not find node with id `" + nodeId + "` in model.");
 		}

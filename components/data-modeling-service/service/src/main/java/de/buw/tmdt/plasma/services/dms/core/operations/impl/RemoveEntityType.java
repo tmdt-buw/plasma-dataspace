@@ -29,7 +29,7 @@ public class RemoveEntityType extends Operation<PrimitiveNode> {
 	private static final String OPERATION_NAME = "RemoveEntityType";
 	private static final String NODE_ID_PARAMETER_NAME = "NodeId";
 
-	private static final ParameterDefinition<String, UUID> PARAMETER_PROTOTYPE =
+	private static final ParameterDefinition<String, String> PARAMETER_PROTOTYPE =
 			new ParameterDefinition<>(
 					Type.SYNTAX_NODE_ID,
 					NODE_ID_PARAMETER_NAME,
@@ -53,10 +53,10 @@ public class RemoveEntityType extends Operation<PrimitiveNode> {
 
 	@Override
 	public PrimitiveNode parseParameterDefinition(CombinedModel model, ParameterDefinition<?, ?> parameterDefinition) throws ParameterParsingException {
-		final UUID nodeId;
+		final String nodeId;
 		validateParameterDefinition(parameterDefinition);
 
-		ParameterDefinition<String, UUID> uuidParameterDefinition = Type.SYNTAX_NODE_ID.castParameterDefinition(parameterDefinition);
+		ParameterDefinition<String, String> uuidParameterDefinition = Type.SYNTAX_NODE_ID.castParameterDefinition(parameterDefinition);
 		nodeId = getValueAs(uuidParameterDefinition, Type.SYNTAX_NODE_ID, 0, false);
 
 		SchemaNode node = model.getSyntaxModel().getNode(nodeId.toString());
@@ -73,10 +73,12 @@ public class RemoveEntityType extends Operation<PrimitiveNode> {
 		EntityType entityType = model.getSemanticModel().getNodes().stream()
 				.filter(et -> et.getSyntaxNodeUuid().equals(object.getUuid()))
 				.findFirst().orElse(null);
+
 		if (entityType != null) {
-			entityType.setSyntaxNodeUuid(null);
-			entityType.setOriginalLabel(null);
-			DeltaModification modification = new DeltaModification("local_operation", Set.of(entityType), null, null, null);
+			EntityType modifiedEntityType = entityType.clone();
+			modifiedEntityType.setSyntaxNodeUuid(null);
+			modifiedEntityType.setOriginalLabel(null);
+			DeltaModification modification = new DeltaModification("local_operation", Set.of(modifiedEntityType), null, null, null);
 			model.apply(modification); // this will also delete the explicit mapping
 		}
 		return model;

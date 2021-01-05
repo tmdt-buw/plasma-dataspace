@@ -65,7 +65,7 @@ public class ValueCleansing extends Operation<Pair<PrimitiveNode, String>> {
 			CombinedModel model,
 			ParameterDefinition<?, ?> parameterDefinition
 	) throws ParameterParsingException {
-		final UUID nodeId;
+		final String nodeId;
 		final String cleansingPattern;
 
 		validateParameterDefinition(parameterDefinition);

@@ -30,9 +30,9 @@ import java.util.stream.Collectors;
 @Service
 public class SplitPrimitive extends Operation<Pair<PrimitiveNode, List<Splitting>>> {
 
-	private static final String OPERATION_NAME = "SplitPrimitive";
-	private static final String NODE_ID_PARAMETER_NAME = "NodeId";
-	private static final String SPLITTER_PARAMETER_NAME = "Splitting";
+	public static final String OPERATION_NAME = "SplitPrimitive";
+	public static final String NODE_ID_PARAMETER_NAME = "NodeId";
+	public static final String SPLITTER_PARAMETER_NAME = "Splitting";
 
 	private static final ParameterDefinition<TypeDefinitionDTO, ParameterDefinition> PARAMETER_PROTOTYPE =
 			new ParameterDefinition<>(
@@ -81,7 +81,7 @@ public class SplitPrimitive extends Operation<Pair<PrimitiveNode, List<Splitting
 			CombinedModel model,
 			@NotNull ParameterDefinition<?, ?> parameterDefinition
 	) throws ParameterParsingException {
-		final UUID nodeId;
+		final String nodeId;
 		final String[] patterns;
 
 		validateParameterDefinition(parameterDefinition);
@@ -102,7 +102,7 @@ public class SplitPrimitive extends Operation<Pair<PrimitiveNode, List<Splitting
 		}
 		patterns = splitterParameterDefinition.probeValueAs(Type.PATTERN);
 
-		PrimitiveNode node = getPrimitiveNode(model, nodeId.toString());
+		PrimitiveNode node = getPrimitiveNode(model, nodeId);
 
 		final List<Splitting> splitters = Arrays.stream(patterns)
 				.map(Splitting::new)
