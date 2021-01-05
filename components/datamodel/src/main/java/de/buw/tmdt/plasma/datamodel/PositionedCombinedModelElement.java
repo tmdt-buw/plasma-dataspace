@@ -79,7 +79,7 @@ public abstract class PositionedCombinedModelElement extends CombinedModelElemen
 	@Override
 	@SuppressWarnings("MagicCharacter")
 	public String toString() {
-		return "{\"@class\":\"Positioned\""
+		return "{\"@class\":\"PositionedCombinedModelElement\""
 				+ ",\"parent\":\"" + super.toString() + '"'
 				+ ",\"xCoordinate\":\"" + xCoordinate + '"'
 				+ ",\"yCoordinate\":\"" + yCoordinate + '"'
