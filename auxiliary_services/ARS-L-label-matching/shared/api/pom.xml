@@ -24,8 +24,8 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>de.buw.tmdt.plasma.services.dms</groupId>
-            <artifactId>api</artifactId>
+            <groupId>de.buw.tmdt.plasma</groupId>
+            <artifactId>datamodel</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
     </dependencies>
