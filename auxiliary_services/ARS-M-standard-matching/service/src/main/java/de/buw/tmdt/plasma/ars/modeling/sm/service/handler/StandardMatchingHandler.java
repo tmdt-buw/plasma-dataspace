@@ -53,7 +53,7 @@ public class StandardMatchingHandler {
 
 
     /**
-     * Creates a new standard
+     * Creates a new standard.
      *
      * @param standardProvisionDTO dto containing necessary information for standard creation
      * @return uuid of the new created standard
@@ -75,7 +75,7 @@ public class StandardMatchingHandler {
     }
 
     /**
-     * Returns a list of all stored standards
+     * Returns a list of all stored standards.
      *
      * @return list of standards
      */
@@ -85,7 +85,7 @@ public class StandardMatchingHandler {
     }
 
     /**
-     * Create a semantic model using a syntax model and the uuid of the standard to apply
+     * Create a semantic model using a syntax model and the uuid of the standard to apply.
      *
      * @param syntaxModelDTO syntax model dto, as provided by the sas
      * @param standardId     uuid of the standard to use
@@ -109,7 +109,7 @@ public class StandardMatchingHandler {
     }
 
     /**
-     * Returns the semantic model for a given syntax model and standard
+     * Returns the semantic model for a given syntax model and standard.
      *
      * @param syntaxModel The original syntax model as created by SAS
      * @param standard    The selected standard
@@ -154,7 +154,7 @@ public class StandardMatchingHandler {
 
 
     /**
-     * Performs semantic labeling by rules
+     * Performs semantic labeling by rules.
      *
      * @param analysis             the analysis object to select the standard from
      * @param requiredPredecessors map defining which predecessors certain labels need before assigning them
@@ -196,7 +196,7 @@ public class StandardMatchingHandler {
 
 
     /**
-     * Perform semantic modeling by rules
+     * Perform semantic modeling by rules.
      *
      * @param analysis             analysis object to pick standard from
      * @param entityTypes          list of all used entity types

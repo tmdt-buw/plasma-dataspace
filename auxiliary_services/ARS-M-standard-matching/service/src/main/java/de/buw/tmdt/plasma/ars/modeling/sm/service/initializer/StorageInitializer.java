@@ -25,7 +25,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-public abstract class StorageInitializer<T, ID> {
+public abstract class StorageInitializer<T, TId> {
 	private static final Logger logger = LoggerFactory.getLogger(StorageInitializer.class);
 	private final Set<T> values = new HashSet<>();
 	private final SimpleFuse initializationFuse = new SimpleFuse();
@@ -33,14 +33,14 @@ public abstract class StorageInitializer<T, ID> {
 	private final Supplier<? extends Iterable<T>> storedElementProvider;
 	private final Consumer<? super Iterable<T>> newElementPersister;
 	private final Class<T> type;
-	private final Function<? super T, ? extends ID> idMapper;
+	private final Function<? super T, ? extends TId> idMapper;
 	private final BiConsumer<? super T, ? super T> mergeFunction;
 
 	protected StorageInitializer(
 			Supplier<? extends Iterable<T>> storedElementProvider,
 			Consumer<? super Iterable<T>> newElementPersister,
 			Class<T> type,
-			Function<? super T, ? extends ID> idMapper,
+			Function<? super T, ? extends TId> idMapper,
 			BiConsumer<? super T, ? super T> mergeFunction
 	) {
 		this.storedElementProvider = storedElementProvider;
@@ -59,7 +59,7 @@ public abstract class StorageInitializer<T, ID> {
 		logger.info("Initializing database for for type: {}", type.getCanonicalName());
 		final Set<T> foundValues = findInCodeBase();
 
-		final Map<@NotNull ID, T> foundValuesMap = MapUtilities.map(foundValues, idMapper);
+		final Map<@NotNull TId, T> foundValuesMap = MapUtilities.map(foundValues, idMapper);
 
 		//update the descriptions of all existing values
 		for (T loadedValue : storedElementProvider.get()) {

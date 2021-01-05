@@ -16,7 +16,7 @@ import java.util.function.Consumer;
 @Table(name = "relations")
 public class Relation extends TraversableModelBase {
 	@SuppressWarnings("DefaultAnnotationParam ")
-//this is not part of the primary key in the middleware, relations are created redundantly
+	//this is not part of the primary key in the middleware, relations are created redundantly
 	@Column(nullable = true, unique = false, length = 16)
 	private final UUID uuid;
 	@ManyToOne(cascade = CascadeType.ALL)
