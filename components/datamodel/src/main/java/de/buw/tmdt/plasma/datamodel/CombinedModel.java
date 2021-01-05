@@ -13,6 +13,7 @@ import de.buw.tmdt.plasma.utilities.collections.CollectionUtilities;
 import de.buw.tmdt.plasma.utilities.misc.Pair;
 import de.buw.tmdt.plasma.utilities.misc.StringUtilities;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -60,6 +61,14 @@ public class CombinedModel implements Serializable {
 	 * A finalized model should not be changed any more
 	 */
 	private boolean finalized;
+
+	public CombinedModel(
+			@NotNull String dataSourceUuid,
+			@NotNull SyntaxModel syntaxModel,
+			@Nullable SemanticModel semanticModel
+	) {
+		this(dataSourceUuid, syntaxModel, semanticModel, null, null, false);
+	}
 
 	@JsonCreator
 	public CombinedModel(
