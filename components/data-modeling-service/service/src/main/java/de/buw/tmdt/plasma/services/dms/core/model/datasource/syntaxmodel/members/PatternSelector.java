@@ -2,20 +2,12 @@ package de.buw.tmdt.plasma.services.dms.core.model.datasource.syntaxmodel.member
 
 import de.buw.tmdt.plasma.utilities.collections.CollectionUtilities;
 import de.buw.tmdt.plasma.utilities.misc.StringUtilities;
-import org.hibernate.annotations.DynamicUpdate;
 import org.jetbrains.annotations.NotNull;
 
-import javax.persistence.Column;
-import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
-import javax.persistence.Table;
 import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-@Entity
-@DynamicUpdate
-@Table(name = "pattern_selectors")
 public class PatternSelector extends Selector {
 	private static final String PARSING_PREFIX = "p:";
 
@@ -28,11 +20,8 @@ public class PatternSelector extends Selector {
 	private static final String INDEX_SEPARATOR_SYMBOL = ",";
 	private static final String INDEX_LIST_START_SYMBOL = "{";
 	private static final String INDEX_LIST_END_SYMBOL = "}";
-	@ElementCollection
 	private final List<Integer> selections;
-	@Column
 	private final int offset;
-	@Column
 	private final int modulus;
 
 	//Hibernate constructor

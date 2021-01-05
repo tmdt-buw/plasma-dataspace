@@ -3,25 +3,15 @@ package de.buw.tmdt.plasma.services.dms.core.model.datasource.syntaxmodel.member
 import de.buw.tmdt.plasma.services.dms.core.model.ModelBase;
 import de.buw.tmdt.plasma.utilities.misc.CachedSupplier;
 import de.buw.tmdt.plasma.utilities.misc.Pair;
-import org.hibernate.annotations.DynamicUpdate;
 import org.jetbrains.annotations.NotNull;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
-import javax.persistence.Transient;
 import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
-@Entity
-@DynamicUpdate
-@Table(name = "splitters")
 public class Splitter extends ModelBase implements Function<String, Pair<String, String>> {
-	@Column
 	private String pattern;
-	@Transient
 	private transient Supplier<Pattern> compiledPatternSupplier;
 
 	//Hibernate constructor

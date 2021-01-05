@@ -2,28 +2,18 @@ package de.buw.tmdt.plasma.services.dms.core.model.datasource.syntaxmodel;
 
 import de.buw.tmdt.plasma.services.dms.core.model.Position;
 import de.buw.tmdt.plasma.services.dms.core.model.Traversable;
-import org.hibernate.annotations.DynamicUpdate;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-@Entity
-@Inheritance(strategy = InheritanceType.JOINED)
-@DynamicUpdate
-@Table(name = "nodes")
 public abstract class Node implements Traversable {
 
-	@Id
-	@GeneratedValue
-	@Column(nullable = false, unique = true, updatable = false, length = 16)
 	protected UUID uuid;
 
-	@Embedded
 	private Position position;
 
 	private transient Identity<?> identity;
@@ -50,8 +40,6 @@ public abstract class Node implements Traversable {
 		this.identity = identity;
 	}
 
-	@PostPersist
-	@PostLoad
 	public void deriveIdentity() {
 		if (this.identity == null) {
 			if (this.uuid != null) {

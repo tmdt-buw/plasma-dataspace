@@ -2,7 +2,6 @@ package de.buw.tmdt.plasma.services.dms.core.converter;
 
 import de.buw.tmdt.plasma.services.dms.core.model.Position;
 import de.buw.tmdt.plasma.services.dms.core.model.datasource.semanticmodel.*;
-import de.buw.tmdt.plasma.services.dms.core.repository.RelationConceptPropertyRepository;
 import de.buw.tmdt.plasma.services.kgs.shared.dto.knowledgegraph.EntityConceptDTO;
 import de.buw.tmdt.plasma.services.kgs.shared.dto.knowledgegraph.RelationConceptDTO;
 import de.buw.tmdt.plasma.services.kgs.shared.dto.semanticmodel.EntityTypeDTO;
@@ -12,7 +11,6 @@ import de.buw.tmdt.plasma.utilities.collections.CollectionUtilities;
 import de.buw.tmdt.plasma.utilities.collections.MapUtilities;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -20,12 +18,6 @@ import java.util.*;
 @Component
 public class KnowledgeGraphServiceDTO2ModelConverter {
 
-    private final RelationConceptPropertyRepository relationConceptPropertyRepository;
-
-    @Autowired
-    public KnowledgeGraphServiceDTO2ModelConverter(RelationConceptPropertyRepository relationConceptPropertyRepository) {
-        this.relationConceptPropertyRepository = relationConceptPropertyRepository;
-    }
 
     @NotNull
     public SemanticModelDTO convert(@NotNull SemanticModel semanticModel, @NotNull String dataSourceId) {
@@ -237,7 +229,7 @@ public class KnowledgeGraphServiceDTO2ModelConverter {
                 relationConceptDTO.getLabel(),
                 relationConceptDTO.getDescription(),
                 relationConceptDTO.getSourceURI(),
-                new HashSet<>(relationConceptPropertyRepository.findAllByNameIn(relationConceptDTO.getProperties())),
+                new HashSet<>(),
                 null
         );
     }

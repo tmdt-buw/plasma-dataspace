@@ -9,20 +9,14 @@ import de.buw.tmdt.plasma.services.dms.core.model.datasource.syntaxmodel.members
 import de.buw.tmdt.plasma.utilities.collections.CollectionUtilities;
 import de.buw.tmdt.plasma.utilities.misc.ObjectUtilities;
 import de.buw.tmdt.plasma.utilities.misc.StringUtilities;
-import org.hibernate.annotations.DynamicUpdate;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.persistence.*;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-@Entity
-@DynamicUpdate
-@Table(name = "set_nodes")
 public class SetNode extends Node {
-	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
 	private final List<Child> children;
 
 	private SetNode() {
@@ -184,14 +178,9 @@ public class SetNode extends Node {
 		return true;
 	}
 
-	@Entity
-	@DynamicUpdate
-	@Table(name = "set_children")
 	public static class Child extends TraversableModelBase {
-		@OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
 		private Selector selector;
 
-		@OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
 		private Node node;
 
 		private Child() {

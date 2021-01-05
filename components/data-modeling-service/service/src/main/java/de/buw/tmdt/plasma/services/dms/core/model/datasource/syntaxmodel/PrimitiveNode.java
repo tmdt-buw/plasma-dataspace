@@ -8,29 +8,19 @@ import de.buw.tmdt.plasma.services.dms.core.operations.impl.misc.DataType;
 import de.buw.tmdt.plasma.utilities.collections.CollectionUtilities;
 import de.buw.tmdt.plasma.utilities.misc.ObjectUtilities;
 import de.buw.tmdt.plasma.utilities.misc.StringUtilities;
-import org.hibernate.annotations.DynamicUpdate;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.persistence.*;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 @SuppressWarnings("JpaObjectClassSignatureInspection")
-@Entity
-@DynamicUpdate
-@Table(name = "primitive_nodes")
 public class PrimitiveNode extends Node implements RawDataContainer {
-	@OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH}, orphanRemoval = true)
 	private EntityType entityType;
-	@Column
 	private DataType dataType;
-	@Column
 	private final String cleansingPattern;
-	@ElementCollection
 	private final List<String> examples;
-	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<EntityConceptSuggestion> entityConceptSuggestions;
 
 	//Hibernate constructor

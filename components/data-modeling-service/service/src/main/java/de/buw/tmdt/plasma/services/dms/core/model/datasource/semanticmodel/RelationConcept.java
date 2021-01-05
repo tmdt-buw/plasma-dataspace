@@ -5,43 +5,29 @@ import de.buw.tmdt.plasma.services.dms.core.model.ModelBase;
 import de.buw.tmdt.plasma.services.dms.core.model.Position;
 import de.buw.tmdt.plasma.services.dms.core.model.Traversable;
 import de.buw.tmdt.plasma.services.dms.core.model.TraversableModelBase;
-import de.buw.tmdt.plasma.services.dms.core.repository.RelationConceptPropertyRepository;
 import de.buw.tmdt.plasma.utilities.misc.ObjectUtilities;
 import de.buw.tmdt.plasma.utilities.misc.StringUtilities;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
-import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
 import java.util.Deque;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-@Entity
-@Table(name = "relation_concepts")
 public class RelationConcept extends TraversableModelBase {
 
-	@Column(nullable = true, unique = false)
 	private final String uuid;
 
 	@NotEmpty
-	@Column(nullable = false)
 	private final String name;
 
-	@Lob
-	@Column(nullable = false)
 	private final String description;
 
 	@NotEmpty
-	@Column(nullable = false)
 	private final String sourceURI;
 
-	@ManyToMany
 	private final Set<Property> properties;
 
 	//Hibernate constructor
@@ -177,8 +163,6 @@ public class RelationConcept extends TraversableModelBase {
 	}
 
 	@SuppressWarnings("ClassWithOnlyPrivateConstructors - hibernate shenanigans prohibit fixing this")
-	@Entity
-	@Table(name = "relation_concept_properties")
 	public static class Property extends ModelBase {
 		@StorageInitializer.Value
 		private static final Property REFLEXIVE = new Property("Reflexive", "f.a. x: xRx");
@@ -193,10 +177,8 @@ public class RelationConcept extends TraversableModelBase {
 		@StorageInitializer.Value
 		private static final Property TRANSITIVE = new Property("Transitive", "f.a. x,y,z: if xRy and yRz, then xRz");
 
-		@Column(unique = true)
 		private final String name;
 
-		@Column
 		private String formalDescription;
 
 		@SuppressWarnings("unused - hibernate constructor")
@@ -246,34 +228,34 @@ public class RelationConcept extends TraversableModelBase {
 		@SuppressWarnings("MagicCharacter")
 		public String toString() {
 			return "{\"@class\":\"Property\""
-			       + ", \"@super\":" + super.toString()
-			       + ", \"name\":\"" + name + '"'
-			       + ", \"formalDescription\":\"" + formalDescription + '"'
-			       + '}';
+					+ ", \"@super\":" + super.toString()
+					+ ", \"name\":\"" + name + '"'
+					+ ", \"formalDescription\":\"" + formalDescription + '"'
+					+ '}';
 		}
 
-		@Component
-		public static class Initializer extends StorageInitializer<Property, String> {
-
-			private static final Logger logger = LoggerFactory.getLogger(Initializer.class);
-
-			@Autowired
-			protected Initializer(@NotNull RelationConceptPropertyRepository relationConceptPropertyRepository) {
-				super(
-						relationConceptPropertyRepository::findAll,
-						relationConceptPropertyRepository::saveAll,
-						Property.class,
-						Property::getName,
-						Initializer::mergeProperties
-				);
-			}
-
-			private static void mergeProperties(@NotNull Property loaded, @NotNull Property found) {
-				if (!found.formalDescription.equals(loaded.formalDescription)) {
-					logger.info("Patching description of Property `{}` \nfrom: {}\nto:   {}", loaded.name, loaded.formalDescription, found.formalDescription);
-					loaded.setFormalDescription(found.formalDescription);
-				}
-			}
-		}
+//		@Component
+//		public static class Initializer extends StorageInitializer<Property, String> {
+//
+//			private static final Logger logger = LoggerFactory.getLogger(Initializer.class);
+//
+//			@Autowired
+//			protected Initializer(@NotNull RelationConceptPropertyRepository relationConceptPropertyRepository) {
+//				super(
+//						relationConceptPropertyRepository::findAll,
+//						relationConceptPropertyRepository::saveAll,
+//						Property.class,
+//						Property::getName,
+//						Initializer::mergeProperties
+//				);
+//			}
+//
+//			private static void mergeProperties(@NotNull Property loaded, @NotNull Property found) {
+//				if (!found.formalDescription.equals(loaded.formalDescription)) {
+//					logger.info("Patching description of Property `{}` \nfrom: {}\nto:   {}", loaded.name, loaded.formalDescription, found.formalDescription);
+//					loaded.setFormalDescription(found.formalDescription);
+//				}
+//			}
+//		}
 	}
 }

@@ -1,16 +1,9 @@
 package de.buw.tmdt.plasma.services.dms.core.model;
 
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.MappedSuperclass;
 import java.util.Objects;
 
-@MappedSuperclass
 public abstract class ModelBase {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
 	protected Long id;
 
 	@SuppressWarnings("unused - hibernate constructor")

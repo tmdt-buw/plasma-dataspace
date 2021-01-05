@@ -7,30 +7,19 @@ import de.buw.tmdt.plasma.utilities.collections.CollectionUtilities;
 import de.buw.tmdt.plasma.utilities.collections.ListUtilities;
 import de.buw.tmdt.plasma.utilities.misc.ObjectUtilities;
 import de.buw.tmdt.plasma.utilities.misc.StringUtilities;
-import org.hibernate.annotations.DynamicUpdate;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.persistence.*;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 @SuppressWarnings("JpaObjectClassSignatureInspection")
-@Entity
-@DynamicUpdate
-@Table(name = "composite_nodes")
 public class CompositeNode extends Node implements RawDataContainer {
 
-	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-	@OrderColumn
 	private List<PrimitiveNode> components;
-	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-	@OrderColumn
 	private List<Splitter> splitter;
-	@ElementCollection
 	private List<String> examples;
-	@Column
 	private String cleansingPattern;
 
 	//Hibernate constructor

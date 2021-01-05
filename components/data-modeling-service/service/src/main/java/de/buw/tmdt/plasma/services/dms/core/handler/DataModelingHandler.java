@@ -12,7 +12,6 @@ import de.buw.tmdt.plasma.datamodel.syntaxmodel.SchemaNode;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.SyntaxModel;
 import de.buw.tmdt.plasma.services.dms.core.converter.KnowledgeGraphServiceDTO2CombinedModelConverter;
 import de.buw.tmdt.plasma.services.dms.core.converter.SchemaOperationDTOConverter;
-import de.buw.tmdt.plasma.services.dms.core.model.ModelBase;
 import de.buw.tmdt.plasma.services.dms.core.model.datasource.DataSourceModel;
 import de.buw.tmdt.plasma.services.dms.core.operations.Operation;
 import de.buw.tmdt.plasma.services.dms.core.operations.OperationLookUp;
@@ -31,7 +30,6 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -86,7 +84,7 @@ public class DataModelingHandler {
         } else {
             logger.info("Data source does not exist");
             DataSourceModel dsm = new DataSourceModel(uuid);
-            dataSourceModel = dataSourceRepository.saveAndFlush(dsm);
+            dataSourceModel = dataSourceRepository.save(dsm);
             logger.info("Created a new data source");
         }
         dataSourceModel.pushCombinedModel(createInitialSchema(uuid, exampleLimit, dataSourceModel));
@@ -772,38 +770,39 @@ public class DataModelingHandler {
      Utility functions
      */
 
-    /**
-     * Loads a ModelBase element from the given repository and validates if the loaded element's UUID matches the given element's UUID in relation to the
-     * passed globalIdFunction.
-     *
-     * @param element       the element to load
-     * @param uuidGenerator the function to determine a global UUID from the given elements type
-     * @param repository    the repository to load from
-     * @return attached element matching the given transient element
-     */
-    @NotNull
-    private <T extends ModelBase> T loadFromRepository(
-            @NotNull T element,
-            @NotNull Function<T, String> uuidGenerator,
-            @NotNull JpaRepository<T, Long> repository
-    ) {
-        String uuid = uuidGenerator.apply(element);
-        Long longId = element.getId();
-        final T result = repository.findById(longId)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.BAD_REQUEST,
-                        "Not a valid " + element.getClass().getSimpleName() + " id: " + longId
-                ));
-
-        if (uuid != null && !uuid.equals(uuidGenerator.apply(result))) {
-            //noinspection MagicCharacter
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "Inconsistent " + element.getClass().getSimpleName() + " received: id and uuid did not match data base state."
-            );
-        }
-        return result;
-    }
+    // CURRENTLY UNUSED, may be restored later
+//    /**
+//     * Loads a ModelBase element from the given repository and validates if the loaded element's UUID matches the given element's UUID in relation to the
+//     * passed globalIdFunction.
+//     *
+//     * @param element       the element to load
+//     * @param uuidGenerator the function to determine a global UUID from the given elements type
+//     * @param repository    the repository to load from
+//     * @return attached element matching the given transient element
+//     */
+//    @NotNull
+//    private <T extends ModelBase> T loadFromRepository(
+//            @NotNull T element,
+//            @NotNull Function<T, String> uuidGenerator,
+//            @NotNull JpaRepository<T, Long> repository
+//    ) {
+//        String uuid = uuidGenerator.apply(element);
+//        Long longId = element.getId();
+//        final T result = repository.findById(longId)
+//                .orElseThrow(() -> new ResponseStatusException(
+//                        HttpStatus.BAD_REQUEST,
+//                        "Not a valid " + element.getClass().getSimpleName() + " id: " + longId
+//                ));
+//
+//        if (uuid != null && !uuid.equals(uuidGenerator.apply(result))) {
+//            //noinspection MagicCharacter
+//            throw new ResponseStatusException(
+//                    HttpStatus.BAD_REQUEST,
+//                    "Inconsistent " + element.getClass().getSimpleName() + " received: id and uuid did not match data base state."
+//            );
+//        }
+//        return result;
+//    }
 
     @Transactional
     void persistCombinedModel(@NotNull UUID dataSourceUuid, @NotNull CombinedModel combinedModel) {

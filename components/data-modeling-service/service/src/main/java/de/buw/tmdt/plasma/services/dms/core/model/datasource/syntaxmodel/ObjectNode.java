@@ -5,22 +5,15 @@ import de.buw.tmdt.plasma.services.dms.core.model.Traversable;
 import de.buw.tmdt.plasma.utilities.collections.MapUtilities;
 import de.buw.tmdt.plasma.utilities.misc.ObjectUtilities;
 import de.buw.tmdt.plasma.utilities.misc.StringUtilities;
-import org.hibernate.annotations.DynamicUpdate;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.persistence.*;
 import java.util.*;
 import java.util.function.Consumer;
 
 @SuppressWarnings("JpaObjectClassSignatureInspection")
-@Entity
-@DynamicUpdate
-@Table(name = "object_nodes")
 public class ObjectNode extends Node {
 
-	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-	@MapKeyColumn
 	private Map<String, Node> children;
 
 	//Hibernate constructor

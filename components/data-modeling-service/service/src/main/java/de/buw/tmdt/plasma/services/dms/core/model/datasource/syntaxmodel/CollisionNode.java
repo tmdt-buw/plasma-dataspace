@@ -3,27 +3,16 @@ package de.buw.tmdt.plasma.services.dms.core.model.datasource.syntaxmodel;
 import de.buw.tmdt.plasma.services.dms.core.model.Position;
 import de.buw.tmdt.plasma.services.dms.core.model.Traversable;
 import de.buw.tmdt.plasma.utilities.misc.ObjectUtilities;
-import org.hibernate.annotations.DynamicUpdate;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.OneToOne;
-import javax.persistence.Table;
 import java.util.*;
 import java.util.function.Consumer;
 
 @SuppressWarnings("JpaObjectClassSignatureInspection")
-@Entity
-@DynamicUpdate
-@Table(name = "collision_nodes")
 public class CollisionNode extends Node {
-	@OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
 	private PrimitiveNode primitiveNode;
-	@OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
 	private ObjectNode objectNode;
-	@OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
 	private SetNode setNode;
 
 	//Hibernate constructor

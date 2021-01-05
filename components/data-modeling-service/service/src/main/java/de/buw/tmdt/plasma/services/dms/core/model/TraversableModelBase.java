@@ -3,14 +3,7 @@ package de.buw.tmdt.plasma.services.dms.core.model;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.persistence.Embedded;
-import javax.persistence.MappedSuperclass;
-import javax.persistence.PostLoad;
-import javax.persistence.PostPersist;
-
-@MappedSuperclass
 public abstract class TraversableModelBase extends ModelBase implements Traversable {
-	@Embedded
 	private Position position;
 
 	protected transient Identity<?> identity;
@@ -52,8 +45,6 @@ public abstract class TraversableModelBase extends ModelBase implements Traversa
 		}
 	}
 
-	@PostPersist
-	@PostLoad
 	public void deriveIdentity() {
 		if (this.identity == null) {
 			if (this.id != null) {

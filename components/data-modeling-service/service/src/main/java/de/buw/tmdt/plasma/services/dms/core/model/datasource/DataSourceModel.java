@@ -3,6 +3,9 @@ package de.buw.tmdt.plasma.services.dms.core.model.datasource;
 import de.buw.tmdt.plasma.datamodel.CombinedModel;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.PersistenceConstructor;
+import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.HashMap;
 import java.util.List;
@@ -10,9 +13,11 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+@Document
 public class DataSourceModel {
 
 	@Id
+	@Indexed
 	private UUID uuid;
 
 	//The value is only set after the schema analysis
@@ -21,14 +26,21 @@ public class DataSourceModel {
 
 	private int versionPointer;
 
-
 	public DataSourceModel() {
 		this.versionPointer = 0;
+		this.uuid = UUID.randomUUID();
 	}
 
 	public DataSourceModel(UUID uuid) {
 		this();
 		this.uuid = uuid;
+	}
+
+	@PersistenceConstructor
+	private DataSourceModel(UUID uuid, Map<Integer, CombinedModel> combinedModelVersions, int versionPointer) {
+		this.uuid = uuid;
+		this.combinedModelVersions = combinedModelVersions;
+		this.versionPointer = versionPointer;
 	}
 
 	@NotNull

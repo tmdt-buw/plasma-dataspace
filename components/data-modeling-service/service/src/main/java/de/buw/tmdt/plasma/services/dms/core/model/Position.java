@@ -1,13 +1,7 @@
 package de.buw.tmdt.plasma.services.dms.core.model;
 
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
-
-@Embeddable
 public class Position {
-	@Column
 	private double xCoordinate;
-	@Column
 	private double yCoordinate;
 
 	//Hibernate constructor

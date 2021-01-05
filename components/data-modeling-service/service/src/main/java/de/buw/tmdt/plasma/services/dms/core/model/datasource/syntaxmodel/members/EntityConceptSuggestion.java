@@ -2,19 +2,12 @@ package de.buw.tmdt.plasma.services.dms.core.model.datasource.syntaxmodel.member
 
 import de.buw.tmdt.plasma.services.dms.core.model.ModelBase;
 import de.buw.tmdt.plasma.services.dms.core.model.datasource.semanticmodel.EntityConcept;
-import org.hibernate.annotations.DynamicUpdate;
 import org.jetbrains.annotations.NotNull;
 
-import javax.persistence.*;
 import java.util.Objects;
 
-@Entity
-@DynamicUpdate
-@Table(name = "entity_concept_suggestions")
 public class EntityConceptSuggestion extends ModelBase {
-	@ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
 	private final EntityConcept entityConcept;
-	@Column
 	private final double weight;
 
 	//Hibernate constructor

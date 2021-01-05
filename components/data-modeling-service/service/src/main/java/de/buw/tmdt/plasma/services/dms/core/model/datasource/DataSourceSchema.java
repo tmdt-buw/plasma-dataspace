@@ -7,34 +7,23 @@ import de.buw.tmdt.plasma.services.dms.core.model.datasource.semanticmodel.Relat
 import de.buw.tmdt.plasma.services.dms.core.model.datasource.semanticmodel.SemanticModel;
 import de.buw.tmdt.plasma.services.dms.core.model.datasource.syntaxmodel.Node;
 import de.buw.tmdt.plasma.utilities.misc.ObjectUtilities;
-import org.hibernate.annotations.DynamicUpdate;
 import org.jetbrains.annotations.NotNull;
 
-import javax.persistence.*;
 import java.util.*;
 import java.util.function.Consumer;
 
-@Entity
-@DynamicUpdate
-@Table(name = "data_source_schemas")
 public class DataSourceSchema extends TraversableModelBase {
 
-    @ManyToOne(fetch = FetchType.LAZY)
     private DataSourceModel owningNode;
 
-    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     private Node syntaxModel;
 
-    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     private SemanticModel semanticModel;
 
-    @ManyToMany(cascade = {CascadeType.REFRESH, CascadeType.MERGE, CascadeType.PERSIST})
     private List<EntityConcept> entityConceptCache;
 
-    @ManyToMany(cascade = {CascadeType.REFRESH, CascadeType.MERGE, CascadeType.PERSIST})
     private List<RelationConcept> relationConceptCache;
 
-    @Column(nullable = false)
     private boolean finalized = false;
 
     //Hibernate constructor

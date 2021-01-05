@@ -8,28 +8,19 @@ import de.buw.tmdt.plasma.utilities.misc.ObjectUtilities;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.persistence.*;
 import java.util.*;
 import java.util.function.Consumer;
 
-@Entity
-@Table(name = "relations")
 public class Relation extends TraversableModelBase {
 
-	@Column(nullable = true, unique = false)
 	private final String uuid;
 
-	@ManyToOne(cascade = CascadeType.ALL)
 	private EntityType from;
 
-	@ManyToOne(cascade = CascadeType.ALL)
 	private EntityType to;
 
-	@ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
 	private RelationConcept relationConcept;
 
-	@Lob
-	@Column(nullable = false)
 	private String description;
 
 	//Hibernate constructor

@@ -1,18 +1,12 @@
 package de.buw.tmdt.plasma.services.dms.core.model.datasource.syntaxmodel.members;
 
 import de.buw.tmdt.plasma.services.dms.core.model.ModelBase;
-import org.hibernate.annotations.DynamicUpdate;
 import org.jetbrains.annotations.NotNull;
 
-import javax.persistence.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
-@Entity
-@Inheritance(strategy = InheritanceType.JOINED)
-@DynamicUpdate
-@Table(name = "selectors")
 public abstract class Selector extends ModelBase {
 
 	private static final Map<String, Function<? super String, ? extends Selector>> PARSER_LOOKUP = new HashMap<>();
@@ -34,14 +28,11 @@ public abstract class Selector extends ModelBase {
 		PARSER_LOOKUP.put(prefix, parser);
 	}
 
-	@Enumerated(EnumType.STRING)
 	public abstract Type getType();
 
-	@Transient
 	@NotNull
 	public abstract String serialize();
 
-	@Transient
 	@NotNull
 	public abstract Selector copy();
 
