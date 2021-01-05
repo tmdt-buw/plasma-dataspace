@@ -163,6 +163,7 @@ public class CombinedModelConverter {
 				yCoordinate,
 				new ArrayList<>(),
 				compositeNode.isValid(),
+				compositeNode.getExamples(),
 				compositeNode.getCleansingPattern(),
 				compositeNode.getSplitter().stream().map(this::splitterToDTO).collect(Collectors.toList())
 		);
