@@ -21,17 +21,17 @@ public class PrimitiveNode extends SchemaNode {
 	private static final String EXAMPLES_PROPERTY = "examples";
 	private static final String DATA_TYPE_PROPERTY = "dataType";
 
-	private  String cleansingPattern;
-	private ArrayList<String> examples;
-	private  String dataType;
+	private String cleansingPattern;
+	private List<String> examples;
+	private String dataType;
 
 	public PrimitiveNode(
-			 @NotNull String label,
+			@NotNull String label,
 			@Nullable List<@NotNull SyntacticOperationDTO> operations,
-			 boolean isValid,
+			boolean isValid,
 			@NotNull String dataType,
 			@Nullable List<String> examples,
-			@Nullable  String cleansingPattern
+			@Nullable String cleansingPattern
 	) {
 		super( label, operations == null ? new ArrayList<>() : operations, isValid);
 		this.dataType = dataType;
@@ -76,7 +76,7 @@ public class PrimitiveNode extends SchemaNode {
 		this.cleansingPattern = cleansingPattern;
 	}
 
-	public void setExamples(ArrayList<String> examples) {
+	public void setExamples(List<String> examples) {
 		this.examples = examples;
 	}
 

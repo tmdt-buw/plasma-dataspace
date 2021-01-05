@@ -3,6 +3,7 @@ package de.buw.tmdt.plasma.services.dms.core.operations;
 import de.buw.tmdt.plasma.datamodel.CombinedModel;
 import de.buw.tmdt.plasma.datamodel.modification.operation.ParameterDefinition;
 import de.buw.tmdt.plasma.datamodel.modification.operation.Type;
+import de.buw.tmdt.plasma.datamodel.syntaxmodel.PrimitiveNode;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.SchemaNode;
 import de.buw.tmdt.plasma.services.dms.core.operations.exceptions.ParameterParsingException;
 import de.buw.tmdt.plasma.utilities.misc.ObjectUtilities;
@@ -222,6 +223,27 @@ public abstract class Operation<I> {
 							+ ". "
 			);
 		}
+	}
+
+	/**
+	 * Helper function to find single {@link PrimitiveNode}s in the given {@link CombinedModel}
+	 *
+	 * @param model    The model containing the nodes
+	 * @param nodeUuid The uuid to search for
+	 * @return The found node
+	 * @throws ParameterParsingException If no matching node could be found or was not a {@link PrimitiveNode}
+	 */
+	public static PrimitiveNode getPrimitiveNode(CombinedModel model, String nodeUuid) throws ParameterParsingException {
+		SchemaNode node = model.getSyntaxModel().getNode(nodeUuid);
+		if (node == null) {
+			throw new ParameterParsingException("Did not find node with id `" + nodeUuid + "` in model.");
+		}
+		if (!(node instanceof PrimitiveNode)) {
+			throw new ParameterParsingException(
+					"Node id identified illegal node type. Expected `" + PrimitiveNode.class + "` but found `" + node.getClass() + "`."
+			);
+		}
+		return (PrimitiveNode) node;
 	}
 
 	@Override
