@@ -15,6 +15,9 @@ import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * Test to simulate and control stack behaviour for {@link CombinedModel}s in the {@link DataSourceModel}.
+ */
 class DataSourceModelTest {
 
     DataSourceModel dataSourceModel;

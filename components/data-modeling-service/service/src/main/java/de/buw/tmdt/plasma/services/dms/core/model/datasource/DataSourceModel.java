@@ -70,12 +70,13 @@ public class DataSourceModel {
 	}
 
 	public CombinedModel getCurrentModel() {
+		// TODO add an exception here if requested on an empty stack, just to be safe
 		return combinedModelVersions.get(versionPointer);
 	}
 
 	public void popCombinedModel() throws UnsupportedOperationException {
 		if (versionPointer == 0) {
-			throw new UnsupportedOperationException("No schema available.");
+			throw new UnsupportedOperationException("No model available.");
 		}
 		--this.versionPointer;
 	}
@@ -83,7 +84,7 @@ public class DataSourceModel {
 	@NotNull
 	public CombinedModel restoreCombinedModel() throws UnsupportedOperationException {
 		if (versionPointer == this.combinedModelVersions.size()) {
-			throw new UnsupportedOperationException("Already on latest schema.");
+			throw new UnsupportedOperationException("Already on latest model.");
 		}
 		++this.versionPointer;
 		return getCurrentModel();
