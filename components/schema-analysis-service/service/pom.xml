@@ -174,7 +174,7 @@
                     <execution>
                         <id>dockerBuild</id>
                         <goals>
-                            <goal>dockerBuild</goal>
+                            <goal>build</goal>
                         </goals>
                         <phase>install</phase>
                     </execution>
