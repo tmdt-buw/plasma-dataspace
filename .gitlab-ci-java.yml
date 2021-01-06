@@ -6,9 +6,9 @@ variables:
   MAVEN_IMAGE: maven:3.6.0-jdk-11
   # Instruct Testcontainers to use the daemon of DinD.
   DOCKER_HOST: "tcp://docker:2375"
-  # Improve performance with overlayfs.
+  # Improve performance with overlayFS.
   DOCKER_DRIVER: overlay2
-  # disable TLS compatibility for DinD 19.03+
+  # Disable TLS compatibility for DinD 19.03+
   DOCKER_TLS_CERTDIR: ""
 
 # Checkstyle source code standard review.
@@ -85,43 +85,34 @@ integration_test_on_merge:
   when: on_success
 
 ##### Artifact Deployment #####################################################################################################################################
-.artifact_deployment:
+artifact_deployment:
   stage: artifact_deploy
   image: $MAVEN_IMAGE
   tags:
     - docker
-  script:
-    - mvn $MAVEN_CLI_OPTS clean deploy -DskipTests
-
-artifact_deployment_manual:
-  extends: .artifact_deployment
-  before_script:
-    - mvn versions:set -DnewVersion=$CI_COMMIT_SHORT_SHA-SNAPSHOT -DgenerateBackupPoms=false
   only:
-    - pushes
-  except:
-    - merge_requests
     - tags
-  when: manual
-
-artifact_deployment_on_release:
-  extends: .artifact_deployment
   before_script:
     - VERSION=${CI_COMMIT_TAG#release-}
     - mvn versions:set -DnewVersion=$VERSION -DgenerateBackupPoms=false
-  only:
-    - tags
+  script:
+    - mvn $MAVEN_CLI_OPTS clean deploy -DskipTests
   except: #equivalent to /^(?!release-).*$/ the longer version is needed since negative look-ahead is deactivated because of catastrophic backtracking
     - /^((.{0,7}$)|[^r]|.{1}[^e]|.{2}[^l]|.{3}[^e]|.{4}[^a]|.{5}[^s]|.{6}[^e]|.{7}[^-]).*$/
 
 ##### Docker Deployment #####################################################################################################################################
-.docker_build:
-  stage: docker
+docker_build:
+  stage: docker_deploy
   image: $MAVEN_IMAGE
   services:
     - docker:dind
   tags:
     - docker
+  only:
+    - tags
+  before_script:
+    - VERSION=${CI_COMMIT_TAG#release-}
+    - mvn versions:set -DnewVersion=$VERSION -DgenerateBackupPoms=false #JIB automatically appends the COMMIT Hash
   script:
     - "mvn $MAVEN_CLI_OPTS install -DskipTests && \
        mvn $MAVEN_CLI_OPTS initialize jib:build \
@@ -129,25 +120,7 @@ artifact_deployment_on_release:
       -Djib.to.auth.username=$CI_REGISTRY_USER \
       -Djib.to.auth.password=$CI_REGISTRY_PASSWORD \
       -f ./pom.xml"
-
-docker_build_manual:
-  extends: .docker_build
-  before_script:
-    - mvn versions:set -DnewVersion=SNAPSHOT -DgenerateBackupPoms=false #JIB automatically appends the COMMIT Hash
-  except:
-    - tags
-  when: manual
-  dependencies:
-    - artifact_deployment_manual
-
-docker_build_on_release:
-  extends: .docker_build
-  before_script:
-    - VERSION=${CI_COMMIT_TAG#release-}
-    - mvn versions:set -DnewVersion=$VERSION -DgenerateBackupPoms=false #JIB automatically appends the COMMIT Hash
-  only:
-    - tags
   except: #equivalent to /^(?!release-).*$/ the longer version is needed since negative look-ahead is deactivated because of catastrophic backtracking
     - /^((.{0,7}$)|[^r]|.{1}[^e]|.{2}[^l]|.{3}[^e]|.{4}[^a]|.{5}[^s]|.{6}[^e]|.{7}[^-]).*$/
   dependencies:
-    - artifact_deployment_on_release
+    - artifact_deployment

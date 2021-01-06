@@ -170,15 +170,6 @@
                         <creationTime>USE_CURRENT_TIMESTAMP</creationTime>
                     </container>
                 </configuration>
-                <executions>
-                    <execution>
-                        <id>dockerBuild</id>
-                        <goals>
-                            <goal>build</goal>
-                        </goals>
-                        <phase>install</phase>
-                    </execution>
-                </executions>
             </plugin>
 
             <!-- Git Commit Plugin -->

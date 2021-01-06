@@ -3,8 +3,7 @@ stages:
   - integration_test
   - build
   - artifact_deploy
-  - deploy
-  - docker
+  - docker_deploy
 
 include:
   - local: '.gitlab-ci-java.yml'
