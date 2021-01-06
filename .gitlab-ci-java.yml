@@ -45,10 +45,6 @@ unit_test:
     - docker
   script:
     - mvn $MAVEN_CLI_OPTS clean test
-  only:
-    - branches
-  except:
-    - master
   artifacts:
     reports:
       junit:
