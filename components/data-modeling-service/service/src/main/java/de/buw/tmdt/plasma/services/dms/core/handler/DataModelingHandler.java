@@ -107,7 +107,7 @@ public class DataModelingHandler {
                 new ArrayList<>()
         );
 
-        CombinedModel schema = new CombinedModel(
+        CombinedModel syntaxCombinedModel = new CombinedModel(
                 dataSourceUuid.toString(),
                 syntaxModel,
                 semanticModel,
@@ -116,7 +116,7 @@ public class DataModelingHandler {
                 false
         );
 
-        dataSourceModel.pushCombinedModel(schema);
+        dataSourceModel.pushCombinedModel(syntaxCombinedModel);
         dataSourceModel = dataSourceRepository.save(dataSourceModel);
 
         // request semantic labeling
@@ -125,14 +125,28 @@ public class DataModelingHandler {
             // no operations when sending to other services
             node.getOperations().clear();
         });
-        CombinedModel modifiedCombinedModel = semanticRecommendationApiClient.performSemanticLabeling(
-                dataSourceUuid.toString(), combinedModel);
 
-        // request semantic modeling
-        modifiedCombinedModel = semanticRecommendationApiClient.performSemanticModeling(
-                dataSourceUuid.toString(), modifiedCombinedModel);
+        try {
+            CombinedModel labeledCombinedModel;
+            labeledCombinedModel = semanticRecommendationApiClient.performSemanticLabeling(
+                    dataSourceUuid.toString(), combinedModel);
 
-        return modifiedCombinedModel;
+            try {
+                CombinedModel modeledCombinedModel;
+                // request semantic modeling
+                modeledCombinedModel = semanticRecommendationApiClient.performSemanticModeling(
+                        dataSourceUuid.toString(), labeledCombinedModel);
+                return modeledCombinedModel;
+            } catch (Exception e) {
+                logger.warn("Semantic modeling did not succeed: ", e);
+                logger.warn("Continuing with labeled model...");
+            }
+            return labeledCombinedModel;
+        } catch (Exception e) {
+            logger.warn("Semantic labeling did not succeed: ", e);
+            logger.warn("Continuing with raw model...");
+        }
+        return dataSourceModel.getCurrentModel();
     }
 
     public @NotNull CombinedModel getCombinedModel(@NotNull UUID dataSourceUuid) {
@@ -829,9 +843,13 @@ public class DataModelingHandler {
 //        return result;
 //    }
 
-    @Transactional
     void persistCombinedModel(@NotNull UUID dataSourceUuid, @NotNull CombinedModel combinedModel) {
         DataSourceModel dataSourceModel = findDataSourceOrThrow(dataSourceUuid);
+        persistCombinedModel(dataSourceModel, combinedModel);
+    }
+
+    @Transactional
+    void persistCombinedModel(@NotNull DataSourceModel dataSourceModel, @NotNull CombinedModel combinedModel) {
         dataSourceModel.pushCombinedModel(combinedModel);
         dataSourceRepository.save(dataSourceModel);
     }
