@@ -68,15 +68,15 @@ public class MongoDatabaseConfiguration {
         }
     }
 
-    @Bean
     public ObjectMapper getCustomObjectMapper() {
-        return new Jackson2ObjectMapperBuilder().indentOutput(true)
+        return new Jackson2ObjectMapperBuilder()
                 .dateFormat(new StdDateFormat().withTimeZone(TimeZone.getTimeZone(ZoneId.systemDefault())))
                 .serializationInclusion(JsonInclude.Include.NON_NULL)
                 .featuresToEnable(SerializationFeature.WRITE_ENUMS_USING_TO_STRING)
                 .featuresToEnable(DeserializationFeature.READ_ENUMS_USING_TO_STRING)
                 .featuresToEnable(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES)
                 .featuresToEnable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS)
+                .featuresToDisable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
                 .build();
     }
 }
