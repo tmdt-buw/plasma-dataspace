@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
 
-public class PrimitiveEntityTypeMapping implements Serializable {
+public class PrimitiveEntityTypeMapping implements Serializable, Cloneable {
 
 	private static final String PARENT_UUID = "from";
 	private static final String ENTITY_TYPE_ID = "to";
@@ -65,6 +65,16 @@ public class PrimitiveEntityTypeMapping implements Serializable {
 	public void setParentUUID(String parentUUID) {
 		this.parentUUID = parentUUID;
 	}
+
+	/**
+	 * Creates a deep clone of the current entity
+	 *
+	 * @return The cloned entity
+	 */
+	public PrimitiveEntityTypeMapping clone() {
+		return new PrimitiveEntityTypeMapping(getPrimitiveUUID(), getEntityTypeId(), getParentUUID());
+	}
+
 
 	@Override
 	public String toString() {

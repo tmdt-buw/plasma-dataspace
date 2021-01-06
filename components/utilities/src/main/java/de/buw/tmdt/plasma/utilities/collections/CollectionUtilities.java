@@ -118,8 +118,7 @@ public final class CollectionUtilities {
      * @param collection            Collection of input elements
      * @param mapping               The mapping function which projects the input elements to the output collection
      * @param collectionConstructor Provider for the resulting collection.
-     *
-     * @return a collection containing all
+     * @return a collection containing all elements mapped using the given function. If {@code collection} is null, an emtpy list is returned.
      */
     @Contract("_, !null, !null -> !null; _, _, null -> fail; _, null, _ -> fail")
     public static <T, U, TCOut extends Collection<? super U>> @NotNull TCOut map(

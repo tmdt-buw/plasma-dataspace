@@ -10,7 +10,7 @@ import org.jetbrains.annotations.Nullable;
 import java.io.Serializable;
 import java.util.Objects;
 
-public class EntityConcept extends CombinedModelElement implements Serializable {
+public class EntityConcept extends CombinedModelElement implements Serializable, Cloneable {
     private static final long serialVersionUID = 2351939502355153654L;
 
     public static final String ENTITY_ID_PROPERTY = "entityId";

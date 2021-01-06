@@ -4,11 +4,12 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import de.buw.tmdt.plasma.datamodel.CombinedModelElement;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.Serializable;
 import java.util.Objects;
 
-public class Relation extends CombinedModelElement implements Serializable {
+public class Relation extends CombinedModelElement implements Serializable, Cloneable {
 	private static final long serialVersionUID = -2964347710102077197L;
 
 	public static final String ENTITY_ID_PROPERTY = "entityId";
@@ -57,10 +58,10 @@ public class Relation extends CombinedModelElement implements Serializable {
 	@JsonCreator
 	public Relation(
 			@NotNull @JsonProperty(UUID_PROPERTY) String uuid,
-			@NotNull @JsonProperty(ENTITY_ID_PROPERTY) String entityId,
+			@Nullable @JsonProperty(ENTITY_ID_PROPERTY) String entityId,
 			@NotNull @JsonProperty(FROM_ID_PROPERTY) String fromId,
 			@NotNull @JsonProperty(TO_ID_PROPERTY) String toId,
-			@NotNull @JsonProperty(DESCRIPTION_PROPERTY) String description,
+			@Nullable @JsonProperty(DESCRIPTION_PROPERTY) String description,
 			@NotNull @JsonProperty(CONCEPT_PROPERTY) RelationConcept concept
 	) {
 		super(uuid, "");

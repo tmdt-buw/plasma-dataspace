@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-public class SyntaxModel implements Serializable {
+public class SyntaxModel implements Serializable, Cloneable {
 
 	private static final String ROOT_PROPERTY = "root";
 	public static final String NODES_PROPERTY = "nodes";
@@ -78,22 +78,40 @@ public class SyntaxModel implements Serializable {
 			    .collect(Collectors.toList());
     }
 
-    @JsonIgnore
-    public SchemaNode getNode(@NotNull String nodeUuid) {
-        return getNodes().stream()
-                .filter(schemaNode -> nodeUuid.equals(schemaNode.getUuid()))
-                .findFirst().orElse(null);
-    }
+	@JsonIgnore
+	public SchemaNode getNode(@NotNull String nodeUuid) {
+		return getNodes().stream()
+				.filter(schemaNode -> nodeUuid.equals(schemaNode.getUuid()))
+				.findFirst().orElse(null);
+	}
+
+	/**
+	 * Creates a deep clone of the current entity
+	 *
+	 * @return The cloned entity with also the {@link SchemaNode}s and {@link Edge}s cloned
+	 */
+	@Override
+	public SyntaxModel clone() {
+		return new SyntaxModel(
+				getRoot(),
+				CollectionUtilities.map(getNodes(),
+						SchemaNode::clone,
+						ArrayList::new),
+				CollectionUtilities.map(getEdges(),
+						Edge::clone,
+						ArrayList::new)
+		);
+	}
 
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(nodes, edges);
-    }
+	@Override
+	public int hashCode() {
+		return Objects.hash(nodes, edges);
+	}
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) {
             return true;
 		}
 		if (o == null || !getClass().equals(o.getClass())) {

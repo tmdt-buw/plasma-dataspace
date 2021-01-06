@@ -13,7 +13,7 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
-public class RelationConcept extends CombinedModelElement implements Serializable {
+public class RelationConcept extends CombinedModelElement implements Serializable, Cloneable {
 	private static final long serialVersionUID = -5112996969222323409L;
 
 	private static final String ENTITY_ID_PROPERTY = "entityId";
@@ -31,7 +31,7 @@ public class RelationConcept extends CombinedModelElement implements Serializabl
 
 	public RelationConcept(
 			@NotNull String label,
-			@NotNull String description,
+			@Nullable String description,
 			@Nullable String entityId,
 			@NotNull String sourceURI,
 			@NotNull Set<String> properties
@@ -48,7 +48,7 @@ public class RelationConcept extends CombinedModelElement implements Serializabl
 			@NotNull @JsonProperty(UUID_PROPERTY) String uuid,
 			@NotNull @JsonProperty(LABEL_PROPERTY) String label,
 			@Nullable @JsonProperty(ENTITY_ID_PROPERTY) String entityId,
-			@NotNull @JsonProperty(DESCRIPTION_PROPERTY) String description,
+			@Nullable @JsonProperty(DESCRIPTION_PROPERTY) String description,
 			@NotNull @JsonProperty(SOURCE_URI_PROPERTY) String sourceURI,
 			@NotNull @JsonProperty(PROPERTIES_PROPERTY) Set<String> properties
 	) {

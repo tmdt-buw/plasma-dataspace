@@ -6,6 +6,7 @@ import de.buw.tmdt.plasma.datamodel.semanticmodel.EntityType;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.Relation;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.Edge;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.SchemaNode;
+import de.buw.tmdt.plasma.utilities.collections.CollectionUtilities;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -20,7 +21,7 @@ import static de.buw.tmdt.plasma.datamodel.syntaxmodel.SyntaxModel.NODES_PROPERT
 /**
  * Defines a Delta recommendation, a partial update of a combined model.
  */
-public class DeltaModification implements Serializable {
+public class DeltaModification implements Serializable, Cloneable {
 
     private static final String REFERENCE_PROPERTY = "reference";
     private static final String DELETION_PROPERTY = "deletion";
@@ -106,25 +107,21 @@ public class DeltaModification implements Serializable {
         return deletion;
     }
 
-    @Nullable
     @JsonProperty(ENTITIES_PROPERTY)
     public Set<EntityType> getEntities() {
         return entities;
     }
 
-    @Nullable
     @JsonProperty(RELATIONS_PROPERTY)
     public Set<Relation> getRelations() {
         return relations;
     }
 
-    @Nullable
     @JsonProperty(NODES_PROPERTY)
     public Set<SchemaNode> getNodes() {
         return nodes;
     }
 
-    @Nullable
     @JsonProperty(EDGES_PROPERTY)
     public Set<Edge> getEdges() {
         return edges;
@@ -164,6 +161,31 @@ public class DeltaModification implements Serializable {
         this.confidence = confidence;
     }
 
+    /**
+     * Creates a deep clone of the current entity
+     *
+     * @return The cloned entity with also the {@link EntityType}s, {@link Relation}s, {@link SchemaNode}s and {@link Edge}s cloned
+     */
+    public DeltaModification clone() {
+        return new DeltaModification(
+                getReference(),
+                isDeletion(),
+                CollectionUtilities.map(getEntities(),
+                        EntityType::clone,
+                        HashSet::new),
+                CollectionUtilities.map(getRelations(),
+                        Relation::clone,
+                        HashSet::new),
+                CollectionUtilities.map(getNodes(),
+                        SchemaNode::clone,
+                        HashSet::new),
+                CollectionUtilities.map(getEdges(),
+                        Edge::clone,
+                        HashSet::new),
+                getConfidence()
+        );
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -185,8 +207,11 @@ public class DeltaModification implements Serializable {
     public String toString() {
         return "DeltaModification{" +
                 "reference='" + reference + '\'' +
-                ", entities=" + entities +
-                ", relations=" + relations +
+                ". deletion=" + isDeletion() +
+                ", entities=" + entities.size() +
+                ", relations=" + relations.size() +
+                ", modes=" + (getNodes() != null ? getNodes().size() : 0) +
+                ", edges=" + (getEdges() != null ? getEdges().size() : 0) +
                 ", confidence=" + confidence +
                 '}';
     }

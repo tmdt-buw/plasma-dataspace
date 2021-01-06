@@ -4,16 +4,20 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import de.buw.tmdt.plasma.datamodel.CombinedModelElement;
 import de.buw.tmdt.plasma.datamodel.modification.operation.SyntacticOperationDTO;
+import de.buw.tmdt.plasma.utilities.collections.CollectionUtilities;
 import de.buw.tmdt.plasma.utilities.misc.StringUtilities;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
 
 /**
- * Edge of the syntax model between to schema nodes
+ * Edge of the syntax model between two schema nodes
  */
-public class Edge extends CombinedModelElement {
+public class Edge extends CombinedModelElement implements Cloneable {
 
 	private static final String FROM_PROPERTY = "from";
 	private static final String TO_PROPERTY = "to";
@@ -83,7 +87,7 @@ public class Edge extends CombinedModelElement {
 	@JsonProperty(OPERATIONS_PROPERTY)
 	@Nullable
 	public List<SyntacticOperationDTO> getOperations() {
-		return Collections.unmodifiableList(operations);
+		return operations;
 	}
 
 	public void setFrom(String from) {
@@ -96,6 +100,19 @@ public class Edge extends CombinedModelElement {
 
 	public void setKey(String key) {
 		this.key = key;
+	}
+
+	/**
+	 * Creates a deep clone of the current entity
+	 *
+	 * @return The cloned entity
+	 */
+	@Override
+	public Edge clone() {
+		return new Edge(getUuid(), getLabel(), getFrom(), getTo(), getKey(),
+				CollectionUtilities.map(getOperations(),
+						SyntacticOperationDTO::clone,
+						ArrayList::new));
 	}
 
 	@Override

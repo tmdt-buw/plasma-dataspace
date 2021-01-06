@@ -14,7 +14,7 @@ import java.util.Objects;
  * An instantiation resembles the use of a concept inside a semantic model in a combined model.
  * After modeling, will be converted into an Entity Concept
  */
-public class EntityType extends PositionedCombinedModelElement implements Serializable {
+public class EntityType extends PositionedCombinedModelElement implements Serializable, Cloneable {
 
     private static final long serialVersionUID = 4109691502825894813L;
 
@@ -166,8 +166,8 @@ public class EntityType extends PositionedCombinedModelElement implements Serial
             @Nullable @JsonProperty(ENTITY_ID_PROPERTY) String entityId,
             @NotNull @JsonProperty(LABEL_PROPERTY) String label,
             @Nullable @JsonProperty(SYNTAX_NODE_ID_PROPERTY) String syntaxNodeUuid,
-            @NotNull @JsonProperty(ORIGINAL_LABEL_PROPERTY) String originalLabel,
-            @NotNull @JsonProperty(DESCRIPTION_PROPERTY) String description,
+            @Nullable @JsonProperty(ORIGINAL_LABEL_PROPERTY) String originalLabel,
+            @Nullable @JsonProperty(DESCRIPTION_PROPERTY) String description,
             @NotNull @JsonProperty(CONCEPT_PROPERTY) EntityConcept entityConcept,
             @Nullable @JsonProperty(X_COORDINATE_PROPERTY) Double xCoordinate,
             @Nullable @JsonProperty(Y_COORDINATE_PROPERTY) Double yCoordinate

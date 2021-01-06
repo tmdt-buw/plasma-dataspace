@@ -4,14 +4,14 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import de.buw.tmdt.plasma.datamodel.CombinedModelIntegrityException;
+import de.buw.tmdt.plasma.utilities.collections.CollectionUtilities;
 import de.buw.tmdt.plasma.utilities.misc.StringUtilities;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
-public class SemanticModel {
+public class SemanticModel implements Cloneable {
 
 	private static final long serialVersionUID = 8522383284345885691L;
 
@@ -149,11 +149,14 @@ public class SemanticModel {
 	public SemanticModel clone() {
 		return new SemanticModel(
 				getEntityId(),
-				getNodes().stream().map(EntityType::clone).collect(Collectors.toList()),
-				getEdges().stream().map(Relation::clone).collect(Collectors.toList())
+				CollectionUtilities.map(getNodes(),
+						EntityType::clone,
+						ArrayList::new),
+				CollectionUtilities.map(getEdges(),
+						Relation::clone,
+						ArrayList::new)
 		);
 	}
-
 
 	@Override
 	public int hashCode() {

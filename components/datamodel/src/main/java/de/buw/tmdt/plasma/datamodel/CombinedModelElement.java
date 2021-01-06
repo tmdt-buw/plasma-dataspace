@@ -11,17 +11,17 @@ import java.util.UUID;
 /**
  * Base class for all elements that can be used inside a combined model
  */
-public class CombinedModelElement implements Serializable {
+public class CombinedModelElement implements Serializable, Cloneable {
 
-	public static final String UUID_PROPERTY = "uuid";
-	public static final String LABEL_PROPERTY = "label";
-	private static final long serialVersionUID = -3619721225687115309L;
+    public static final String UUID_PROPERTY = "uuid";
+    public static final String LABEL_PROPERTY = "label";
+    private static final long serialVersionUID = -3619721225687115309L;
 
-	/**
-	 * Fixed UUID that identifies this object.
-	 * Available from the creation of the element. Never changes.
-	 */
-	private final String uuid;
+    /**
+     * Fixed UUID that identifies this object.
+     * Available from the creation of the element. Never changes.
+     */
+    private final String uuid;
 	/**
 	 * The label which is a readable form
 	 */
@@ -61,6 +61,7 @@ public class CombinedModelElement implements Serializable {
 	public CombinedModelElement clone() {
 		return new CombinedModelElement(getUuid(), getLabel());
 	}
+
 
 	@Override
 	public boolean equals(Object o) {

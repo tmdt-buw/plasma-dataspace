@@ -23,7 +23,7 @@ import java.util.Objects;
 		@JsonSubTypes.Type(value = CollisionSchema.class, name = "CollisionSchema"),
 		@JsonSubTypes.Type(value = CompositeNode.class, name = "Composite")
 })
-public abstract class SchemaNode extends PositionedCombinedModelElement {
+public abstract class SchemaNode extends PositionedCombinedModelElement implements Cloneable {
 
 	protected static final String IS_VALID_PROPERTY = "isValid";
 	protected static final String OPERATIONS_PROPERTY = "operations";
@@ -78,6 +78,14 @@ public abstract class SchemaNode extends PositionedCombinedModelElement {
 	public List<SyntacticOperationDTO> getOperations() {
 		return operations;
 	}
+
+	/**
+	 * Creates a deep clone of the current entity
+	 *
+	 * @return The cloned entity
+	 */
+	@Override
+	public abstract SchemaNode clone();
 
 	@Override
 	public int hashCode() {

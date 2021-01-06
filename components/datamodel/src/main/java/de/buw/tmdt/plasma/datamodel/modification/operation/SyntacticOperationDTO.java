@@ -46,22 +46,27 @@ public class SyntacticOperationDTO implements Serializable {
 
 	@NotNull
 	@JsonProperty(DESCRIPTION_PROPERTY)
-	public String getDescription() {
-		return description;
-	}
+    public String getDescription() {
+        return description;
+    }
 
-	@NotNull
-	@JsonProperty(TYPE_DEFINITION_PROPERTY)
-	public TypeDefinitionDTO<?> getParameter() {
-		return parameter;
-	}
+    @NotNull
+    @JsonProperty(TYPE_DEFINITION_PROPERTY)
+    public TypeDefinitionDTO<?> getParameter() {
+        return parameter;
+    }
 
-	@Override
-	@SuppressWarnings("MagicCharacter")
-	public String toString() {
-		return "{\"@class\":\"SyntacticOperationDTO\""
-		       + ", \"name\":\"" + name + '"'
-		       + ", \"parameter\":" + parameter
-		       + '}';
-	}
+    public SyntacticOperationDTO clone() {
+        // TODO
+        return this;
+    }
+
+    @Override
+    @SuppressWarnings("MagicCharacter")
+    public String toString() {
+        return "{\"@class\":\"SyntacticOperationDTO\""
+                + ", \"name\":\"" + name + '"'
+                + ", \"parameter\":" + parameter
+                + '}';
+    }
 }

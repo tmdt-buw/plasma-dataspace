@@ -10,17 +10,17 @@ import java.io.Serializable;
 /**
  * Base class for all elements that can be used inside a combined model that have an explicit placement
  */
-public abstract class PositionedCombinedModelElement extends CombinedModelElement implements Serializable {
+public abstract class PositionedCombinedModelElement extends CombinedModelElement implements Serializable, Cloneable {
 
-	public static final String X_COORDINATE_PROPERTY = "x";
-	public static final String Y_COORDINATE_PROPERTY = "y";
-	private static final long serialVersionUID = -3619721225687115309L;
+    public static final String X_COORDINATE_PROPERTY = "x";
+    public static final String Y_COORDINATE_PROPERTY = "y";
+    private static final long serialVersionUID = -3619721225687115309L;
 
-	private  Double xCoordinate;
-	private  Double yCoordinate;
+    private Double xCoordinate;
+    private Double yCoordinate;
 
-	public PositionedCombinedModelElement(
-			@NotNull @JsonProperty(LABEL_PROPERTY) String label
+    public PositionedCombinedModelElement(
+            @NotNull @JsonProperty(LABEL_PROPERTY) String label
 	) {
 		super(label);
 		this.xCoordinate = null;

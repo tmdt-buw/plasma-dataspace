@@ -4,9 +4,11 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import de.buw.tmdt.plasma.datamodel.modification.operation.SyntacticOperationDTO;
+import de.buw.tmdt.plasma.utilities.collections.CollectionUtilities;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -14,16 +16,16 @@ import java.util.Objects;
  * A composite node is existed as a primitive node but was splitted using one or more {@link Splitting} objects.
  */
 @JsonTypeName("CompositeNode")
-public class CompositeNode extends SchemaNode {
+public class CompositeNode extends SchemaNode implements Cloneable {
 
-	private static final long serialVersionUID = 5858068735685107958L;
-	private static final String EXAMPLES_PROPERTY = "examples";
-	private static final String SPLITTER_PROPERTY = "splitter";
-	private static final String CLEANSING_PATTERN_PROPERTY = "cleansingPattern";
+    private static final long serialVersionUID = 5858068735685107958L;
+    private static final String EXAMPLES_PROPERTY = "examples";
+    private static final String SPLITTER_PROPERTY = "splitter";
+    private static final String CLEANSING_PATTERN_PROPERTY = "cleansingPattern";
 
-	private List<Splitting> splitter;
-	private List<String> examples;
-	private String cleansingPattern;
+    private List<Splitting> splitter;
+    private List<String> examples;
+    private String cleansingPattern;
 
 	public CompositeNode(
 			@NotNull String label,
@@ -75,24 +77,43 @@ public class CompositeNode extends SchemaNode {
 
 	public void setCleansingPattern(String cleansingPattern) {
 		this.cleansingPattern = cleansingPattern;
-	}
+    }
 
-	public void setExamples(List<String> examples) {
-		this.examples = examples;
-	}
+    public void setExamples(List<String> examples) {
+        this.examples = examples;
+    }
 
-	public void setSplitter(List<Splitting> splitter) {
-		this.splitter = splitter;
-	}
+    public void setSplitter(List<Splitting> splitter) {
+        this.splitter = splitter;
+    }
 
-	@Override
-	@SuppressWarnings("MagicCharacter")
-	public String toString() {
-		return "{\"@class\":\"CompositeNode\""
-				+ ", \"@super\":" + super.toString()
-				+ ", \"cleansingPattern\":\"" + cleansingPattern + '"'
-				+ '}';
-	}
+    @Override
+    public CompositeNode clone() {
+        return new CompositeNode(
+                getUuid(),
+                getLabel(),
+                getXCoordinate(),
+                getYCoordinate(),
+                CollectionUtilities.map(getOperations(),
+                        SyntacticOperationDTO::clone,
+                        ArrayList::new),
+                isValid(),
+                getExamples(),
+                getCleansingPattern(),
+                CollectionUtilities.map(getSplitter(),
+                        Splitting::clone,
+                        ArrayList::new));
+
+    }
+
+    @Override
+    @SuppressWarnings("MagicCharacter")
+    public String toString() {
+        return "{\"@class\":\"CompositeNode\""
+                + ", \"@super\":" + super.toString()
+                + ", \"cleansingPattern\":\"" + cleansingPattern + '"'
+                + '}';
+    }
 
 	@Override
 	public int hashCode() {

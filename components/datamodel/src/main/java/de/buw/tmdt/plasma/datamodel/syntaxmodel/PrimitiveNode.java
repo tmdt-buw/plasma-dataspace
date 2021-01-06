@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import de.buw.tmdt.plasma.datamodel.modification.operation.SyntacticOperationDTO;
+import de.buw.tmdt.plasma.utilities.collections.CollectionUtilities;
 import de.buw.tmdt.plasma.utilities.misc.StringUtilities;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -13,17 +14,17 @@ import java.util.List;
 import java.util.Objects;
 
 @JsonTypeName("PrimitiveNode")
-public class PrimitiveNode extends SchemaNode {
+public class PrimitiveNode extends SchemaNode implements Cloneable {
 
-	private static final long serialVersionUID = -144653268470507986L;
+    private static final long serialVersionUID = -144653268470507986L;
 
-	private static final String CLEANSING_PATTERN_PROPERTY = "cleansingPattern";
-	private static final String EXAMPLES_PROPERTY = "examples";
-	private static final String DATA_TYPE_PROPERTY = "dataType";
+    private static final String CLEANSING_PATTERN_PROPERTY = "cleansingPattern";
+    private static final String EXAMPLES_PROPERTY = "examples";
+    private static final String DATA_TYPE_PROPERTY = "dataType";
 
-	private String cleansingPattern;
-	private List<String> examples;
-	private String dataType;
+    private String cleansingPattern;
+    private List<String> examples;
+    private String dataType;
 
 	public PrimitiveNode(
 			@NotNull String label,
@@ -89,25 +90,42 @@ public class PrimitiveNode extends SchemaNode {
 
 	public void setCleansingPattern(String cleansingPattern) {
 		this.cleansingPattern = cleansingPattern;
-	}
+    }
 
-	public void setExamples(List<String> examples) {
-		this.examples = examples;
-	}
+    public void setExamples(List<String> examples) {
+        this.examples = examples;
+    }
 
-	public void setDataType(String dataType) {
-		this.dataType = dataType;
-	}
+    public void setDataType(String dataType) {
+        this.dataType = dataType;
+    }
 
-	@Override
-	@SuppressWarnings("MagicCharacter")
-	public String toString() {
-		return "{\"@class\":\"PrimitiveNode\""
-				+ ", \"@super\":" + super.toString()
-				+ ", \"cleansingPattern\":\"" + cleansingPattern + '"'
-				+ ", \"examples\":" + StringUtilities.listToJson(examples)
-				+ ", \"dataType\":\"" + dataType + '"'
-				+ '}';
+    @Override
+    public PrimitiveNode clone() {
+        return new PrimitiveNode(
+                getUuid(),
+                getLabel(),
+                getXCoordinate(),
+                getYCoordinate(),
+                CollectionUtilities.map(getOperations(),
+                        SyntacticOperationDTO::clone,
+                        ArrayList::new),
+                isValid(),
+                getDataType(),
+                getExamples(),
+                getCleansingPattern());
+    }
+
+
+    @Override
+    @SuppressWarnings("MagicCharacter")
+    public String toString() {
+        return "{\"@class\":\"PrimitiveNode\""
+                + ", \"@super\":" + super.toString()
+                + ", \"cleansingPattern\":\"" + cleansingPattern + '"'
+                + ", \"examples\":" + StringUtilities.listToJson(examples)
+                + ", \"dataType\":\"" + dataType + '"'
+                + '}';
 	}
 
 	@Override

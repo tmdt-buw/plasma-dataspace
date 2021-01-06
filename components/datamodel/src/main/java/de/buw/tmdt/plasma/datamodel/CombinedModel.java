@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
  * The combined model contains all elements that model the current state of the syntactic
  * and semantic model of a data source.
  */
-public class CombinedModel implements Serializable {
+public class CombinedModel implements Serializable, Cloneable {
 
 	public static final String DATA_SOURCE_UUID = "dataSourceUuid";
 	public static final String SYNTAX_MODEL_PROPERTY = "syntaxModel";
@@ -76,7 +76,7 @@ public class CombinedModel implements Serializable {
 			@NotNull String dataSourceUuid,
 			@NotNull SyntaxModel syntaxModel,
 			SemanticModel semanticModel,
-			List<? extends PrimitiveEntityTypeMapping> primitiveEntityTypeMappings,
+			List<PrimitiveEntityTypeMapping> primitiveEntityTypeMappings,
 			List<DeltaModification> recommendations,
 			boolean finalized
 	) {
@@ -89,7 +89,7 @@ public class CombinedModel implements Serializable {
 			@JsonProperty(DATA_SOURCE_UUID) @NotNull String dataSourceUuid,
 			@JsonProperty(SYNTAX_MODEL_PROPERTY) @NotNull SyntaxModel syntaxModel,
 			@JsonProperty(SEMANTIC_MODEL_PROPERTY) SemanticModel semanticModel,
-			@JsonProperty(PRIMITIVE_ENTITY_TYPE_LIST) List<? extends PrimitiveEntityTypeMapping> primitiveEntityTypeMappings,
+			@JsonProperty(PRIMITIVE_ENTITY_TYPE_LIST) List<PrimitiveEntityTypeMapping> primitiveEntityTypeMappings,
 			@JsonProperty(RECOMMENDATION_LIST) List<DeltaModification> recommendations,
 			@JsonProperty(value = FINALIZED, defaultValue = "false") boolean finalized,
 			@JsonProperty(PROVISIONAL_ENTITY_CONCEPTS_PROPERTY) List<EntityConcept> provisionalEntityConcepts,
@@ -168,6 +168,15 @@ public class CombinedModel implements Serializable {
 		return provisionalRelationConcepts;
 	}
 
+	/**
+	 * Main method to modify the combined model.
+	 * {@link DeltaModification}s can contain multiple changes at one time and usually define the "wanted" state
+	 * with this method performing the necessary (subsequent) adjustments to the model.
+	 * NOTE: This function does not create a copy of the model. In case of an exception being thrown,
+	 * the state of the model is undefined and may be inconsistent.
+	 *
+	 * @param delta The modification to apply
+	 */
 	public void apply(DeltaModification delta) {
 		if (finalized) {
 			throw new UnsupportedOperationException("Model is finalized. No more modifications possible");
@@ -398,6 +407,32 @@ public class CombinedModel implements Serializable {
 		SchemaNode parentNode = syntaxModel.getParentNodeFor(syntaxNode.getUuid());
 		// create new explicit mapping
 		return new PrimitiveEntityTypeMapping(syntaxNode.getUuid(), entity.getUuid(), parentNode.getUuid());
+	}
+
+	/**
+	 * Creates a deep clone of the current entity
+	 *
+	 * @return The cloned entity with all components deep cloned
+	 */
+	public CombinedModel clone() {
+		return new CombinedModel(
+				getDataSourceUuid(),
+				getSyntaxModel().clone(),
+				getSemanticModel().clone(),
+				CollectionUtilities.map(getPrimitiveEntityTypeMappings(),
+						PrimitiveEntityTypeMapping::clone,
+						ArrayList::new),
+				CollectionUtilities.map(getRecommendations(),
+						DeltaModification::clone,
+						ArrayList::new),
+				isFinalized(),
+				CollectionUtilities.map(getProvisionalEntityConcepts(),
+						EntityConcept::clone,
+						ArrayList::new),
+				CollectionUtilities.map(getProvisionalRelationConcepts(),
+						RelationConcept::clone,
+						ArrayList::new)
+		);
 	}
 
 	/**
