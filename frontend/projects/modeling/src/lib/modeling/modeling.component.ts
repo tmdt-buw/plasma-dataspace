@@ -63,13 +63,13 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
   $filter = new BehaviorSubject<Filter>(Filter.ALL);
   $flat = new BehaviorSubject<boolean>(false);
 
-  //colors
+  // colors
   primaryColor;
   primaryColorContrast;
   accentColor;
   accentColorContrast;
 
-  //schema
+  // schema
   schema: DataSourceSchemaDTO; // = test2;
   initial: boolean = false;
   loading: boolean = true;
@@ -192,7 +192,7 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
     }
   }
 
-  toggleFlatMode(event) {
+  toggleFlatMode(event): void {
     this.$flat.next(event.checked);
   }
 
@@ -211,11 +211,11 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
     this.dialog.open(PlsImportDialogComponent);
   }
 
-  onExportKnowledgeGraph() {
+  onExportKnowledgeGraph(): void  {
     this.kgsService.convertGraphToRdf('turtle', true).subscribe((res) => this.download('ontology.rdf', res));
   }
 
-  onExportOntology() {
+  onExportOntology(): void  {
     this.kgsService.getUpperOntology('turtle').subscribe((res) => this.download('upperOntology.rdf', res));
   }
 
@@ -229,7 +229,7 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
     }
   }
 
-  private download(filename: string, content: string) {
+  private download(filename: string, content: string): void  {
     const blob = new Blob([content], {type: 'application/xml'});
     const link = document.createElement('a');
     link.setAttribute('type', 'hidden');
@@ -241,11 +241,11 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
     link.remove();
   }
 
-  finalizeModel() {
+  finalizeModel(): void  {
     this.modelingService.finishModeling(this.dataSource).subscribe((res) => this.schema = res);
   }
 
-  exportModel() {
+  exportModel(): void  {
     this.kgsModelService.convertSemanticModel(this.schema.semanticModel.uuid, 'turtle', this.$flat.getValue()).subscribe((res) => this.download('model.rdf', res));
   }
 }

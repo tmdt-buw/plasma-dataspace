@@ -8,7 +8,8 @@ import {
   Input,
   OnInit,
   Output,
-  ViewChild, ViewContainerRef
+  ViewChild,
+  ViewContainerRef
 } from '@angular/core';
 import { dia, g, layout, shapes } from 'jointjs';
 import { BehaviorSubject, Subject } from 'rxjs';
@@ -31,7 +32,7 @@ import {
   SetNodeDTO,
   SyntaxModelDTO
 } from '../../api/generated/dms';
-import { distinctUntilChanged, skip } from 'rxjs/operators';
+import { auditTime, distinctUntilChanged, pairwise, skip } from 'rxjs/operators';
 import { Filter } from '../model/filter';
 import { MatDialog, MatDialogConfig, MatDialogRef } from '@angular/material/dialog';
 import { PlsSyntaxNodeDetailsComponent } from '../dialogs/syntax-node-dialog/syntax-node.component';
@@ -39,7 +40,7 @@ import { PlsSemanticNodeDetailsComponent } from '../dialogs/semantic-node-dialog
 import { EntityDroppedEvent } from '../model/events/entity-dropped-event';
 import { NodeChangedEvent } from '../model/events/node-changed-event';
 import { ModelingService } from '../modeling.service';
-import { chain, each, filter, first, omit } from 'lodash';
+import { groupBy } from 'lodash';
 import { Overlay } from '@angular/cdk/overlay';
 import { ContextMenuService } from '../context-menu/context-menu.service';
 import { PlsEntityConceptMenuComponent } from '../context-menu/entity-concept-menu/entity-concept-menu.component';
@@ -53,6 +54,19 @@ import { PlsRelationConceptMenuComponent } from '../context-menu/relation-concep
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class PlsDiagramComponent implements OnInit, AfterViewInit {
+  @Input() set schema(schema: DataSourceSchemaDTO) {
+    this._schema = schema;
+    if (!this.initializing) {
+      this.createGraph();
+    }
+  }
+
+  get schema(): DataSourceSchemaDTO {
+    return this._schema;
+  }
+
+  constructor(public dialog: MatDialog, private overlay: Overlay, private modelingService: ModelingService, private contextMenu: ContextMenuService, private viewContainerRef: ViewContainerRef) {
+  }
 
   private readonly syntaxNode = 'custom.SyntaxNode';
   private readonly semanticNode = 'custom.SemanticNode';
@@ -71,16 +85,6 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
   // data
   initializing = true;
   _schema: DataSourceSchemaDTO;
-  @Input() set schema(schema: DataSourceSchemaDTO) {
-    this._schema = schema;
-    if (!this.initializing) {
-      this.createGraph();
-    }
-  }
-
-  get schema(): DataSourceSchemaDTO {
-    return this._schema;
-  }
 
   @Input() initial: boolean;
 
@@ -89,6 +93,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
   private graph: dia.Graph;
   private paper: dia.Paper;
   private panAndZoom: SvgPanZoom.Instance;
+  private $resize: BehaviorSubject<{ width: number, height: number }>;
 
   // dialog
   private nodeDialogRef: MatDialogRef<any>;
@@ -106,7 +111,142 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
   @Output() nodeChanged = new EventEmitter<NodeChangedEvent>();
   @Output() nodePositionChanged = new EventEmitter<NodeChangedEvent>();
 
-  constructor(public dialog: MatDialog, private overlay: Overlay, private modelingService: ModelingService, private contextMenu: ContextMenuService, private viewContainerRef: ViewContainerRef) {
+  private _canvas = document.createElement('canvas');
+
+  private addCustomSyntaxNode = shapes.standard.Rectangle.define(
+    this.syntaxNode, {
+      attrs: {
+        icon: {
+          textVerticalAnchor: 'middle',
+          textAnchor: 'left',
+          refX: '5',
+          refY: '65%',
+          fontSize: 24,
+          fill: '#333333',
+          'font-family': 'Material Icons',
+          pointerEvents: 'none'
+        },
+        label: {
+          textVerticalAnchor: 'middle',
+          textAnchor: 'left',
+          refX: '35',
+          refY: '50%',
+          fontSize: 14,
+          fill: '#333333',
+          'font-family': 'Roboto',
+          pointerEvents: 'none'
+        }
+      }
+    }, {
+      markup: [{
+        tagName: 'rect',
+        selector: 'body',
+      }, {
+        tagName: 'text',
+        selector: 'icon'
+      }, {
+        tagName: 'text',
+        selector: 'label'
+      }]
+    });
+
+
+  private addCustomSemanticNode = shapes.standard.HeaderedRectangle.define(
+    this.semanticNode, {
+      attrs: {
+        header: {
+          pointerEvents: 'none'
+        },
+        headerText: {
+          textVerticalAnchor: 'middle',
+          textAnchor: 'middle',
+          refX: '50%',
+          refY: 15,
+          fontSize: 14,
+          fill: '#333333',
+          'font-family': 'Roboto',
+          pointerEvents: 'none'
+        },
+        bodyIcon: {
+          textVerticalAnchor: 'middle',
+          textAnchor: 'left',
+          refX: '5',
+          refY: '58%',
+          refY2: 15,
+          fontSize: 24,
+          fill: '#333333',
+          'font-family': 'Material Icons',
+          pointerEvents: 'none'
+        },
+        bodyText: {
+          textVerticalAnchor: 'middle',
+          textAnchor: 'left',
+          refX: '35',
+          refY: '50%',
+          refY2: 15,
+          fontSize: 14,
+          fill: '#333333',
+          'font-family': 'Roboto',
+          pointerEvents: 'none'
+        }
+      }
+    }, {
+      markup: [{
+        tagName: 'rect',
+        selector: 'body'
+      }, {
+        tagName: 'rect',
+        selector: 'header'
+      }, {
+        tagName: 'text',
+        selector: 'headerText'
+      }, {
+        tagName: 'text',
+        selector: 'bodyIcon'
+      }, {
+        tagName: 'text',
+        selector: 'bodyText'
+      }]
+    });
+
+  private static rgbToHex(rgbString: string): string {
+    const rgb = rgbString.split(',');
+    const r = parseInt(rgb[0].substring(4), 10);
+    const cg = parseInt(rgb[1], 10);
+    const b = parseInt(rgb[2], 10);
+    return '#' + [r, cg, b].map(x => {
+      const hex = x.toString(16);
+      return hex.length === 1 ? '0' + hex : hex;
+    }).join('');
+  }
+
+  private static getIcon(node: SchemaNodeDTO | CollisionSchemaDTO | CompositeDTO | ObjectNodeDTO | PrimitiveDTO | SetNodeDTO): string {
+    switch (node['@class']) {
+      case 'ObjectNodeDTO':
+        return 'list';
+      case 'PrimitiveDTO':
+        const value = ((node as PrimitiveDTO).dataType);
+        switch (value) {
+          case 'Number':
+            return 'looks_one';
+          case 'String':
+            return 'text_fields';
+          case 'Boolean':
+            return 'check_box';
+          case 'Binary':
+            return 'attach_file';
+          case 'Unknown':
+            return 'not_listed_location';
+          default:
+            return '';
+        }
+      case 'CompositeDTO':
+        return 'content_cut';
+      case 'SetNodeDTO':
+        return 'format_list_numbered';
+      default:
+        return '';
+    }
   }
 
   ngOnInit(): void {
@@ -127,29 +267,40 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
       gridSize: 1,
       frozen: true,
       async: true,
+      // disable links connection to blank space
       linkPinning: false,
       interactive: () => {
         if (this.relationConcept) {
           return {
             labelMove: true,
-            addLinkFromMagnet: true
+            addLinkFromMagnet: true,
+            elementMove: false
           };
         } else {
           return {
             labelMove: true,
-            addLinkFromMagnet: false
+            addLinkFromMagnet: false,
+            elementMove: true
           };
         }
       },
-      allowLink: (linkView, paper) => {
+      allowLink: (linkView) => {
         return linkView.model.getTargetElement().attributes.type !== this.syntaxNode;
       },
-      defaultLink: (cellView, magnet) => {
+      defaultLink: () => {
+        const text = this.relationConcept.name;
         const labels = [{
           attrs: {
             text: {
-              text: this.relationConcept.name,
+              text,
               fill: this.colorToHex('primary')
+            }
+          },
+          position: {
+            distance: 0.5,
+            offset: (text.indexOf('\n') > -1 || text.length === 1) ? 0 : 10,
+            args: {
+              ensureLegibility: true
             }
           }
         }];
@@ -201,7 +352,6 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
     // @ts-ignore
     this.canvas.nativeElement.append(this.paper.el);
     this.paper.unfreeze();
-    // this.layout();
     this.panAndZoom = svgPanZoom(this.canvas.nativeElement.firstChild.childNodes[2],
       {
         viewportSelector: this.canvas.nativeElement.firstChild.childNodes[2].childNodes[1],
@@ -227,8 +377,10 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
         const model = elementView.model.attributes;
         this.openDetails(model.id, model.type);
       },
+      // persist element position on pointer up
       'element:pointerup': (elementView) => {
         const element = elementView.model;
+        this.adjustVertices(this.graph, elementView);
         this.updatePosition(element, true);
       },
       // Highlights for modeling
@@ -260,6 +412,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
       'blank:pointerclick': () => {
         this.unhighlightAll();
         this.closeDialog();
+        this.modelingService.relationConcept.next(null);
       },
       // Enable pan when mouse button down in blank zone
       'blank:pointerdown': () => {
@@ -269,9 +422,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
       'cell:pointerup blank:pointerup': () => {
         this.panAndZoom.disablePan();
       },
-      'cell:pointerup': (cell) => {
-        this.adjustVertices(this.graph, cell);
-      },
+      // register context menu
       'cell:contextmenu': (cellView) => {
         const model = cellView.model.attributes;
         if (model.linkType && model.linkType === 'semantic') {
@@ -281,12 +432,12 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
           });
         }
         if (model.nodeType && model.nodeType === 'semantic') {
-          const node = this.schema.semanticModel.nodes.find(node => node.id === model.id);
+          const node = this.schema.semanticModel.nodes.find(semanticNode => semanticNode.id === model.id);
           this.unhighlightAll();
           cellView.highlight();
           this.contextMenu.open(cellView.el, PlsEntityConceptMenuComponent, this.viewContainerRef, {
-              concept: node
-            });
+            concept: node
+          });
         }
       },
       // init layout after first rendering
@@ -300,6 +451,21 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
         } else {
           this.center();
         }
+        // subscribe to resize
+        const sizes = this.paper.getComputedSize();
+        this.$resize = new BehaviorSubject<{ width: number, height: number }>(sizes);
+        this.$resize.pipe(
+          // emit event only once every 500ms
+          auditTime(100),
+          // new and old value
+          pairwise()
+        ).subscribe((values) => {
+            this.panAndZoom.resize();
+            const widthScale = (values[1].width - values[0].width) / 2;
+            const heightScale = (values[1].height - values[0].height) / 2;
+            this.panAndZoom.panBy({x: widthScale, y: heightScale});
+          }
+        );
         this.initializing = false;
       }
     });
@@ -347,7 +513,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
       case Filter.ALL:
         this.createSemanticGraph(this.schema.semanticModel, flat);
         const map = this.schema.primitiveToEntityTypeList;
-        const mappedSyntaxNodes = Object.values(map).map(map => map.mappedPrimitive);
+        const mappedSyntaxNodes = Object.values(map).map(entityMap => entityMap.mappedPrimitive);
         const filteredSyntaxNodes = this.schema.syntaxModel.nodes.filter(node => !mappedSyntaxNodes.includes(node.id));
         const filteredSyntaxNodesIds = filteredSyntaxNodes.map(node => node.id);
         const filteredSyntaxModel = {
@@ -370,13 +536,13 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
     this.graph.getLinks().forEach(el => this.adjustVertices(this.graph, el));
   }
 
-  private createSemanticGraph(semanticModel: SemanticModelDTO, flat: boolean) {
+  private createSemanticGraph(semanticModel: SemanticModelDTO, flat: boolean): void {
     if (semanticModel.nodes.length > 0) {
       semanticModel.nodes.forEach(node => {
         let icon = '';
         if (node.mappedToData) {
           const syntaxNode = this.getMappedPrimitve(node.id);
-          icon = this.getIcon(syntaxNode);
+          icon = PlsDiagramComponent.getIcon(syntaxNode);
         }
         this.addSemanticNode(node.id, flat ? node.concept.sourceURI : node.concept.name, node.label, icon, 'primary', node.x, node.y);
       });
@@ -384,14 +550,14 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
     }
   }
 
-  private getMappedPrimitve(id: string) {
+  private getMappedPrimitve(id: string): PrimitiveDTO | SchemaNodeDTO | CollisionSchemaDTO | CompositeDTO | ObjectNodeDTO | SetNodeDTO {
     const syntaxNodeId = this.schema.primitiveToEntityTypeList.find(map => map.to === id).mappedPrimitive;
     return this.schema.syntaxModel.nodes.find(node => node.id === syntaxNodeId);
   }
 
-  private createSyntaxGraph(syntaxModel: SyntaxModelDTO) {
+  private createSyntaxGraph(syntaxModel: SyntaxModelDTO): void {
     if (syntaxModel.nodes.length > 0) {
-      syntaxModel.nodes.forEach(node => this.addSyntaxNode(node.id, node.label, this.getIcon(node), node.x, node.y));
+      syntaxModel.nodes.forEach(node => this.addSyntaxNode(node.id, node.label, PlsDiagramComponent.getIcon(node), node.x, node.y));
       syntaxModel.edges.forEach(edge => this.addLink(null, edge.from, edge.to, true));
     }
   }
@@ -401,7 +567,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
       let icon = '';
       if (node.mappedToData) {
         const syntaxNode = this.getMappedPrimitve(node.id);
-        icon = this.getIcon(syntaxNode);
+        icon = PlsDiagramComponent.getIcon(syntaxNode);
       }
       this.recommendations.push(this.addSemanticNode(node.id, node.concept.name, node.label, icon, 'accent', node.x, node.y, 0.6));
     });
@@ -512,9 +678,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
     return [width, height];
   }
 
-  private _canvas = document.createElement('canvas');
-
-  private getTextWidth(text, font) {
+  private getTextWidth(text, font): number {
     // re-use canvas object for better performance
     const context = this._canvas.getContext('2d');
     context.font = font;
@@ -529,7 +693,15 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
           text: label,
           fill: this.colorToHex(color)
         }
-      }
+      },
+      // position: {
+      //   distance: 0.5,
+      //   offset: (label.indexOf('\n') > -1 || label.length === 1) ? 0 : 10,
+      //   args: {
+      //     keepGradient: true,
+      //     ensureLegibility: true
+      //   }
+      // }
     }] : undefined;
     const link = new shapes.standard.Link(
       {
@@ -570,15 +742,18 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
     layout.DirectedGraph.layout(this.graph, {
       dagre,
       graphlib,
-      nodeSep: 60,
-      edgeSep: 80,
+      nodeSep: 50,
+      edgeSep: 50,
+      rankSep: 70,
       rankDir: 'TB'
     });
     setTimeout(() => {
       this.graph.getElements().forEach((element) => {
         this.updatePosition(element, false);
       });
-      setTimeout(() => this.graph.getLinks().forEach(el => this.adjustVertices(this.graph, el), 300));
+      setTimeout(() => {
+        this.graph.getLinks().forEach(el => this.adjustVertices(this.graph, el));
+      }, 300);
       this.graphLaidOut.emit(this.schema);
     }, 500);
   }
@@ -586,7 +761,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
   private updatePosition(element: dia.Element, emitEvent: boolean): void {
     const model = element.attributes;
     if (model.type === this.syntaxNode) {
-      const node = this.schema.syntaxModel.nodes.find(node => node.id === model.id);
+      const node = this.schema.syntaxModel.nodes.find(syntaxNode => syntaxNode.id === model.id);
       const position = model.position;
       if (node && (node.x !== position.x || node.y !== position.y)) {
         node.x = position.x;
@@ -598,7 +773,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
       }
     }
     if (model.type === this.semanticNode) {
-      const node = this.schema.semanticModel.nodes.find(node => node.id === model.id);
+      const node = this.schema.semanticModel.nodes.find(semanticNode => semanticNode.id === model.id);
       const position = model.position;
       if (node && (node.x !== position.x || node.y !== position.y)) {
         node.x = position.x;
@@ -619,123 +794,6 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
       }
     }
   }
-
-  private getIcon(node: SchemaNodeDTO | CollisionSchemaDTO | CompositeDTO | ObjectNodeDTO | PrimitiveDTO | SetNodeDTO): string {
-    switch (node['@class']) {
-      case 'ObjectNodeDTO':
-        return 'list';
-      case 'PrimitiveDTO':
-        const value = ((node as PrimitiveDTO).dataType);
-        switch (value) {
-          case 'Number':
-            return 'looks_one';
-          case 'String':
-            return 'text_fields';
-          case 'Boolean':
-            return 'check_box';
-          case 'Binary':
-            return 'attach_file';
-          case 'Unknown':
-            return 'not_listed_location';
-          default:
-            return '';
-        }
-      case 'CompositeDTO':
-        return 'content_cut';
-      case 'SetNodeDTO':
-        return 'format_list_numbered';
-      default:
-        return '';
-    }
-  }
-
-  private addCustomSyntaxNode = shapes.standard.Rectangle.define(
-    this.syntaxNode, {
-      attrs: {
-        icon: {
-          textVerticalAnchor: 'middle',
-          textAnchor: 'left',
-          refX: '5',
-          refY: '65%',
-          fontSize: 24,
-          fill: '#333333',
-          'font-family': 'Material Icons'
-        },
-        label: {
-          textVerticalAnchor: 'middle',
-          textAnchor: 'left',
-          refX: '35',
-          refY: '50%',
-          fontSize: 14,
-          fill: '#333333',
-          'font-family': 'Roboto'
-        }
-      }
-    }, {
-      markup: [{
-        tagName: 'rect',
-        selector: 'body',
-      }, {
-        tagName: 'text',
-        selector: 'icon'
-      }, {
-        tagName: 'text',
-        selector: 'label'
-      }]
-    });
-
-
-  private addCustomSemanticNode = shapes.standard.HeaderedRectangle.define(
-    this.semanticNode, {
-      attrs: {
-        headerText: {
-          textVerticalAnchor: 'middle',
-          textAnchor: 'middle',
-          refX: '50%',
-          refY: 15,
-          fontSize: 14,
-          fill: '#333333',
-          'font-family': 'Roboto'
-        },
-        bodyIcon: {
-          textVerticalAnchor: 'middle',
-          textAnchor: 'left',
-          refX: '5',
-          refY: '58%',
-          refY2: 15,
-          fontSize: 24,
-          fill: '#333333',
-          'font-family': 'Material Icons'
-        },
-        bodyText: {
-          textVerticalAnchor: 'middle',
-          textAnchor: 'left',
-          refX: '35',
-          refY: '50%',
-          refY2: 15,
-          fontSize: 14,
-          fill: '#333333',
-          'font-family': 'Roboto'
-        }
-      }
-    }, {
-      markup: [{
-        tagName: 'rect',
-        selector: 'body'
-      }, {
-        tagName: 'rect',
-        selector: 'header'
-      }, {
-        tagName: 'text',
-        selector: 'headerText'
-      }, {
-        tagName: 'text',
-        selector: 'bodyIcon'
-      }, {
-        tagName: 'text',
-        selector: 'bodyText'
-      }]
-    });
 
   private openDetails(id: string, type: string): void {
     this.closeDialog();
@@ -768,9 +826,9 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
           if (res) {
             this.nodeDialogRef = null;
           }
-          const el = this.graph.getElements().find(el => el.attributes.id === id);
+          const element = this.graph.getElements().find(el => el.attributes.id === id);
           // TODO update width
-          el.attr('bodyText/text', config.data.node.label);
+          element.attr('bodyText/text', config.data.node.label);
         });
         break;
       default:
@@ -794,7 +852,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
 
   private getIfLeafNode(cellView): PrimitiveDTO {
     if (cellView.model?.attributes?.type === this.syntaxNode) {
-      const node = this.schema.syntaxModel.nodes.find(node => node.id === cellView.model.id);
+      const node = this.schema.syntaxModel.nodes.find(syntaxNode => syntaxNode.id === cellView.model.id);
       if (node['@class'] === 'PrimitiveDTO') {
         return node;
       }
@@ -802,12 +860,12 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
     return null;
   }
 
-  setEntityConcept(concept: EntityConceptDTO) {
+  setEntityConcept(concept: EntityConceptDTO): void {
     this.entityConcept = concept;
   }
 
   @HostListener('mousemove', ['$event'])
-  onMousemove(event: MouseEvent) {
+  onMousemove(event: MouseEvent): void {
     if (this.entityConcept) {
       this.mousePosition = {x: event.clientX, y: event.clientY};
     }
@@ -817,158 +875,139 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
     switch (color) {
       case 'primary':
         if (contrast) {
-          return this.rgbToHex(this.primaryColorContrast);
+          return PlsDiagramComponent.rgbToHex(this.primaryColorContrast);
         } else {
-          return this.rgbToHex(this.primaryColor);
+          return PlsDiagramComponent.rgbToHex(this.primaryColor);
         }
       case 'accent':
         if (contrast) {
-          return this.rgbToHex(this.accentColorContrast);
+          return PlsDiagramComponent.rgbToHex(this.accentColorContrast);
         } else {
-          return this.rgbToHex(this.accentColor);
+          return PlsDiagramComponent.rgbToHex(this.accentColor);
         }
     }
   }
 
-  private rgbToHex(rgbString: string): string {
-    const rgb = rgbString.split(',');
-    const r = parseInt(rgb[0].substring(4));
-    const g = parseInt(rgb[1]);
-    const b = parseInt(rgb[2]);
-    return '#' + [r, g, b].map(x => {
-      const hex = x.toString(16);
-      return hex.length === 1 ? '0' + hex : hex;
-    }).join('');
+  @HostListener('window:resize')
+  onResize(): void {
+    this.$resize.next(this.paper.getComputedSize());
   }
-
-  @HostListener('window:resize', ['$event'])
-  onResize(event): void {
-    console.log(event);
-    // const width = +getComputedStyle(this.canvas.nativeElement).width.replace('px', '');
-    // const height = +getComputedStyle(this.canvas.nativeElement).height.replace('px', '');
-    // const zoom = this.panAndZoom.getZoom();
-    // console.log(width, height);
-    // this.graph.resize(width / zoom, height / zoom);
-  }
-
 
   private adjustVertices(graph, cell): void {
-
     // if `cell` is a view, find its model
     cell = cell.model || cell;
-
     if (cell instanceof dia.Element) {
       // `cell` is an element
-
-      chain(graph.getConnectedLinks(cell))
-        .groupBy((link) => {
-
-          // the key of the group is the model id of the link's source or target
-          // cell id is omitted
-          return omit([link.source().id, link.target().id], cell.id)[0];
-        })
-        .each((group, key) => {
-
-          // if the member of the group has both source and target model
-          // then adjust vertices
-          if (key !== 'undefined') {
-            this.adjustVertices(graph, first(group));
-          }
-        })
-        .value();
-
+      const groups = groupBy(graph.getConnectedLinks(cell), (link) => {
+        return [link.source().id, link.target().id].sort();
+      });
+      Object.entries(groups).forEach(([key, group]) => {
+        // adjust vertices for each group
+        if (key !== 'undefined') {
+          this.adjustVertices(graph, group[0]);
+        }
+      });
       return;
     }
-
     // `cell` is a link
     // get its source and target model IDs
     const sourceId = cell.get('source').id || cell.previous('source').id;
     const targetId = cell.get('target').id || cell.previous('target').id;
-
     // if one of the ends is not a model
     // (if the link is pinned to paper at a point)
     // the link is interpreted as having no siblings
     if (!sourceId || !targetId) {
       return;
     }
-
     // identify link siblings
-    const siblings = filter(graph.getLinks(), (sibling) => {
-
+    const siblings = graph.getLinks().filter((sibling) => {
       const siblingSourceId = sibling.source().id;
       const siblingTargetId = sibling.target().id;
-
       // if source and target are the same
       // or if source and target are reversed
       return ((siblingSourceId === sourceId) && (siblingTargetId === targetId))
         || ((siblingSourceId === targetId) && (siblingTargetId === sourceId));
     });
-
     const numSiblings = siblings.length;
     switch (numSiblings) {
-
       case 0: {
-        // the link has no siblings
+        // there is no link - should never happen
         break;
-
       }
       case 1: {
         // there is only one link
         // no vertices needed
-        cell.unset('vertices');
+        if (sourceId === targetId) {
+          this.layoutSelfLink(cell, sourceId, 0);
+        } else {
+          cell.unset('vertices');
+        }
         break;
-
       }
       default: {
         // there are multiple siblings
         // we need to create vertices
-
-        // find the middle point of the link
-        const sourceCenter = graph.getCell(sourceId).getBBox().center();
-        const targetCenter = graph.getCell(targetId).getBBox().center();
-        const midPoint = new g.Line(sourceCenter, targetCenter).midpoint();
-
-        // find the angle of the link
-        const theta = sourceCenter.theta(targetCenter);
-
-        // constant
-        // the maximum distance between two sibling links
-        const GAP = 50;
-
-        each(siblings, (sibling, index) => {
-
-          // we want offset values to be calculated as 0, 20, 20, 40, 40, 60, 60 ...
-          let offset = GAP * Math.ceil(index / 2);
-
-          // place the vertices at points which are `offset` pixels perpendicularly away
-          // from the first link
-          //
-          // as index goes up, alternate left and right
-          //
-          //  ^  odd indices
-          //  |
-          //  |---->  index 0 sibling - centerline (between source and target centers)
-          //  |
-          //  v  even indices
-          const sign = ((index % 2) ? 1 : -1);
-
-          // to assure symmetry, if there is an even number of siblings
-          // shift all vertices leftward perpendicularly away from the centerline
-          if ((numSiblings % 2) === 0) {
-            offset -= ((GAP / 2) * sign);
-          }
-
-          // make reverse links count the same as non-reverse
-          const reverse = ((theta < 180) ? 1 : -1);
-
-          // we found the vertex
-          const angle = g.toRad(theta + (sign * reverse * 90));
-          const vertex = g.Point.fromPolar(offset, angle, midPoint);
-
-          // replace vertices array with `vertex`
-          sibling.vertices([vertex]);
-        });
+        if (sourceId === targetId) {
+          siblings.forEach((link, index) => this.layoutSelfLink(link, sourceId, index));
+        } else {
+          // find the middle point of the link
+          const sourceCenter = graph.getCell(sourceId).getBBox().center();
+          const targetCenter = graph.getCell(targetId).getBBox().center();
+          const midPoint = new g.Line(sourceCenter, targetCenter).midpoint();
+          // find the angle of the link
+          const theta = sourceCenter.theta(targetCenter);
+          // constant
+          // the maximum distance between two sibling links
+          const GAP = 50;
+          siblings.forEach((sibling, index) => {
+            // we want offset values to be calculated as 0, 20, 20, 40, 40, 60, 60 ...
+            let offset = GAP * Math.ceil(index / 2);
+            // place the vertices at points which are `offset` pixels perpendicularly away
+            // from the first link
+            //
+            // as index goes up, alternate left and right
+            //
+            //  ^  odd indices
+            //  |
+            //  |---->  index 0 sibling - centerline (between source and target centers)
+            //  |
+            //  v  even indices
+            const sign = ((index % 2) ? 1 : -1);
+            // to assure symmetry, if there is an even number of siblings
+            // shift all vertices leftward perpendicularly away from the centerline
+            if ((numSiblings % 2) === 0) {
+              offset -= ((GAP / 2) * sign);
+            }
+            // make reverse links count the same as non-reverse
+            const reverse = ((theta < 180) ? 1 : -1);
+            // we found the vertex
+            const angle = g.toRad(theta + (sign * reverse * 90));
+            const vertex = g.Point.fromPolar(offset, angle, midPoint);
+            // replace vertices array with `vertex`
+            sibling.vertices([vertex]);
+            sibling.connector('smooth');
+          });
+        }
       }
     }
+  }
+
+  private layoutSelfLink(cell, sourceId: number, index: number): void {
+    const source = this.graph.getCell(sourceId);
+    const sourceCenter = source.getBBox().center();
+    // find links that are not self-links
+    const linkedNodes = this.graph.getConnectedLinks(source).filter(link => link.source().id !== sourceId || link.target().id !== sourceId);
+    // calc center point of those links
+    const linksCenters = linkedNodes.map(link => link.getBBox().center());
+    const numberLinksCenters = linksCenters.length;
+    const centerX = linksCenters.reduce((sum, linkCenter) => sum + linkCenter.x, 0) / numberLinksCenters;
+    const centerY = linksCenters.reduce((sum, linkCenter) => sum + linkCenter.y, 0) / numberLinksCenters;
+    // find angle between semantic node center and connected links center
+    const theta = sourceCenter.theta({x: centerX, y: centerY});
+    // two vertex points for nice curve at 170° and 190° (opposite side of links center)
+    const vertex1 = g.Point.fromPolar(100 + 50 * index, g.toRad(theta + 170), sourceCenter);
+    const vertex2 = g.Point.fromPolar(100 + 50 * index, g.toRad(theta + 190), sourceCenter);
+    cell.vertices([vertex1, vertex2]);
+    cell.connector('smooth');
   }
 }

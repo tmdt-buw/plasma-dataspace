@@ -20,11 +20,10 @@ ui-lint:
     - docker
   image: node:lts-stretch
   before_script:
-    - cd plasma-ui
+    - cd frontend
     - npm install
   script:
     - npm run lint
-
 
 ui-build:
   stage: build
@@ -40,7 +39,6 @@ ui-build:
     expire_in: 30 days
     paths:
       - plasma-ui/dist
-
 
 ui-dockerize:
   stage: deploy
@@ -60,10 +58,10 @@ ui-dockerize:
         echo $MY_TAG
       fi
   script:
-    - cd plasma-ui
+    - cd frontend
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - >
       for CORPID in $CI_PROFILES; do
-        docker build --build-arg profile=$CORPID --build-arg CI_JOB_TOKEN=$CI_JOB_TOKEN -t $CI_REGISTRY_IMAGE/plasma-ui:$MY_TAG-$CORPID .
-        docker push $CI_REGISTRY_IMAGE/plasma-ui:$MY_TAG-$CORPID
+        docker build --build-arg profile=$CORPID --build-arg CI_JOB_TOKEN=$CI_JOB_TOKEN -t $CI_REGISTRY_IMAGE/frontend:$MY_TAG-$CORPID .
+        docker push $CI_REGISTRY_IMAGE/frontend:$MY_TAG-$CORPID
       done
