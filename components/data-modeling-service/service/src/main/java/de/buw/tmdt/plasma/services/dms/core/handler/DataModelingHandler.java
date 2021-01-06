@@ -438,16 +438,24 @@ public class DataModelingHandler {
     @Transactional
     public CombinedModel applyModification(@NotNull UUID dataSourceUuid, @NotNull DeltaModification modification) {
 
-        //load schema - DON'T COPY since caching of transient concepts is not "undoable"
+        //load schema
         DataSourceModel dataSourceModel = findDataSourceOrThrow(dataSourceUuid);
         CombinedModel combinedModel = getCombinedModel(dataSourceModel, true);
 
-        combinedModel.apply(modification);
+        CombinedModel clone = combinedModel.clone();
+        try {
+            clone.apply(modification);
+        } catch (Exception e) {
+            // something went wrong
+            // TODO add more fine grained exceptions
+            logger.warn("Exception during application of modification: " + modification + ":");
+            e.printStackTrace();
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Error during application of modification: " + e.getMessage());
+        }
 
-        // persist new state
-        // TODO
+        persistCombinedModel(dataSourceModel, clone);
 
-        return combinedModel;
+        return dataSourceModel.getCurrentModel();
     }
 
     /**
