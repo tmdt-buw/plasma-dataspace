@@ -1,18 +1,12 @@
-import {
-  CollisionSchemaDTO,
-  CompositeDTO,
-  EntityTypeDTO,
-  ObjectNodeDTO,
-  PrimitiveDTO,
-  SchemaNodeDTO,
-  SetNodeDTO
-} from '../../../api/generated/dms';
+import { EntityTypeDTO } from '../../../api/generated/dms';
+import { SyntaxNode } from '../node/syntax-node';
+import { Node } from '../node/node';
 
 export class NodeChangedEvent {
-  type: 'syntax' | 'semantic';
-  node: SchemaNodeDTO | CollisionSchemaDTO | CompositeDTO | ObjectNodeDTO | PrimitiveDTO | SetNodeDTO | EntityTypeDTO;
+  type: Node;
+  node: SyntaxNode | EntityTypeDTO;
 
-  constructor(type: "syntax" | "semantic", node: SchemaNodeDTO | CollisionSchemaDTO | CompositeDTO | ObjectNodeDTO | PrimitiveDTO | SetNodeDTO | EntityTypeDTO) {
+  constructor(type: Node, node: SyntaxNode | EntityTypeDTO) {
     this.type = type;
     this.node = node;
   }

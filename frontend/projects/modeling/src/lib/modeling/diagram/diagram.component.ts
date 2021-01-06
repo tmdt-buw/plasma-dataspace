@@ -11,40 +11,43 @@ import {
   ViewChild,
   ViewContainerRef
 } from '@angular/core';
-import { dia, g, layout, shapes } from 'jointjs';
+import { dia, layout, shapes } from 'jointjs';
 import { BehaviorSubject, Subject } from 'rxjs';
 import * as dagre from 'dagre';
 import * as graphlib from 'graphlib';
 import * as svgPanZoom from 'svg-pan-zoom';
 import {
-  CollisionSchemaDTO,
-  CompositeDTO,
   DataSourceSchemaDTO,
   DeltaRecommendationDTO,
   EntityConceptDTO,
   EntityTypeDTO,
-  ObjectNodeDTO,
   PrimitiveDTO,
   RelationConceptDTO,
   RelationDTO,
-  SchemaNodeDTO,
   SemanticModelDTO,
-  SetNodeDTO,
   SyntaxModelDTO
 } from '../../api/generated/dms';
 import { auditTime, distinctUntilChanged, pairwise, skip } from 'rxjs/operators';
-import { Filter } from '../model/filter';
+import { Filter } from '../model/common/filter';
 import { MatDialog, MatDialogConfig, MatDialogRef } from '@angular/material/dialog';
 import { PlsSyntaxNodeDetailsComponent } from '../dialogs/syntax-node-dialog/syntax-node.component';
 import { PlsSemanticNodeDetailsComponent } from '../dialogs/semantic-node-dialog/semantic-node.component';
 import { EntityDroppedEvent } from '../model/events/entity-dropped-event';
 import { NodeChangedEvent } from '../model/events/node-changed-event';
 import { ModelingService } from '../modeling.service';
-import { groupBy } from 'lodash';
 import { Overlay } from '@angular/cdk/overlay';
 import { ContextMenuService } from '../context-menu/context-menu.service';
 import { PlsEntityConceptMenuComponent } from '../context-menu/entity-concept-menu/entity-concept-menu.component';
 import { PlsRelationConceptMenuComponent } from '../context-menu/relation-concept-menu/relation-concept-menu.component';
+import { plasmaGraph } from '../model/configuration/graph';
+import { plasmaPaper } from '../model/configuration/paper';
+import { LinkUtil } from '../model/link/link-util';
+import { Util } from '../model/common/util';
+import { NodeUtil } from '../model/node/node-util';
+import { syntaxNode, SyntaxNode } from '../model/node/syntax-node';
+import { Icons } from '../model/configuration/icons';
+import { semanticNode } from '../model/node/semantic-node';
+import { Node, Nodes } from '../model/node/node';
 
 
 @Component({
@@ -54,6 +57,8 @@ import { PlsRelationConceptMenuComponent } from '../context-menu/relation-concep
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class PlsDiagramComponent implements OnInit, AfterViewInit {
+
+  // create graph if input schema changes and graph has already been initialized
   @Input() set schema(schema: DataSourceSchemaDTO) {
     this._schema = schema;
     if (!this.initializing) {
@@ -64,12 +69,6 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
   get schema(): DataSourceSchemaDTO {
     return this._schema;
   }
-
-  constructor(public dialog: MatDialog, private overlay: Overlay, private modelingService: ModelingService, private contextMenu: ContextMenuService, private viewContainerRef: ViewContainerRef) {
-  }
-
-  private readonly syntaxNode = 'custom.SyntaxNode';
-  private readonly semanticNode = 'custom.SemanticNode';
 
   @Input() dataSource: string;
   // external controls
@@ -105,225 +104,34 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
   mousePosition;
   recommendations = [];
 
+  // events
   @Output() graphLaidOut = new EventEmitter<DataSourceSchemaDTO>();
   @Output() entityConceptMapped = new EventEmitter<EntityDroppedEvent>();
   @Output() relationConceptLinked = new EventEmitter<RelationDTO>();
   @Output() nodeChanged = new EventEmitter<NodeChangedEvent>();
   @Output() nodePositionChanged = new EventEmitter<NodeChangedEvent>();
 
+  // hidden canvas to calculate label widths
   private _canvas = document.createElement('canvas');
 
-  private addCustomSyntaxNode = shapes.standard.Rectangle.define(
-    this.syntaxNode, {
-      attrs: {
-        icon: {
-          textVerticalAnchor: 'middle',
-          textAnchor: 'left',
-          refX: '5',
-          refY: '65%',
-          fontSize: 24,
-          fill: '#333333',
-          'font-family': 'Material Icons',
-          pointerEvents: 'none'
-        },
-        label: {
-          textVerticalAnchor: 'middle',
-          textAnchor: 'left',
-          refX: '35',
-          refY: '50%',
-          fontSize: 14,
-          fill: '#333333',
-          'font-family': 'Roboto',
-          pointerEvents: 'none'
-        }
-      }
-    }, {
-      markup: [{
-        tagName: 'rect',
-        selector: 'body',
-      }, {
-        tagName: 'text',
-        selector: 'icon'
-      }, {
-        tagName: 'text',
-        selector: 'label'
-      }]
-    });
-
-
-  private addCustomSemanticNode = shapes.standard.HeaderedRectangle.define(
-    this.semanticNode, {
-      attrs: {
-        header: {
-          pointerEvents: 'none'
-        },
-        headerText: {
-          textVerticalAnchor: 'middle',
-          textAnchor: 'middle',
-          refX: '50%',
-          refY: 15,
-          fontSize: 14,
-          fill: '#333333',
-          'font-family': 'Roboto',
-          pointerEvents: 'none'
-        },
-        bodyIcon: {
-          textVerticalAnchor: 'middle',
-          textAnchor: 'left',
-          refX: '5',
-          refY: '58%',
-          refY2: 15,
-          fontSize: 24,
-          fill: '#333333',
-          'font-family': 'Material Icons',
-          pointerEvents: 'none'
-        },
-        bodyText: {
-          textVerticalAnchor: 'middle',
-          textAnchor: 'left',
-          refX: '35',
-          refY: '50%',
-          refY2: 15,
-          fontSize: 14,
-          fill: '#333333',
-          'font-family': 'Roboto',
-          pointerEvents: 'none'
-        }
-      }
-    }, {
-      markup: [{
-        tagName: 'rect',
-        selector: 'body'
-      }, {
-        tagName: 'rect',
-        selector: 'header'
-      }, {
-        tagName: 'text',
-        selector: 'headerText'
-      }, {
-        tagName: 'text',
-        selector: 'bodyIcon'
-      }, {
-        tagName: 'text',
-        selector: 'bodyText'
-      }]
-    });
-
-  private static rgbToHex(rgbString: string): string {
-    const rgb = rgbString.split(',');
-    const r = parseInt(rgb[0].substring(4), 10);
-    const cg = parseInt(rgb[1], 10);
-    const b = parseInt(rgb[2], 10);
-    return '#' + [r, cg, b].map(x => {
-      const hex = x.toString(16);
-      return hex.length === 1 ? '0' + hex : hex;
-    }).join('');
+  constructor(public dialog: MatDialog, private overlay: Overlay, private modelingService: ModelingService, private contextMenu: ContextMenuService, private viewContainerRef: ViewContainerRef) {
   }
 
-  private static getIcon(node: SchemaNodeDTO | CollisionSchemaDTO | CompositeDTO | ObjectNodeDTO | PrimitiveDTO | SetNodeDTO): string {
-    switch (node['@class']) {
-      case 'ObjectNodeDTO':
-        return 'list';
-      case 'PrimitiveDTO':
-        const value = ((node as PrimitiveDTO).dataType);
-        switch (value) {
-          case 'Number':
-            return 'looks_one';
-          case 'String':
-            return 'text_fields';
-          case 'Boolean':
-            return 'check_box';
-          case 'Binary':
-            return 'attach_file';
-          case 'Unknown':
-            return 'not_listed_location';
-          default:
-            return '';
-        }
-      case 'CompositeDTO':
-        return 'content_cut';
-      case 'SetNodeDTO':
-        return 'format_list_numbered';
-      default:
-        return '';
-    }
-  }
-
+  /**
+   * Init everything
+   */
   ngOnInit(): void {
-    // init joint.js graph and paper
-    this.graph = new dia.Graph({
-      'add remove change:source change:target': (view) => {
-        this.adjustVertices(this.graph, view);
-      }
-    });
-    this.paper = new dia.Paper({
-      // @ts-ignore
-      model: this.graph,
-      width: '100%',
-      height: '100%',
-      background: {
-        color: '#fff',
-      },
-      gridSize: 1,
-      frozen: true,
-      async: true,
-      // disable links connection to blank space
-      linkPinning: false,
-      interactive: () => {
-        if (this.relationConcept) {
-          return {
-            labelMove: true,
-            addLinkFromMagnet: true,
-            elementMove: false
-          };
-        } else {
-          return {
-            labelMove: true,
-            addLinkFromMagnet: false,
-            elementMove: true
-          };
-        }
-      },
-      allowLink: (linkView) => {
-        return linkView.model.getTargetElement().attributes.type !== this.syntaxNode;
-      },
-      defaultLink: () => {
-        const text = this.relationConcept.name;
-        const labels = [{
-          attrs: {
-            text: {
-              text,
-              fill: this.colorToHex('primary')
-            }
-          },
-          position: {
-            distance: 0.5,
-            offset: (text.indexOf('\n') > -1 || text.length === 1) ? 0 : 10,
-            args: {
-              ensureLegibility: true
-            }
-          }
-        }];
-        return new shapes.standard.Link(
-          {
-            labels,
-            attrs: {
-              line: {
-                stroke: this.colorToHex('primary'),
-                strokeOpacity: 1,
-                strokeWidth: 1
-              }
-            }
-          }
-        );
-      }
-    });
+    // init joint.js graph
+    this.graph = plasmaGraph();
+    // init joint.js paper
+    this.paper = plasmaPaper(this.graph, () => this.relationConcept);
     // create nodes and links
     this.createGraph();
     // subscribe to relation tool
     this.modelingService.relationConcept.subscribe((relationSelection) => {
       this.relationConcept = relationSelection;
     });
+    // show / hide recommendations
     this.modelingService.recommendation.subscribe((recommendation) => {
       if (recommendation) {
         this.showRecommendation(recommendation);
@@ -348,10 +156,13 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
     });
   }
 
+  /**
+   * Append graph to canvas and register events
+   */
   ngAfterViewInit(): void {
-    // @ts-ignore
     this.canvas.nativeElement.append(this.paper.el);
     this.paper.unfreeze();
+    // init pan and zoom
     this.panAndZoom = svgPanZoom(this.canvas.nativeElement.firstChild.childNodes[2],
       {
         viewportSelector: this.canvas.nativeElement.firstChild.childNodes[2].childNodes[1],
@@ -371,20 +182,20 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
     });
     this.paper.on({
       // add selection for nodes
-      'element:pointerclick': (elementView) => {
+      'element:pointerclick': (elementView: dia.ElementView) => {
         this.unhighlightAll();
         elementView.highlight();
         const model = elementView.model.attributes;
         this.openDetails(model.id, model.type);
       },
-      // persist element position on pointer up
-      'element:pointerup': (elementView) => {
+      // adjust edges and persist element position on pointer up
+      'element:pointerup': (elementView: dia.ElementView) => {
+        LinkUtil.adjustVertices(this.graph, elementView);
         const element = elementView.model;
-        this.adjustVertices(this.graph, elementView);
         this.updatePosition(element, true);
       },
       // Highlights for modeling
-      'element:mouseover': (elementView) => {
+      'element:mouseover': (elementView: dia.ElementView) => {
         if (this.entityConcept && this.getIfLeafNode(elementView)) {
           elementView.highlight();
           this.hoveredElement = elementView;
@@ -396,7 +207,8 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
         }
         this.hoveredElement = null;
       },
-      'link:connect': (linkView) => {
+      // handle linking of nodes
+      'link:connect': (linkView: dia.LinkView) => {
         const model = linkView.model.attributes;
         const from = model.source.id;
         const to = model.target.id;
@@ -411,7 +223,6 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
       // remove highlight and close dialog if clicked in blank zone
       'blank:pointerclick': () => {
         this.unhighlightAll();
-        this.closeDialog();
         this.modelingService.relationConcept.next(null);
       },
       // Enable pan when mouse button down in blank zone
@@ -423,16 +234,16 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
         this.panAndZoom.disablePan();
       },
       // register context menu
-      'cell:contextmenu': (cellView) => {
-        const model = cellView.model.attributes;
-        if (model.linkType && model.linkType === 'semantic') {
-          const link = this.schema.semanticModel.edges.find(edge => edge.id === model.id);
+      'cell:contextmenu': (cellView: dia.CellView) => {
+        const id = cellView.model.attributes.id;
+        if (LinkUtil.isSemanticLink(cellView)) {
+          const link = this.schema.semanticModel.edges.find(edge => edge.id === id);
           this.contextMenu.open(cellView.el, PlsRelationConceptMenuComponent, this.viewContainerRef, {
             concept: link
           });
         }
-        if (model.nodeType && model.nodeType === 'semantic') {
-          const node = this.schema.semanticModel.nodes.find(semanticNode => semanticNode.id === model.id);
+        if (NodeUtil.isSemanticNode(cellView)) {
+          const node = this.findSemanticNodeById(id);
           this.unhighlightAll();
           cellView.highlight();
           this.contextMenu.open(cellView.el, PlsEntityConceptMenuComponent, this.viewContainerRef, {
@@ -442,6 +253,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
       },
       // init layout after first rendering
       'render:done': () => {
+        // turn off this trigger
         this.paper.off('render:done');
         if (this.initial) {
           // on first view layout and center
@@ -452,15 +264,17 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
           this.center();
         }
         // subscribe to resize
-        const sizes = this.paper.getComputedSize();
-        this.$resize = new BehaviorSubject<{ width: number, height: number }>(sizes);
+        const size = this.paper.getComputedSize();
+        this.$resize = new BehaviorSubject<{ width: number, height: number }>(size);
         this.$resize.pipe(
           // emit event only once every 500ms
           auditTime(100),
           // new and old value
           pairwise()
         ).subscribe((values) => {
+            // update sizes in model
             this.panAndZoom.resize();
+            // pan by half of diff to let graph remain in relative center
             const widthScale = (values[1].width - values[0].width) / 2;
             const heightScale = (values[1].height - values[0].height) / 2;
             this.panAndZoom.panBy({x: widthScale, y: heightScale});
@@ -471,6 +285,10 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
     });
   }
 
+  /**
+   * Handles entity dropped event
+   * @param event
+   */
   entityDropped(event): void {
     // test if valid target
     const node = this.hoveredElement ? this.getIfLeafNode(this.hoveredElement) : null;
@@ -491,7 +309,6 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
       const localPosition = this.paper.clientToLocalPoint(this.mousePosition.x, this.mousePosition.y);
       const entityType: EntityTypeDTO = {
         concept: this.entityConcept,
-        originalLabel: 'NOT_PART_OF_THE_SYNTAX_MODEL',
         label: this.entityConcept.name,
         description: this.entityConcept.description,
         x: localPosition.x,
@@ -504,14 +321,22 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
     this.unhighlightAll();
   }
 
+  /**
+   * Fill graph object with current schema data
+   * @param flat mode
+   * @private
+   */
   private createGraph(flat: boolean = false): void {
     // remove old content
     this.paper.freeze();
     this.graph.clear();
     this.paper.updateViews();
+    // create graph based on filter selection
     switch (this.$filter.getValue()) {
       case Filter.ALL:
+        // show semantic nodes and links
         this.createSemanticGraph(this.schema.semanticModel, flat);
+        // filter syntax nodes
         const map = this.schema.primitiveToEntityTypeList;
         const mappedSyntaxNodes = Object.values(map).map(entityMap => entityMap.mappedPrimitive);
         const filteredSyntaxNodes = this.schema.syntaxModel.nodes.filter(node => !mappedSyntaxNodes.includes(node.id));
@@ -524,25 +349,34 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
         this.createSyntaxGraph(filteredSyntaxModel);
         break;
       case Filter.SYNTAX:
+        // show syntax nodes and links
         this.createSyntaxGraph(this.schema.syntaxModel);
         break;
       case Filter.SEMANTIC:
+        // show semantic nodes and links
         this.createSemanticGraph(this.schema.semanticModel, flat);
         break;
       default:
         console.error('Unsupported Filter');
     }
     this.paper.unfreeze();
-    this.graph.getLinks().forEach(el => this.adjustVertices(this.graph, el));
+    // layout links
+    this.graph.getLinks().forEach(el => LinkUtil.adjustVertices(this.graph, el));
   }
 
+  /**
+   * Creates nodes and edges from semantic model
+   * @param semanticModel
+   * @param flat
+   * @private
+   */
   private createSemanticGraph(semanticModel: SemanticModelDTO, flat: boolean): void {
     if (semanticModel.nodes.length > 0) {
       semanticModel.nodes.forEach(node => {
         let icon = '';
         if (node.mappedToData) {
-          const syntaxNode = this.getMappedPrimitve(node.id);
-          icon = PlsDiagramComponent.getIcon(syntaxNode);
+          // get icon from syntax node
+          icon = Icons.getIcon(this.getMappedPrimitive(node.id));
         }
         this.addSemanticNode(node.id, flat ? node.concept.sourceURI : node.concept.name, node.label, icon, 'primary', node.x, node.y);
       });
@@ -550,62 +384,74 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
     }
   }
 
-  private getMappedPrimitve(id: string): PrimitiveDTO | SchemaNodeDTO | CollisionSchemaDTO | CompositeDTO | ObjectNodeDTO | SetNodeDTO {
-    const syntaxNodeId = this.schema.primitiveToEntityTypeList.find(map => map.to === id).mappedPrimitive;
-    return this.schema.syntaxModel.nodes.find(node => node.id === syntaxNodeId);
-  }
-
+  /**
+   * Creates nodes and edges from syntax model
+   * @param syntaxModel
+   * @private
+   */
   private createSyntaxGraph(syntaxModel: SyntaxModelDTO): void {
     if (syntaxModel.nodes.length > 0) {
-      syntaxModel.nodes.forEach(node => this.addSyntaxNode(node.id, node.label, PlsDiagramComponent.getIcon(node), node.x, node.y));
+      syntaxModel.nodes.forEach(node => this.addSyntaxNode(node.id, node.label, Icons.getIcon(node), node.x, node.y));
       syntaxModel.edges.forEach(edge => this.addLink(null, edge.from, edge.to, true));
     }
   }
 
+  /**
+   * Creates nodes and edges from recommendation and adds it to global variable
+   * @param recommendation
+   * @private
+   */
   private showRecommendation(recommendation: DeltaRecommendationDTO): void {
     recommendation.entities.forEach(node => {
       let icon = '';
       if (node.mappedToData) {
-        const syntaxNode = this.getMappedPrimitve(node.id);
-        icon = PlsDiagramComponent.getIcon(syntaxNode);
+        icon = Icons.getIcon(this.getMappedPrimitive(node.id));
       }
       this.recommendations.push(this.addSemanticNode(node.id, node.concept.name, node.label, icon, 'accent', node.x, node.y, 0.6));
     });
     recommendation.relations.forEach(edge => this.recommendations.push(this.addLink(edge.id, edge.from, edge.to, false, edge.concept.name, 'accent')));
   }
 
+  /**
+   * Removes recommendations from graph
+   * @private
+   */
   private hideRecommendation(): void {
     this.graph.removeCells(this.recommendations);
     this.recommendations = [];
   }
 
+  /**
+   * Adds a semantic node to the graph
+   * @param id
+   * @param concept
+   * @param label
+   * @param icon
+   * @param color
+   * @param x
+   * @param y
+   * @param opacity
+   * @private
+   */
   private addSemanticNode(id: string, concept: string, label: string, icon: string, color: 'primary' | 'accent' = 'primary', x?: number, y?: number, opacity?: number): dia.Element {
     const conceptDims = this.calcDimensionsForLabel(concept, false);
     const labelDims = this.calcDimensionsForLabel(label, !!icon);
     const dim = [Math.max(conceptDims[0], labelDims[0]), conceptDims[1] + labelDims[1]];
     const position = {x, y};
-    const node = new this.addCustomSemanticNode({
+    const node: dia.Element = new semanticNode({
       id,
-      // @ts-ignore
+      // @ts-ignore not in jointjs model but works this way
       position,
-      // @ts-ignore
       size: {
         width: dim[0],
         height: dim[1]
       },
-      nodeType: 'semantic',
       attrs: {
         body: {
-          rx: 5,
-          ry: 5,
-          strokeWidth: 2,
           stroke: this.colorToHex(color),
           opacity: opacity ? opacity : 1,
-          magnet: true
         },
         header: {
-          rx: 5,
-          ry: 5,
           fill: this.colorToHex(color),
           stroke: this.colorToHex(color),
           opacity: opacity ? opacity : 1
@@ -613,11 +459,9 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
         headerText: {
           text: concept,
           fill: this.colorToHex(color, true),
-          cursor: 'default',
         },
         bodyIcon: {
           text: icon,
-          cursor: 'default',
           fill: this.colorToHex(color),
         },
         bodyText: {
@@ -625,7 +469,6 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
           refX: icon ? '35' : '50%',
           textAnchor: icon ? 'left' : 'middle',
           text: label,
-          cursor: 'default',
           fill: this.colorToHex(color),
         }
       }
@@ -634,50 +477,64 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
     return node;
   }
 
+  /**
+   * Adds syntax node to graph
+   * @param id
+   * @param label
+   * @param icon
+   * @param x
+   * @param y
+   * @private
+   */
   private addSyntaxNode(id: string, label: string, icon: string, x?: number, y?: number): void {
     const dim = this.calcDimensionsForLabel(label, true);
     const position = {x, y};
-    const node = new this.addCustomSyntaxNode({
+    const node = new syntaxNode({
       id,
-      // @ts-ignore
+      // @ts-ignore not in jointjs model but works this way
       position,
-      // @ts-ignore
       size: {
         width: dim[0],
         height: dim[1]
       },
       attrs: {
         body: {
-          rx: 5,
-          ry: 5,
-          strokeWidth: 2,
           stroke: this.colorToHex('primary'),
-          strokeOpacity: 0.75,
-          strokeDasharray: '10,2'
         },
         icon: {
           text: icon,
-          fill: this.colorToHex('primary'),
-          cursor: 'default'
+          fill: this.colorToHex('primary')
         },
         label: {
           text: label,
-          fill: this.colorToHex('primary'),
-          cursor: 'default'
+          fill: this.colorToHex('primary')
         }
       }
     });
     this.graph.addCell(node);
   }
 
-  private calcDimensionsForLabel(label: string, icon: boolean): [number, number] {
+  /**
+   * Calculates rendered dimensions for given text and icon
+   * @param text
+   * @param icon
+   * @returns [width, height]
+   * @private
+   */
+  private calcDimensionsForLabel(text: string, icon: boolean): [number, number] {
     const letterSize = 7;
     const iconWidth = icon ? 30 : 0;
-    const width = this.getTextWidth(label, '11pt Roboto') + 10 + iconWidth;
-    const height = 2 * ((label.split('\n').length + 1) * letterSize);
+    const width = this.getTextWidth(text, '11pt Roboto') + 10 + iconWidth;
+    const height = 2 * ((text.split('\n').length + 1) * letterSize);
     return [width, height];
   }
 
+  /**
+   * Renders text in canvas and returns rendered width
+   * @param text
+   * @param font
+   * @private
+   */
   private getTextWidth(text, font): number {
     // re-use canvas object for better performance
     const context = this._canvas.getContext('2d');
@@ -694,14 +551,14 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
           fill: this.colorToHex(color)
         }
       },
-      // position: {
-      //   distance: 0.5,
-      //   offset: (label.indexOf('\n') > -1 || label.length === 1) ? 0 : 10,
-      //   args: {
-      //     keepGradient: true,
-      //     ensureLegibility: true
-      //   }
-      // }
+      position: {
+        distance: 0.5,
+        offset: (label.indexOf('\n') > -1 || label.length === 1) ? 0 : 10,
+        args: {
+          keepGradient: true,
+          ensureLegibility: true
+        }
+      }
     }] : undefined;
     const link = new shapes.standard.Link(
       {
@@ -738,7 +595,12 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
     this.panAndZoom.zoomBy(0.98);
   }
 
+  /**
+   * Lay out graph and persist positions
+   * @private
+   */
   private layout(): void {
+    // layout top to bottom with spaces: node 50, edge 50, rank (layer) 70
     layout.DirectedGraph.layout(this.graph, {
       dagre,
       graphlib,
@@ -747,47 +609,62 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
       rankSep: 70,
       rankDir: 'TB'
     });
+    // wait short time for rendering to complete
     setTimeout(() => {
+      // update x and y values in model
       this.graph.getElements().forEach((element) => {
         this.updatePosition(element, false);
       });
+      // update links layout
       setTimeout(() => {
-        this.graph.getLinks().forEach(el => this.adjustVertices(this.graph, el));
+        this.graph.getLinks().forEach(el => LinkUtil.adjustVertices(this.graph, el));
       }, 300);
+      // persist new positions
       this.graphLaidOut.emit(this.schema);
     }, 500);
   }
 
+  /**
+   * Update positions in data model of element and emit event
+   * @param element changed element
+   * @param emitEvent - true if emit should be emitted
+   * @private
+   */
   private updatePosition(element: dia.Element, emitEvent: boolean): void {
     const model = element.attributes;
-    if (model.type === this.syntaxNode) {
-      const node = this.schema.syntaxModel.nodes.find(syntaxNode => syntaxNode.id === model.id);
+    if (NodeUtil.isSyntaxNode(element)) {
+      // update positions in data model
+      const node = this.findSyntaxNodeById(model.id);
       const position = model.position;
       if (node && (node.x !== position.x || node.y !== position.y)) {
         node.x = position.x;
         node.y = position.y;
+        // emit event
         if (emitEvent) {
-          const nodeChanges = new NodeChangedEvent('syntax', node);
+          const nodeChanges = new NodeChangedEvent(Nodes.syntaxNodeName, node);
           this.nodePositionChanged.emit(nodeChanges);
         }
       }
     }
-    if (model.type === this.semanticNode) {
-      const node = this.schema.semanticModel.nodes.find(semanticNode => semanticNode.id === model.id);
+    if (NodeUtil.isSemanticNode(element)) {
+      // update positions in data model
+      const node = this.findSemanticNodeById(model.id);
       const position = model.position;
       if (node && (node.x !== position.x || node.y !== position.y)) {
         node.x = position.x;
         node.y = position.y;
+        // emit event
         if (emitEvent) {
-          const nodeChanges = new NodeChangedEvent('semantic', node);
+          const nodeChanges = new NodeChangedEvent(Nodes.semanticNodeName, node);
           this.nodePositionChanged.emit(nodeChanges);
         }
+        // update mapped syntax node position
         if (node.mappedToData) {
-          const syntaxNode = this.getMappedPrimitve(node.id);
-          syntaxNode.x = position.x;
-          syntaxNode.y = position.y;
+          const mappedNode = this.getMappedPrimitive(node.id);
+          mappedNode.x = position.x;
+          mappedNode.y = position.y;
           if (emitEvent) {
-            const nodeChanges = new NodeChangedEvent('syntax', syntaxNode);
+            const nodeChanges = new NodeChangedEvent(Nodes.syntaxNodeName, mappedNode);
             this.nodePositionChanged.emit(nodeChanges);
           }
         }
@@ -795,7 +672,13 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
     }
   }
 
-  private openDetails(id: string, type: string): void {
+  /**
+   * Show details dialog for node with given id
+   * @param id
+   * @param type
+   * @private
+   */
+  private openDetails(id: string, type: Node): void {
     this.closeDialog();
     const config: MatDialogConfig = {
       hasBackdrop: false,
@@ -810,8 +693,8 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
       autoFocus: false
     };
     switch (type) {
-      case this.syntaxNode:
-        config.data.node = this.schema.syntaxModel.nodes.find(node => node.id === id);
+      case Nodes.syntaxNodeName:
+        config.data.node = this.findSyntaxNodeById(id);
         this.nodeDialogRef = this.dialog.open(PlsSyntaxNodeDetailsComponent, config);
         this.nodeDialogRef.beforeClosed().subscribe((res) => {
           if (res) {
@@ -819,8 +702,8 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
           }
         });
         break;
-      case this.semanticNode:
-        config.data.node = this.schema.semanticModel.nodes.find(node => node.id === id);
+      case Nodes.semanticNodeName:
+        config.data.node = this.findSemanticNodeById(id);
         this.nodeDialogRef = this.dialog.open(PlsSemanticNodeDetailsComponent, config);
         this.nodeDialogRef.beforeClosed().subscribe((res) => {
           if (res) {
@@ -836,6 +719,10 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
     }
   }
 
+  /**
+   * Closes open dialog
+   * @private
+   */
   private closeDialog(): void {
     if (this.nodeDialogRef) {
       this.nodeDialogRef.close();
@@ -843,6 +730,10 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
     }
   }
 
+  /**
+   * Closes dialog and removes all highlights from graph
+   * @private
+   */
   private unhighlightAll(): void {
     this.closeDialog();
     this.paper.findViewsInArea(this.paper.getArea()).forEach(cell => {
@@ -850,9 +741,14 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
     });
   }
 
-  private getIfLeafNode(cellView): PrimitiveDTO {
-    if (cellView.model?.attributes?.type === this.syntaxNode) {
-      const node = this.schema.syntaxModel.nodes.find(syntaxNode => syntaxNode.id === cellView.model.id);
+  /**
+   * Searches a syntax node for gi
+   * @param elementView
+   * @private
+   */
+  private getIfLeafNode(elementView: dia.ElementView): PrimitiveDTO {
+    if (NodeUtil.isSyntaxNode(elementView)) {
+      const node = this.findSyntaxNodeById(elementView.model.id.toString());
       if (node['@class'] === 'PrimitiveDTO') {
         return node;
       }
@@ -860,10 +756,70 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
     return null;
   }
 
+  /**
+   * Finds syntax node for given id of semantic node
+   * @param id of semantic node
+   * @returns mapped syntax node
+   * @private
+   */
+  private getMappedPrimitive(id: string): SyntaxNode {
+    const syntaxNodeId = this.schema.primitiveToEntityTypeList.find(map => map.to === id).mappedPrimitive;
+    return this.schema.syntaxModel.nodes.find(node => node.id === syntaxNodeId);
+  }
+
+  /**
+   * Finds syntax node data model for given id
+   * @param id
+   * @private
+   */
+  private findSyntaxNodeById(id: string): SyntaxNode {
+    return this.schema.syntaxModel.nodes.find(node => node.id === id);
+  }
+
+  /**
+   * Finds semantic node data model for given id
+   * @param id
+   * @private
+   */
+  private findSemanticNodeById(id: string): EntityTypeDTO {
+    return this.schema.semanticModel.nodes.find(node => node.id === id);
+  }
+
+  /**
+   * Setter for entity concept
+   * @param concept - the new concept
+   */
   setEntityConcept(concept: EntityConceptDTO): void {
     this.entityConcept = concept;
   }
 
+  /**
+   * Transform primary and accent into hex values
+   * @param color
+   * @param contrast
+   * @private
+   */
+  private colorToHex(color: 'primary' | 'accent', contrast: boolean = false): string {
+    switch (color) {
+      case 'primary':
+        if (contrast) {
+          return Util.rgbToHex(this.primaryColorContrast);
+        } else {
+          return Util.rgbToHex(this.primaryColor);
+        }
+      case 'accent':
+        if (contrast) {
+          return Util.rgbToHex(this.accentColorContrast);
+        } else {
+          return Util.rgbToHex(this.accentColor);
+        }
+    }
+  }
+
+  /**
+   * Track mouse position during entity modeling to find target nodes
+   * @param event
+   */
   @HostListener('mousemove', ['$event'])
   onMousemove(event: MouseEvent): void {
     if (this.entityConcept) {
@@ -871,143 +827,13 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
     }
   }
 
-  private colorToHex(color: 'primary' | 'accent', contrast: boolean = false): string {
-    switch (color) {
-      case 'primary':
-        if (contrast) {
-          return PlsDiagramComponent.rgbToHex(this.primaryColorContrast);
-        } else {
-          return PlsDiagramComponent.rgbToHex(this.primaryColor);
-        }
-      case 'accent':
-        if (contrast) {
-          return PlsDiagramComponent.rgbToHex(this.accentColorContrast);
-        } else {
-          return PlsDiagramComponent.rgbToHex(this.accentColor);
-        }
-    }
-  }
-
+  /**
+   * Listen to window resize events
+   */
   @HostListener('window:resize')
   onResize(): void {
     this.$resize.next(this.paper.getComputedSize());
   }
 
-  private adjustVertices(graph, cell): void {
-    // if `cell` is a view, find its model
-    cell = cell.model || cell;
-    if (cell instanceof dia.Element) {
-      // `cell` is an element
-      const groups = groupBy(graph.getConnectedLinks(cell), (link) => {
-        return [link.source().id, link.target().id].sort();
-      });
-      Object.entries(groups).forEach(([key, group]) => {
-        // adjust vertices for each group
-        if (key !== 'undefined') {
-          this.adjustVertices(graph, group[0]);
-        }
-      });
-      return;
-    }
-    // `cell` is a link
-    // get its source and target model IDs
-    const sourceId = cell.get('source').id || cell.previous('source').id;
-    const targetId = cell.get('target').id || cell.previous('target').id;
-    // if one of the ends is not a model
-    // (if the link is pinned to paper at a point)
-    // the link is interpreted as having no siblings
-    if (!sourceId || !targetId) {
-      return;
-    }
-    // identify link siblings
-    const siblings = graph.getLinks().filter((sibling) => {
-      const siblingSourceId = sibling.source().id;
-      const siblingTargetId = sibling.target().id;
-      // if source and target are the same
-      // or if source and target are reversed
-      return ((siblingSourceId === sourceId) && (siblingTargetId === targetId))
-        || ((siblingSourceId === targetId) && (siblingTargetId === sourceId));
-    });
-    const numSiblings = siblings.length;
-    switch (numSiblings) {
-      case 0: {
-        // there is no link - should never happen
-        break;
-      }
-      case 1: {
-        // there is only one link
-        // no vertices needed
-        if (sourceId === targetId) {
-          this.layoutSelfLink(cell, sourceId, 0);
-        } else {
-          cell.unset('vertices');
-        }
-        break;
-      }
-      default: {
-        // there are multiple siblings
-        // we need to create vertices
-        if (sourceId === targetId) {
-          siblings.forEach((link, index) => this.layoutSelfLink(link, sourceId, index));
-        } else {
-          // find the middle point of the link
-          const sourceCenter = graph.getCell(sourceId).getBBox().center();
-          const targetCenter = graph.getCell(targetId).getBBox().center();
-          const midPoint = new g.Line(sourceCenter, targetCenter).midpoint();
-          // find the angle of the link
-          const theta = sourceCenter.theta(targetCenter);
-          // constant
-          // the maximum distance between two sibling links
-          const GAP = 50;
-          siblings.forEach((sibling, index) => {
-            // we want offset values to be calculated as 0, 20, 20, 40, 40, 60, 60 ...
-            let offset = GAP * Math.ceil(index / 2);
-            // place the vertices at points which are `offset` pixels perpendicularly away
-            // from the first link
-            //
-            // as index goes up, alternate left and right
-            //
-            //  ^  odd indices
-            //  |
-            //  |---->  index 0 sibling - centerline (between source and target centers)
-            //  |
-            //  v  even indices
-            const sign = ((index % 2) ? 1 : -1);
-            // to assure symmetry, if there is an even number of siblings
-            // shift all vertices leftward perpendicularly away from the centerline
-            if ((numSiblings % 2) === 0) {
-              offset -= ((GAP / 2) * sign);
-            }
-            // make reverse links count the same as non-reverse
-            const reverse = ((theta < 180) ? 1 : -1);
-            // we found the vertex
-            const angle = g.toRad(theta + (sign * reverse * 90));
-            const vertex = g.Point.fromPolar(offset, angle, midPoint);
-            // replace vertices array with `vertex`
-            sibling.vertices([vertex]);
-            sibling.connector('smooth');
-          });
-        }
-      }
-    }
-  }
 
-  private layoutSelfLink(cell, sourceId: number, index: number): void {
-    const source = this.graph.getCell(sourceId);
-    const sourceCenter = source.getBBox().center();
-    // find links that are not self-links
-    const linkedNodes = this.graph.getConnectedLinks(source).filter(link => link.source().id !== sourceId || link.target().id !== sourceId);
-    // calc center point of those links
-    const linksCenters = linkedNodes.map(link => link.getBBox().center());
-    const numberLinksCenters = linksCenters.length;
-    const centerX = linksCenters.reduce((sum, linkCenter) => sum + linkCenter.x, 0) / numberLinksCenters;
-    const centerY = linksCenters.reduce((sum, linkCenter) => sum + linkCenter.y, 0) / numberLinksCenters;
-    // find angle between semantic node center and connected links center
-    const theta = sourceCenter.theta({x: centerX, y: centerY});
-    // two vertex points for nice curve at 170° and 190° (opposite side of links center)
-    const vertex1 = g.Point.fromPolar(100 + 50 * index, g.toRad(theta + 170), sourceCenter);
-    const vertex2 = g.Point.fromPolar(100 + 50 * index, g.toRad(theta + 190), sourceCenter);
-    cell.vertices([vertex1, vertex2]);
-    cell.connector('smooth');
-  }
 }
