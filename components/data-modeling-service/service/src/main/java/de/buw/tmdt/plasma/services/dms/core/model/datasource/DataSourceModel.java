@@ -1,103 +1,102 @@
 package de.buw.tmdt.plasma.services.dms.core.model.datasource;
 
 import de.buw.tmdt.plasma.datamodel.CombinedModel;
+import de.buw.tmdt.plasma.services.dms.core.database.CombinedModelPersistenceConverter;
+import org.hibernate.annotations.DynamicUpdate;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.annotation.PersistenceConstructor;
-import org.springframework.data.mongodb.core.index.Indexed;
-import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.HashMap;
+import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
-@Document
+@DynamicUpdate
+@Entity
+@Table(name = "data_sources")
 public class DataSourceModel {
 
-	@Id
-	@Indexed
-	private UUID uuid;
+    @Id
+    @Column(nullable = false, unique = true, updatable = false, length = 16)
+    private UUID uuid;
 
-	//The value is only set after the schema analysis
-	// Map <Version, CombinedModel>
-	private Map<Integer, CombinedModel> combinedModelVersions = new HashMap<>();
+    //The value is only set after the schema analysis
+    // Map <Version, CombinedModel>
+    @SuppressWarnings("JpaAttributeTypeInspection") // will be custom serialized
+    @ElementCollection
+    @Convert(converter = CombinedModelPersistenceConverter.class)
+    @Lob
+    private List<CombinedModel> combinedModelVersions = new ArrayList<>();
 
-	private int versionPointer;
+    @Column(nullable = false)
+    private int versionPointer;
 
-	public DataSourceModel() {
-		this.versionPointer = 0;
-		this.uuid = UUID.randomUUID();
-	}
+    public DataSourceModel() {
+        this.versionPointer = 0;
+        this.uuid = UUID.randomUUID();
+    }
 
-	public DataSourceModel(UUID uuid) {
-		this();
-		this.uuid = uuid;
-	}
+    public DataSourceModel(UUID uuid) {
+        this();
+        this.uuid = uuid;
+    }
 
-	@PersistenceConstructor
-	private DataSourceModel(UUID uuid, Map<Integer, CombinedModel> combinedModelVersions, int versionPointer) {
-		this.uuid = uuid;
-		this.combinedModelVersions = combinedModelVersions;
-		this.versionPointer = versionPointer;
-	}
+    @NotNull
+    public List<CombinedModel> getAllCombinedModels() {
+        return this.combinedModelVersions;
+    }
 
-	@NotNull
-	public List<CombinedModel> getAllCombinedModels() {
-		return this.combinedModelVersions.entrySet().stream()
-				.sorted(Map.Entry.comparingByKey())
-				.map(Map.Entry::getValue)
-				.collect(Collectors.toList());
-	}
+    public void setAllCombinedModels(List<CombinedModel> models) {
+        combinedModelVersions.clear();
+        combinedModelVersions.addAll(models);
+        versionPointer = combinedModelVersions.size();
+    }
 
-	public Map<Integer, CombinedModel> getAllCombinedModelVersions() {
-		return this.combinedModelVersions == null ? new HashMap<>() : this.combinedModelVersions;
-	}
+    public void pushCombinedModel(@NotNull CombinedModel model) {
+        if (versionPointer >= 1 && versionPointer != combinedModelVersions.size()) {
+            if (combinedModelVersions.size() > versionPointer - 1) {
+                combinedModelVersions.subList(versionPointer, combinedModelVersions.size()).clear();
+            }
+        }
+        combinedModelVersions.add(model);
+        versionPointer++;
+    }
 
-	public void pushCombinedModel(@NotNull CombinedModel model) {
-		if (versionPointer >= 1 && versionPointer != combinedModelVersions.size()) {
-			if (combinedModelVersions.size() > versionPointer) {
-				combinedModelVersions.entrySet().removeIf(versionedModel -> versionedModel.getKey() > versionPointer);
-			}
-		}
-		combinedModelVersions.put(++versionPointer, model);
-	}
+    @NotNull
+    public UUID getUuid() {
+        return uuid;
+    }
 
-	@NotNull
-	public UUID getUuid() {
-		return uuid;
-	}
+    @Transient
+    public CombinedModel getCurrentModel() {
+        if (versionPointer == 0) {
+            throw new UnsupportedOperationException("No model available.");
+        }
+        return combinedModelVersions.get(versionPointer - 1);
+    }
 
-	public CombinedModel getCurrentModel() {
-		// TODO add an exception here if requested on an empty stack, just to be safe
-		return combinedModelVersions.get(versionPointer);
-	}
+    public void popCombinedModel() throws UnsupportedOperationException {
+        if (versionPointer == 0) {
+            throw new UnsupportedOperationException("No model available.");
+        }
+        --this.versionPointer;
+    }
 
-	public void popCombinedModel() throws UnsupportedOperationException {
-		if (versionPointer == 0) {
-			throw new UnsupportedOperationException("No model available.");
-		}
-		--this.versionPointer;
-	}
+    @NotNull
+    public CombinedModel restoreCombinedModel() throws UnsupportedOperationException {
+        if (versionPointer == this.combinedModelVersions.size()) {
+            throw new UnsupportedOperationException("Already on latest model.");
+        }
+        ++this.versionPointer;
+        return getCurrentModel();
+    }
 
-	@NotNull
-	public CombinedModel restoreCombinedModel() throws UnsupportedOperationException {
-		if (versionPointer == this.combinedModelVersions.size()) {
-			throw new UnsupportedOperationException("Already on latest model.");
-		}
-		++this.versionPointer;
-		return getCurrentModel();
-	}
-
-
-	@Override
-	@SuppressWarnings("MagicCharacter")
-	public String toString() {
-		return "{\"@class\":\"DataSourceModel\""
-				+ ", \"@super\":" + super.toString()
-				+ ", \"currentVersion\":" + versionPointer
-				+ ", \"maxVersion\":" + combinedModelVersions.size()
-				+ '}';
-	}
+    @Override
+    @SuppressWarnings("MagicCharacter")
+    public String toString() {
+        return "{\"@class\":\"DataSourceModel\""
+                + ", \"@super\":" + super.toString()
+                + ", \"currentVersion\":" + versionPointer
+                + ", \"maxVersion\":" + combinedModelVersions.size()
+                + '}';
+    }
 }

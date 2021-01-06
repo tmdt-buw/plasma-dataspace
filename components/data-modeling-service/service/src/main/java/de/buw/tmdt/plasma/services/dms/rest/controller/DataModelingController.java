@@ -22,7 +22,6 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import java.util.UUID;
 
-;
 
 @RestController("Modeling Controller")
 public class DataModelingController implements DataModelingAPI {

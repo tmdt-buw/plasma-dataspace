@@ -13,7 +13,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * Test to simulate and control stack behaviour for {@link CombinedModel}s in the {@link DataSourceModel}.
@@ -41,7 +42,7 @@ class DataSourceModelTest {
 
     @Test
     void getCurrentModelOnEmptyStack() {
-        assertNull(dataSourceModel.getCurrentModel());
+        assertThrows(UnsupportedOperationException.class, () -> dataSourceModel.getCurrentModel());
     }
 
     @Test

@@ -62,22 +62,6 @@ services:
     ports:
       - 3307:3306
 
-  mongodb-dms:
-    image: mongo:latest
-    hostname: mongodb-dms
-    restart: unless-stopped
-    environment:
-      - MONGO_INITDB_DATABASE=dms
-      - MONGO_INITDB_ROOT_USERNAME=root
-      - MONGO_INITDB_ROOT_PASSWORD=plasmaroot
-    volumes:
-      #- mongodb_dms:/data/db
-      - ./init-mongo-dms.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
-    ports:
-      - 27017:27017
-      - 27018:27018
-      - 27019:27019
-
   mariadb-dms:
     image: mariadb:latest
     hostname: mariadb-dms
@@ -96,6 +80,7 @@ services:
       start_period: 5s
     ports:
       - 3308:3306
+
   mariadb-ars-m-sm:
     image: mariadb:latest
     hostname: mariadb-ars-m-sm
@@ -235,5 +220,4 @@ volumes:
   mariadb_dss: 
   mariadb_sas:   
   mariadb_dms:
-  mongodb_dms:
   mariadb_ars_m_sm:
