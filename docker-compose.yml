@@ -184,8 +184,8 @@ services:
      - 8190:8190 
 
   ui:
-    build: ./plasma-ui
-    image: "plasma/ui:${PLASMA_VERSION}"
+    build: ./frontend
+    image: "frontend:${PLASMA_VERSION}"
     hostname: plasma-ui
     restart: unless-stopped
     ports:
