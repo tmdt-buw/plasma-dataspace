@@ -4,9 +4,9 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
-        <groupId>de.buw.tmdt.plasma</groupId>
-        <artifactId>parent</artifactId>
-        <version>1.0.0</version>
+    <groupId>de.buw.tmdt.plasma</groupId>
+    <artifactId>parent</artifactId>
+    <version>1.0.0</version>
     <name>PLASMA Parent</name>
     <packaging>pom</packaging>
 
@@ -44,7 +44,6 @@
         <!-- Annotations -->
         <org.jetbrains.annotations.version>19.0.0</org.jetbrains.annotations.version>
         <com.github.spotbugs.annotations.version>4.0.1</com.github.spotbugs.annotations.version>
-		<com.fasterxml.jackson.version>2.10.3</com.fasterxml.jackson.version>
 
         <!-- Logging -->
         <slf4j.version>1.7.30</slf4j.version>
@@ -79,7 +78,8 @@
         <org.apache.maven.plugin.surefire.version>3.0.0-M5</org.apache.maven.plugin.surefire.version>
         <org.apache.maven.plugin.failsafe.version>3.0.0-M5</org.apache.maven.plugin.failsafe.version>
         <org.apache.maven.plugin.site.version>3.9.0</org.apache.maven.plugin.site.version>
-        <org.apache.maven.plugin.project-info-reports.version>3.0.0</org.apache.maven.plugin.project-info-reports.version>
+        <org.apache.maven.plugin.project-info-reports.version>3.0.0
+        </org.apache.maven.plugin.project-info-reports.version>
         <org.apache.maven.plugin.javadoc.version>3.2.0</org.apache.maven.plugin.javadoc.version>
     </properties>
 
