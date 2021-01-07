@@ -4,6 +4,8 @@ import java.io.Serializable;
 
 /**
  * A bi-state object which can switch only from sane to non-sane but not vice versa.
+ *
+ * @param <E> An exception type to be thrown in case of an error
  */
 public interface Fuse<E extends Exception> extends Serializable {
     /**

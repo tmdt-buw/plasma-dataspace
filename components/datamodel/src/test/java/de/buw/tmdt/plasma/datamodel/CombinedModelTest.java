@@ -28,10 +28,10 @@ class CombinedModelTest {
     }
 
     @Test
-    void testClone() {
+    void testCopy() {
 
         CombinedModel model = getCombinedModel();
-        CombinedModel cloned = model.clone();
+        CombinedModel cloned = model.copy();
 
         assertEquals(model.getSyntaxModel().getRoot(), cloned.getSyntaxModel().getRoot());
         assertEquals(model.getSyntaxModel().getNodes().size(), cloned.getSyntaxModel().getNodes().size());

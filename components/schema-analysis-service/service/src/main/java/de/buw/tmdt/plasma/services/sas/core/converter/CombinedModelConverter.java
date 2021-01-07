@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 
 /**
  * Converts between the shared {@link CombinedModel}
- * and the local {@link de.buw.tmdt.plasma.services.sas.core.model.syntaxmodel.Node} schema
+ * and the local {@link de.buw.tmdt.plasma.services.sas.core.model.syntaxmodel.Node} schema.
  */
 @Service
 public class CombinedModelConverter {
@@ -253,7 +253,7 @@ public class CombinedModelConverter {
 	}
 
 	/**
-	 * Contains the current state of converted elements
+	 * Contains the current state of converted elements.
 	 */
 	private static class SerializationContext {
 		private final HashMap<@NotNull String, @NotNull SchemaNode> nodeLookUp;

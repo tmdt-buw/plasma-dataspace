@@ -40,7 +40,7 @@ public class DataSourceModelPersistenceTest {
         );
         int numModels = 1000;
         for (int i = 0; i < numModels; i++) {
-            combinedModel = combinedModel.clone();
+            combinedModel = combinedModel.copy();
             EntityConcept ec = new EntityConcept("blub" + i, "", "plasma:ec" + i);
             combinedModel.getProvisionalEntityConcepts().add(ec);
             dsm.pushCombinedModel(combinedModel);

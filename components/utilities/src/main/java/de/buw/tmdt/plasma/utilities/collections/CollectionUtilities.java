@@ -136,7 +136,7 @@ public final class CollectionUtilities {
     }
 
     /**
-     * Checks if a collection contains any elements
+     * Checks if a collection contains any elements.
      *
      * @param collection The collection to check
      * @return False if the collection is null or empty

@@ -16,7 +16,7 @@ import java.util.List;
  * All outgoing edges are to be considered child nodes are to be considered to represent attributes.
  */
 @JsonTypeName("ObjectNode")
-public class ObjectNode extends SchemaNode implements Cloneable {
+public class ObjectNode extends SchemaNode {
 
     private static final long serialVersionUID = 8596616883718165165L;
 
@@ -41,13 +41,13 @@ public class ObjectNode extends SchemaNode implements Cloneable {
     }
 
     @Override
-    public ObjectNode clone() {
+    public ObjectNode copy() {
         return new ObjectNode(getUuid(),
                 getLabel(),
                 getXCoordinate(),
                 getYCoordinate(),
                 CollectionUtilities.map(getOperations(),
-                        SyntacticOperationDTO::clone,
+                        SyntacticOperationDTO::copy,
                         ArrayList::new),
                 isValid());
     }

@@ -12,9 +12,8 @@ import java.util.Objects;
 
 /**
  * An instantiation resembles the use of a concept inside a semantic model in a combined model.
- * After modeling, will be converted into an Entity Concept
  */
-public class EntityType extends PositionedCombinedModelElement implements Serializable, Cloneable {
+public class EntityType extends PositionedCombinedModelElement implements Serializable {
 
     private static final long serialVersionUID = 4109691502825894813L;
 
@@ -23,34 +22,36 @@ public class EntityType extends PositionedCombinedModelElement implements Serial
     public static final String ORIGINAL_LABEL_PROPERTY = "originalLabel";
     public static final String DESCRIPTION_PROPERTY = "description";
     public static final String CONCEPT_PROPERTY = "concept";
-    public static final String MAPPED_TO_DATA_PROPERTY = "mappedToData";
 
     /**
-     * Knowledge base ID, set once sent to the KGS
+     * Knowledge base ID, set once sent to the KGS.
      */
     private String entityId;
+
     /**
      * The id of the syntax {@link de.buw.tmdt.plasma.datamodel.syntaxmodel.PrimitiveNode} this object is mapped to.
      * Will be null if not mapped.
      */
     private String syntaxNodeUuid;
+
     /**
      * The original label of an attribute if this instantiation is mapped to one, null otherwise.
      */
     private String originalLabel;
 
     private String description;
+
     /**
-     * The assigned {@link EntityConcept} that defines this {@link EntityType}
+     * The assigned {@link EntityConcept} that defines this {@link EntityType}.
      */
     private EntityConcept entityConcept;
 
     /**
-     * Constructor to use for a new unmapped instantiation
+     * Constructor to use for a new unmapped instantiation.
      *
-     * @param label       The label to show
-     * @param description A description for this object, optional
-     * @param entityConcept     The concept to represent
+     * @param label         The label to show
+     * @param description   A description for this object, optional
+     * @param entityConcept The concept to represent
      */
     public EntityType(@NotNull String label,
                       String description,
@@ -80,7 +81,7 @@ public class EntityType extends PositionedCombinedModelElement implements Serial
     }
 
     /**
-     * Constructor to use for a new unmapped instantiation at a specific place
+     * Constructor to use for a new unmapped instantiation at a specific place.
      *
      * @param label         The label to show
      * @param xCoordinate   X coordinate
@@ -99,7 +100,7 @@ public class EntityType extends PositionedCombinedModelElement implements Serial
     }
 
     /**
-     * Constructor to use for a new unmapped instantiation at a specific place
+     * Constructor to use for a new unmapped instantiation at a specific place.
      *
      * @param label         The label to show
      * @param entityId      An existing entity id of this element
@@ -121,7 +122,7 @@ public class EntityType extends PositionedCombinedModelElement implements Serial
     }
 
     /**
-     * Constructor to use for a new mapped instantiation at a specific place
+     * Constructor to use for a new mapped instantiation at a specific place.
      *
      * @param label          The label to show
      * @param xCoordinate    X coordinate
@@ -130,7 +131,7 @@ public class EntityType extends PositionedCombinedModelElement implements Serial
      *                       Should be equal to a {@link PrimitiveNode#getUuid()}
      * @param originalLabel  The original attributes label
      * @param description    A description for this object, optional
-     * @param entityConcept        The concept to represent
+     * @param entityConcept  The concept to represent
      */
     public EntityType(@NotNull String label,
                       @Nullable Double xCoordinate,
@@ -147,7 +148,7 @@ public class EntityType extends PositionedCombinedModelElement implements Serial
     }
 
     /**
-     * Constructor to use for a new mapped instantiation at a specific place
+     * Constructor to use for a new mapped instantiation at a specific place.
      *
      * @param uuid           The object uuid
      * @param entityId       The entity id, only set if this has beem submitted to the knowledge base
@@ -206,11 +207,6 @@ public class EntityType extends PositionedCombinedModelElement implements Serial
         return entityConcept;
     }
 
-    @JsonProperty(MAPPED_TO_DATA_PROPERTY)
-    public Boolean isMappedToData() {
-        return originalLabel != null;
-    }
-
     /* Setter */
 
     public void setEntityId(String entityId) {
@@ -234,18 +230,18 @@ public class EntityType extends PositionedCombinedModelElement implements Serial
     }
 
     /**
-     * Creates a deep clone of the current entity
+     * Creates a deep clone of the current entity.
      *
      * @return The cloned entity with also the EntityConcept cloned
      */
-    public EntityType clone() {
+    public EntityType copy() {
         return new EntityType(getUuid(),
                 getEntityId(),
                 getLabel(),
                 getSyntaxNodeUuid(),
                 getOriginalLabel(),
                 getDescription(),
-                getEntityConcept().clone(),
+                getEntityConcept().copy(),
                 getXCoordinate(),
                 getYCoordinate());
     }

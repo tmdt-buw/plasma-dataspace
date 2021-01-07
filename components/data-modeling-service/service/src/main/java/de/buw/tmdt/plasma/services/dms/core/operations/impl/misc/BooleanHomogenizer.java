@@ -53,26 +53,25 @@ public class BooleanHomogenizer extends AbstractSyntaxHomogenizer {
 	public String homogenizeRepresentation(@NotNull String value, @NotNull DataType dataType) throws HomogenizationException, DataTypeNotSupportedException {
 		assertDataTypeValidity(dataType, BooleanHomogenizer.class.getName());
 
-		try {
-			if (BooleanHomogenizer.parseHomogenizedRepresentation(value)) {
-				return TRUE_CONSTANT;
-			} else {
-				return FALSE_CONSTANT;
-			}
-		} catch (DataTypeException ignored) {
-			logger.trace("Failed to match the value against any of the known constants.");
-		}
+        try {
+            if (BooleanHomogenizer.parseHomogenizedRepresentation(value)) {
+                return TRUE_CONSTANT;
+            } else {
+                return FALSE_CONSTANT;
+            }
+        } catch (DataTypeException ignored) {
+            logger.trace("Failed to match the value against any of the known constants.");
+        }
 
-		logger.trace("Value did not match (case insensitively) any of the known constants for false: {}.", FALSE_CANDIDATES);
-		try {
-			if (Double.parseDouble(value) == 0) {
-				return BooleanHomogenizer.FALSE_CONSTANT;
-			}
-			return BooleanHomogenizer.TRUE_CONSTANT;
-		} catch (NumberFormatException e) {
-			logger.trace("Failed to parse the value as double to do a comparison to 0.", e);
-		}
-		// XXX possible default value?
-		throw new HomogenizationException("unknown boolean type representation");
-	}
+        logger.trace("Value did not match (case insensitively) any of the known constants for false: {}.", (Object) FALSE_CANDIDATES);
+        try {
+            if (Double.parseDouble(value) == 0) {
+                return BooleanHomogenizer.FALSE_CONSTANT;
+            }
+            return BooleanHomogenizer.TRUE_CONSTANT;
+        } catch (NumberFormatException e) {
+            logger.trace("Failed to parse the value as double to do a comparison to 0.", e);
+        }
+        throw new HomogenizationException("unknown boolean type representation");
+    }
 }

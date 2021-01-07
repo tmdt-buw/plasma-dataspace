@@ -43,10 +43,10 @@ class SetEntityTypeTest {
 		MockitoAnnotations.initMocks(this);
 
 		entityType = new EntityType(
-				"label",
-				"description",
-				new EntityConcept(UUID.randomUUID().toString(), "ECName", "ECDescription", "ECSourceURI", null)
-		);
+                "label",
+                "description",
+                new EntityConcept(UUID.randomUUID().toString(), "ECName", "ECDescription", "ECSourceURI", "plasma:concept1")
+        );
 
 		testee = new SetEntityType(lookUpMock);
 	}

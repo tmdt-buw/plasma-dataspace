@@ -16,7 +16,7 @@ import java.util.List;
  * Represents a set. All outgoing {@link Edge}s' target nodes represent members of that set.
  */
 @JsonTypeName("SetNode")
-public class SetNode extends SchemaNode implements Cloneable {
+public class SetNode extends SchemaNode {
 
     private static final long serialVersionUID = -5424468053886038114L;
 
@@ -40,14 +40,14 @@ public class SetNode extends SchemaNode implements Cloneable {
     }
 
     @Override
-    public SetNode clone() {
+    public SetNode copy() {
         return new SetNode(
                 getUuid(),
                 getLabel(),
                 getXCoordinate(),
                 getYCoordinate(),
                 CollectionUtilities.map(getOperations(),
-                        SyntacticOperationDTO::clone,
+                        SyntacticOperationDTO::copy,
                         ArrayList::new),
                 isValid()
         );

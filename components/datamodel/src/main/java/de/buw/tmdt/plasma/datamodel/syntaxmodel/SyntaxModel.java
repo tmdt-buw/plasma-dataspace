@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-public class SyntaxModel implements Serializable, Cloneable {
+public class SyntaxModel implements Serializable {
 
 	private static final String ROOT_PROPERTY = "root";
 	public static final String NODES_PROPERTY = "nodes";
@@ -86,19 +86,18 @@ public class SyntaxModel implements Serializable, Cloneable {
 	}
 
 	/**
-	 * Creates a deep clone of the current entity
+	 * Creates a deep clone of the current entity.
 	 *
 	 * @return The cloned entity with also the {@link SchemaNode}s and {@link Edge}s cloned
 	 */
-	@Override
-	public SyntaxModel clone() {
+	public SyntaxModel copy() {
 		return new SyntaxModel(
 				getRoot(),
 				CollectionUtilities.map(getNodes(),
-						SchemaNode::clone,
+						SchemaNode::copy,
 						ArrayList::new),
 				CollectionUtilities.map(getEdges(),
-						Edge::clone,
+						Edge::copy,
 						ArrayList::new)
 		);
 	}

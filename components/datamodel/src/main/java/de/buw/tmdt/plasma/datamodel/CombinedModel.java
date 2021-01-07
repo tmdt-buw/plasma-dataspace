@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
  * The combined model contains all elements that model the current state of the syntactic
  * and semantic model of a data source.
  */
-public class CombinedModel implements Serializable, Cloneable {
+public class CombinedModel implements Serializable {
 
 	public static final String DATA_SOURCE_UUID = "dataSourceUuid";
 	public static final String SYNTAX_MODEL_PROPERTY = "syntaxModel";
@@ -49,18 +49,18 @@ public class CombinedModel implements Serializable, Cloneable {
 	private List<EntityConcept> provisionalEntityConcepts;
 
 	/**
-	 * Stores provisional {@link RelationConcept}s that the user created but are not yet in the knowledge base
+	 * Stores provisional {@link RelationConcept}s that the user created but are not yet in the knowledge base.
 	 * Only valid for this model.
 	 */
 	private List<RelationConcept> provisionalRelationConcepts;
 
 	private final ArrayList<PrimitiveEntityTypeMapping> primitiveEntityTypeMappings;
 	/**
-	 * Recommendations represent suggested modifications for the current state of models
+	 * Recommendations represent suggested modifications for the current state of models.
 	 */
 	private ArrayList<DeltaModification> recommendations;
 	/**
-	 * A finalized model should not be changed any more
+	 * A finalized model should not be changed any more.
 	 */
 	private boolean finalized;
 
@@ -147,7 +147,7 @@ public class CombinedModel implements Serializable, Cloneable {
 	}
 
 	/**
-	 * Returns all provisional {@link EntityConcept}s in this model
+	 * Returns all provisional {@link EntityConcept}s in this model.
 	 *
 	 * @return A list of provisional {@link EntityConcept}s in the model
 	 */
@@ -158,7 +158,7 @@ public class CombinedModel implements Serializable, Cloneable {
 	}
 
 	/**
-	 * Returns all provisional {@link RelationConcept}s in this model
+	 * Returns all provisional {@link RelationConcept}s in this model.
 	 *
 	 * @return A list of provisional {@link RelationConcept}s in the model
 	 */
@@ -410,33 +410,33 @@ public class CombinedModel implements Serializable, Cloneable {
 	}
 
 	/**
-	 * Creates a deep clone of the current entity
+	 * Creates a deep clone of the current entity.
 	 *
 	 * @return The cloned entity with all components deep cloned
 	 */
-	public CombinedModel clone() {
+	public CombinedModel copy() {
 		return new CombinedModel(
 				getDataSourceUuid(),
-				getSyntaxModel().clone(),
-				getSemanticModel().clone(),
+				getSyntaxModel().copy(),
+				getSemanticModel().copy(),
 				CollectionUtilities.map(getPrimitiveEntityTypeMappings(),
-						PrimitiveEntityTypeMapping::clone,
+						PrimitiveEntityTypeMapping::copy,
 						ArrayList::new),
 				CollectionUtilities.map(getRecommendations(),
-						DeltaModification::clone,
+						DeltaModification::copy,
 						ArrayList::new),
 				isFinalized(),
 				CollectionUtilities.map(getProvisionalEntityConcepts(),
-						EntityConcept::clone,
+						EntityConcept::copy,
 						ArrayList::new),
 				CollectionUtilities.map(getProvisionalRelationConcepts(),
-						RelationConcept::clone,
+						RelationConcept::copy,
 						ArrayList::new)
 		);
 	}
 
 	/**
-	 * Validates the state of the current model
+	 * Validates the state of the current model.
 	 */
 	public void validate() {
 		// TODO

@@ -13,7 +13,7 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
-public class RelationConcept extends CombinedModelElement implements Serializable, Cloneable {
+public class RelationConcept extends CombinedModelElement implements Serializable {
 	private static final long serialVersionUID = -5112996969222323409L;
 
 	private static final String ENTITY_ID_PROPERTY = "entityId";
@@ -22,7 +22,7 @@ public class RelationConcept extends CombinedModelElement implements Serializabl
 	private static final String PROPERTIES_PROPERTY = "properties";
 
 	/**
-	 * Entity ID, set once persisted in the KGS
+	 * Entity ID, set once persisted in the KGS.
 	 */
 	private final String entityId;
 	private final String description;
@@ -95,11 +95,11 @@ public class RelationConcept extends CombinedModelElement implements Serializabl
 	}
 
 	/**
-	 * Creates a deep clone of the current entity
+	 * Creates a deep clone of the current entity.
 	 *
 	 * @return The cloned entity with also the RelationConcept cloned
 	 */
-	public RelationConcept clone() {
+	public RelationConcept copy() {
 		return new RelationConcept(
 				getUuid(),
 				getEntityId(),

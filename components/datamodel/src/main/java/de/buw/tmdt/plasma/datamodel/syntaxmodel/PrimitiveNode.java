@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Objects;
 
 @JsonTypeName("PrimitiveNode")
-public class PrimitiveNode extends SchemaNode implements Cloneable {
+public class PrimitiveNode extends SchemaNode {
 
     private static final long serialVersionUID = -144653268470507986L;
 
@@ -26,70 +26,70 @@ public class PrimitiveNode extends SchemaNode implements Cloneable {
     private List<String> examples;
     private String dataType;
 
-	public PrimitiveNode(
-			@NotNull String label,
-			@NotNull String dataType
-	) {
-		this(label, null, true, dataType, new ArrayList<>(), null);
-	}
+    public PrimitiveNode(
+            @NotNull String label,
+            @NotNull String dataType
+    ) {
+        this(label, null, true, dataType, new ArrayList<>(), null);
+    }
 
-	public PrimitiveNode(
-			@NotNull String label,
-			boolean isValid,
-			@NotNull String dataType
-	) {
-		this(label, null, isValid, dataType, new ArrayList<>(), null);
-	}
+    public PrimitiveNode(
+            @NotNull String label,
+            boolean isValid,
+            @NotNull String dataType
+    ) {
+        this(label, null, isValid, dataType, new ArrayList<>(), null);
+    }
 
-	public PrimitiveNode(
-			@NotNull String label,
-			@Nullable List<@NotNull SyntacticOperationDTO> operations,
-			boolean isValid,
-			@NotNull String dataType,
-			@Nullable List<String> examples,
-			@Nullable String cleansingPattern
-	) {
-		super(label, operations == null ? new ArrayList<>() : operations, isValid);
-		this.dataType = dataType;
-		this.examples = examples != null ? new ArrayList<>(examples) : new ArrayList<>();
-		this.cleansingPattern = cleansingPattern;
-	}
+    public PrimitiveNode(
+            @NotNull String label,
+            @Nullable List<@NotNull SyntacticOperationDTO> operations,
+            boolean isValid,
+            @NotNull String dataType,
+            @Nullable List<String> examples,
+            @Nullable String cleansingPattern
+    ) {
+        super(label, operations == null ? new ArrayList<>() : operations, isValid);
+        this.dataType = dataType;
+        this.examples = examples != null ? new ArrayList<>(examples) : new ArrayList<>();
+        this.cleansingPattern = cleansingPattern;
+    }
 
-	@JsonCreator
-	public PrimitiveNode(
-			@NotNull @JsonProperty(UUID_PROPERTY) String uuid,
-			@JsonProperty(LABEL_PROPERTY) @NotNull String label,
-			@JsonProperty(X_COORDINATE_PROPERTY) Double xCoordinate,
-			@JsonProperty(Y_COORDINATE_PROPERTY) Double yCoordinate,
-			@NotNull @JsonProperty(OPERATIONS_PROPERTY) List<@NotNull SyntacticOperationDTO> operations,
-			@JsonProperty(IS_VALID_PROPERTY) boolean isValid,
-			@NotNull @JsonProperty(DATA_TYPE_PROPERTY) String dataType,
-			@JsonProperty(EXAMPLES_PROPERTY) List<String> examples,
-			@JsonProperty(CLEANSING_PATTERN_PROPERTY) String cleansingPattern
-	) {
-		super( uuid, label, xCoordinate, yCoordinate,operations, isValid);
-		this.dataType = dataType;
-		this.examples = examples != null ? new ArrayList<>(examples) : new ArrayList<>();
-		this.cleansingPattern = cleansingPattern;
-	}
+    @JsonCreator
+    public PrimitiveNode(
+            @NotNull @JsonProperty(UUID_PROPERTY) String uuid,
+            @JsonProperty(LABEL_PROPERTY) @NotNull String label,
+            @JsonProperty(X_COORDINATE_PROPERTY) Double xCoordinate,
+            @JsonProperty(Y_COORDINATE_PROPERTY) Double yCoordinate,
+            @NotNull @JsonProperty(OPERATIONS_PROPERTY) List<@NotNull SyntacticOperationDTO> operations,
+            @JsonProperty(IS_VALID_PROPERTY) boolean isValid,
+            @NotNull @JsonProperty(DATA_TYPE_PROPERTY) String dataType,
+            @JsonProperty(EXAMPLES_PROPERTY) List<String> examples,
+            @JsonProperty(CLEANSING_PATTERN_PROPERTY) String cleansingPattern
+    ) {
+        super(uuid, label, xCoordinate, yCoordinate, operations, isValid);
+        this.dataType = dataType;
+        this.examples = examples != null ? new ArrayList<>(examples) : new ArrayList<>();
+        this.cleansingPattern = cleansingPattern;
+    }
 
-	@JsonProperty(CLEANSING_PATTERN_PROPERTY)
-	public String getCleansingPattern() {
-		return cleansingPattern;
-	}
+    @JsonProperty(CLEANSING_PATTERN_PROPERTY)
+    public String getCleansingPattern() {
+        return cleansingPattern;
+    }
 
-	@JsonProperty(EXAMPLES_PROPERTY)
-	public List<String> getExamples() {
-		return examples;
-	}
+    public void setCleansingPattern(String cleansingPattern) {
+        this.cleansingPattern = cleansingPattern;
+    }
 
-	@JsonProperty(DATA_TYPE_PROPERTY)
-	public String getDataType() {
-		return dataType;
-	}
+    @JsonProperty(EXAMPLES_PROPERTY)
+    public List<String> getExamples() {
+        return examples;
+    }
 
-	public void setCleansingPattern(String cleansingPattern) {
-		this.cleansingPattern = cleansingPattern;
+    @JsonProperty(DATA_TYPE_PROPERTY)
+    public String getDataType() {
+        return dataType;
     }
 
     public void setExamples(List<String> examples) {
@@ -101,14 +101,14 @@ public class PrimitiveNode extends SchemaNode implements Cloneable {
     }
 
     @Override
-    public PrimitiveNode clone() {
+    public PrimitiveNode copy() {
         return new PrimitiveNode(
                 getUuid(),
                 getLabel(),
                 getXCoordinate(),
                 getYCoordinate(),
                 CollectionUtilities.map(getOperations(),
-                        SyntacticOperationDTO::clone,
+                        SyntacticOperationDTO::copy,
                         ArrayList::new),
                 isValid(),
                 getDataType(),
@@ -126,10 +126,14 @@ public class PrimitiveNode extends SchemaNode implements Cloneable {
                 + ", \"examples\":" + StringUtilities.listToJson(examples)
                 + ", \"dataType\":\"" + dataType + '"'
                 + '}';
-	}
+    }
 
-	@Override
-	public int hashCode() {
-		return Objects.hash(super.hashCode(), cleansingPattern, dataType);
-	}
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), cleansingPattern, dataType);
+    }
+
+    public boolean equals(Object o) {
+        return super.equals(o);
+    }
 }

@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 
 /**
- * Converter between the KGS data model and the shared CombinedModel
+ * Converter between the KGS data model and the shared CombinedModel.
  */
 @Service
 public class KnowledgeGraphServiceDTO2CombinedModelConverter {
@@ -139,7 +139,7 @@ public class KnowledgeGraphServiceDTO2CombinedModelConverter {
     @NotNull
     public SemanticModelDTO convert(@NotNull SemanticModel originalSemanticModel, @NotNull String dataSourceId) throws CombinedModelIntegrityException {
         // as we do some modifications here, create a separate instance
-        SemanticModel semanticModel = originalSemanticModel.clone();
+        SemanticModel semanticModel = originalSemanticModel.copy();
 
         // convert all objects to use the existing entityId if available, otherwise keep the UUID (will be dropped)
         // map to hold conversions from UUID -> EntityID if applied to any object (needed to adjust relations)
@@ -199,7 +199,7 @@ public class KnowledgeGraphServiceDTO2CombinedModelConverter {
                 entityType.getXCoordinate() == null ? 0 : entityType.getXCoordinate(),
                 entityType.getYCoordinate() == null ? 0 : entityType.getYCoordinate(),
                 entityType.getDescription(),
-                entityType.isMappedToData()
+                entityType.getSyntaxNodeUuid() != null
         );
         return entityTypeDTO;
     }

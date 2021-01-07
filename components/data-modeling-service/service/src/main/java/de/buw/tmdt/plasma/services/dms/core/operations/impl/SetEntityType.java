@@ -60,7 +60,6 @@ public class SetEntityType extends Operation<Pair<PrimitiveNode, EntityType>> {
 							1,
 							1
 					)
-
 			);
 
 	@Autowired
@@ -99,11 +98,11 @@ public class SetEntityType extends Operation<Pair<PrimitiveNode, EntityType>> {
 		}
 		final String entityTypeId = getValueAs(entityTypeIdDefinition, Type.ENTITY_TYPE_ID, 0, false);
 
-		entityType = model.getSemanticModel().getEntityType(entityTypeId.toString());
+		entityType = model.getSemanticModel().getEntityType(entityTypeId);
 		if (entityType == null) {
 			throw new ParameterParsingException("Did not find entitytype with id `" + entityTypeId + "` in model.");
 		}
-		SchemaNode node = model.getSyntaxModel().getNode(nodeId.toString());
+		SchemaNode node = model.getSyntaxModel().getNode(nodeId);
 		if (node == null) {
 			throw new ParameterParsingException("Did not find node with id `" + nodeId + "` in model.");
 		}
@@ -167,7 +166,7 @@ public class SetEntityType extends Operation<Pair<PrimitiveNode, EntityType>> {
 		PrimitiveNode primitiveNode = input.getLeft();
 		EntityType entityType = input.getRight();
 
-		EntityType modifiedEntityType = entityType.clone();
+		EntityType modifiedEntityType = entityType.copy();
 
 		modifiedEntityType.setSyntaxNodeUuid(primitiveNode.getUuid());
 		modifiedEntityType.setOriginalLabel(primitiveNode.getLabel());

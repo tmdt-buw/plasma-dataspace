@@ -13,9 +13,16 @@ import org.jetbrains.annotations.NotNull;
 import java.util.*;
 
 /**
- * Converter between the KGS data model and the shared CombinedModel
+ * Converter between the KGS data model and the shared CombinedModel.
  */
 public class KGS2CMConverter {
+
+    /**
+     * Private constructor to prevent instance creation.
+     */
+    private KGS2CMConverter() {
+
+    }
 
     /**
      * Converts a whole KGS {@link SemanticModelDTO} to a {@link SemanticModel} of a {@link de.buw.tmdt.plasma.datamodel.CombinedModel}.
@@ -137,7 +144,7 @@ public class KGS2CMConverter {
     @NotNull
     public static SemanticModelDTO convert(@NotNull SemanticModel originalSemanticModel, @NotNull String dataSourceId) throws CombinedModelIntegrityException {
         // as we do some modifications here, create a separate instance
-        SemanticModel semanticModel = originalSemanticModel.clone();
+        SemanticModel semanticModel = originalSemanticModel.copy();
 
         // convert all objects to use the existing entityId if available, otherwise keep the UUID (will be dropped)
         // map to hold conversions from UUID -> EntityID if applied to any object (needed to adjust relations)
@@ -189,56 +196,50 @@ public class KGS2CMConverter {
 
         final EntityConceptDTO entityConceptDTO = convert(entityType.getEntityConcept());
 
-        final EntityTypeDTO entityTypeDTO = new EntityTypeDTO(
+        return new EntityTypeDTO(
                 entityType.getEntityId() == null ? entityType.getUuid() : entityType.getEntityId(),
                 entityType.getLabel(),
                 entityType.getOriginalLabel(),
                 entityConceptDTO,
-                entityType.getXCoordinate() == null ? 0 : entityType.getXCoordinate(),
-                entityType.getYCoordinate() == null ? 0 : entityType.getYCoordinate(),
+                entityType.getXCoordinate() == null ? Double.valueOf(0.0) : entityType.getXCoordinate(),
+                entityType.getYCoordinate() == null ? Double.valueOf(0.0) : entityType.getYCoordinate(),
                 entityType.getDescription(),
-                entityType.isMappedToData()
+                entityType.getSyntaxNodeUuid() != null
         );
-        return entityTypeDTO;
     }
 
     @NotNull
     protected static EntityConceptDTO convert(@NotNull EntityConcept entityConcept) {
-        final EntityConceptDTO entityConceptDTO = new EntityConceptDTO(
+
+        return new EntityConceptDTO(
                 entityConcept.getEntityId() == null ? entityConcept.getUuid() : entityConcept.getEntityId(),
                 entityConcept.getLabel(),
                 entityConcept.getDescription(),
                 entityConcept.getSourceURI()
         );
-
-        return entityConceptDTO;
     }
 
     @NotNull
     protected static RelationDTO convert(@NotNull Relation relation) {
         final RelationConceptDTO relationConceptDTO = convert(relation.getConcept());
 
-        final RelationDTO relationDTO = new RelationDTO(
+        return new RelationDTO(
                 relation.getEntityId() == null ? relation.getUuid() : relation.getEntityId(),
                 relation.getFromId(),
                 relation.getToId(),
                 relationConceptDTO
         );
-
-        return relationDTO;
     }
 
     @NotNull
     protected static RelationConceptDTO convert(@NotNull RelationConcept relationConcept) {
 
-        final RelationConceptDTO relationConceptDTO = new RelationConceptDTO(
+        return new RelationConceptDTO(
                 relationConcept.getEntityId() == null ? relationConcept.getUuid() : relationConcept.getEntityId(),
                 relationConcept.getLabel(),
                 relationConcept.getDescription(),
                 relationConcept.getSourceURI(),
                 new HashSet<>() // TODO adjust once properly filled
         );
-
-        return relationConceptDTO;
     }
 }

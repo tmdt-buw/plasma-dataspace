@@ -85,7 +85,7 @@ public class ValueCleansing extends Operation<Pair<PrimitiveNode, String>> {
 		}
 		cleansingPattern = getValueAs(splitterParameterDefinition, Type.PATTERN, 0, false);
 
-		PrimitiveNode node = getPrimitiveNode(model, nodeId.toString());
+		PrimitiveNode node = getPrimitiveNode(model, nodeId);
 
 		return Pair.of(node, cleansingPattern);
 	}

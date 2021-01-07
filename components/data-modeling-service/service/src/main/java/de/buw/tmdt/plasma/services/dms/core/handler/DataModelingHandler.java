@@ -154,7 +154,7 @@ public class DataModelingHandler {
     }
 
     /**
-     * Retrieves all available {@link EntityConcept}s, from the KGS as well as the current model
+     * Retrieves all available {@link EntityConcept}s, from the KGS as well as the current model.
      *
      * @param dataSourceUuid The data source uuid
      * @param prefix         A search prefix
@@ -293,7 +293,6 @@ public class DataModelingHandler {
     @NotNull
     @Deprecated
     public CombinedModel addEntityType(@NotNull UUID dataSourceUuid, @NotNull EntityType entityType, @Nullable UUID primitiveNodeUuid) {
-
         if (primitiveNodeUuid != null) {
             entityType.setSyntaxNodeUuid(primitiveNodeUuid.toString());
         }
@@ -435,7 +434,7 @@ public class DataModelingHandler {
     @NotNull
     @Transactional
     public CombinedModel removeRelationFromSchema(@NotNull UUID dataSourceUuid, @NotNull String relationResourceId) {
-        Relation relation = new Relation(relationResourceId, "delete", "delete", "delete", "", null);
+        Relation relation = new Relation(relationResourceId, "delete", "delete", "delete", null);
         DeltaModification modification = new DeltaModification("internal_mod", null, Collections.singleton(relation), null, null, 0.0);
         return applyModification(dataSourceUuid, modification);
     }
@@ -456,7 +455,7 @@ public class DataModelingHandler {
         DataSourceModel dataSourceModel = findDataSourceOrThrow(dataSourceUuid);
         CombinedModel combinedModel = getCombinedModel(dataSourceModel, true);
 
-        CombinedModel clone = combinedModel.clone();
+        CombinedModel clone = combinedModel.copy();
         try {
             clone.apply(modification);
         } catch (Exception e) {
@@ -726,73 +725,73 @@ public class DataModelingHandler {
 
     /* Probably unused, needs to be adjusted to new data model if still needed or deleted if not */
 
-//    @NotNull
-//    private DataSourceSchema createFinalDataSourceSchema(
-//            @NotNull DataSourceSchema currentDataSourceSchema,
-//            @NotNull SemanticModel retrievedSemanticModel,
-//            @NotNull Map<Long, String> modeling2KGSmapping
-//    ) {
-//        Map<Traversable.Identity<?>, Traversable> oldIdentityToNewTraversable = new HashMap<>();
-//        final Node newSyntaxModel = currentDataSourceSchema.getSyntaxModel().copy(oldIdentityToNewTraversable);
-//
-//        //find all entity types which are mapped by a primitive node
-//        final Set<EntityType> mappedEntityTypes = oldIdentityToNewTraversable.values().stream()
-//                .filter(PrimitiveNode.class::isInstance)
-//                .map(PrimitiveNode.class::cast)
-//                .filter(p -> p.getEntityType() != null)
-//                .map(PrimitiveNode::getEntityType)
-//                .collect(Collectors.toSet());
-//
-//        for (EntityType mappedEntityType : mappedEntityTypes) {
-//            final Traversable.Identity<?> oldEntityTypeIdentity = MapUtilities.keyOfValue(oldIdentityToNewTraversable, mappedEntityType);
-//            final Traversable traversable = currentDataSourceSchema.find(oldEntityTypeIdentity);
-//            assert traversable instanceof EntityType;
-//            EntityType oldEntityType = (EntityType) traversable;
-//            final String actualEntityTypeUuid = modeling2KGSmapping.get(oldEntityType.getId());
-//
-//            EntityType replacement = null;
-//            for (EntityType entityType : retrievedSemanticModel.getEntityTypes()) {
-//                if (actualEntityTypeUuid.equals(entityType.getUuid())) {
-//                    replacement = entityType;
-//                    break;
-//                }
-//            }
-//            if (replacement == null) {
-//                logger.warn(
-//                        "Defective response for semantic model creation.\n" + "Mapping: {}\n" + "SemanticModel: {}",
-//                        modeling2KGSmapping,
-//                        retrievedSemanticModel
-//                );
-//                throw new RuntimeException(
-//                        "Failed to find entity type for id `" + oldEntityType.getId() + "` which should be mapped to `" + actualEntityTypeUuid + "`."
-//                );
-//            }
-//            newSyntaxModel.replace(mappedEntityType.getIdentity(), replacement);
-//        }
-//
-//        //Update positions
-//        //Create a map between all old entity types and their new backend ID
-//        Map<String, EntityType> backendIDtoOldEntityTypeMapping =
-//                currentDataSourceSchema.getSemanticModel().getEntityTypes().stream().collect(Collectors.toMap(
-//                        x -> modeling2KGSmapping.get(x.getId()),
-//                        Function.identity()
-//                ));
-//
-//        //Update positions
-//        for (EntityType entityType : retrievedSemanticModel.getEntityTypes()) {
-//            entityType.setPosition(backendIDtoOldEntityTypeMapping.get(entityType.getUuid()).getPosition());
-//        }
-//
-//        DataSourceSchema finalSchema = new DataSourceSchema(
-//                currentDataSourceSchema.getOwningNode(),
-//                newSyntaxModel,
-//                retrievedSemanticModel,
-//                Collections.emptyList(),
-//                Collections.emptyList()
-//        );
-//        finalSchema.setFinalized(true);
-//        return finalSchema;
-//    }
+    //    @NotNull
+    //    private DataSourceSchema createFinalDataSourceSchema(
+    //            @NotNull DataSourceSchema currentDataSourceSchema,
+    //            @NotNull SemanticModel retrievedSemanticModel,
+    //            @NotNull Map<Long, String> modeling2KGSmapping
+    //    ) {
+    //        Map<Traversable.Identity<?>, Traversable> oldIdentityToNewTraversable = new HashMap<>();
+    //        final Node newSyntaxModel = currentDataSourceSchema.getSyntaxModel().copy(oldIdentityToNewTraversable);
+    //
+    //        //find all entity types which are mapped by a primitive node
+    //        final Set<EntityType> mappedEntityTypes = oldIdentityToNewTraversable.values().stream()
+    //                .filter(PrimitiveNode.class::isInstance)
+    //                .map(PrimitiveNode.class::cast)
+    //                .filter(p -> p.getEntityType() != null)
+    //                .map(PrimitiveNode::getEntityType)
+    //                .collect(Collectors.toSet());
+    //
+    //        for (EntityType mappedEntityType : mappedEntityTypes) {
+    //            final Traversable.Identity<?> oldEntityTypeIdentity = MapUtilities.keyOfValue(oldIdentityToNewTraversable, mappedEntityType);
+    //            final Traversable traversable = currentDataSourceSchema.find(oldEntityTypeIdentity);
+    //            assert traversable instanceof EntityType;
+    //            EntityType oldEntityType = (EntityType) traversable;
+    //            final String actualEntityTypeUuid = modeling2KGSmapping.get(oldEntityType.getId());
+    //
+    //            EntityType replacement = null;
+    //            for (EntityType entityType : retrievedSemanticModel.getEntityTypes()) {
+    //                if (actualEntityTypeUuid.equals(entityType.getUuid())) {
+    //                    replacement = entityType;
+    //                    break;
+    //                }
+    //            }
+    //            if (replacement == null) {
+    //                logger.warn(
+    //                        "Defective response for semantic model creation.\n" + "Mapping: {}\n" + "SemanticModel: {}",
+    //                        modeling2KGSmapping,
+    //                        retrievedSemanticModel
+    //                );
+    //                throw new RuntimeException(
+    //                        "Failed to find entity type for id `" + oldEntityType.getId() + "` which should be mapped to `" + actualEntityTypeUuid + "`."
+    //                );
+    //            }
+    //            newSyntaxModel.replace(mappedEntityType.getIdentity(), replacement);
+    //        }
+    //
+    //        //Update positions
+    //        //Create a map between all old entity types and their new backend ID
+    //        Map<String, EntityType> backendIDtoOldEntityTypeMapping =
+    //                currentDataSourceSchema.getSemanticModel().getEntityTypes().stream().collect(Collectors.toMap(
+    //                        x -> modeling2KGSmapping.get(x.getId()),
+    //                        Function.identity()
+    //                ));
+    //
+    //        //Update positions
+    //        for (EntityType entityType : retrievedSemanticModel.getEntityTypes()) {
+    //            entityType.setPosition(backendIDtoOldEntityTypeMapping.get(entityType.getUuid()).getPosition());
+    //        }
+    //
+    //        DataSourceSchema finalSchema = new DataSourceSchema(
+    //                currentDataSourceSchema.getOwningNode(),
+    //                newSyntaxModel,
+    //                retrievedSemanticModel,
+    //                Collections.emptyList(),
+    //                Collections.emptyList()
+    //        );
+    //        finalSchema.setFinalized(true);
+    //        return finalSchema;
+    //    }
 
     @Transactional
     public void deleteModel(@NotNull UUID dataSourceUuid) {
@@ -810,38 +809,38 @@ public class DataModelingHandler {
      */
 
     // CURRENTLY UNUSED, may be restored later
-//    /**
-//     * Loads a ModelBase element from the given repository and validates if the loaded element's UUID matches the given element's UUID in relation to the
-//     * passed globalIdFunction.
-//     *
-//     * @param element       the element to load
-//     * @param uuidGenerator the function to determine a global UUID from the given elements type
-//     * @param repository    the repository to load from
-//     * @return attached element matching the given transient element
-//     */
-//    @NotNull
-//    private <T extends ModelBase> T loadFromRepository(
-//            @NotNull T element,
-//            @NotNull Function<T, String> uuidGenerator,
-//            @NotNull JpaRepository<T, Long> repository
-//    ) {
-//        String uuid = uuidGenerator.apply(element);
-//        Long longId = element.getId();
-//        final T result = repository.findById(longId)
-//                .orElseThrow(() -> new ResponseStatusException(
-//                        HttpStatus.BAD_REQUEST,
-//                        "Not a valid " + element.getClass().getSimpleName() + " id: " + longId
-//                ));
-//
-//        if (uuid != null && !uuid.equals(uuidGenerator.apply(result))) {
-//            //noinspection MagicCharacter
-//            throw new ResponseStatusException(
-//                    HttpStatus.BAD_REQUEST,
-//                    "Inconsistent " + element.getClass().getSimpleName() + " received: id and uuid did not match data base state."
-//            );
-//        }
-//        return result;
-//    }
+    //    /**
+    //     * Loads a ModelBase element from the given repository and validates if the loaded element's UUID matches the given element's UUID in relation to the
+    //     * passed globalIdFunction.
+    //     *
+    //     * @param element       the element to load
+    //     * @param uuidGenerator the function to determine a global UUID from the given elements type
+    //     * @param repository    the repository to load from
+    //     * @return attached element matching the given transient element
+    //     */
+    //    @NotNull
+    //    private <T extends ModelBase> T loadFromRepository(
+    //            @NotNull T element,
+    //            @NotNull Function<T, String> uuidGenerator,
+    //            @NotNull JpaRepository<T, Long> repository
+    //    ) {
+    //        String uuid = uuidGenerator.apply(element);
+    //        Long longId = element.getId();
+    //        final T result = repository.findById(longId)
+    //                .orElseThrow(() -> new ResponseStatusException(
+    //                        HttpStatus.BAD_REQUEST,
+    //                        "Not a valid " + element.getClass().getSimpleName() + " id: " + longId
+    //                ));
+    //
+    //        if (uuid != null && !uuid.equals(uuidGenerator.apply(result))) {
+    //            //noinspection MagicCharacter
+    //            throw new ResponseStatusException(
+    //                    HttpStatus.BAD_REQUEST,
+    //                    "Inconsistent " + element.getClass().getSimpleName() + " received: id and uuid did not match data base state."
+    //            );
+    //        }
+    //        return result;
+    //    }
 
     void persistCombinedModel(@NotNull UUID dataSourceUuid, @NotNull CombinedModel combinedModel) {
         DataSourceModel dataSourceModel = findDataSourceOrThrow(dataSourceUuid);

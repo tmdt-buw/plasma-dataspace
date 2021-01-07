@@ -10,7 +10,7 @@ import org.jetbrains.annotations.Nullable;
 import java.io.Serializable;
 import java.util.Objects;
 
-public class EntityConcept extends CombinedModelElement implements Serializable, Cloneable {
+public class EntityConcept extends CombinedModelElement implements Serializable {
     private static final long serialVersionUID = 2351939502355153654L;
 
     public static final String ENTITY_ID_PROPERTY = "entityId";
@@ -18,7 +18,7 @@ public class EntityConcept extends CombinedModelElement implements Serializable,
     private static final String SOURCE_URI_PROPERTY = "sourceURI";
 
     /**
-     * Entity ID, set once sent to the KGS
+     * Entity ID, set once sent to the KGS.
      */
     private final String entityId;
     private final String description;
@@ -27,7 +27,7 @@ public class EntityConcept extends CombinedModelElement implements Serializable,
     public EntityConcept(
             @NotNull @JsonProperty(LABEL_PROPERTY) String label,
             @Nullable @JsonProperty(DESCRIPTION_PROPERTY) String description,
-            @Nullable @JsonProperty(SOURCE_URI_PROPERTY) String sourceURI
+            @NotNull @JsonProperty(SOURCE_URI_PROPERTY) String sourceURI
     ) {
         super(label);
         this.entityId = null;
@@ -41,9 +41,9 @@ public class EntityConcept extends CombinedModelElement implements Serializable,
             @NotNull @JsonProperty(LABEL_PROPERTY) String label,
             @Nullable @JsonProperty(ENTITY_ID_PROPERTY) String entityId,
             @Nullable @JsonProperty(DESCRIPTION_PROPERTY) String description,
-            @Nullable @JsonProperty(SOURCE_URI_PROPERTY) String sourceURI
+            @NotNull @JsonProperty(SOURCE_URI_PROPERTY) String sourceURI
     ) {
-        super(uuid,label);
+        super(uuid, label);
         this.entityId = entityId;
         this.description = description;
         this.sourceURI = sourceURI;
@@ -63,17 +63,17 @@ public class EntityConcept extends CombinedModelElement implements Serializable,
     }
 
     @JsonProperty(DESCRIPTION_PROPERTY)
-    @NotNull
     public String getDescription() {
         return description;
     }
 
     /**
-     * Clones this {@link EntityConcept}
+     * Clones this {@link EntityConcept}.
      *
      * @return the cloned concept
      */
-    public EntityConcept clone() {
+    @Override
+    public EntityConcept copy() {
         return new EntityConcept(getUuid(), getLabel(), getEntityId(), getDescription(), getSourceURI());
     }
 

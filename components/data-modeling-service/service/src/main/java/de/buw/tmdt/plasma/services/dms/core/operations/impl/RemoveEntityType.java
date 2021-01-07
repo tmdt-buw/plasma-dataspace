@@ -59,7 +59,7 @@ public class RemoveEntityType extends Operation<PrimitiveNode> {
 		ParameterDefinition<String, String> uuidParameterDefinition = Type.SYNTAX_NODE_ID.castParameterDefinition(parameterDefinition);
 		nodeId = getValueAs(uuidParameterDefinition, Type.SYNTAX_NODE_ID, 0, false);
 
-		SchemaNode node = model.getSyntaxModel().getNode(nodeId.toString());
+		SchemaNode node = model.getSyntaxModel().getNode(nodeId);
 		if (!(node instanceof PrimitiveNode)) {
 			throw new ParameterParsingException("Did not find node with id `" + nodeId + "` in model.");
 		}
@@ -75,7 +75,7 @@ public class RemoveEntityType extends Operation<PrimitiveNode> {
 				.findFirst().orElse(null);
 
 		if (entityType != null) {
-			EntityType modifiedEntityType = entityType.clone();
+			EntityType modifiedEntityType = entityType.copy();
 			modifiedEntityType.setSyntaxNodeUuid(null);
 			modifiedEntityType.setOriginalLabel(null);
 			DeltaModification modification = new DeltaModification("local_operation", Set.of(modifiedEntityType), null, null, null);

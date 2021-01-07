@@ -11,21 +11,18 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
-public class SemanticModel implements Cloneable {
+public class SemanticModel {
 
-	private static final long serialVersionUID = 8522383284345885691L;
+    public static final String ENTITY_ID_PROPERTY = "entityId";
+    public static final String NODES_PROPERTY = "nodes";
+    private static final String EDGES_PROPERTY = "edges";
 
-	public static final String ENTITY_ID_PROPERTY = "entityId";
-	public static final String NODES_PROPERTY = "nodes";
-	private static final String EDGES_PROPERTY = "edges";
-
-	/**
-	 * Knowledge base ID, set once sent to the KGS
-	 */
-	private String entityId;
-	private final List<EntityType> nodes;
+    /**
+     * Knowledge base ID, set once sent to the KGS.
+     */
+    private String entityId;
+    private final List<EntityType> nodes;
 	private final List<Relation> edges;
-
 
 	@JsonCreator
 	public SemanticModel(
@@ -66,16 +63,16 @@ public class SemanticModel implements Cloneable {
 	 */
 	@JsonIgnore
 	public SemanticModel mergeConcepts() {
-		SemanticModel model = clone();
-		// merge all entity concepts
-		HashMap<String, EntityConcept> seenConcepts = new HashMap<>();
-		model.getNodes().forEach(et -> {
-			if (seenConcepts.containsKey(et.getEntityConcept().getSourceURI())) {
-				EntityConcept ec = seenConcepts.get(et.getEntityConcept().getSourceURI());
-				et.setEntityConcept(ec);
-			} else {
-				seenConcepts.put(et.getEntityConcept().getSourceURI(), et.getEntityConcept());
-			}
+        SemanticModel model = copy();
+        // merge all entity concepts
+        HashMap<String, EntityConcept> seenConcepts = new HashMap<>();
+        model.getNodes().forEach(et -> {
+            if (seenConcepts.containsKey(et.getEntityConcept().getSourceURI())) {
+                EntityConcept ec = seenConcepts.get(et.getEntityConcept().getSourceURI());
+                et.setEntityConcept(ec);
+            } else {
+                seenConcepts.put(et.getEntityConcept().getSourceURI(), et.getEntityConcept());
+            }
 		});
 		// merge all relation concepts
 		HashMap<String, RelationConcept> seenRelations = new HashMap<>();
@@ -88,13 +85,13 @@ public class SemanticModel implements Cloneable {
 			}
 		});
 		return model;
-	}
+    }
 
-	/**
-	 * Retrieves an {@link EntityType} from the model
-	 *
-	 * @param entityTypeUuid The types uuid
-	 * @return a matching type or null if not found
+    /**
+     * Retrieves an {@link EntityType} from the model.
+     *
+     * @param entityTypeUuid The types uuid
+     * @return a matching type or null if not found
 	 */
 	@JsonIgnore
 	public EntityType getEntityType(@NotNull String entityTypeUuid) {
@@ -138,24 +135,23 @@ public class SemanticModel implements Cloneable {
 			String errorMessage = String.join("\n", errors);
 			throw new CombinedModelIntegrityException(errorMessage);
 		}
-	}
+    }
 
-	/**
-	 * Creates a deep clone of the current entity
-	 *
-	 * @return The cloned entity with also the {@link EntityType}s and {@link Relation}s cloned
-	 */
-	@Override
-	public SemanticModel clone() {
-		return new SemanticModel(
-				getEntityId(),
-				CollectionUtilities.map(getNodes(),
-						EntityType::clone,
-						ArrayList::new),
-				CollectionUtilities.map(getEdges(),
-						Relation::clone,
-						ArrayList::new)
-		);
+    /**
+     * Creates a deep clone of the current entity.
+     *
+     * @return The cloned entity with also the {@link EntityType}s and {@link Relation}s cloned
+     */
+    public SemanticModel copy() {
+        return new SemanticModel(
+                getEntityId(),
+                CollectionUtilities.map(getNodes(),
+                        EntityType::copy,
+                        ArrayList::new),
+                CollectionUtilities.map(getEdges(),
+                        Relation::copy,
+                        ArrayList::new)
+        );
 	}
 
 	@Override

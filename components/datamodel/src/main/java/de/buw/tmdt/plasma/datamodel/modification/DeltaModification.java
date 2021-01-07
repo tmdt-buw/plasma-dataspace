@@ -21,7 +21,7 @@ import static de.buw.tmdt.plasma.datamodel.syntaxmodel.SyntaxModel.NODES_PROPERT
 /**
  * Defines a Delta recommendation, a partial update of a combined model.
  */
-public class DeltaModification implements Serializable, Cloneable {
+public class DeltaModification implements Serializable {
 
     private static final String REFERENCE_PROPERTY = "reference";
     private static final String DELETION_PROPERTY = "deletion";
@@ -32,26 +32,27 @@ public class DeltaModification implements Serializable, Cloneable {
     /**
      * A unique id identifying this recommendation.
      */
-    private String reference;
+    @NotNull
+    private final String reference;
 
     /**
-     * Indicates if this modification removes elements
+     * Indicates if this modification removes elements.
      */
     private boolean deletion = false;
     /**
-     * The set of modified semantic entities
+     * The set of modified semantic entities.
      */
     private Set<EntityType> entities;
     /**
-     * The set of modified semantic relations
+     * The set of modified semantic relations.
      */
     private Set<Relation> relations;
     /**
-     * The set of modified syntactic nodes
+     * The set of modified syntactic nodes.
      */
     private Set<SchemaNode> nodes;
     /**
-     * The set of modified syntactic edges
+     * The set of modified syntactic edges.
      */
     private Set<Edge> edges;
 
@@ -133,10 +134,6 @@ public class DeltaModification implements Serializable, Cloneable {
         return confidence;
     }
 
-    public void setReference(String reference) {
-        this.reference = reference;
-    }
-
     public void setDeletion(boolean deletion) {
         this.deletion = deletion;
     }
@@ -162,25 +159,25 @@ public class DeltaModification implements Serializable, Cloneable {
     }
 
     /**
-     * Creates a deep clone of the current entity
+     * Creates a deep clone of the current entity.
      *
      * @return The cloned entity with also the {@link EntityType}s, {@link Relation}s, {@link SchemaNode}s and {@link Edge}s cloned
      */
-    public DeltaModification clone() {
+    public DeltaModification copy() {
         return new DeltaModification(
                 getReference(),
                 isDeletion(),
                 CollectionUtilities.map(getEntities(),
-                        EntityType::clone,
+                        EntityType::copy,
                         HashSet::new),
                 CollectionUtilities.map(getRelations(),
-                        Relation::clone,
+                        Relation::copy,
                         HashSet::new),
                 CollectionUtilities.map(getNodes(),
-                        SchemaNode::clone,
+                        SchemaNode::copy,
                         HashSet::new),
                 CollectionUtilities.map(getEdges(),
-                        Edge::clone,
+                        Edge::copy,
                         HashSet::new),
                 getConfidence()
         );

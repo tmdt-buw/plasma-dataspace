@@ -166,7 +166,7 @@ public class CombinedModelSemanticModificationTest {
 
         EntityType iataCodeType = model.getSemanticModel().getNodes().stream().filter(entityType -> entityType.getEntityConcept().getSourceURI().equals("plasma:iata_code")).findFirst().orElseThrow();
 
-        EntityType replacementType = iataCodeType.clone();
+        EntityType replacementType = iataCodeType.copy();
 
         replacementType.setSyntaxNodeUuid(null);
         // we leave the original label set here on purpose...

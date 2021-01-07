@@ -98,7 +98,7 @@ public class ModifyComposite extends Operation<Pair<CompositeNode, List<Splittin
 		}
 		patterns = splitterParameterDefinition.probeValueAs(Type.PATTERN);
 
-		SchemaNode node = model.getSyntaxModel().getNode(nodeId.toString());
+		SchemaNode node = model.getSyntaxModel().getNode(nodeId);
 
 		final List<Splitting> splitters = Arrays.stream(patterns)
 				.map(Splitting::new)

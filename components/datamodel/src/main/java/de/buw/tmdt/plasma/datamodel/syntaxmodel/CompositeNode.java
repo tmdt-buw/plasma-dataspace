@@ -16,7 +16,7 @@ import java.util.Objects;
  * A composite node is existed as a primitive node but was splitted using one or more {@link Splitting} objects.
  */
 @JsonTypeName("CompositeNode")
-public class CompositeNode extends SchemaNode implements Cloneable {
+public class CompositeNode extends SchemaNode {
 
     private static final long serialVersionUID = 5858068735685107958L;
     private static final String EXAMPLES_PROPERTY = "examples";
@@ -27,56 +27,54 @@ public class CompositeNode extends SchemaNode implements Cloneable {
     private List<String> examples;
     private String cleansingPattern;
 
-	public CompositeNode(
-			@NotNull String label,
-			@NotNull List<SyntacticOperationDTO> operations,
-			boolean isValid,
-			@Nullable String cleansingPattern,
-			@NotNull List<Splitting> splitter
-	) {
-		super(label, operations, isValid);
-		this.cleansingPattern = cleansingPattern;
-		this.splitter = splitter;
-	}
+    public CompositeNode(
+            @NotNull String label,
+            @NotNull List<SyntacticOperationDTO> operations,
+            boolean isValid,
+            @Nullable String cleansingPattern,
+            @NotNull List<Splitting> splitter
+    ) {
+        super(label, operations, isValid);
+        this.cleansingPattern = cleansingPattern;
+        this.splitter = splitter;
+    }
 
+    @JsonCreator
+    public CompositeNode(
+            @NotNull @JsonProperty(UUID_PROPERTY) String uuid,
+            @JsonProperty(LABEL_PROPERTY) @NotNull String label,
+            @Nullable @JsonProperty(X_COORDINATE_PROPERTY) Double xCoordinate,
+            @Nullable @JsonProperty(Y_COORDINATE_PROPERTY) Double yCoordinate,
+            @NotNull @JsonProperty(OPERATIONS_PROPERTY) List<SyntacticOperationDTO> operations,
+            @JsonProperty(IS_VALID_PROPERTY) boolean isValid,
+            @JsonProperty(EXAMPLES_PROPERTY) List<String> examples,
+            @JsonProperty(CLEANSING_PATTERN_PROPERTY) String cleansingPattern,
+            @NotNull @JsonProperty(SPLITTER_PROPERTY) List<Splitting> splitter
+    ) {
+        super(uuid, label, xCoordinate, yCoordinate, operations, isValid);
+        this.examples = examples;
+        this.cleansingPattern = cleansingPattern;
+        this.splitter = splitter;
+    }
 
-	@JsonCreator
-	public CompositeNode(
-			@NotNull @JsonProperty(UUID_PROPERTY) String uuid,
-			@JsonProperty(LABEL_PROPERTY) @NotNull String label,
-			@Nullable @JsonProperty(X_COORDINATE_PROPERTY) Double xCoordinate,
-			@Nullable @JsonProperty(Y_COORDINATE_PROPERTY) Double yCoordinate,
-			@NotNull @JsonProperty(OPERATIONS_PROPERTY) List<SyntacticOperationDTO> operations,
-			@JsonProperty(IS_VALID_PROPERTY) boolean isValid,
-			@JsonProperty(EXAMPLES_PROPERTY) List<String> examples,
-			@JsonProperty(CLEANSING_PATTERN_PROPERTY) String cleansingPattern,
-			@NotNull @JsonProperty(SPLITTER_PROPERTY) List<Splitting> splitter
-	) {
-		super(uuid, label, xCoordinate, yCoordinate, operations, isValid);
-		this.examples = examples;
-		this.cleansingPattern = cleansingPattern;
-		this.splitter = splitter;
+    @JsonProperty(CLEANSING_PATTERN_PROPERTY)
+    public String getCleansingPattern() {
+        return cleansingPattern;
+    }
 
-	}
+    public void setCleansingPattern(String cleansingPattern) {
+        this.cleansingPattern = cleansingPattern;
+    }
 
-	@JsonProperty(CLEANSING_PATTERN_PROPERTY)
-	public String getCleansingPattern() {
-		return cleansingPattern;
-	}
+    @NotNull
+    @JsonProperty(SPLITTER_PROPERTY)
+    public List<Splitting> getSplitter() {
+        return splitter;
+    }
 
-	@NotNull
-	@JsonProperty(SPLITTER_PROPERTY)
-	public List<Splitting> getSplitter() {
-		return splitter;
-	}
-
-	@JsonProperty(EXAMPLES_PROPERTY)
-	public List<String> getExamples() {
-		return examples;
-	}
-
-	public void setCleansingPattern(String cleansingPattern) {
-		this.cleansingPattern = cleansingPattern;
+    @JsonProperty(EXAMPLES_PROPERTY)
+    public List<String> getExamples() {
+        return examples;
     }
 
     public void setExamples(List<String> examples) {
@@ -88,20 +86,20 @@ public class CompositeNode extends SchemaNode implements Cloneable {
     }
 
     @Override
-    public CompositeNode clone() {
+    public CompositeNode copy() {
         return new CompositeNode(
                 getUuid(),
                 getLabel(),
                 getXCoordinate(),
                 getYCoordinate(),
                 CollectionUtilities.map(getOperations(),
-                        SyntacticOperationDTO::clone,
+                        SyntacticOperationDTO::copy,
                         ArrayList::new),
                 isValid(),
                 getExamples(),
                 getCleansingPattern(),
                 CollectionUtilities.map(getSplitter(),
-                        Splitting::clone,
+                        Splitting::copy,
                         ArrayList::new));
 
     }
@@ -115,8 +113,22 @@ public class CompositeNode extends SchemaNode implements Cloneable {
                 + '}';
     }
 
-	@Override
-	public int hashCode() {
-		return Objects.hash(super.hashCode(), cleansingPattern);
-	}
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), cleansingPattern);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
+        return super.equals(o);
+    }
 }

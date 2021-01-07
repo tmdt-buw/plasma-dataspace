@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @JsonTypeName("CollisionSchema")
-public class CollisionSchema extends SchemaNode implements Cloneable {
+public class CollisionSchema extends SchemaNode {
 
     private static final long serialVersionUID = 5329441916665293203L;
 
@@ -38,13 +38,13 @@ public class CollisionSchema extends SchemaNode implements Cloneable {
     }
 
     @Override
-    public CollisionSchema clone() {
+    public CollisionSchema copy() {
         return new CollisionSchema(getUuid(),
                 getLabel(),
                 getXCoordinate(),
                 getYCoordinate(),
                 CollectionUtilities.map(getOperations(),
-                        SyntacticOperationDTO::clone,
+                        SyntacticOperationDTO::copy,
                         ArrayList::new),
                 isValid());
     }

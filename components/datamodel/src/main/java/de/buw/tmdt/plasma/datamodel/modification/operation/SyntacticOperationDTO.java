@@ -56,9 +56,9 @@ public class SyntacticOperationDTO implements Serializable {
         return parameter;
     }
 
-    public SyntacticOperationDTO clone() {
-        // TODO
-        return this;
+    public SyntacticOperationDTO copy() {
+	    // TODO
+	    return this;
     }
 
     @Override

@@ -20,7 +20,7 @@ import java.util.TimeZone;
 @Converter(autoApply = true)
 public class CombinedModelPersistenceConverter implements AttributeConverter<CombinedModel, String> {
 
-    private final static ObjectMapper objectMapper = getObjectMapper();
+    private final ObjectMapper objectMapper = getObjectMapper();
 
     @Override
     public String convertToDatabaseColumn(CombinedModel combinedModel) {

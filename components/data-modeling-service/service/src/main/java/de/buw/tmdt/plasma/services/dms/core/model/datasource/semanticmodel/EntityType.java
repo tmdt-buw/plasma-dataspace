@@ -27,15 +27,6 @@ public class EntityType extends TraversableModelBase {
 
 	private EntityConcept entityConcept;
 
-	//Hibernate constructor
-	//creates invalid state if not properly initialized afterwards
-	@Deprecated
-	private EntityType() {
-		uuid = null;
-		label = description = null;
-		entityConcept = null;
-	}
-
 	public EntityType(
 			@Nullable String uuid,
 			@NotNull String label,

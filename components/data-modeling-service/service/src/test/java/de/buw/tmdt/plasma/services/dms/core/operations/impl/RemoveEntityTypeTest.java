@@ -36,9 +36,6 @@ class RemoveEntityTypeTest {
 	@Mock
 	private PrimitiveNode primitiveNodeMock;
 
-	@Mock
-	private EntityConcept entityConceptMock;
-
 	private RemoveEntityType testee;
 
 	@BeforeEach
@@ -53,7 +50,9 @@ class RemoveEntityTypeTest {
 
 		when(primitiveNodeMock.getUuid()).thenReturn(primitiveUuid);
 
-		EntityType entityType = new EntityType("entityType", "", entityConceptMock);
+		EntityConcept concept = new EntityConcept(UUID.randomUUID().toString(), "ECName", "ECDescription", "ECSourceURI", "plasma:concept1");
+
+		EntityType entityType = new EntityType("entityType", "", concept);
 		entityType.setSyntaxNodeUuid(primitiveUuid);
 		entityType.setOriginalLabel("TO BE REMOVED");
 

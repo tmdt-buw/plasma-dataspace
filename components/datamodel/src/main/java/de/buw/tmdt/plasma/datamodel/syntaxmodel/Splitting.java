@@ -9,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import java.io.Serializable;
 import java.util.regex.Pattern;
 
-public class Splitting implements Serializable, Cloneable {
+public class Splitting implements Serializable {
 	private static final long serialVersionUID = -5015349436916583098L;
 
 	private static final String PATTERN_PROPERTY = "pattern";
@@ -32,8 +32,7 @@ public class Splitting implements Serializable, Cloneable {
 		return pattern;
 	}
 
-	@Override
-	public Splitting clone() {
+	public Splitting copy() {
 		return new Splitting(getPattern());
 	}
 

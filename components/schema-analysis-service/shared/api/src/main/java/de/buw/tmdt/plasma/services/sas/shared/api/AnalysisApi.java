@@ -7,7 +7,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 /**
- * Provides endpoints for schema analysis operations
+ * Provides endpoints for schema analysis operations.
  * Expected usage pattern:
  * - initAnalysis
  * - addDataPoint (multiple times)

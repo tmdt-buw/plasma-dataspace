@@ -18,7 +18,7 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
- * Specifies operations applicable to {@link SchemaNode}s
+ * Specifies operations applicable to {@link SchemaNode}s.
  *
  * @param <I> The type of {@link SchemaNode} this operation is applicable to
  */
@@ -45,7 +45,28 @@ public abstract class Operation<I> {
 	}
 
 	/**
-	 * Parses the parameter definition to identify an object this operation is to be applied to
+	 * Helper function to find single {@link PrimitiveNode}s in the given {@link CombinedModel}.
+	 *
+	 * @param model    The model containing the nodes
+	 * @param nodeUuid The uuid to search for
+	 * @return The found node
+	 * @throws ParameterParsingException If no matching node could be found or was not a {@link PrimitiveNode}
+	 */
+	public static PrimitiveNode getPrimitiveNode(CombinedModel model, String nodeUuid) throws ParameterParsingException {
+		SchemaNode node = model.getSyntaxModel().getNode(nodeUuid);
+		if (node == null) {
+			throw new ParameterParsingException("Did not find node with id `" + nodeUuid + "` in model.");
+		}
+		if (!(node instanceof PrimitiveNode)) {
+			throw new ParameterParsingException(
+					"Node id identified illegal node type. Expected `" + PrimitiveNode.class + "` but found `" + node.getClass() + "`."
+			);
+		}
+		return (PrimitiveNode) node;
+	}
+
+	/**
+	 * Parses the parameter definition to identify an object this operation is to be applied to.
 	 *
 	 * @param model               The model to use
 	 * @param parameterDefinition The parameter to parse
@@ -53,15 +74,6 @@ public abstract class Operation<I> {
 	 * @throws ParameterParsingException In case the parameter cannot be parsed or the target element does not exist
 	 */
 	protected abstract I parseParameterDefinition(CombinedModel model, ParameterDefinition<?, ?> parameterDefinition) throws ParameterParsingException;
-
-	/**
-	 * Executes the operation on the identified object
-	 *
-	 * @param model  The model to use
-	 * @param object The object, most likely a sub type of SchemaNode
-	 * @return The modified model
-	 */
-	protected abstract CombinedModel execute(CombinedModel model, I object);
 
 	/**
 	 * Generates a {@link Handle} (an {@link Operation} with a set of {@link ParameterDefinition}s) on the node.
@@ -73,13 +85,13 @@ public abstract class Operation<I> {
 	protected abstract Handle getHandleOnNode(SchemaNode node);
 
 	/**
-	 * Generates a map of {@link Handle}s for each node of the {@link de.buw.tmdt.plasma.datamodel.syntaxmodel.SyntaxModel}
-	 * Each operation type decides to which node it is applicable
+	 * Executes the operation on the identified object.
 	 *
-	 * @param model The model to use
-	 * @return A map of possible operations for each node
+	 * @param model  The model to use
+	 * @param object The object, most likely a sub type of SchemaNode
+	 * @return The modified model
 	 */
-	public abstract Map<SchemaNode, Set<Handle>> generateHandlesForApplicableNodes(@NotNull CombinedModel model);
+	protected abstract CombinedModel execute(CombinedModel model, I object);
 
 	/**
 	 * Invokes the {@link Operation} with the given {@link ParameterDefinition} on the model.
@@ -223,25 +235,13 @@ public abstract class Operation<I> {
 	}
 
 	/**
-	 * Helper function to find single {@link PrimitiveNode}s in the given {@link CombinedModel}
+	 * Generates a map of {@link Handle}s for each node of the {@link de.buw.tmdt.plasma.datamodel.syntaxmodel.SyntaxModel}.
+	 * Each operation type decides to which node it is applicable
 	 *
-	 * @param model    The model containing the nodes
-	 * @param nodeUuid The uuid to search for
-	 * @return The found node
-	 * @throws ParameterParsingException If no matching node could be found or was not a {@link PrimitiveNode}
+	 * @param model The model to use
+	 * @return A map of possible operations for each node
 	 */
-	public static PrimitiveNode getPrimitiveNode(CombinedModel model, String nodeUuid) throws ParameterParsingException {
-		SchemaNode node = model.getSyntaxModel().getNode(nodeUuid);
-		if (node == null) {
-			throw new ParameterParsingException("Did not find node with id `" + nodeUuid + "` in model.");
-		}
-		if (!(node instanceof PrimitiveNode)) {
-			throw new ParameterParsingException(
-					"Node id identified illegal node type. Expected `" + PrimitiveNode.class + "` but found `" + node.getClass() + "`."
-			);
-		}
-		return (PrimitiveNode) node;
-	}
+	public abstract Map<SchemaNode, Set<Handle>> generateHandlesForApplicableNodes(@NotNull CombinedModel model);
 
 	@Override
 	public int hashCode() {
