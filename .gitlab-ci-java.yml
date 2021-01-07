@@ -3,17 +3,11 @@
 variables:
   MAVEN_CLI_OPTS: "-s .m2/settings.xml --batch-mode -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=WARN"
   MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
-  MAVEN_IMAGE: maven:3.6.0-jdk-11
-  # Instruct Testcontainers to use the daemon of DinD.
-  DOCKER_HOST: "tcp://docker:2375"
-  # Improve performance with overlayFS.
-  DOCKER_DRIVER: overlay2
-  # Disable TLS compatibility for DinD 19.03+
-  DOCKER_TLS_CERTDIR: ""
+  MAVEN_IMAGE: maven:3.6.3-jdk-11
 
 # Checkstyle source code standard review.
 checkstyle:
-  stage: test
+  stage: verification
   image: $MAVEN_IMAGE
   tags:
     - docker
@@ -26,7 +20,7 @@ checkstyle:
 
 # SpotBugs code quality analysis.
 spotbugs:
-  stage: test
+  stage: verification
   image: $MAVEN_IMAGE
   tags:
     - docker
@@ -122,5 +116,3 @@ docker_build:
       -f ./pom.xml"
   except: #equivalent to /^(?!release-).*$/ the longer version is needed since negative look-ahead is deactivated because of catastrophic backtracking
     - /^((.{0,7}$)|[^r]|.{1}[^e]|.{2}[^l]|.{3}[^e]|.{4}[^a]|.{5}[^s]|.{6}[^e]|.{7}[^-]).*$/
-  dependencies:
-    - artifact_deployment
