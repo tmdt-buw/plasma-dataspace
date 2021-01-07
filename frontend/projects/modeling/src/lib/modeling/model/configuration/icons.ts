@@ -1,8 +1,15 @@
 import { CompositeDTO, ObjectNodeDTO, PrimitiveDTO, SetNodeDTO } from '../../../api/generated/dms';
-import { SyntaxNode } from '../node/syntax-node';
+import { SyntaxNode } from './node';
 
-export class Icons {
+/**
+ * Abstract class that provides configs for icons
+ */
+export abstract class Icons {
 
+  /**
+   * Returns material icon string for given node
+   * @param node input
+   */
   static getIcon(node: SyntaxNode): string {
     switch (node['@class']) {
       case 'ObjectNodeDTO':

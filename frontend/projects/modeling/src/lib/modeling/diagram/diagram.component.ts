@@ -11,7 +11,7 @@ import {
   ViewChild,
   ViewContainerRef
 } from '@angular/core';
-import { dia, layout, shapes } from 'jointjs';
+import { dia, layout } from 'jointjs';
 import { BehaviorSubject, Subject } from 'rxjs';
 import * as dagre from 'dagre';
 import * as graphlib from 'graphlib';
@@ -20,7 +20,6 @@ import {
   DataSourceSchemaDTO,
   DeltaRecommendationDTO,
   EntityConceptDTO,
-  EntityTypeDTO,
   PrimitiveDTO,
   RelationConceptDTO,
   RelationDTO,
@@ -39,15 +38,12 @@ import { Overlay } from '@angular/cdk/overlay';
 import { ContextMenuService } from '../context-menu/context-menu.service';
 import { PlsEntityConceptMenuComponent } from '../context-menu/entity-concept-menu/entity-concept-menu.component';
 import { PlsRelationConceptMenuComponent } from '../context-menu/relation-concept-menu/relation-concept-menu.component';
-import { plasmaGraph } from '../model/configuration/graph';
-import { plasmaPaper } from '../model/configuration/paper';
-import { LinkUtil } from '../model/link/link-util';
 import { Util } from '../model/common/util';
-import { NodeUtil } from '../model/node/node-util';
-import { syntaxNode, SyntaxNode } from '../model/node/syntax-node';
 import { Icons } from '../model/configuration/icons';
-import { semanticNode } from '../model/node/semantic-node';
-import { Node, Nodes } from '../model/node/node';
+import { Node, Nodes, SemanticNode, SyntaxNode } from '../model/configuration/node';
+import { Graphs } from '../model/configuration/graph';
+import { Papers } from '../model/configuration/paper';
+import { Links } from '../model/configuration/link';
 
 
 @Component({
@@ -122,9 +118,9 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
    */
   ngOnInit(): void {
     // init joint.js graph
-    this.graph = plasmaGraph();
+    this.graph = Graphs.createGraph();
     // init joint.js paper
-    this.paper = plasmaPaper(this.graph, () => this.relationConcept);
+    this.paper = Papers.createPaper(this.graph, () => this.relationConcept, () => this.colorToHex('primary'));
     // create nodes and links
     this.createGraph();
     // subscribe to relation tool
@@ -190,7 +186,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
       },
       // adjust edges and persist element position on pointer up
       'element:pointerup': (elementView: dia.ElementView) => {
-        LinkUtil.adjustVertices(this.graph, elementView);
+        Links.adjustVertices(this.graph, elementView);
         const element = elementView.model;
         this.updatePosition(element, true);
       },
@@ -236,13 +232,13 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
       // register context menu
       'cell:contextmenu': (cellView: dia.CellView) => {
         const id = cellView.model.attributes.id;
-        if (LinkUtil.isSemanticLink(cellView)) {
+        if (Links.isSemanticLink(cellView)) {
           const link = this.schema.semanticModel.edges.find(edge => edge.id === id);
           this.contextMenu.open(cellView.el, PlsRelationConceptMenuComponent, this.viewContainerRef, {
             concept: link
           });
         }
-        if (NodeUtil.isSemanticNode(cellView)) {
+        if (Nodes.isSemanticNode(cellView)) {
           const node = this.findSemanticNodeById(id);
           this.unhighlightAll();
           cellView.highlight();
@@ -295,7 +291,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
     // create entity type
     if (node) {
       const position = this.hoveredElement.model.attributes.position;
-      const entityType: EntityTypeDTO = {
+      const entityType: SemanticNode = {
         concept: this.entityConcept,
         originalLabel: node.label,
         label: node.label,
@@ -307,7 +303,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
       // dropped in blank area
     } else if (event.isPointerOverContainer) {
       const localPosition = this.paper.clientToLocalPoint(this.mousePosition.x, this.mousePosition.y);
-      const entityType: EntityTypeDTO = {
+      const entityType: SemanticNode = {
         concept: this.entityConcept,
         label: this.entityConcept.name,
         description: this.entityConcept.description,
@@ -361,7 +357,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
     }
     this.paper.unfreeze();
     // layout links
-    this.graph.getLinks().forEach(el => LinkUtil.adjustVertices(this.graph, el));
+    this.graph.getLinks().forEach(el => Links.adjustVertices(this.graph, el));
   }
 
   /**
@@ -371,6 +367,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
    * @private
    */
   private createSemanticGraph(semanticModel: SemanticModelDTO, flat: boolean): void {
+    const color = 'primary';
     if (semanticModel.nodes.length > 0) {
       semanticModel.nodes.forEach(node => {
         let icon = '';
@@ -378,9 +375,9 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
           // get icon from syntax node
           icon = Icons.getIcon(this.getMappedPrimitive(node.id));
         }
-        this.addSemanticNode(node.id, flat ? node.concept.sourceURI : node.concept.name, node.label, icon, 'primary', node.x, node.y);
+        this.addSemanticNode(node.id, flat ? node.concept.sourceURI : node.concept.name, node.label, icon, color, node.x, node.y);
       });
-      semanticModel.edges.forEach(edge => this.addLink(edge.id, edge.from, edge.to, false, flat ? edge.concept.sourceURI : edge.concept.name));
+      semanticModel.edges.forEach(edge => this.addSemanticLink(edge.id, edge.from, edge.to, flat ? edge.concept.sourceURI : edge.concept.name), color);
     }
   }
 
@@ -392,7 +389,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
   private createSyntaxGraph(syntaxModel: SyntaxModelDTO): void {
     if (syntaxModel.nodes.length > 0) {
       syntaxModel.nodes.forEach(node => this.addSyntaxNode(node.id, node.label, Icons.getIcon(node), node.x, node.y));
-      syntaxModel.edges.forEach(edge => this.addLink(null, edge.from, edge.to, true));
+      syntaxModel.edges.forEach(edge => this.addSyntaxLink(edge.from, edge.to));
     }
   }
 
@@ -402,14 +399,16 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
    * @private
    */
   private showRecommendation(recommendation: DeltaRecommendationDTO): void {
+    const opacity = 0.6;
+    const color = 'accent';
     recommendation.entities.forEach(node => {
       let icon = '';
       if (node.mappedToData) {
         icon = Icons.getIcon(this.getMappedPrimitive(node.id));
       }
-      this.recommendations.push(this.addSemanticNode(node.id, node.concept.name, node.label, icon, 'accent', node.x, node.y, 0.6));
+      this.recommendations.push(this.addSemanticNode(node.id, node.concept.name, node.label, icon, color, node.x, node.y, opacity));
     });
-    recommendation.relations.forEach(edge => this.recommendations.push(this.addLink(edge.id, edge.from, edge.to, false, edge.concept.name, 'accent')));
+    recommendation.relations.forEach(edge => this.recommendations.push(this.addSemanticLink(edge.id, edge.from, edge.to, edge.concept.name, color, opacity)));
   }
 
   /**
@@ -438,47 +437,30 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
     const labelDims = this.calcDimensionsForLabel(label, !!icon);
     const dim = [Math.max(conceptDims[0], labelDims[0]), conceptDims[1] + labelDims[1]];
     const position = {x, y};
-    const node: dia.Element = new semanticNode({
-      id,
-      // @ts-ignore not in jointjs model but works this way
-      position,
-      size: {
-        width: dim[0],
-        height: dim[1]
-      },
-      attrs: {
-        body: {
-          stroke: this.colorToHex(color),
-          opacity: opacity ? opacity : 1,
-        },
-        header: {
-          fill: this.colorToHex(color),
-          stroke: this.colorToHex(color),
-          opacity: opacity ? opacity : 1
-        },
-        headerText: {
-          text: concept,
-          fill: this.colorToHex(color, true),
-        },
-        bodyIcon: {
-          text: icon,
-          fill: this.colorToHex(color),
-        },
-        bodyText: {
-          // adjust text for icon
-          refX: icon ? '35' : '50%',
-          textAnchor: icon ? 'left' : 'middle',
-          text: label,
-          fill: this.colorToHex(color),
-        }
-      }
-    });
+    const nodeColors = {color: this.colorToHex(color), contrast: this.colorToHex(color, true)};
+    const node = Nodes.createSemanticNode(id, concept, label, icon, position, dim[0], dim[1], nodeColors, opacity);
     this.graph.addCell(node);
     return node;
   }
 
   /**
-   * Adds syntax node to graph
+   * Add semantic link to graph
+   * @param id
+   * @param source
+   * @param target
+   * @param label
+   * @param color
+   * @param opacity
+   * @private
+   */
+  private addSemanticLink(id: string, source: string, target: string, label: string, color: 'primary' | 'accent' = 'primary', opacity?: number): dia.Link {
+    const link = Links.createSemanticLink(id, source, target, label, this.colorToHex(color), opacity);
+    this.graph.addCell(link);
+    return link;
+  }
+
+  /**
+   * Add syntax node to graph
    * @param id
    * @param label
    * @param icon
@@ -487,35 +469,23 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
    * @private
    */
   private addSyntaxNode(id: string, label: string, icon: string, x?: number, y?: number): void {
-    const dim = this.calcDimensionsForLabel(label, true);
+    const dim = this.calcDimensionsForLabel(label, !!icon);
     const position = {x, y};
-    const node = new syntaxNode({
-      id,
-      // @ts-ignore not in jointjs model but works this way
-      position,
-      size: {
-        width: dim[0],
-        height: dim[1]
-      },
-      attrs: {
-        body: {
-          stroke: this.colorToHex('primary'),
-        },
-        icon: {
-          text: icon,
-          fill: this.colorToHex('primary')
-        },
-        label: {
-          text: label,
-          fill: this.colorToHex('primary')
-        }
-      }
-    });
-    this.graph.addCell(node);
+    this.graph.addCell(Nodes.createSyntaxNode(id, label, icon, position, dim[0], dim[1], this.colorToHex('primary')));
   }
 
   /**
-   * Calculates rendered dimensions for given text and icon
+   * Add syntax link to graph
+   * @param source
+   * @param target
+   * @private
+   */
+  private addSyntaxLink(source: string, target: string): void {
+    this.graph.addCell(Links.createSyntaxLink(source, target, this.colorToHex('primary')));
+  }
+
+  /**
+   * Calculate rendered dimensions for given text and icon
    * @param text
    * @param icon
    * @returns [width, height]
@@ -543,48 +513,10 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
     return metrics.width;
   }
 
-  private addLink(id: string, source: string, target: string, syntaxModel: boolean, label?: string, color: 'primary' | 'accent' = 'primary'): any {
-    const labels = label ? [{
-      attrs: {
-        text: {
-          text: label,
-          fill: this.colorToHex(color)
-        }
-      },
-      position: {
-        distance: 0.5,
-        offset: (label.indexOf('\n') > -1 || label.length === 1) ? 0 : 10,
-        args: {
-          keepGradient: true,
-          ensureLegibility: true
-        }
-      }
-    }] : undefined;
-    const link = new shapes.standard.Link(
-      {
-        id,
-        source: {id: source},
-        target: {id: target},
-        linkType: syntaxModel ? 'syntax' : 'semantic',
-        labels,
-        attrs: {
-          line: {
-            stroke: this.colorToHex(color),
-            strokeOpacity: syntaxModel ? 0.75 : 1,
-            strokeWidth: 1,
-            strokeDasharray: syntaxModel ? '10,2' : undefined
-          }
-        }
-      }
-    );
-    // link style
-    link.router('normal');
-    link.connector('jumpover');
-    // show in graph
-    this.graph.addCell(link);
-    return link;
-  }
-
+  /**
+   * Fit and center graph
+   * @private
+   */
   private center(): void {
     // update bounding box in case user dragged stuff
     this.panAndZoom.updateBBox();
@@ -617,7 +549,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
       });
       // update links layout
       setTimeout(() => {
-        this.graph.getLinks().forEach(el => LinkUtil.adjustVertices(this.graph, el));
+        this.graph.getLinks().forEach(el => Links.adjustVertices(this.graph, el));
       }, 300);
       // persist new positions
       this.graphLaidOut.emit(this.schema);
@@ -632,7 +564,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
    */
   private updatePosition(element: dia.Element, emitEvent: boolean): void {
     const model = element.attributes;
-    if (NodeUtil.isSyntaxNode(element)) {
+    if (Nodes.isSyntaxNode(element)) {
       // update positions in data model
       const node = this.findSyntaxNodeById(model.id);
       const position = model.position;
@@ -646,7 +578,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
         }
       }
     }
-    if (NodeUtil.isSemanticNode(element)) {
+    if (Nodes.isSemanticNode(element)) {
       // update positions in data model
       const node = this.findSemanticNodeById(model.id);
       const position = model.position;
@@ -747,7 +679,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
    * @private
    */
   private getIfLeafNode(elementView: dia.ElementView): PrimitiveDTO {
-    if (NodeUtil.isSyntaxNode(elementView)) {
+    if (Nodes.isSyntaxNode(elementView)) {
       const node = this.findSyntaxNodeById(elementView.model.id.toString());
       if (node['@class'] === 'PrimitiveDTO') {
         return node;
@@ -781,7 +713,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
    * @param id
    * @private
    */
-  private findSemanticNodeById(id: string): EntityTypeDTO {
+  private findSemanticNodeById(id: string): SemanticNode {
     return this.schema.semanticModel.nodes.find(node => node.id === id);
   }
 

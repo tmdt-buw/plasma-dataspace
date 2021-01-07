@@ -14,8 +14,8 @@ import { UniversalKnowledgeGraphControllerService } from '../api/generated/dms/a
 import { LocalKnowledgeControllerService } from '../api/generated/dms/api/kgsModelController.service';
 import { ContextMenuService } from './context-menu/context-menu.service';
 import { ContextMenuEvent, ContextMenuEventType } from './context-menu/context-menu-event';
-import { Nodes } from './model/node/node';
-import { SyntaxNode } from './model/node/syntax-node';
+import { Nodes, SyntaxNode } from './model/configuration/node';
+import { Util } from './model/common/util';
 
 @Component({
   selector: 'pls-modeling',
@@ -113,7 +113,7 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
   }
 
   getSchema(): void {
-    this.modelingService.getDataSourceSchema(this.dataSource).subscribe((schema) => {
+    this.modelingService.getDataSourceSchema(this.dataSource).subscribe((schema: DataSourceSchemaDTO) => {
         this.schema = schema;
         this.loading = false;
       },
@@ -204,11 +204,11 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
   }
 
   onExportKnowledgeGraph(): void {
-    this.kgsService.convertGraphToRdf('turtle', true).subscribe((res) => this.download('ontology.rdf', res));
+    this.kgsService.convertGraphToRdf('turtle', true).subscribe((res) => Util.download('ontology.rdf', res));
   }
 
   onExportOntology(): void {
-    this.kgsService.getUpperOntology('turtle').subscribe((res) => this.download('upperOntology.rdf', res));
+    this.kgsService.getUpperOntology('turtle').subscribe((res) => Util.download('upperOntology.rdf', res));
   }
 
   toggleFullScreen(): void {
@@ -221,23 +221,11 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
     }
   }
 
-  private download(filename: string, content: string): void {
-    const blob = new Blob([content], {type: 'application/xml'});
-    const link = document.createElement('a');
-    link.setAttribute('type', 'hidden');
-    link.href = window.URL.createObjectURL(blob);
-    link.download = filename;
-    link.target = '_blank';
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-  }
-
   finalizeModel(): void {
     this.modelingService.finishModeling(this.dataSource).subscribe((res) => this.schema = res);
   }
 
   exportModel(): void {
-    this.kgsModelService.convertSemanticModel(this.schema.semanticModel.uuid, 'turtle', this.$flat.getValue()).subscribe((res) => this.download('model.rdf', res));
+    this.kgsModelService.convertSemanticModel(this.schema.semanticModel.uuid, 'turtle', this.$flat.getValue()).subscribe((res) => Util.download('model.rdf', res));
   }
 }

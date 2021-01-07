@@ -1,20 +1,162 @@
-import { dia, g } from 'jointjs';
+import { dia, g, shapes } from 'jointjs';
+import { Nodes } from './node';
 import { groupBy } from 'lodash';
-import { Links } from './link';
-import { Nodes } from '../node/node';
 
-export class LinkUtil {
+/**
+ * Link type def
+ */
+export type Link = 'custom.SyntaxLink' | 'custom.SemanticLink';
 
+/**
+ * Abstract class that provides configs for links
+ */
+export abstract class Links {
+
+  // internal link type names
+  static readonly syntaxLinkName: Link = 'custom.SyntaxLink';
+  static readonly semanticLinkName: Link = 'custom.SemanticLink';
+
+  // basic semantic link config
+  private static semanticLink = shapes.standard.Link.define(
+    Links.semanticLinkName, {
+      attrs: {
+        line: {
+          strokeWidth: 1
+        }
+      }
+    }
+  );
+
+  // basic syntax link config
+  private static syntaxLink = shapes.standard.Link.define(
+    Links.syntaxLinkName, {
+      attrs: {
+        line: {
+          strokeOpacity: 0.75,
+          strokeWidth: 1,
+          strokeDasharray: '10,2'
+        }
+      }
+    }
+  );
+
+  /**
+   * Creates label
+   * @param label text
+   * @param color
+   * @param opacity
+   * @private
+   */
+  private static createLabel(label: string, color: string, opacity?: number): dia.Link.Label[] {
+    return label ? [{
+      attrs: {
+        text: {
+          text: label,
+          fill: color,
+          opacity: opacity ? opacity : 1
+        }
+      },
+      position: {
+        distance: 0.5,
+        offset: (label.indexOf('\n') > -1 || label.length === 1) ? 0 : 10,
+        args: {
+          keepGradient: true,
+          ensureLegibility: true
+        }
+      }
+    }] : undefined;
+  }
+
+  /**
+   * Returns true if input link is a syntax link
+   * @param link
+   */
   static isSyntaxLink(link: dia.CellView | dia.LinkView): boolean {
     return link.model?.attributes?.type === Links.syntaxLinkName;
   }
 
+  /**
+   * Returns true if input link is a semantic link
+   * @param link
+   */
   static isSemanticLink(link: dia.CellView | dia.LinkView): boolean {
     return link.model?.attributes?.type === Links.semanticLinkName;
   }
 
+  /**
+   * Returns true if input link targets a semantic node
+   * @param link
+   */
   static targetsSemanticNode(link: dia.LinkView): boolean {
     return link.model?.getTargetElement()?.attributes?.type === Nodes.semanticNodeName;
+  }
+
+  /**
+   * Calls constructor and return new default link
+   * @param label
+   * @param color
+   */
+  static createDefaultLink(label: string, color: string): dia.Link {
+    const link = new Links.semanticLink({
+      // @ts-ignore not in jointjs model but works this way
+      labels: Links.createLabel(label, color)
+    });
+    // link style
+    link.router('normal');
+    link.connector('jumpover');
+    return link;
+  }
+
+  /**
+   * Calls constructor and return new semantic link
+   * @param id
+   * @param source
+   * @param target
+   * @param label
+   * @param color
+   * @param opacity
+   */
+  static createSemanticLink(id: string, source: string, target: string, label: string, color: string, opacity?: number): dia.Link {
+    const link = new Links.semanticLink({
+      id,
+      // @ts-ignore not in jointjs model but works this way
+      source: {id: source},
+      target: {id: target},
+      labels: Links.createLabel(label, color, opacity),
+      attrs: {
+        line: {
+          stroke: color,
+          opacity: opacity ? opacity : 1
+        }
+      }
+    });
+    // link style
+    link.router('normal');
+    link.connector('jumpover');
+    return link;
+  }
+
+  /**
+   * Call constructor and return new syntax link
+   * @param source
+   * @param target
+   * @param color
+   */
+  static createSyntaxLink(source: string, target: string, color: string): dia.Link {
+    const link = new Links.syntaxLink({
+      // @ts-ignore not in jointjs model but works this way
+      source: {id: source},
+      target: {id: target},
+      attrs: {
+        line: {
+          stroke: color
+        }
+      }
+    });
+    // link style
+    link.router('normal');
+    link.connector('jumpover');
+    return link;
   }
 
   /**
@@ -67,7 +209,7 @@ export class LinkUtil {
         // there is only one link
         // no vertices needed
         if (sourceId === targetId) {
-          LinkUtil.layoutSelfLink(graph, cell, sourceId, 0);
+          Links.layoutSelfLink(graph, cell, sourceId, 0);
         } else {
           cell.unset('vertices');
         }
@@ -77,7 +219,7 @@ export class LinkUtil {
         // there are multiple siblings
         // we need to create vertices
         if (sourceId === targetId) {
-          siblings.forEach((link, index) => LinkUtil.layoutSelfLink(graph, link, sourceId, index));
+          siblings.forEach((link, index) => Links.layoutSelfLink(graph, link, sourceId, index));
         } else {
           // find the middle point of the link
           const sourceCenter = graph.getCell(sourceId).getBBox().center();
@@ -121,6 +263,14 @@ export class LinkUtil {
     }
   }
 
+  /**
+   * Calculate layout for self-links
+   * @param graph
+   * @param cell
+   * @param sourceId
+   * @param index
+   * @private
+   */
   private static layoutSelfLink(graph, cell, sourceId: number, index: number): void {
     const source = graph.getCell(sourceId);
     const sourceCenter = source.getBBox().center();

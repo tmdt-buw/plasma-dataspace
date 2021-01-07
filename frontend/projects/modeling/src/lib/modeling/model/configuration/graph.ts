@@ -1,12 +1,23 @@
 import { dia } from 'jointjs';
-import { LinkUtil } from '../link/link-util';
+import { Links } from './link';
 
-export function plasmaGraph(): dia.Graph {
-  const graph = new dia.Graph({
-    // adjust relations verticals if something changes
-    'add remove change:source change:target': (view) => {
-      LinkUtil.adjustVertices(graph, view);
-    }
-  });
-  return graph;
+/**
+ * Abstract class that provides configs for graphs
+ */
+export abstract class Graphs {
+
+  /**
+   * Call constructor for graph
+   */
+  static createGraph(): dia.Graph {
+    const graph = new dia.Graph({
+      // adjust relations verticals if something changes
+      'add remove change:source change:target': (view) => {
+        Links.adjustVertices(graph, view);
+      }
+    });
+    return graph;
+  }
+
 }
+
