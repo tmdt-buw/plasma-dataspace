@@ -22,6 +22,10 @@ ui-build:
     - cd frontend
     - npm install
   script:
+    - npm run build:common
+    - npm run build:dss
+    - npm run build:dms
+    - npm run build:sas
     - npm run build
   artifacts:
     expire_in: 30 days
