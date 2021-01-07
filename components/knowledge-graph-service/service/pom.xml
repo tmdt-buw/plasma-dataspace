@@ -100,7 +100,7 @@
         <dependency>
             <groupId>de.buw.tmdt.plasma.services.sds</groupId>
             <artifactId>feign-client</artifactId>
-            <version>1.0.0</version>
+            <version>${project.parent.version}</version>
         </dependency>
 
         <!-- Neo4J -->

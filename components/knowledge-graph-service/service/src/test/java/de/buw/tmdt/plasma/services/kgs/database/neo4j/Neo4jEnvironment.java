@@ -22,10 +22,10 @@ public abstract class Neo4jEnvironment {
 		public void initialize(ConfigurableApplicationContext configurableApplicationContext) {
 			neo4jContainer.start();
 			TestPropertyValues.of(
-					"neo4j.host=" + neo4jContainer.getContainerIpAddress(),
-					"neo4j.bolt-port=" + neo4jContainer.getMappedPort(7687),
-					"neo4j.username=neo4j",
-					"neo4j.password=" + neo4jContainer.getAdminPassword()
+					"plasma.neo4j.host=" + neo4jContainer.getContainerIpAddress(),
+					"plasma.neo4j.bolt-port=" + neo4jContainer.getMappedPort(7687),
+					"plasma.neo4j.username=neo4j",
+					"plasma.neo4j.password=" + neo4jContainer.getAdminPassword()
 			).applyTo(configurableApplicationContext.getEnvironment());
 		}
 	}
