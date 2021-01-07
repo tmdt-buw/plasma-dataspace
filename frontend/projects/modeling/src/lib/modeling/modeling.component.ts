@@ -2,19 +2,9 @@ import { Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from '@ang
 import { FormControl } from '@angular/forms';
 import { animate, style, transition, trigger } from '@angular/animations';
 import { BehaviorSubject, Subject } from 'rxjs';
-import {
-  CollisionSchemaDTO,
-  CompositeDTO,
-  DataModelingControllerService,
-  DataSourceSchemaDTO,
-  ObjectNodeDTO,
-  PrimitiveDTO,
-  RelationDTO,
-  SchemaNodeDTO,
-  SetNodeDTO
-} from '../api/generated/dms';
+import { DataModelingControllerService, DataSourceSchemaDTO, EntityTypeDTO, RelationDTO } from '../api/generated/dms';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
-import { Filter } from './model/filter';
+import { Filter } from './model/common/filter';
 import { MatDialog } from '@angular/material/dialog';
 import { PlsConceptDialogComponent } from './dialogs/concept-dialog/concept-dialog.component';
 import { EntityDroppedEvent } from './model/events/entity-dropped-event';
@@ -24,6 +14,8 @@ import { UniversalKnowledgeGraphControllerService } from '../api/generated/dms/a
 import { LocalKnowledgeControllerService } from '../api/generated/dms/api/kgsModelController.service';
 import { ContextMenuService } from './context-menu/context-menu.service';
 import { ContextMenuEvent, ContextMenuEventType } from './context-menu/context-menu-event';
+import { Nodes, SyntaxNode } from './model/configuration/node';
+import { Util } from './model/common/util';
 
 @Component({
   selector: 'pls-modeling',
@@ -63,13 +55,13 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
   $filter = new BehaviorSubject<Filter>(Filter.ALL);
   $flat = new BehaviorSubject<boolean>(false);
 
-  //colors
+  // colors
   primaryColor;
   primaryColorContrast;
   accentColor;
   accentColorContrast;
 
-  //schema
+  // schema
   schema: DataSourceSchemaDTO; // = test2;
   initial: boolean = false;
   loading: boolean = true;
@@ -121,7 +113,7 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
   }
 
   getSchema(): void {
-    this.modelingService.getDataSourceSchema(this.dataSource).subscribe((schema) => {
+    this.modelingService.getDataSourceSchema(this.dataSource).subscribe((schema: DataSourceSchemaDTO) => {
         this.schema = schema;
         this.loading = false;
       },
@@ -171,11 +163,11 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
 
   onNodePositionChanged(event: NodeChangedEvent): void {
     switch (event.type) {
-      case 'syntax':
-        this.modelingService.positionSchemaNode(this.dataSource, event.node.id, event.node as SchemaNodeDTO | CollisionSchemaDTO | CompositeDTO | ObjectNodeDTO | PrimitiveDTO | SetNodeDTO).subscribe();
+      case Nodes.syntaxNodeName:
+        this.modelingService.positionSchemaNode(this.dataSource, event.node.id, event.node as SyntaxNode).subscribe();
         break;
-      case 'semantic':
-        this.modelingService.positionEntityType(this.dataSource, +event.node.id, event.node).subscribe();
+      case Nodes.semanticNodeName:
+        this.modelingService.positionEntityType(this.dataSource, +event.node.id, event.node as EntityTypeDTO).subscribe();
         break;
       default:
         console.error('Unsupported type.');
@@ -184,15 +176,15 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
 
   onNodeChanged(event: NodeChangedEvent): void {
     switch (event.type) {
-      case 'syntax':
-        this.modelingService.updateEntityType(this.dataSource, +event.node.id, event.node as SchemaNodeDTO | CollisionSchemaDTO | CompositeDTO | ObjectNodeDTO | PrimitiveDTO | SetNodeDTO).subscribe();
+      case Nodes.semanticNodeName:
+        this.modelingService.updateEntityType(this.dataSource, +event.node.id, event.node as EntityTypeDTO).subscribe();
         break;
       default:
         console.error('Unsupported type.');
     }
   }
 
-  toggleFlatMode(event) {
+  toggleFlatMode(event): void {
     this.$flat.next(event.checked);
   }
 
@@ -211,12 +203,12 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
     this.dialog.open(PlsImportDialogComponent);
   }
 
-  onExportKnowledgeGraph() {
-    this.kgsService.convertGraphToRdf('turtle', true).subscribe((res) => this.download('ontology.rdf', res));
+  onExportKnowledgeGraph(): void {
+    this.kgsService.convertGraphToRdf('turtle', true).subscribe((res) => Util.download('ontology.rdf', res));
   }
 
-  onExportOntology() {
-    this.kgsService.getUpperOntology('turtle').subscribe((res) => this.download('upperOntology.rdf', res));
+  onExportOntology(): void {
+    this.kgsService.getUpperOntology('turtle').subscribe((res) => Util.download('upperOntology.rdf', res));
   }
 
   toggleFullScreen(): void {
@@ -229,23 +221,11 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
     }
   }
 
-  private download(filename: string, content: string) {
-    const blob = new Blob([content], {type: 'application/xml'});
-    const link = document.createElement('a');
-    link.setAttribute('type', 'hidden');
-    link.href = window.URL.createObjectURL(blob);
-    link.download = filename;
-    link.target = '_blank';
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-  }
-
-  finalizeModel() {
+  finalizeModel(): void {
     this.modelingService.finishModeling(this.dataSource).subscribe((res) => this.schema = res);
   }
 
-  exportModel() {
-    this.kgsModelService.convertSemanticModel(this.schema.semanticModel.uuid, 'turtle', this.$flat.getValue()).subscribe((res) => this.download('model.rdf', res));
+  exportModel(): void {
+    this.kgsModelService.convertSemanticModel(this.schema.semanticModel.uuid, 'turtle', this.$flat.getValue()).subscribe((res) => Util.download('model.rdf', res));
   }
 }

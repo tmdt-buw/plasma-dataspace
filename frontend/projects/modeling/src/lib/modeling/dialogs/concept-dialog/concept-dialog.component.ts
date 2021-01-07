@@ -39,7 +39,7 @@ export class PlsConceptDialogComponent implements OnInit, AfterViewInit {
     this.relativeTo = data.relativeTo;
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     const rect: DOMRect = this.relativeTo.nativeElement.getBoundingClientRect();
     const position = {top: `${rect.top + 15}px`, left: `${rect.left + 15}px`};
     this.dialogRef.updatePosition(position);

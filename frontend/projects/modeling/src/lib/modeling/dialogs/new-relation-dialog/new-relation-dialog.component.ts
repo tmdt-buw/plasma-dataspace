@@ -21,7 +21,7 @@ export class PlsNewRelationDialogComponent {
   constructor(public dialogRef: MatDialogRef<PlsNewRelationDialogComponent>, @Inject(MAT_DIALOG_DATA) public data: string, private modelingService: DataModelingControllerService) {
   }
 
-  submit() {
+  submit(): void {
     this.error = null;
     const values = this.form.value;
     values['properties'] = [];
