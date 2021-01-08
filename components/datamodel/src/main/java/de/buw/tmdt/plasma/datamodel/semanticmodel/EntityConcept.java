@@ -37,7 +37,7 @@ public class EntityConcept extends CombinedModelElement implements Serializable 
 
     @JsonCreator
     public EntityConcept(
-            @NotNull @JsonProperty(UUID_PROPERTY) String uuid,
+            @Nullable @JsonProperty(UUID_PROPERTY) String uuid,
             @NotNull @JsonProperty(LABEL_PROPERTY) String label,
             @Nullable @JsonProperty(ENTITY_ID_PROPERTY) String entityId,
             @Nullable @JsonProperty(DESCRIPTION_PROPERTY) String description,

@@ -3,6 +3,7 @@ package de.buw.tmdt.plasma.datamodel;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.Serializable;
 import java.util.Objects;
@@ -36,10 +37,10 @@ public abstract class CombinedModelElement implements Serializable {
 
     @JsonCreator
     public CombinedModelElement(
-            @NotNull @JsonProperty(UUID_PROPERTY) String uuid,
+            @Nullable @JsonProperty(UUID_PROPERTY) String uuid,
             @NotNull @JsonProperty(LABEL_PROPERTY) String label
     ) {
-        this.uuid = uuid;
+        this.uuid = uuid == null ? UUID.randomUUID().toString() : uuid;
         this.label = label;
     }
 

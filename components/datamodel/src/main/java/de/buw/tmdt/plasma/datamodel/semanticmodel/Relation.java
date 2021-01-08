@@ -54,7 +54,7 @@ public class Relation extends CombinedModelElement implements Serializable {
 
     @JsonCreator
     public Relation(
-            @NotNull @JsonProperty(UUID_PROPERTY) String uuid,
+            @Nullable @JsonProperty(UUID_PROPERTY) String uuid,
             @Nullable @JsonProperty(ENTITY_ID_PROPERTY) String entityId,
             @NotNull @JsonProperty(FROM_ID_PROPERTY) String fromId,
             @NotNull @JsonProperty(TO_ID_PROPERTY) String toId,
@@ -131,9 +131,7 @@ public class Relation extends CombinedModelElement implements Serializable {
             return false;
         }
         Relation that = (Relation) o;
-        return Objects.equals(fromId, that.fromId) &&
-                Objects.equals(toId, that.toId) &&
-                Objects.equals(concept, that.concept);
+        return Objects.equals(getUuid(), that.getUuid());
     }
 
     @Override

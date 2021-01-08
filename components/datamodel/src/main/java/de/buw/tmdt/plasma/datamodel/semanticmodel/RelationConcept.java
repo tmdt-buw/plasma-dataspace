@@ -45,7 +45,7 @@ public class RelationConcept extends CombinedModelElement implements Serializabl
 
 	@JsonCreator
 	public RelationConcept(
-			@NotNull @JsonProperty(UUID_PROPERTY) String uuid,
+			@Nullable @JsonProperty(UUID_PROPERTY) String uuid,
 			@NotNull @JsonProperty(LABEL_PROPERTY) String label,
 			@Nullable @JsonProperty(ENTITY_ID_PROPERTY) String entityId,
 			@Nullable @JsonProperty(DESCRIPTION_PROPERTY) String description,
@@ -102,6 +102,7 @@ public class RelationConcept extends CombinedModelElement implements Serializabl
 	public RelationConcept copy() {
 		return new RelationConcept(
 				getUuid(),
+				getLabel(),
 				getEntityId(),
 				getDescription(),
 				getSourceURI(),

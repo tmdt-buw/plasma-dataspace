@@ -163,7 +163,7 @@ public class EntityType extends PositionedCombinedModelElement implements Serial
      */
     @JsonCreator
     public EntityType(
-            @NotNull @JsonProperty(UUID_PROPERTY) String uuid,
+            @Nullable @JsonProperty(UUID_PROPERTY) String uuid,
             @Nullable @JsonProperty(ENTITY_ID_PROPERTY) String entityId,
             @NotNull @JsonProperty(LABEL_PROPERTY) String label,
             @Nullable @JsonProperty(SYNTAX_NODE_ID_PROPERTY) String syntaxNodeUuid,

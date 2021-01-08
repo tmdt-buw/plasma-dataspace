@@ -9,19 +9,20 @@ import de.buw.tmdt.plasma.utilities.misc.StringUtilities;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.Serializable;
 import java.util.*;
 
-public class SemanticModel {
+public class SemanticModel implements Serializable {
 
-    public static final String ENTITY_ID_PROPERTY = "entityId";
-    public static final String NODES_PROPERTY = "nodes";
-    private static final String EDGES_PROPERTY = "edges";
+	public static final String ENTITY_ID_PROPERTY = "entityId";
+	public static final String NODES_PROPERTY = "nodes";
+	private static final String EDGES_PROPERTY = "edges";
 
-    /**
-     * Knowledge base ID, set once sent to the KGS.
-     */
-    private String entityId;
-    private final List<EntityType> nodes;
+	/**
+	 * Knowledge base ID, set once sent to the KGS.
+	 */
+	private String entityId;
+	private final List<EntityType> nodes;
 	private final List<Relation> edges;
 
 	@JsonCreator
@@ -87,17 +88,30 @@ public class SemanticModel {
 		return model;
     }
 
-    /**
-     * Retrieves an {@link EntityType} from the model.
-     *
-     * @param entityTypeUuid The types uuid
-     * @return a matching type or null if not found
+	/**
+	 * Retrieves an {@link EntityType} from the model.
+	 *
+	 * @param entityTypeUuid The types uuid
+	 * @return a matching type or null if not found
 	 */
 	@JsonIgnore
 	public EntityType getEntityType(@NotNull String entityTypeUuid) {
 		return getNodes().stream()
 				.filter(schemaNode -> entityTypeUuid.equals(schemaNode.getUuid()))
-				.findFirst().orElse(null);
+				.findFirst().orElseThrow();
+	}
+
+	/**
+	 * Retrieves a {@link Relation} from the model.
+	 *
+	 * @param relationUuid The relation uuid
+	 * @return a matching relation or null if not found
+	 */
+	@JsonIgnore
+	public Relation getRelation(@NotNull String relationUuid) {
+		return getEdges().stream()
+				.filter(edge -> relationUuid.equals(edge.getUuid()))
+				.findFirst().orElseThrow();
 	}
 
 	/**
