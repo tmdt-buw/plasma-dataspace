@@ -182,8 +182,6 @@
             <plugin>
                 <groupId>com.google.cloud.tools</groupId>
                 <artifactId>jib-maven-plugin</artifactId>
-                <version>${com.google.cloud.tools.jib.version}</version>
-
                 <configuration>
                     <from>
                         <image>gcr.io/distroless/java:11</image>

@@ -233,6 +233,13 @@
                     <version>${org.apache.maven.plugin.deploy.version}</version>
                 </plugin>
 
+                <!-- Docker Build & Deployment -->
+                <plugin>
+                    <groupId>com.google.cloud.tools</groupId>
+                    <artifactId>jib-maven-plugin</artifactId>
+                    <version>${com.google.cloud.tools.jib.version}</version>
+                </plugin>
+
                 <!-- Reporting -->
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
