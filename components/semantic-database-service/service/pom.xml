@@ -130,6 +130,7 @@
                 <groupId>com.google.cloud.tools</groupId>
                 <artifactId>jib-maven-plugin</artifactId>
                 <configuration>
+                    <skip>false</skip>
                     <from>
                         <image>openjdk:11</image>
                     </from>
