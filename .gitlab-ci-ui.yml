@@ -34,7 +34,7 @@ ui-build:
 
 ui-dockerize:
   stage: docker_deploy
-  image: docker:latest
+  image: docker:dind
   tags:
     - docker
   only:
