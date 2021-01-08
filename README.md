@@ -43,7 +43,7 @@ a component outside of Docker.
 
 ## Development and Building of the Backend Components
 * For building the backend components execute ```maven package``` on the parent module
-* For installing the backend components including docker containers execute ```maven install jib:build -DskipTests``` on the parent module
+* For installing the backend components including docker containers execute ```maven install jib:dockerBuild -DskipTests``` on the parent module
 ** Ensure that your docker is running on the local machine and can be reached
 
 ## Development and Building of the UI Components

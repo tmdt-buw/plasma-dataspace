@@ -29,6 +29,7 @@
         <!-- NAMINGS -->
         <platform.name>PLASMA</platform.name>
         <platform.name.prefix>plasma</platform.name.prefix>
+        <git.registry>${platform.name.prefix}</git.registry>
 
         <!-- TECHNICAL -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
