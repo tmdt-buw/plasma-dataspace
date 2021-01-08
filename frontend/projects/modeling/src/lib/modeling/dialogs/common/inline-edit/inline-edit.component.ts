@@ -1,6 +1,5 @@
-import { Component, ElementRef, forwardRef, Input, OnInit, Renderer2, ViewChild } from '@angular/core';
+import { Component, ElementRef, forwardRef, Input, Renderer2 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { MatInput } from '@angular/material/input';
 
 @Component({
   selector: 'pls-inline-edit',
@@ -13,15 +12,15 @@ import { MatInput } from '@angular/material/input';
     }
   ]
 })
-export class InlineInputEditComponent implements ControlValueAccessor, OnInit {
+export class InlineInputEditComponent implements ControlValueAccessor {
 
-  /** The control label **/
+  // The control label
   @Input() label = '';
-  /** Type of input control **/
+  // Type of input control
   @Input() type = 'text';
-  /** Input value required **/
+  // Input value required
   @Input() required = false;
-  /** Input control is disabled **/
+  // Input control is disabled
   @Input() disabled = false;
   // Prefix the value
   @Input() prefix: any;
@@ -32,15 +31,13 @@ export class InlineInputEditComponent implements ControlValueAccessor, OnInit {
   @Input() editing = false;
   @Input() empty = '';
 
-  @Input() changed: Function;
-
-  /** private value of input **/
+  // private value of input
   private _value = '';
-  /** value prior to editing **/
+  // value prior to editing
   private preValue = '';
-  /** Callback when the value is changing **/
+  // Callback when the value is changing
   public onChange: any = Function.prototype;
-  /** Callback when the input is accessed **/
+  // Callback when the input is accessed
   public onTouched: any = Function.prototype;
 
   get value(): any {
@@ -55,7 +52,7 @@ export class InlineInputEditComponent implements ControlValueAccessor, OnInit {
   }
 
   // ControlValueAccessor interface impl
-  writeValue(value: any) {
+  writeValue(value: any): void {
     if (value !== undefined) {
       this._value = value;
     }
@@ -71,24 +68,23 @@ export class InlineInputEditComponent implements ControlValueAccessor, OnInit {
     this.onTouched = fn;
   }
 
-  cancel($event: Event) {
+  cancel(): void {
     this.value = this.preValue;
     this.editing = false;
   }
 
-  confirm($event: Event) {
+  confirm(): void {
     this.editing = false;
-    this.changed($event, this);
   }
 
-  keypress($event) {
+  keypress($event): void {
     if ($event.keyCode === 13) {
-      this.confirm($event);
+      this.confirm();
     }
   }
 
   // Start editing
-  edit(value) {
+  edit(value): void {
     if (this.disabled) {
       return;
     }
@@ -96,9 +92,7 @@ export class InlineInputEditComponent implements ControlValueAccessor, OnInit {
     this.editing = true;
   }
 
-  constructor(element: ElementRef, private _renderer: Renderer2) { }
-
-  ngOnInit() {
+  constructor(element: ElementRef, private _renderer: Renderer2) {
   }
 
 }

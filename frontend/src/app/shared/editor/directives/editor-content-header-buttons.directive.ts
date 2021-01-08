@@ -4,7 +4,7 @@ import { Directive } from '@angular/core';
  * Directive to select header buttons
  */
 @Directive({
-  selector: `[editorContentHeaderButtons]`
+  selector: `[appEditorContentHeaderButtons]`
 })
 export class EditorContentHeaderButtonsDirective {
 }

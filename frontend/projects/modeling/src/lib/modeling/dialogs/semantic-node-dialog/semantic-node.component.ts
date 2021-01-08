@@ -19,19 +19,19 @@ export class PlsSemanticNodeDetailsComponent implements OnInit {
     this.relativeTo = data.relativeTo;
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     const rect: DOMRect = this.relativeTo.nativeElement.getBoundingClientRect();
     const position = {top: `${rect.top + 15}px`, right: `${rect.left + 15}px`};
     this.dialogRef.updatePosition(position);
   }
 
-  startEdit() {
+  startEdit(): void {
     this.edit = true;
     this.label = this.data.node.label;
     this.description = this.data.node.description;
   }
 
-  acceptEdit() {
+  acceptEdit(): void {
     this.edit = false;
     this.modelingService.updateEntityType(this.data.dataSource, +this.data.node.id, this.data.node).subscribe(() => null, () => {
       this.data.node.label = this.label;

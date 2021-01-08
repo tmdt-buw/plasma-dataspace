@@ -283,7 +283,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
 
   /**
    * Handles entity dropped event
-   * @param event
+   * @param event dropped event
    */
   entityDropped(event): void {
     // test if valid target
@@ -320,7 +320,6 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
   /**
    * Fill graph object with current schema data
    * @param flat mode
-   * @private
    */
   private createGraph(flat: boolean = false): void {
     // remove old content
@@ -362,9 +361,8 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
 
   /**
    * Creates nodes and edges from semantic model
-   * @param semanticModel
-   * @param flat
-   * @private
+   * @param semanticModel the semantic model
+   * @param flat maps names to url
    */
   private createSemanticGraph(semanticModel: SemanticModelDTO, flat: boolean): void {
     const color = 'primary';
@@ -383,8 +381,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
 
   /**
    * Creates nodes and edges from syntax model
-   * @param syntaxModel
-   * @private
+   * @param syntaxModel the syntax model
    */
   private createSyntaxGraph(syntaxModel: SyntaxModelDTO): void {
     if (syntaxModel.nodes.length > 0) {
@@ -395,8 +392,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
 
   /**
    * Creates nodes and edges from recommendation and adds it to global variable
-   * @param recommendation
-   * @private
+   * @param recommendation the recommendation
    */
   private showRecommendation(recommendation: DeltaRecommendationDTO): void {
     const opacity = 0.6;
@@ -413,7 +409,6 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
 
   /**
    * Removes recommendations from graph
-   * @private
    */
   private hideRecommendation(): void {
     this.graph.removeCells(this.recommendations);
@@ -422,15 +417,14 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
 
   /**
    * Adds a semantic node to the graph
-   * @param id
-   * @param concept
-   * @param label
-   * @param icon
-   * @param color
-   * @param x
-   * @param y
-   * @param opacity
-   * @private
+   * @param id of node
+   * @param concept of node
+   * @param label of node
+   * @param icon of node
+   * @param color of node
+   * @param x of node
+   * @param y of node
+   * @param opacity of node
    */
   private addSemanticNode(id: string, concept: string, label: string, icon: string, color: 'primary' | 'accent' = 'primary', x?: number, y?: number, opacity?: number): dia.Element {
     const conceptDims = this.calcDimensionsForLabel(concept, false);
@@ -445,13 +439,12 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
 
   /**
    * Add semantic link to graph
-   * @param id
-   * @param source
-   * @param target
-   * @param label
-   * @param color
-   * @param opacity
-   * @private
+   * @param id of link
+   * @param source of link
+   * @param target of link
+   * @param label of link
+   * @param color of link
+   * @param opacity of link
    */
   private addSemanticLink(id: string, source: string, target: string, label: string, color: 'primary' | 'accent' = 'primary', opacity?: number): dia.Link {
     const link = Links.createSemanticLink(id, source, target, label, this.colorToHex(color), opacity);
@@ -461,12 +454,11 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
 
   /**
    * Add syntax node to graph
-   * @param id
-   * @param label
-   * @param icon
-   * @param x
-   * @param y
-   * @private
+   * @param id of node
+   * @param label of node
+   * @param icon of node
+   * @param x of node
+   * @param y of node
    */
   private addSyntaxNode(id: string, label: string, icon: string, x?: number, y?: number): void {
     const dim = this.calcDimensionsForLabel(label, !!icon);
@@ -476,9 +468,8 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
 
   /**
    * Add syntax link to graph
-   * @param source
-   * @param target
-   * @private
+   * @param source of link
+   * @param target of link
    */
   private addSyntaxLink(source: string, target: string): void {
     this.graph.addCell(Links.createSyntaxLink(source, target, this.colorToHex('primary')));
@@ -486,10 +477,9 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
 
   /**
    * Calculate rendered dimensions for given text and icon
-   * @param text
-   * @param icon
+   * @param text to test
+   * @param icon true if also includes icon
    * @returns [width, height]
-   * @private
    */
   private calcDimensionsForLabel(text: string, icon: boolean): [number, number] {
     const letterSize = 7;
@@ -501,9 +491,8 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
 
   /**
    * Renders text in canvas and returns rendered width
-   * @param text
-   * @param font
-   * @private
+   * @param text to test
+   * @param font font of text
    */
   private getTextWidth(text, font): number {
     // re-use canvas object for better performance
@@ -515,7 +504,6 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
 
   /**
    * Fit and center graph
-   * @private
    */
   private center(): void {
     // update bounding box in case user dragged stuff
@@ -529,7 +517,6 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
 
   /**
    * Lay out graph and persist positions
-   * @private
    */
   private layout(): void {
     // layout top to bottom with spaces: node 50, edge 50, rank (layer) 70
@@ -560,7 +547,6 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
    * Update positions in data model of element and emit event
    * @param element changed element
    * @param emitEvent - true if emit should be emitted
-   * @private
    */
   private updatePosition(element: dia.Element, emitEvent: boolean): void {
     const model = element.attributes;
@@ -606,9 +592,8 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
 
   /**
    * Show details dialog for node with given id
-   * @param id
-   * @param type
-   * @private
+   * @param id of details
+   * @param type of node
    */
   private openDetails(id: string, type: Node): void {
     this.closeDialog();
@@ -653,7 +638,6 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
 
   /**
    * Closes open dialog
-   * @private
    */
   private closeDialog(): void {
     if (this.nodeDialogRef) {
@@ -664,7 +648,6 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
 
   /**
    * Closes dialog and removes all highlights from graph
-   * @private
    */
   private unhighlightAll(): void {
     this.closeDialog();
@@ -675,8 +658,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
 
   /**
    * Searches a syntax node for gi
-   * @param elementView
-   * @private
+   * @param elementView search element
    */
   private getIfLeafNode(elementView: dia.ElementView): PrimitiveDTO {
     if (Nodes.isSyntaxNode(elementView)) {
@@ -692,7 +674,6 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
    * Finds syntax node for given id of semantic node
    * @param id of semantic node
    * @returns mapped syntax node
-   * @private
    */
   private getMappedPrimitive(id: string): SyntaxNode {
     const syntaxNodeId = this.schema.primitiveToEntityTypeList.find(map => map.to === id).mappedPrimitive;
@@ -701,8 +682,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
 
   /**
    * Finds syntax node data model for given id
-   * @param id
-   * @private
+   * @param id of node to find
    */
   private findSyntaxNodeById(id: string): SyntaxNode {
     return this.schema.syntaxModel.nodes.find(node => node.id === id);
@@ -710,8 +690,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
 
   /**
    * Finds semantic node data model for given id
-   * @param id
-   * @private
+   * @param id of node to find
    */
   private findSemanticNodeById(id: string): SemanticNode {
     return this.schema.semanticModel.nodes.find(node => node.id === id);
@@ -727,9 +706,8 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
 
   /**
    * Transform primary and accent into hex values
-   * @param color
-   * @param contrast
-   * @private
+   * @param color to convert
+   * @param contrast if contrast
    */
   private colorToHex(color: 'primary' | 'accent', contrast: boolean = false): string {
     switch (color) {
@@ -750,7 +728,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
 
   /**
    * Track mouse position during entity modeling to find target nodes
-   * @param event
+   * @param event mouse event
    */
   @HostListener('mousemove', ['$event'])
   onMousemove(event: MouseEvent): void {

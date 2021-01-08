@@ -4,7 +4,7 @@ import { Directive } from '@angular/core';
  * Directive to select header text
  */
 @Directive({
-  selector: `[editorContentHeaderText]`
+  selector: `[appEditorContentHeaderText]`
 })
 export class EditorContentHeaderTextDirective {
 }

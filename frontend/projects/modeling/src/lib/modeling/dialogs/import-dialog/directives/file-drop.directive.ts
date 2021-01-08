@@ -1,22 +1,9 @@
-import {
-  Directive,
-  ElementRef,
-  EventEmitter,
-  HostBinding,
-  HostListener,
-  Input,
-  Output,
-  Renderer2
-} from '@angular/core';
+import { Directive, ElementRef, EventEmitter, HostBinding, HostListener, Input, Output, Renderer2 } from '@angular/core';
 
 @Directive({
   selector: '[plsFileDrop]'
 })
 export class PlsFileDropDirective {
-  @Input() multiple: boolean = false;
-  @Input() disabled: boolean = false;
-
-  @Output() fileDrop: EventEmitter<FileList | File> = new EventEmitter<FileList | File>();
 
   /**
    * Binds native 'multiple' attribute if [multiple] property is 'true'.
@@ -36,6 +23,28 @@ export class PlsFileDropDirective {
 
   constructor(private _renderer: Renderer2, private _element: ElementRef) {
   }
+  @Input() multiple: boolean = false;
+  @Input() disabled: boolean = false;
+
+  @Output() fileDrop: EventEmitter<FileList | File> = new EventEmitter<FileList | File>();
+
+  private static typeCheck(types: ReadonlyArray<string> | DOMStringList): string {
+    let dropEffect: string = 'none';
+    if (
+      types &&
+      (((types as any).contains && (types as any).contains('Files')) ||
+        ((types as any).indexOf && (types as any).indexOf('Files') !== -1))
+    ) {
+      dropEffect = 'copy';
+    }
+
+    return dropEffect;
+  }
+
+  private static preventAndStop(event: Event): void {
+    event.stopPropagation();
+    event.preventDefault();
+  }
 
   @HostListener('drop', ['$event'])
   onDrop(event: DragEvent): void {
@@ -48,22 +57,22 @@ export class PlsFileDropDirective {
       }
     }
     this._renderer.removeClass(this._element.nativeElement, 'drop-zone-dragged');
-    this.preventAndStop(event);
+    PlsFileDropDirective.preventAndStop(event);
   }
 
   @HostListener('dragover', ['$event'])
   onDragOver(event: DragEvent): void {
     const transfer: DataTransfer = event.dataTransfer;
-    transfer.dropEffect = this.typeCheck(transfer.types);
+    transfer.dropEffect = PlsFileDropDirective.typeCheck(transfer.types);
     if (
       this.disabled ||
-      (!this.multiple && ((transfer.items && transfer.items.length > 1) || (<any>transfer).mozItemCount > 1))
+      (!this.multiple && ((transfer.items && transfer.items.length > 1) || (transfer as any).mozItemCount > 1))
     ) {
       transfer.dropEffect = 'none';
     } else {
       transfer.dropEffect = 'copy';
     }
-    this.preventAndStop(event);
+    PlsFileDropDirective.preventAndStop(event);
   }
 
   @HostListener('dragenter', ['$event'])
@@ -71,7 +80,7 @@ export class PlsFileDropDirective {
     if (!this.disabled) {
       this._renderer.addClass(this._element.nativeElement, 'drop-zone-dragged');
     }
-    this.preventAndStop(event);
+    PlsFileDropDirective.preventAndStop(event);
   }
 
   @HostListener('dragleave', ['$event'])
@@ -80,25 +89,7 @@ export class PlsFileDropDirective {
     const el = event.fromElement;
     if (el.contains(this._element.nativeElement)) {
       this._renderer.removeClass(this._element.nativeElement, 'drop-zone-dragged');
-      this.preventAndStop(event);
+      PlsFileDropDirective.preventAndStop(event);
     }
-  }
-
-  private typeCheck(types: ReadonlyArray<string> | DOMStringList): string {
-    let dropEffect: string = 'none';
-    if (
-      types &&
-      (((<any>types).contains && (<any>types).contains('Files')) ||
-        ((<any>types).indexOf && (<any>types).indexOf('Files') !== -1))
-    ) {
-      dropEffect = 'copy';
-    }
-
-    return dropEffect;
-  }
-
-  private preventAndStop(event: Event): void {
-    event.stopPropagation();
-    event.preventDefault();
   }
 }
