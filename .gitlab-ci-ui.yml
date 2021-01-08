@@ -40,6 +40,7 @@ ui-build:
 
 ui-dockerize:
   stage: docker_deploy
+  image: docker:19.03
   tags:
     - docker
   only:
