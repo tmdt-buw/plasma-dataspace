@@ -15,8 +15,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -72,7 +70,7 @@ public class DataModelingController implements DataModelingAPI {
     @Override
     @Operation(description = "Modify the syntactic schema of a datasource by invoking an operation.")
     public CombinedModel modifySchema(@NotNull String dataSourceUuid, @NotNull SyntacticOperationDTO syntacticOperationDTO) {
-        return dataModelingHandler.modifySchema(UUID.fromString(dataSourceUuid), syntacticOperationDTO);
+        return dataModelingHandler.modifyModel(UUID.fromString(dataSourceUuid), syntacticOperationDTO);
     }
 
     @Override
@@ -121,14 +119,8 @@ public class DataModelingController implements DataModelingAPI {
     public CombinedModel addEntityType(
             @NotNull String dataSourceUuid,
             @NotNull EntityType entityType,
-            @Nullable String primitiveNodeIdString
+            @Nullable String primitiveNodeUuid
     ) {
-        @Nullable UUID primitiveNodeUuid;
-        if (primitiveNodeIdString != null && !primitiveNodeIdString.isEmpty()) {
-            primitiveNodeUuid = UUID.fromString(primitiveNodeIdString);
-        } else {
-            primitiveNodeUuid = null;
-        }
         // modify the sementic model
         CombinedModel combinedModel = dataModelingHandler.addEntityType(UUID.fromString(dataSourceUuid), entityType, primitiveNodeUuid);
         // request recommendations
@@ -148,7 +140,6 @@ public class DataModelingController implements DataModelingAPI {
     }
 
     @NotNull
-    @PostMapping(value = "/{dataSourceUuid}/recommendations/accept", produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Accepts a recommendation and adds the contents to the semantic model.")
     public CombinedModel acceptRecommendation(@NotNull String dataSourceUuid, @NotNull DeltaModification recommendation) {
         @NotNull CombinedModel model = dataModelingHandler.applyModification(UUID.fromString(dataSourceUuid), recommendation);
@@ -172,7 +163,7 @@ public class DataModelingController implements DataModelingAPI {
     @Override
     @Operation(description = "Removes an entity type.")
     public CombinedModel removeEntityType(@NotNull String dataSourceUuid, @NotNull String entityTypeId) {
-        return dataModelingHandler.removeEntityTypeFromSchema(UUID.fromString(dataSourceUuid), entityTypeId);
+        return dataModelingHandler.removeEntityTypeFromModel(UUID.fromString(dataSourceUuid), entityTypeId);
     }
 
     @NotNull
@@ -197,7 +188,7 @@ public class DataModelingController implements DataModelingAPI {
     @Override
     @Operation(description = "Removes a relation.")
     public CombinedModel removeRelation(@NotNull String dataSourceUuid, @NotNull String entityTypeId) {
-        return dataModelingHandler.removeRelationFromSchema(UUID.fromString(dataSourceUuid), entityTypeId);
+        return dataModelingHandler.removeRelationFromModel(UUID.fromString(dataSourceUuid), entityTypeId);
     }
 
     @NotNull

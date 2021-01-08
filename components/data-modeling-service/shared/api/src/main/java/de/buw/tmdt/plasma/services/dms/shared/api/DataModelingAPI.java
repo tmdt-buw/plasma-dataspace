@@ -84,7 +84,7 @@ public interface DataModelingAPI {
 	@PostMapping(value = "/{uuid}/entitytype", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	CombinedModel addEntityType(
 			@NotNull @PathVariable("uuid") String uuid,
-			@NotNull @RequestBody EntityType entityTypeDTO,
+			@NotNull @RequestBody EntityType entityType,
 			@Nullable @RequestParam(value = "primitiveNodeId", required = false) String primitiveNodeIdString
 	);
 

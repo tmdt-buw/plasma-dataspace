@@ -53,9 +53,6 @@ public class DataModelingHandler {
     private final SchemaOperationDTOConverter schemaOperationDTOConverter;
     private final OperationLookUp operationLookUp;
 
-    // TODO ensure this does not grow infinitely
-    private final HashMap<String, CombinedModel> combinedModelCache = new HashMap<>();
-
     @Autowired
     public DataModelingHandler(
             @NotNull LocalKnowledgeApiClient localKnowledgeApiClient,
@@ -150,7 +147,8 @@ public class DataModelingHandler {
     }
 
     public @NotNull CombinedModel getCombinedModel(@NotNull UUID dataSourceUuid) {
-        return getCombinedModel(findDataSourceOrThrow(dataSourceUuid), false);
+
+        return getCombinedModel(dataSourceUuid, false);
     }
 
     /**
@@ -254,7 +252,7 @@ public class DataModelingHandler {
     }
 
     @Transactional
-    public @NotNull CombinedModel modifySchema(@NotNull UUID uuid, @NotNull SyntacticOperationDTO syntacticOperationDTO) {
+    public @NotNull CombinedModel modifyModel(@NotNull UUID uuid, @NotNull SyntacticOperationDTO syntacticOperationDTO) {
         //load referenced data source
         DataSourceModel dataSourceModel = findDataSourceOrThrow(uuid);
 
@@ -292,9 +290,12 @@ public class DataModelingHandler {
     @Transactional
     @NotNull
     @Deprecated
-    public CombinedModel addEntityType(@NotNull UUID dataSourceUuid, @NotNull EntityType entityType, @Nullable UUID primitiveNodeUuid) {
+    public CombinedModel addEntityType(@NotNull UUID dataSourceUuid, @NotNull EntityType entityType, @Nullable String primitiveNodeUuid) {
+        //load referenced data source
+        DataSourceModel dataSourceModel = findDataSourceOrThrow(dataSourceUuid);
+
         if (primitiveNodeUuid != null) {
-            entityType.setSyntaxNodeUuid(primitiveNodeUuid.toString());
+            entityType.setSyntaxNodeUuid(primitiveNodeUuid);
         }
 
         DeltaModification modification = new DeltaModification("internal_mod", Collections.singleton(entityType), null, null, null, 0.0);
@@ -372,9 +373,9 @@ public class DataModelingHandler {
     @NotNull
     @Transactional
     @Deprecated
-    public CombinedModel removeEntityTypeFromSchema(@NotNull UUID dataSourceUuid, @NotNull String entityTypeResourceId) {
+    public CombinedModel removeEntityTypeFromModel(@NotNull UUID dataSourceUuid, @NotNull String entityTypeResourceId) {
 
-        EntityType entityType = new EntityType(entityTypeResourceId, null, "delete", null, "delete", "", null, null, null);
+        EntityType entityType = getCombinedModel(dataSourceUuid).getSemanticModel().getEntityType(entityTypeResourceId);
 
         DeltaModification modification = new DeltaModification("internal_mod", Collections.singleton(entityType), null, null, null, 0.0);
         modification.setDeletion(true);
@@ -433,9 +434,11 @@ public class DataModelingHandler {
      */
     @NotNull
     @Transactional
-    public CombinedModel removeRelationFromSchema(@NotNull UUID dataSourceUuid, @NotNull String relationResourceId) {
-        Relation relation = new Relation(relationResourceId, "delete", "delete", "delete", null);
+    public CombinedModel removeRelationFromModel(@NotNull UUID dataSourceUuid, @NotNull String relationResourceId) {
+        CombinedModel combinedModel = getCombinedModel(dataSourceUuid);
+        Relation relation = combinedModel.getSemanticModel().getRelation(relationResourceId);
         DeltaModification modification = new DeltaModification("internal_mod", null, Collections.singleton(relation), null, null, 0.0);
+        modification.setDeletion(true);
         return applyModification(dataSourceUuid, modification);
     }
 
@@ -465,7 +468,6 @@ public class DataModelingHandler {
             e.printStackTrace();
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Error during application of modification: " + e.getMessage());
         }
-
         persistCombinedModel(dataSourceModel, clone);
 
         return dataSourceModel.getCurrentModel();
@@ -503,7 +505,6 @@ public class DataModelingHandler {
             current.setXCoordinate(movedElement.getXCoordinate());
             current.setYCoordinate(movedElement.getYCoordinate());
         }
-
         dataSourceRepository.save(dataSourceModel);
     }
 
@@ -528,6 +529,7 @@ public class DataModelingHandler {
                 entityConcept,
                 EntityConcept::getUuid,
                 combinedModel.getProvisionalEntityConcepts());
+
 
         dataSourceRepository.save(dataSourceModel);
 
@@ -564,7 +566,6 @@ public class DataModelingHandler {
                 RelationConcept::getUuid,
                 combinedModel.getProvisionalRelationConcepts()
         );
-
         dataSourceRepository.save(dataSourceModel);
 
         return usedRelationConcept;
@@ -635,7 +636,6 @@ public class DataModelingHandler {
                     e.getMessage()
             );
         }
-
         dataSourceModel = dataSourceRepository.save(dataSourceModel);
         return dataSourceModel.getCurrentModel();
     }
@@ -862,14 +862,8 @@ public class DataModelingHandler {
 
     @NotNull
     private CombinedModel getCombinedModel(@NotNull DataSourceModel dataSourceModel, boolean modelWillBeModified) {
-        CombinedModel currentModel;
-        if (!combinedModelCache.containsKey(dataSourceModel.getUuid().toString())) {
-            currentModel = dataSourceModel.getCurrentModel();
-            combinedModelCache.put(dataSourceModel.getUuid().toString(), currentModel);
-        } else {
-            // use the cached version, no need to reload from database
-            currentModel = combinedModelCache.get(dataSourceModel.getUuid().toString());
-        }
+        CombinedModel currentModel = dataSourceModel.getCurrentModel();
+
         if (modelWillBeModified && currentModel.isFinalized()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Finalized models are not allowed to be modified");
         }
@@ -884,6 +878,6 @@ public class DataModelingHandler {
     }
 
     public CombinedModel requestRecommendations(String dataSourceUuid, CombinedModel combinedModel) {
-        return null;
+        return combinedModel;
     }
 }
