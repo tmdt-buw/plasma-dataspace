@@ -18,10 +18,10 @@ export class PlsNewEntityDialogComponent {
 
   error;
 
-  constructor(public dialogRef: MatDialogRef<PlsNewEntityDialogComponent>, @Inject(MAT_DIALOG_DATA) public data: string ,private modelingService: DataModelingControllerService) {
+  constructor(public dialogRef: MatDialogRef<PlsNewEntityDialogComponent>, @Inject(MAT_DIALOG_DATA) public data: string, private modelingService: DataModelingControllerService) {
   }
 
-  submit() {
+  submit(): void {
     this.error = null;
     this.modelingService.cacheEntityConcept(this.data, this.form.value as EntityTypeDTO).subscribe(() => this.dialogRef.close(true), error => this.error = error.error.message);
   }

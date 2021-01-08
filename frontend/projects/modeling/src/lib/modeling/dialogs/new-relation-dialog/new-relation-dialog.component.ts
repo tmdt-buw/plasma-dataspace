@@ -23,8 +23,6 @@ export class PlsNewRelationDialogComponent {
 
   submit(): void {
     this.error = null;
-    const values = this.form.value;
-    values['properties'] = [];
     this.modelingService.cacheRelationConcept(this.data, this.form.value as RelationConceptDTO).subscribe(() => this.dialogRef.close(true), error => this.error = error.error.message);
   }
 

@@ -17,8 +17,9 @@ export class PlsImportDialogComponent {
    * function handles drag and drop of file for upload
    * @event - catches the dropped file
    */
-  dropped(files: File | File[]) {
+  dropped(files: File | File[]): void {
     if (Array.isArray(files)) {
+      // multiple files not supported atm
       // files.forEach(file => this.handleFile(file));
       console.error('Multiple files not supported');
     } else {
@@ -28,24 +29,24 @@ export class PlsImportDialogComponent {
         if (typeof reader.result === 'string') {
           this.kgsService.importRdf(reader.result).subscribe();
         }
-      }
+      };
     }
   }
 
   /**
    * function for select file for upload
    */
-  select() {
+  select(): void {
     const files = this.fileInput.nativeElement.files;
-    for (let i = 0; i < files.length; i++) {
+    files.forEach(file => {
       const reader = new FileReader();
-      reader.readAsText(files[i], 'UTF-8');
+      reader.readAsText(file, 'UTF-8');
       reader.onload = () => {
         if (typeof reader.result === 'string') {
           this.kgsService.importRdf(reader.result).subscribe();
         }
-      }
-    }
+      };
+    });
   }
 
 }
