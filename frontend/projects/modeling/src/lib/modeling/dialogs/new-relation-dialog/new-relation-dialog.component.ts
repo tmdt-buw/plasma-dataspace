@@ -11,7 +11,7 @@ import { DataModelingControllerService, RelationConceptDTO } from '../../../api/
 export class PlsNewRelationDialogComponent {
 
   form = new FormGroup({
-    name: new FormControl('', [Validators.required]),
+    label: new FormControl('', [Validators.required]),
     description: new FormControl('', [Validators.required]),
     sourceURI: new FormControl('')
   });
@@ -23,7 +23,7 @@ export class PlsNewRelationDialogComponent {
 
   submit(): void {
     this.error = null;
-    this.modelingService.cacheRelationConcept(this.data, this.form.value as RelationConceptDTO).subscribe(() => this.dialogRef.close(true), error => this.error = error.error.message);
+    this.modelingService.cacheRelationConcept(this.data, this.form.value as RelationConcept).subscribe(() => this.dialogRef.close(true), error => this.error = error.error.message);
   }
 
 }

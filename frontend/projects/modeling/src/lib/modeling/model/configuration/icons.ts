@@ -1,5 +1,5 @@
-import { CompositeDTO, ObjectNodeDTO, PrimitiveDTO, SetNodeDTO } from '../../../api/generated/dms';
-import { SyntaxNode } from './node';
+import {CompositeNode, ObjectNode, PrimitiveNode, SetNode} from '../../../api/generated/dms';
+import {SyntaxNode} from './node';
 
 /**
  * Abstract class that provides configs for icons
@@ -12,10 +12,10 @@ export abstract class Icons {
    */
   static getIcon(node: SyntaxNode): string {
     switch (node['@class']) {
-      case 'ObjectNodeDTO':
+      case 'ObjectNode':
         return 'list';
-      case 'PrimitiveDTO':
-        const value = ((node as PrimitiveDTO).dataType);
+      case 'PrimitiveNode':
+        const value = ((node as PrimitiveNode).dataType);
         switch (value) {
           case 'Number':
             return 'looks_one';
@@ -30,9 +30,9 @@ export abstract class Icons {
           default:
             return '';
         }
-      case 'CompositeDTO':
+      case 'CompositeNode':
         return 'content_cut';
-      case 'SetNodeDTO':
+      case 'SetNode':
         return 'format_list_numbered';
       default:
         return '';

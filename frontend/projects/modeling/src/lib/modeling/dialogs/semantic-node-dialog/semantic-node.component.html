@@ -8,6 +8,6 @@
   <mat-divider></mat-divider>
   <pls-inline-edit [type]="'textarea'" [(ngModel)]="data.node.description" [editing]="edit" [empty]="'No description'"></pls-inline-edit>
   <mat-divider></mat-divider>
-  <h4>Entity concept: {{ data.node.concept.name }}</h4>
+  <h4>Entity concept: {{ data.node.concept.label }}</h4>
   <p>{{ data.node.concept.description }}</p>
 </mat-dialog-content>

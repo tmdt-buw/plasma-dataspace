@@ -1,5 +1,5 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
-import { UniversalKnowledgeGraphControllerService } from '../../../api/generated/dms/api/kgsController.service';
+import {Component, ElementRef, ViewChild} from '@angular/core';
+import {UniversalKnowledgeGraphControllerService} from '../../../api/generated/kgs';
 
 @Component({
   selector: 'pls-import-dialog',

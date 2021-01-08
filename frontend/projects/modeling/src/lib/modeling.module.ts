@@ -1,6 +1,7 @@
 import { ModuleWithProviders, NgModule } from '@angular/core';
 import { PlsModelingComponent } from './modeling/modeling.component';
 import { ApiModule, BASE_PATH } from './api/generated/dms';
+import { ApiModule as KGSApiModule } from './api/generated/kgs';
 import { CommonModule } from '@angular/common';
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { MatButtonModule } from '@angular/material/button';
@@ -44,6 +45,7 @@ import { PlsOperationsDialogModule } from './modeling/dialogs/operations-dialog/
     // Plasma
     ApiModule,
     PlsOperationsDialogModule,
+    KGSApiModule,
     // Angular
     CommonModule,
     DragDropModule,

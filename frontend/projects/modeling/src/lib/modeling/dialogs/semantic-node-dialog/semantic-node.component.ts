@@ -1,6 +1,6 @@
 import { Component, ElementRef, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { DataModelingControllerService, EntityTypeDTO } from '../../../api/generated/dms';
+import { DataModelingControllerService, EntityType } from '../../../api/generated/dms';
 
 export interface PlsSemanticNodeDetailsData {
   dataSource: string;
@@ -39,7 +39,7 @@ export class PlsSemanticNodeDetailsComponent implements OnInit {
 
   acceptEdit(): void {
     this.edit = false;
-    this.modelingService.updateEntityType(this.data.dataSource, +this.data.node.id, this.data.node).subscribe(() => null, () => {
+    this.modelingService.updateEntityType(this.data.dataSource, this.data.node.uuid, this.data.node).subscribe(() => null, () => {
       this.data.node.label = this.label;
       this.data.node.description = this.description;
     });
