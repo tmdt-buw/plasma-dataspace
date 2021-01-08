@@ -112,27 +112,17 @@
                 </configuration>
             </plugin>
 
-            <!-- Spring Boot Maven Plugin -->
+            <!-- Spring Building -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>${org.springframework.boot.version}</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>build-info</goal>
-                            <goal>repackage</goal>
-                        </goals>
-                        <configuration>
-                            <additionalProperties>
-                                <title>${project.name}</title>
-                                <description>Service for accessing external knowledge databases.</description>
-                                <developerName>André Pomp</developerName>
-                                <developerEMail>pomp@uni-wuppertal.de</developerEMail>
-                            </additionalProperties>
-                        </configuration>
-                    </execution>
-                </executions>
+                <configuration>
+                    <additionalProperties> <!-- Overwrite this configuration in the corresponding service -->
+                        <description>Service for accessing external knowledge databases.</description>
+                        <developerName>André Pomp</developerName>
+                        <developerEMail>pomp@uni-wuppertal.de</developerEMail>
+                    </additionalProperties>
+                </configuration>
             </plugin>
 
             <!-- Docker Image Plugin -->

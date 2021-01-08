@@ -263,6 +263,7 @@
                     <artifactId>versions-maven-plugin</artifactId>
                     <version>${org.apache.maven.plugin.versionplugin.version}</version>
                 </plugin>
+
                 <!-- Git Commit Plugin -->
                 <plugin>
                     <groupId>pl.project13.maven</groupId>
@@ -281,6 +282,29 @@
                         <dateFormat>yyyy-MM-dd'T'HH:mm:ssZ</dateFormat>
                         <generateGitPropertiesFile>true</generateGitPropertiesFile>
                         <generateGitPropertiesFilename>${project.build.outputDirectory}/git.properties</generateGitPropertiesFilename>
+                    </configuration>
+                </plugin>
+
+                <!-- Spring Building -->
+                <plugin>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-maven-plugin</artifactId>
+                    <version>${org.springframework.boot.version}</version>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>build-info</goal>
+                                <goal>repackage</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                    <configuration>
+                        <additionalProperties> <!-- Overwrite this configuration in the corresponding service -->
+                            <title>${project.name}</title>
+                            <description>Description of the Service</description>
+                            <developerName>Maintainer of the Service</developerName>
+                            <developerEMail>Mail Address of Maintainer</developerEMail>
+                        </additionalProperties>
                     </configuration>
                 </plugin>
 

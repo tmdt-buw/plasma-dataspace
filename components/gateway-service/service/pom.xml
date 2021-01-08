@@ -66,28 +66,20 @@
                     <skip>true</skip>
                 </configuration>
             </plugin>
-            <!-- Spring Boot Maven Plugin - creates an executable jar -->
+
+            <!-- Spring Building -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>${org.springframework.boot.version}</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>build-info</goal>
-                            <goal>repackage</goal>
-                        </goals>
-                        <configuration>
-                            <additionalProperties>
-                                <title>${project.name}</title>
-                                <description>Gateway service between UI and the other microservices.</description>
-                                <developerName>André Pomp</developerName>
-                                <developerEMail>pomp@uni-wuppertal.de</developerEMail>
-                            </additionalProperties>
-                        </configuration>
-                    </execution>
-                </executions>
+                <configuration>
+                    <additionalProperties> <!-- Overwrite this configuration in the corresponding service -->
+                        <description>Gateway service between UI and the other microservices.</description>
+                        <developerName>André Pomp</developerName>
+                        <developerEMail>pomp@uni-wuppertal.de</developerEMail>
+                    </additionalProperties>
+                </configuration>
             </plugin>
+
             <!-- docker image build plugin -->
             <plugin>
                 <groupId>com.google.cloud.tools</groupId>
