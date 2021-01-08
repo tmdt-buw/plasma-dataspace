@@ -108,7 +108,7 @@ docker_build:
     - VERSION=${CI_COMMIT_TAG#release-}
     - mvn versions:set -DnewVersion=$VERSION -DgenerateBackupPoms=false #JIB automatically appends the COMMIT Hash
   script:
-    - "mvn $MAVEN_CLI_OPTS package jib:build -DskipTests
+    - "mvn $MAVEN_CLI_OPTS package jib:build -DskipTests \
       -Dgit.registry=$CI_REGISTRY_IMAGE \
       -Djib.to.auth.username=$CI_REGISTRY_USER \
       -Djib.to.auth.password=$CI_REGISTRY_PASSWORD \
