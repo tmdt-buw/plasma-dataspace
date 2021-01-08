@@ -40,14 +40,7 @@ ui-dockerize:
     name: gcr.io/kaniko-project/executor:debug
     entrypoint: [""]
   before_script:
-    - export MY_TAG=$CI_COMMIT_TAG
-    - >
-      if [ -z "$MY_TAG" ];
-      then
-        MY_TAG=$CI_COMMIT_SHORT_SHA
-      else
-        echo $MY_TAG
-      fi
+    - export MY_TAG==${CI_COMMIT_TAG#release-}
   script:
     - mkdir -p /kaniko/.docker
     - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
