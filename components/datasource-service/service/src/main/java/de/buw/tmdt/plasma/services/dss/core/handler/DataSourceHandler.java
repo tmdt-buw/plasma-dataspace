@@ -3,11 +3,12 @@ package de.buw.tmdt.plasma.services.dss.core.handler;
 import de.buw.tmdt.plasma.services.dms.shared.feignclient.DataModelingApiClient;
 import de.buw.tmdt.plasma.services.dss.core.model.DataSourceModel;
 import de.buw.tmdt.plasma.services.dss.core.repository.DataSourceRepository;
+import de.buw.tmdt.plasma.services.dss.shared.dto.CreateDataSourceDTO;
+import de.buw.tmdt.plasma.services.dss.shared.dto.DataSourceDTO;
+import de.buw.tmdt.plasma.services.kgs.shared.dto.semanticmodel.SemanticModelDTO;
 import de.buw.tmdt.plasma.services.kgs.shared.feignclient.LocalKnowledgeApiClient;
 import de.buw.tmdt.plasma.services.sas.shared.feignclient.SchemaAnalysisApiClient;
 import feign.FeignException;
-import de.buw.tmdt.plasma.services.dss.shared.dto.CreateDataSourceDTO;
-import de.buw.tmdt.plasma.services.dss.shared.dto.DataSourceDTO;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,7 +76,8 @@ public class DataSourceHandler {
 	public void deleteDataSource(@NotNull String uuid) {
 		//Delete the Semantic Model
 		try {
-			localKnowledgeApiClient.deleteSemanticModelByDataSourceId(uuid);
+			SemanticModelDTO dto = localKnowledgeApiClient.findSemanticModelByDataSourceId(uuid);
+			localKnowledgeApiClient.deleteSemanticModel(dto.getId());
 		} catch (FeignException e) {
 			logger.warn("Could not delete semantic model - it might have not exist");
 		}
