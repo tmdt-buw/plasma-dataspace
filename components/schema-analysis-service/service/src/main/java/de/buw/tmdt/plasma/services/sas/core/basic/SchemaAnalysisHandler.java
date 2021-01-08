@@ -68,7 +68,7 @@ public class SchemaAnalysisHandler {
 		syntaxModel.getNodes().stream()
 				.filter(schemaNode -> schemaNode instanceof PrimitiveNode)
 				.map(schemaNode -> (PrimitiveNode) schemaNode)
-				.forEach(primitiveNode -> primitiveNode.setExamples(new ArrayList<>(primitiveNode.getExamples().subList(0, exampleLimit))));
+				.forEach(primitiveNode -> primitiveNode.setExamples(new ArrayList<>(primitiveNode.getExamples().subList(0, Math.min(exampleLimit, primitiveNode.getExamples().size())))));
 		return syntaxModel;
 	}
 
