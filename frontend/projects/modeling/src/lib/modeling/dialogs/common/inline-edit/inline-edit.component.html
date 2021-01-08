@@ -4,7 +4,7 @@
     <input *ngIf="type !== 'textarea'" matInput [readonly]="!editing" [required]="required" (keypress)="keypress($event)" [name]="value" [(ngModel)]="value" [type]="type" [placeholder]="label"/>
     <textarea *ngIf="type === 'textarea'" matInput [readonly]="!editing" [required]="required" (keypress)="keypress($event)" [name]="value" [(ngModel)]="value" [type]="type" [placeholder]="label"></textarea>
     <span matSuffix>
-			<button mat-icon-button [color]="cancelColor" (click)="cancel($event)"><mat-icon>clear</mat-icon></button>
+			<button mat-icon-button (click)="cancel()"><mat-icon>clear</mat-icon></button>
 		</span>
   </mat-form-field>
 </div>

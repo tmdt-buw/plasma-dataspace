@@ -43,9 +43,8 @@ export abstract class Links {
   /**
    * Creates label
    * @param label text
-   * @param color
-   * @param opacity
-   * @private
+   * @param color of text
+   * @param opacity of text
    */
   private static createLabel(label: string, color: string, opacity?: number): dia.Link.Label[] {
     return label ? [{
@@ -69,7 +68,7 @@ export abstract class Links {
 
   /**
    * Returns true if input link is a syntax link
-   * @param link
+   * @param link to test
    */
   static isSyntaxLink(link: dia.CellView | dia.LinkView): boolean {
     return link.model?.attributes?.type === Links.syntaxLinkName;
@@ -77,7 +76,7 @@ export abstract class Links {
 
   /**
    * Returns true if input link is a semantic link
-   * @param link
+   * @param link to test
    */
   static isSemanticLink(link: dia.CellView | dia.LinkView): boolean {
     return link.model?.attributes?.type === Links.semanticLinkName;
@@ -85,7 +84,7 @@ export abstract class Links {
 
   /**
    * Returns true if input link targets a semantic node
-   * @param link
+   * @param link to test
    */
   static targetsSemanticNode(link: dia.LinkView): boolean {
     return link.model?.getTargetElement()?.attributes?.type === Nodes.semanticNodeName;
@@ -93,8 +92,8 @@ export abstract class Links {
 
   /**
    * Calls constructor and return new default link
-   * @param label
-   * @param color
+   * @param label of link
+   * @param color of link
    */
   static createDefaultLink(label: string, color: string): dia.Link {
     const link = new Links.semanticLink({
@@ -109,12 +108,12 @@ export abstract class Links {
 
   /**
    * Calls constructor and return new semantic link
-   * @param id
-   * @param source
-   * @param target
-   * @param label
-   * @param color
-   * @param opacity
+   * @param id of link
+   * @param source of link
+   * @param target of link
+   * @param label of link
+   * @param color of link
+   * @param opacity of link
    */
   static createSemanticLink(id: string, source: string, target: string, label: string, color: string, opacity?: number): dia.Link {
     const link = new Links.semanticLink({
@@ -138,9 +137,9 @@ export abstract class Links {
 
   /**
    * Call constructor and return new syntax link
-   * @param source
-   * @param target
-   * @param color
+   * @param source of link
+   * @param target of link
+   * @param color of link
    */
   static createSyntaxLink(source: string, target: string, color: string): dia.Link {
     const link = new Links.syntaxLink({
@@ -265,11 +264,10 @@ export abstract class Links {
 
   /**
    * Calculate layout for self-links
-   * @param graph
-   * @param cell
-   * @param sourceId
-   * @param index
-   * @private
+   * @param graph of link
+   * @param cell of link
+   * @param sourceId of link
+   * @param index of link
    */
   private static layoutSelfLink(graph, cell, sourceId: number, index: number): void {
     const source = graph.getCell(sourceId);

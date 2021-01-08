@@ -111,7 +111,8 @@
               "tsconfig.spec.json"
             ],
             "exclude": [
-              "**/node_modules/**"
+              "**/node_modules/**",
+              "**/generated/***"
             ]
           }
         }
@@ -137,9 +138,10 @@
         "lint": {
           "builder": "@angular-devkit/build-angular:tslint",
           "options": {
-            "tsConfig": "e2e/tsconfig.e2e.json",
+            "tsConfig": "e2e/tsconfig.json",
             "exclude": [
-              "**/node_modules/**"
+              "**/node_modules/**",
+              "**/generated/**"
             ]
           }
         }
@@ -179,7 +181,8 @@
               "projects/data-sources/tsconfig.spec.json"
             ],
             "exclude": [
-              "**/node_modules/**"
+              "**/node_modules/**",
+              "**/generated/**"
             ]
           }
         }
@@ -219,7 +222,8 @@
               "projects/modeling/tsconfig.spec.json"
             ],
             "exclude": [
-              "**/node_modules/**"
+              "**/node_modules/**",
+              "**/generated/**"
             ]
           }
         }
@@ -259,7 +263,8 @@
               "projects/schema-analysis/tsconfig.spec.json"
             ],
             "exclude": [
-              "**/node_modules/**"
+              "**/node_modules/**",
+              "**/generated/**"
             ]
           }
         }
@@ -299,7 +304,8 @@
               "projects/common/tsconfig.spec.json"
             ],
             "exclude": [
-              "**/node_modules/**"
+              "**/node_modules/**",
+              "**/generated/**"
             ]
           }
         }
