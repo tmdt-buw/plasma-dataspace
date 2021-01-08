@@ -1,11 +1,5 @@
 variables:
   CI_PROFILES: production
-  # Instruct Testcontainers to use the daemon of DinD.
-  DOCKER_HOST: "tcp://docker:2375"
-  # Improve performance with overlayFS.
-  DOCKER_DRIVER: overlay2
-  # Disable TLS compatibility for DinD 19.03+
-  DOCKER_TLS_CERTDIR: ""
 
 ui-lint:
   stage: verification
