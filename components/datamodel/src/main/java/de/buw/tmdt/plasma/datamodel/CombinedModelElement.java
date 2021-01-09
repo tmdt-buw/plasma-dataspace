@@ -60,6 +60,7 @@ public abstract class CombinedModelElement implements Serializable {
         this.label = label;
     }
 
+
     public abstract CombinedModelElement copy();
 
     @Override

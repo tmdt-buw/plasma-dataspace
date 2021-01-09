@@ -24,7 +24,7 @@ public class RelationConcept extends CombinedModelElement implements Serializabl
 	/**
 	 * Entity ID, set once persisted in the KGS.
 	 */
-	private final String entityId;
+	private String entityId;
 	private final String description;
 	private final String sourceURI;
 	private final Set<String> properties;
@@ -77,6 +77,10 @@ public class RelationConcept extends CombinedModelElement implements Serializabl
 	@JsonProperty(PROPERTIES_PROPERTY)
 	public Set<String> getProperties() {
 		return Collections.unmodifiableSet(this.properties);
+	}
+
+	public void setEntityId(String entityId) {
+		this.entityId = entityId;
 	}
 
 	public int hashCode() {

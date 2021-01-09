@@ -3,7 +3,6 @@ package de.buw.tmdt.plasma.datamodel.semanticmodel;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import de.buw.tmdt.plasma.datamodel.CombinedModelElement;
-import de.buw.tmdt.plasma.utilities.misc.StringUtilities;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -20,7 +19,7 @@ public class EntityConcept extends CombinedModelElement implements Serializable 
     /**
      * Entity ID, set once sent to the KGS.
      */
-    private final String entityId;
+    private String entityId;
     private final String description;
     private final String sourceURI;
 
@@ -53,7 +52,7 @@ public class EntityConcept extends CombinedModelElement implements Serializable 
     @JsonProperty(ENTITY_ID_PROPERTY)
     @Nullable
     public String getEntityId() {
-        return StringUtilities.toStringIfExists(entityId);
+        return entityId;
     }
 
     @JsonProperty(SOURCE_URI_PROPERTY)
@@ -65,6 +64,10 @@ public class EntityConcept extends CombinedModelElement implements Serializable 
     @JsonProperty(DESCRIPTION_PROPERTY)
     public String getDescription() {
         return description;
+    }
+
+    public void setEntityId(String entityId) {
+        this.entityId = entityId;
     }
 
     /**

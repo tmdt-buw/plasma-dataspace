@@ -52,6 +52,10 @@ public class SemanticModel implements Serializable {
 		return edges;
 	}
 
+	public void setEntityId(String entityId) {
+		this.entityId = entityId;
+	}
+
 	/**
 	 * Returns a copy of this model where similar concepts are merged to one.
 	 * This results in two {@link EntityType}s that reference {@link EntityConcept}s for which

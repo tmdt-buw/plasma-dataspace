@@ -291,9 +291,6 @@ public class DataModelingHandler {
     @NotNull
     @Deprecated
     public CombinedModel addEntityType(@NotNull UUID dataSourceUuid, @NotNull EntityType entityType, @Nullable String primitiveNodeUuid) {
-        //load referenced data source
-        DataSourceModel dataSourceModel = findDataSourceOrThrow(dataSourceUuid);
-
         if (primitiveNodeUuid != null) {
             entityType.setSyntaxNodeUuid(primitiveNodeUuid);
         }
@@ -375,7 +372,7 @@ public class DataModelingHandler {
     @Deprecated
     public CombinedModel removeEntityTypeFromModel(@NotNull UUID dataSourceUuid, @NotNull String entityTypeResourceId) {
 
-        EntityType entityType = getCombinedModel(dataSourceUuid).getSemanticModel().getEntityType(entityTypeResourceId);
+        EntityType entityType = getCombinedModel(dataSourceUuid, false).getSemanticModel().getEntityType(entityTypeResourceId);
 
         DeltaModification modification = new DeltaModification("internal_mod", Collections.singleton(entityType), null, null, null, 0.0);
         modification.setDeletion(true);
@@ -664,6 +661,16 @@ public class DataModelingHandler {
 
     /* Finish operations */
 
+    /**
+     * Finishes the modeling of the given data source.
+     * The semantic model is persisted in the KGS.
+     * Provisional concepts are dropped and recommendations removed.
+     * After calling this function, the {@link CombinedModel} of the data source cannot be changed as it is set to finalized.
+     * The given {@link CombinedModel} is cloned first, so the change is reversible as a new instance is returned.
+     *
+     * @param dataSourceUuid The id of the data source to finish
+     * @return An updated model instance with the new persistence ids (entityIds) included
+     */
     @NotNull
     public CombinedModel finishModeling(@NotNull UUID dataSourceUuid) {
         //Load the data source from the repository.
@@ -673,18 +680,21 @@ public class DataModelingHandler {
                         "Data Source does not exists"
                 ));
 
-        final CombinedModel combinedModel = getCombinedModel(dataSourceModel, false);
+        CombinedModel combinedModel = getCombinedModel(dataSourceModel, false);
 
         combinedModel.validate();
 
-        final SemanticModel semanticModel;
         try {
-            semanticModel = createSemanticModel(combinedModel, dataSourceUuid.toString());
+            combinedModel = createSemanticModel(combinedModel, dataSourceUuid.toString());
         } catch (CombinedModelIntegrityException e) {
             e.printStackTrace();
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error occurred during conversion.");
         }
-        // TODO use altered semantic model here!
+        // clear provisional elements and recommendations
+        combinedModel.getRecommendations().clear();
+        combinedModel.getProvisionalRelationConcepts().clear();
+        combinedModel.getProvisionalEntityConcepts().clear();
+
         // prevent any further modifications
         combinedModel.finalizeModel();
 
@@ -693,10 +703,23 @@ public class DataModelingHandler {
         return finalDataSource.getCurrentModel();
     }
 
+    /**
+     * Sends the {@link SemanticModel} of the given {@link CombinedModel} to the KGS to persist it.
+     * ID mappings (the KGS does not use our UUIDs) is done in this function, including the reverse mapping once
+     * new KGS ids are generated. Those are then stored in the entityId field.
+     * Equal concepts used by multiple entities or relations are merged during this process to not clutter the KG.
+     * The given {@link CombinedModel} is cloned first, so the change is reversible as a new instance is returned.
+     *
+     * @param combinedModel  The combined model containing the {@link SemanticModel}
+     * @param dataSourceUuid The data source uuid
+     * @return The updated {@link CombinedModel} with the new KGS ids assigned
+     * @throws CombinedModelIntegrityException If the integrity of the {@link CombinedModel} is violated during the concept merge
+     */
     @NotNull
-    private SemanticModel createSemanticModel(@NotNull CombinedModel combinedModel, @NotNull String dataSourceUuid) throws CombinedModelIntegrityException {
+    private CombinedModel createSemanticModel(@NotNull CombinedModel combinedModel, @NotNull String dataSourceUuid) throws CombinedModelIntegrityException {
+
+        combinedModel = combinedModel.copy();
         // merge the concepts to not create possible new concepts twice
-        // TODO do a clone here?
         SemanticModel semanticModel = combinedModel.getSemanticModel().mergeConcepts();
 
         //create request
@@ -715,15 +738,54 @@ public class DataModelingHandler {
         // parse response and get id mapping
         // id mapping links KGS ids of newly created elements to the original given UUIDs from the original CombinedModel
         Map<String, String> kgsIdToUuidMapping = semanticModelCreationResponse.getOldToNewIdLookup();
-        // currently unused as the coverter maps the KGS Ids to the entityId field by default.
-        // New element UUIDs are created anyway during that step.
 
-        final SemanticModel convertedModel = kgs2CMConverter.convert(semanticModelCreationResponse.getSemanticModelDTO());
+        // add the newly created entityIds to their respective elements
+        combinedModel.getSemanticModel().getNodes().stream()
+                .filter(entityType -> entityType.getEntityId() == null)
+                .forEach(element -> {
+                            String entityId = kgsIdToUuidMapping.get(element.getUuid());
+                            if (entityId != null) {
+                                // new entityId was created for that element
+                                element.setEntityId(entityId);
+                            }
+                            if (element.getEntityConcept().getEntityId() == null) {
+                                entityId = kgsIdToUuidMapping.get(element.getEntityConcept().getUuid());
+                                if (entityId != null) {
+                                    // new entityId was created for that element
+                                    element.getEntityConcept().setEntityId(entityId);
+                                }
+                            }
+                        }
+                );
 
-        return convertedModel;
+        combinedModel.getSemanticModel().getEdges().stream()
+                .filter(entityType -> entityType.getEntityId() == null)
+                .forEach(element -> {
+                            String entityId = kgsIdToUuidMapping.get(element.getUuid());
+                            if (entityId != null) {
+                                // new entityId was created for that element
+                                element.setEntityId(entityId);
+                            }
+                            if (element.getConcept().getEntityId() == null) {
+                                entityId = kgsIdToUuidMapping.get(element.getConcept().getUuid());
+                                if (entityId != null) {
+                                    // new entityId was created for that element
+                                    element.getConcept().setEntityId(entityId);
+                                }
+                            }
+                        }
+                );
+
+        // dont forget the semantic model
+        // we use the just generated UUID from the DTO here as the original SM had no UUID
+        combinedModel.getSemanticModel().setEntityId(kgsIdToUuidMapping.get(semanticModelDTO.getId()));
+
+        return combinedModel;
     }
 
-    /* Probably unused, needs to be adjusted to new data model if still needed or deleted if not */
+    /* Probably unused, needs to be adjusted to new data model if still needed or deleted if not
+     * May be needed for compatibility to other components*/
+
 
     //    @NotNull
     //    private DataSourceSchema createFinalDataSourceSchema(
@@ -842,6 +904,8 @@ public class DataModelingHandler {
     //        return result;
     //    }
 
+    @SuppressWarnings("unused")
+        // utility function, might be used later
     void persistCombinedModel(@NotNull UUID dataSourceUuid, @NotNull CombinedModel combinedModel) {
         DataSourceModel dataSourceModel = findDataSourceOrThrow(dataSourceUuid);
         persistCombinedModel(dataSourceModel, combinedModel);
@@ -854,6 +918,7 @@ public class DataModelingHandler {
     }
 
 
+    @SuppressWarnings("SameParameterValue") // this might change
     @NotNull
     private CombinedModel getCombinedModel(@NotNull UUID dataSourceUuid, boolean modelWillBeModified) {
         DataSourceModel dataSourceModel = findDataSourceOrThrow(dataSourceUuid);
@@ -874,7 +939,7 @@ public class DataModelingHandler {
     @NotNull
     private DataSourceModel findDataSourceOrThrow(@NotNull UUID dataSourceUuid) {
         return dataSourceRepository.findById(dataSourceUuid)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid data source uuid " + dataSourceUuid + ". "));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid data source uuid: " + dataSourceUuid));
     }
 
     public CombinedModel requestRecommendations(String dataSourceUuid, CombinedModel combinedModel) {
