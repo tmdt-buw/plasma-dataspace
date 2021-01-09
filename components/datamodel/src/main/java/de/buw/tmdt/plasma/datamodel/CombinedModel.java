@@ -54,6 +54,11 @@ public class CombinedModel implements Serializable {
 	 */
 	private List<RelationConcept> provisionalRelationConcepts;
 
+	/**
+	 * Supplementary mappings which are used to render edges from syntax nodes to entity types that overshadow syntax nodes.
+	 * Only used for rendering purposes in the frontend.
+	 * Will be updated automatically if {@link #apply(DeltaModification)} is called.
+	 */
 	private final ArrayList<PrimitiveEntityTypeMapping> primitiveEntityTypeMappings;
 	/**
 	 * Recommendations represent suggested modifications for the current state of models.
