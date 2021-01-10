@@ -196,8 +196,8 @@ public class KnowledgeGraphServiceDTO2CombinedModelConverter {
                 entityType.getLabel(),
                 entityType.getOriginalLabel(),
                 entityConceptDTO,
-                entityType.getXCoordinate() == null ? 0 : entityType.getXCoordinate(),
-                entityType.getYCoordinate() == null ? 0 : entityType.getYCoordinate(),
+                entityType.getXCoordinate() == null ? Double.valueOf(0) : entityType.getXCoordinate(),
+                entityType.getYCoordinate() == null ? Double.valueOf(0) : entityType.getYCoordinate(),
                 entityType.getDescription(),
                 entityType.getSyntaxNodeUuid() != null
         );

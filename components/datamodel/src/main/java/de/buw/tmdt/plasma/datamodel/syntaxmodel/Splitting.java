@@ -18,7 +18,7 @@ public class Splitting implements Serializable {
 	private String pattern;
 
 	@JsonIgnore
-	private transient Pattern compiledPattern;
+	private Pattern compiledPattern;
 
 	@JsonCreator
 	public Splitting(@NotNull @JsonProperty(PATTERN_PROPERTY) String pattern) {
