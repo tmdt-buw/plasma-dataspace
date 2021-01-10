@@ -24,6 +24,7 @@ import de.buw.tmdt.plasma.services.kgs.shared.feignclient.UniversalKnowledgeApiC
 import de.buw.tmdt.plasma.services.sas.shared.feignclient.SchemaAnalysisApiClient;
 import de.buw.tmdt.plasma.services.srs.feignclient.SemanticRecommendationApiClient;
 import de.buw.tmdt.plasma.utilities.collections.CollectionUtilities;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import feign.FeignException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -158,6 +159,7 @@ public class DataModelingHandler {
      * @param prefix         A search prefix
      * @return The resulting list of matching {@link EntityConcept}s
      */
+    @SuppressFBWarnings("NP_NONNULL_RETURN_VIOLATION") // stream collector does not return null
     @NotNull
     public List<EntityConcept> getEntityConcepts(@NotNull UUID dataSourceUuid, @NotNull String prefix) {
         //Retrieve the concepts from the KGS
@@ -186,6 +188,7 @@ public class DataModelingHandler {
 
     }
 
+    @SuppressFBWarnings("NP_NONNULL_RETURN_VIOLATION") // stream collector does not return null
     @NotNull
     public List<RelationConcept> getRelationConcepts(@NotNull UUID dataSourceUuid, @NotNull String prefix) {
         // Retrieve the concepts from the KGS
@@ -720,7 +723,8 @@ public class DataModelingHandler {
 
         combinedModel = combinedModel.copy();
         // merge the concepts to not create possible new concepts twice
-        SemanticModel semanticModel = combinedModel.getSemanticModel().mergeConcepts();
+        SemanticModel semanticModel = combinedModel.getSemanticModel();
+        semanticModel = semanticModel.mergeConcepts();
 
         //create request
         final SemanticModelDTO semanticModelDTO = kgs2CMConverter.convert(semanticModel, dataSourceUuid);
@@ -936,6 +940,7 @@ public class DataModelingHandler {
     }
 
 
+    @SuppressFBWarnings("NP_NONNULL_RETURN_VIOLATION") // throws Exception if null
     @NotNull
     private DataSourceModel findDataSourceOrThrow(@NotNull UUID dataSourceUuid) {
         return dataSourceRepository.findById(dataSourceUuid)

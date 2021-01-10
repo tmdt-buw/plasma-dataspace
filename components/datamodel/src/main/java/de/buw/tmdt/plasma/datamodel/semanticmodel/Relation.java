@@ -23,27 +23,30 @@ public class Relation extends CombinedModelElement implements Serializable {
     /**
      * The uuid of the origin element, identified by CombinedModelElement#uuid.
      */
+    @NotNull
     private String fromId;
 
     /**
      * The uuid of the destination element, identified by CombinedModelElement#uuid.
      */
+    @NotNull
     private String toId;
+    @NotNull
     private RelationConcept concept;
 
     public Relation(
-            String fromId,
-            String toId,
-            RelationConcept concept
+            @NotNull String fromId,
+            @NotNull String toId,
+            @NotNull RelationConcept concept
     ) {
         this(null, fromId, toId, concept);
     }
 
     public Relation(
-            String entityId,
-            String fromId,
-            String toId,
-            RelationConcept concept
+            @Nullable String entityId,
+            @NotNull String fromId,
+            @NotNull String toId,
+            @NotNull RelationConcept concept
     ) {
         super("");
         this.entityId = entityId;
@@ -68,38 +71,42 @@ public class Relation extends CombinedModelElement implements Serializable {
     }
 
     @JsonProperty(ENTITY_ID_PROPERTY)
+    @Nullable
     public String getEntityId() {
         return entityId;
     }
 
-    public void setEntityId(String entityId) {
+    public void setEntityId(@NotNull String entityId) {
         this.entityId = entityId;
     }
 
     @JsonProperty(FROM_ID_PROPERTY)
+    @NotNull
     public String getFromId() {
         return fromId;
     }
 
-    public void setFromId(String fromId) {
+    public void setFromId(@NotNull String fromId) {
         this.fromId = fromId;
     }
 
     @JsonProperty(TO_ID_PROPERTY)
+    @NotNull
     public String getToId() {
         return toId;
     }
 
-    public void setToId(String toId) {
+    public void setToId(@NotNull String toId) {
         this.toId = toId;
     }
 
     @JsonProperty(CONCEPT_PROPERTY)
+    @NotNull
     public RelationConcept getConcept() {
         return concept;
     }
 
-    public void setConcept(RelationConcept concept) {
+    public void setConcept(@NotNull RelationConcept concept) {
         this.concept = concept;
     }
 

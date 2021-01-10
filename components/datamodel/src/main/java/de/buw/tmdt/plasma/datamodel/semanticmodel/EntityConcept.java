@@ -21,6 +21,7 @@ public class EntityConcept extends CombinedModelElement implements Serializable 
      */
     private String entityId;
     private final String description;
+    @NotNull
     private final String sourceURI;
 
     public EntityConcept(

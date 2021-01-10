@@ -191,7 +191,7 @@ public class KnowledgeGraphServiceDTO2CombinedModelConverter {
 
         final EntityConceptDTO entityConceptDTO = convert(entityType.getEntityConcept());
 
-        final EntityTypeDTO entityTypeDTO = new EntityTypeDTO(
+        return new EntityTypeDTO(
                 entityType.getEntityId() == null ? entityType.getUuid() : entityType.getEntityId(),
                 entityType.getLabel(),
                 entityType.getOriginalLabel(),
@@ -201,46 +201,40 @@ public class KnowledgeGraphServiceDTO2CombinedModelConverter {
                 entityType.getDescription(),
                 entityType.getSyntaxNodeUuid() != null
         );
-        return entityTypeDTO;
     }
 
     @NotNull
     protected EntityConceptDTO convert(@NotNull EntityConcept entityConcept) {
-        final EntityConceptDTO entityConceptDTO = new EntityConceptDTO(
+
+        return new EntityConceptDTO(
                 entityConcept.getEntityId() == null ? entityConcept.getUuid() : entityConcept.getEntityId(),
                 entityConcept.getLabel(),
-                entityConcept.getDescription(),
+                entityConcept.getDescription() == null ? "" : entityConcept.getDescription(),
                 entityConcept.getSourceURI()
         );
-
-        return entityConceptDTO;
     }
 
     @NotNull
     protected RelationDTO convert(@NotNull Relation relation) {
         final RelationConceptDTO relationConceptDTO = convert(relation.getConcept());
 
-        final RelationDTO relationDTO = new RelationDTO(
+        return new RelationDTO(
                 relation.getEntityId() == null ? relation.getUuid() : relation.getEntityId(),
                 relation.getFromId(),
                 relation.getToId(),
                 relationConceptDTO
         );
-
-        return relationDTO;
     }
 
     @NotNull
     protected RelationConceptDTO convert(@NotNull RelationConcept relationConcept) {
 
-        final RelationConceptDTO relationConceptDTO = new RelationConceptDTO(
+        return new RelationConceptDTO(
                 relationConcept.getEntityId() == null ? relationConcept.getUuid() : relationConcept.getEntityId(),
                 relationConcept.getLabel(),
                 relationConcept.getDescription(),
                 relationConcept.getSourceURI(),
                 new HashSet<>() // TODO adjust once properly filled
         );
-
-        return relationConceptDTO;
     }
 }

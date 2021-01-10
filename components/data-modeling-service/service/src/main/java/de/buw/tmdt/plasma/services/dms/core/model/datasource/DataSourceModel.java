@@ -2,12 +2,14 @@ package de.buw.tmdt.plasma.services.dms.core.model.datasource;
 
 import de.buw.tmdt.plasma.datamodel.CombinedModel;
 import de.buw.tmdt.plasma.services.dms.core.database.CombinedModelPersistenceConverter;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.hibernate.annotations.DynamicUpdate;
 import org.jetbrains.annotations.NotNull;
 
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @DynamicUpdate
@@ -25,7 +27,7 @@ public class DataSourceModel {
     @ElementCollection
     @Convert(converter = CombinedModelPersistenceConverter.class)
     @Lob
-    private List<CombinedModel> combinedModelVersions = new ArrayList<>();
+    private List<@NotNull CombinedModel> combinedModelVersions = new ArrayList<>();
 
     @Column(nullable = false)
     private int versionPointer;
@@ -45,9 +47,9 @@ public class DataSourceModel {
         return this.combinedModelVersions;
     }
 
-    public void setAllCombinedModels(List<CombinedModel> models) {
+    public void setAllCombinedModels(@NotNull List<CombinedModel> models) {
         combinedModelVersions.clear();
-        combinedModelVersions.addAll(models);
+        models.stream().filter(Objects::nonNull).forEach(combinedModelVersions::add);
         versionPointer = combinedModelVersions.size();
     }
 
@@ -67,6 +69,8 @@ public class DataSourceModel {
     }
 
     @Transient
+    @NotNull
+    @SuppressFBWarnings("NP_NONNULL_RETURN_VIOLATION") // all values are not null
     public CombinedModel getCurrentModel() {
         if (versionPointer == 0) {
             throw new UnsupportedOperationException("No model available.");
