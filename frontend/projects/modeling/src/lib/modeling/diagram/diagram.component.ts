@@ -58,7 +58,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
   @Input() set schema(schema: CombinedModel) {
     this._schema = schema;
     if (!this.initializing) {
-      this.createGraph();
+      this.createGraph(this.$flat.getValue());
     }
   }
 
