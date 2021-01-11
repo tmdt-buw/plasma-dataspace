@@ -2,10 +2,10 @@ import { Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from '@ang
 import { FormControl } from '@angular/forms';
 import { animate, style, transition, trigger } from '@angular/animations';
 import { BehaviorSubject, Subject } from 'rxjs';
-import { DataModelingControllerService, DataSourceSchemaDTO, EntityTypeDTO, RelationDTO } from '../api/generated/dms';
+import { CombinedModel, DataModelingControllerService, EntityType, Relation } from '../api/generated/dms';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { Filter } from './model/common/filter';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog , MatDialogRef} from '@angular/material/dialog';
 import {EntityDroppedEvent} from './model/events/entity-dropped-event';
 import {NodeChangedEvent} from './model/events/node-changed-event';
 import {PlsImportDialogComponent} from './dialogs/import-dialog/import-dialog.component';
@@ -65,6 +65,9 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
   schema: CombinedModel;
   initial: boolean = false;
   loading: boolean = true;
+
+  // dialogs
+  addConceptDialogRef;
 
   get isFullscreen(): boolean {
     return !!document.fullscreenElement;
@@ -148,7 +151,11 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
 
   addConcepts(): void {
     const parentHeight = getComputedStyle(this.main.nativeElement).height.replace('px', '');
-    this.dialog.open(PlsConceptDialogComponent, {
+    if (this.addConceptDialogRef) {
+      this.addConceptDialogRef.close();
+      return;
+    }
+    this.addConceptDialogRef = this.dialog.open(PlsConceptDialogComponent, {
       hasBackdrop: false,
       data: {
         dataSource: this.dataSource,
@@ -157,8 +164,9 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
       },
       maxHeight: `${(+parentHeight - 70)}px`,
       maxWidth: '440px',
-      closeOnNavigation: true
+      closeOnNavigation: true,
     });
+    this.addConceptDialogRef.afterClosed().subscribe(() => this.addConceptDialogRef = undefined);
   }
 
   onRelationConceptLinked(event: Relation): void {
