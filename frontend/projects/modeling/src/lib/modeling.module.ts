@@ -29,8 +29,8 @@ import { InlineInputEditComponent } from './modeling/dialogs/common/inline-edit/
 import { OverlayModule } from '@angular/cdk/overlay';
 import { PlsEntityConceptMenuComponent } from './modeling/context-menu/entity-concept-menu/entity-concept-menu.component';
 import { PlsRelationConceptMenuComponent } from './modeling/context-menu/relation-concept-menu/relation-concept-menu.component';
-import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { PlsOperationsDialogModule } from './modeling/dialogs/operations-dialog/operations-dialog.module';
 
 
 @NgModule({
@@ -43,6 +43,7 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
   imports: [
     // Plasma
     ApiModule,
+    PlsOperationsDialogModule,
     // Angular
     CommonModule,
     DragDropModule,
@@ -63,11 +64,6 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
     MatProgressSpinnerModule,
     ReactiveFormsModule,
     OverlayModule
-  ],
-  entryComponents: [
-    PlsSyntaxNodeDetailsComponent, PlsSemanticNodeDetailsComponent, PlsConceptDialogComponent,
-    PlsNewEntityDialogComponent, PlsNewRelationDialogComponent, PlsImportDialogComponent,
-    PlsEntityConceptMenuComponent, PlsRelationConceptMenuComponent
   ],
   exports: [PlsModelingComponent]
 })

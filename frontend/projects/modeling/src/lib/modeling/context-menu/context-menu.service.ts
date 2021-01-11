@@ -3,7 +3,7 @@ import { ConnectionPositionPair, Overlay, OverlayConfig, PositionStrategy } from
 import { ComponentPortal } from '@angular/cdk/portal';
 import { fromEvent, Observable, Subject, Subscription } from 'rxjs';
 import { filter, take } from 'rxjs/operators';
-import { ContextMenuEvent } from './context-menu-event';
+import { ContextMenuEvent } from '../model/events/context-menu-event';
 
 
 @Injectable({
@@ -11,8 +11,7 @@ import { ContextMenuEvent } from './context-menu-event';
 })
 export class ContextMenuService {
 
-  constructor(
-    private overlay: Overlay) {
+  constructor(private overlay: Overlay) {
   }
 
   overlayRef: any;
@@ -46,7 +45,7 @@ export class ContextMenuService {
   open(origin: any, component: any, viewContainerRef: ViewContainerRef, data: any): Observable<any> {
     this.close(null);
     this.overlayRef = this.overlay.create(
-      this.getOverlayConfig({ origin })
+      this.getOverlayConfig({origin})
     );
 
     const ref = this.overlayRef.attach(new ComponentPortal(component, viewContainerRef));

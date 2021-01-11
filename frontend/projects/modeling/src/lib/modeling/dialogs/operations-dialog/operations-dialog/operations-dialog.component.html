@@ -1,0 +1,17 @@
+<h2 mat-dialog-title fxLayout="row" fxLayoutAlign="space-between center" fxLayoutGap="15px" class="dialog-header"><span>{{ data.operation.label }}</span>
+  <mat-icon class="close-icon" [mat-dialog-close]="true">close</mat-icon>
+</h2>
+<div mat-dialog-content>
+  <p>
+    {{ data.operation.description }}
+  </p>
+  <hr>
+  <pls-schema-form [formElement]="data.operation.parameter"></pls-schema-form>
+</div>
+<div fxLayout="row" fxLayoutAlign="space-between">
+  <mat-error *ngIf="error">{{ error }}</mat-error>
+  <div fxLayout="row" fxLayoutGap="5px" fxLayoutAlign="end center" fxFlex="grow">
+    <button mat-button mat-dialog-close>Cancel</button>
+    <button mat-raised-button color="primary" (click)="apply()">Apply</button>
+  </div>
+</div>

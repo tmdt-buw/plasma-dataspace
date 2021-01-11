@@ -1,6 +1,13 @@
 <mat-card class="menu-card">
   <mat-selection-list [multiple]="false">
-    <div mat-subheader>Edit entity</div>
-    <mat-list-option (click)="remove()"><mat-icon mat-list-icon>delete</mat-icon>Remove entity</mat-list-option>
+    <ng-container *ngIf="entity">
+      <div mat-subheader>Edit entity</div>
+      <mat-list-option (click)="remove()">
+        <mat-icon mat-list-icon>delete</mat-icon>
+        Remove entity
+      </mat-list-option>
+    </ng-container>
+    <div mat-subheader *ngIf="syntaxNode?.operations?.length > 0">Syntactic Operations</div>
+    <mat-list-option *ngFor="let operation of syntaxNode?.operations; let i = index" (click)="onSelectOperation(operation)">{{ operation.label }}</mat-list-option>
   </mat-selection-list>
 </mat-card>

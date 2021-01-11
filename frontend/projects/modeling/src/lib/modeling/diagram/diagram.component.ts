@@ -235,7 +235,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
         if (Links.isSemanticLink(cellView)) {
           const link = this.schema.semanticModel.edges.find(edge => edge.id === id);
           this.contextMenu.open(cellView.el, PlsRelationConceptMenuComponent, this.viewContainerRef, {
-            concept: link
+            relation: link
           });
         }
         if (Nodes.isSemanticNode(cellView)) {
@@ -243,7 +243,16 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
           this.unhighlightAll();
           cellView.highlight();
           this.contextMenu.open(cellView.el, PlsEntityConceptMenuComponent, this.viewContainerRef, {
-            concept: node
+            entity: node,
+            syntaxNode: node.mappedToData ? this.getMappedPrimitive(node.id) : null
+          });
+        }
+        if (Nodes.isSyntaxNode(cellView)) {
+          const node = this.findSyntaxNodeById(id);
+          this.unhighlightAll();
+          cellView.highlight();
+          this.contextMenu.open(cellView.el, PlsEntityConceptMenuComponent, this.viewContainerRef, {
+            syntaxNode: node
           });
         }
       },

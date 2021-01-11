@@ -92,7 +92,7 @@ export class PlsDataSourceComponent {
       this.uploads = [upload];
       this.uploadUpload(upload);
     } else {
-      console.log('Unsupported file format');
+      console.error('Unsupported file format');
     }
   }
 
