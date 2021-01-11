@@ -9,22 +9,22 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import {PrimitiveEntityTypeMapping} from './primitiveEntityTypeMapping';
-import {SemanticModel} from './semanticModel';
-import {RelationConcept} from './relationConcept';
-import {SyntaxModel} from './syntaxModel';
-import {DeltaModification} from './deltaModification';
-import {EntityConcept} from './entityConcept';
+import { PrimitiveEntityTypeMapping } from './primitiveEntityTypeMapping';
+import { SemanticModel } from './semanticModel';
+import { RelationConcept } from './relationConcept';
+import { SyntaxModel } from './syntaxModel';
+import { DeltaModification } from './deltaModification';
+import { EntityConcept } from './entityConcept';
 
 
 export interface CombinedModel {
-    dataSourceUuid?: string;
-    syntaxModel?: SyntaxModel;
-    semanticModel?: SemanticModel;
-    primitiveToEntityTypeList?: Array<PrimitiveEntityTypeMapping>;
-    recommendations?: Array<DeltaModification>;
-    finalized?: boolean;
-    provisionalEntityConcepts?: Array<EntityConcept>;
-    provisionalRelationConcepts?: Array<RelationConcept>;
+  dataSourceUuid?: string;
+  syntaxModel?: SyntaxModel;
+  semanticModel?: SemanticModel;
+  primitiveToEntityTypeList?: Array<PrimitiveEntityTypeMapping>;
+  recommendations?: Array<DeltaModification>;
+  finalized?: boolean;
+  provisionalEntityConcepts?: Array<EntityConcept>;
+  provisionalRelationConcepts?: Array<RelationConcept>;
 }
 

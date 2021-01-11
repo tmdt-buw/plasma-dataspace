@@ -5,15 +5,15 @@ import { BehaviorSubject, Subject } from 'rxjs';
 import { CombinedModel, DataModelingControllerService, EntityType, Relation } from '../api/generated/dms';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { Filter } from './model/common/filter';
-import { MatDialog , MatDialogRef} from '@angular/material/dialog';
-import {EntityDroppedEvent} from './model/events/entity-dropped-event';
-import {NodeChangedEvent} from './model/events/node-changed-event';
-import {PlsImportDialogComponent} from './dialogs/import-dialog/import-dialog.component';
-import {LocalKnowledgeControllerService, UniversalKnowledgeGraphControllerService} from '../api/generated/kgs';
-import {ContextMenuService} from './context-menu/context-menu.service';
+import { MatDialog } from '@angular/material/dialog';
+import { EntityDroppedEvent } from './model/events/entity-dropped-event';
+import { NodeChangedEvent } from './model/events/node-changed-event';
+import { PlsImportDialogComponent } from './dialogs/import-dialog/import-dialog.component';
+import { LocalKnowledgeControllerService, UniversalKnowledgeGraphControllerService } from '../api/generated/kgs';
+import { ContextMenuService } from './context-menu/context-menu.service';
 import { ContextMenuEvent, ContextMenuEventType } from './model/events/context-menu-event';
-import {Nodes, SyntaxNode} from './model/configuration/node';
-import {Util} from './model/common/util';
+import { Nodes, SyntaxNode } from './model/configuration/node';
+import { Util } from './model/common/util';
 import { PlsOperationsDialogComponent } from './dialogs/operations-dialog/operations-dialog/operations-dialog.component';
 import { PlsConceptDialogComponent } from './dialogs/concept-dialog/concept-dialog.component';
 
@@ -100,10 +100,10 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
     this.contextMenu.onClosed.subscribe((event: ContextMenuEvent) => {
       if (event) {
         if (event.type === ContextMenuEventType.removeEntity) {
-          this.modelingService.removeEntityType(this.dataSource, +(event.target as EntityTypeDTO).id).subscribe((res: DataSourceSchemaDTO) => this.schema = res);
+          this.modelingService.removeEntityType(this.dataSource, (event.target as EntityType).uuid).subscribe((res: CombinedModel) => this.schema = res);
         }
         if (event.type === ContextMenuEventType.removeRelation) {
-          this.modelingService.removeRelation(this.dataSource, +(event.target as RelationDTO).id).subscribe((res: DataSourceSchemaDTO) => this.schema = res);
+          this.modelingService.removeRelation(this.dataSource, (event.target as Relation).uuid).subscribe((res: CombinedModel) => this.schema = res);
         }
         if (event.type === ContextMenuEventType.performOperation) {
           const dialogRef = this.dialog.open(PlsOperationsDialogComponent, {
@@ -113,7 +113,7 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
           });
           dialogRef.afterClosed().subscribe(context => {
             if (context) {
-              this.modelingService.modifySchema(this.dataSource, context.operation).subscribe((res: DataSourceSchemaDTO) => this.schema = res);
+              this.modelingService.modifySchema(this.dataSource, context.operation).subscribe((res: CombinedModel) => this.schema = res);
             }
           });
         }

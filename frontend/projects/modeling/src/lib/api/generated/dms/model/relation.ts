@@ -9,15 +9,15 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import {RelationConcept} from './relationConcept';
+import { RelationConcept } from './relationConcept';
 
 
 export interface Relation {
-    uuid?: string;
-    entityId?: string;
-    from?: string;
-    to?: string;
-    concept?: RelationConcept;
-    label?: string;
+  uuid?: string;
+  entityId?: string;
+  from?: string;
+  to?: string;
+  concept?: RelationConcept;
+  label?: string;
 }
 

@@ -9,18 +9,18 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import {EntityConcept} from './entityConcept';
+import { EntityConcept } from './entityConcept';
 
 
 export interface EntityType {
-    uuid?: string;
-    entityId?: string;
-    label?: string;
-    syntaxNodeId?: string;
-    originalLabel?: string;
-    description?: string;
-    concept?: EntityConcept;
-    x?: number;
-    y?: number;
+  uuid?: string;
+  entityId?: string;
+  label?: string;
+  syntaxNodeId?: string;
+  originalLabel?: string;
+  description?: string;
+  concept?: EntityConcept;
+  x?: number;
+  y?: number;
 }
 

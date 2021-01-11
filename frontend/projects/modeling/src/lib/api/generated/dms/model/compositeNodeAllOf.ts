@@ -9,12 +9,12 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import {Splitting} from './splitting';
+import { Splitting } from './splitting';
 
 
 export interface CompositeNodeAllOf {
-    examples?: Array<string>;
-    cleansingPattern?: string;
-    splitter?: Array<Splitting>;
+  examples?: Array<string>;
+  cleansingPattern?: string;
+  splitter?: Array<Splitting>;
 }
 

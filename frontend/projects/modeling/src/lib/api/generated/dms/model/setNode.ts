@@ -9,7 +9,7 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import {SchemaNode} from './schemaNode';
+import { SchemaNode } from './schemaNode';
 
 
 export interface SetNode extends SchemaNode {

@@ -9,13 +9,13 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import {SchemaNode} from './schemaNode';
-import {Splitting} from './splitting';
+import { SchemaNode } from './schemaNode';
+import { Splitting } from './splitting';
 
 
 export interface CompositeNode extends SchemaNode {
-    examples?: Array<string>;
-    cleansingPattern?: string;
-    splitter?: Array<Splitting>;
+  examples?: Array<string>;
+  cleansingPattern?: string;
+  splitter?: Array<Splitting>;
 }
 

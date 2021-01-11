@@ -9,17 +9,17 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import {CollisionSchema} from './collisionSchema';
-import {PrimitiveNode} from './primitiveNode';
-import {CompositeNode} from './compositeNode';
-import {SetNode} from './setNode';
-import {ObjectNode} from './objectNode';
-import {Edge} from './edge';
+import { CollisionSchema } from './collisionSchema';
+import { PrimitiveNode } from './primitiveNode';
+import { CompositeNode } from './compositeNode';
+import { SetNode } from './setNode';
+import { ObjectNode } from './objectNode';
+import { Edge } from './edge';
 
 
 export interface SyntaxModel {
-    root?: string;
-    nodes?: Array<CollisionSchema | CompositeNode | ObjectNode | PrimitiveNode | SetNode>;
-    edges?: Array<Edge>;
+  root?: string;
+  nodes?: Array<CollisionSchema | CompositeNode | ObjectNode | PrimitiveNode | SetNode>;
+  edges?: Array<Edge>;
 }
 

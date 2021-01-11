@@ -9,23 +9,23 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import {EntityType} from './entityType';
-import {CollisionSchema} from './collisionSchema';
-import {PrimitiveNode} from './primitiveNode';
-import {CompositeNode} from './compositeNode';
-import {Relation} from './relation';
-import {SetNode} from './setNode';
-import {ObjectNode} from './objectNode';
-import {Edge} from './edge';
+import { EntityType } from './entityType';
+import { CollisionSchema } from './collisionSchema';
+import { PrimitiveNode } from './primitiveNode';
+import { CompositeNode } from './compositeNode';
+import { Relation } from './relation';
+import { SetNode } from './setNode';
+import { ObjectNode } from './objectNode';
+import { Edge } from './edge';
 
 
 export interface DeltaModification {
-    reference?: string;
-    deletion?: boolean;
-    entities?: Array<EntityType>;
-    relations?: Array<Relation>;
-    nodes?: Array<CollisionSchema | CompositeNode | ObjectNode | PrimitiveNode | SetNode>;
-    edges?: Array<Edge>;
-    confidence?: number;
+  reference?: string;
+  deletion?: boolean;
+  entities?: Array<EntityType>;
+  relations?: Array<Relation>;
+  nodes?: Array<CollisionSchema | CompositeNode | ObjectNode | PrimitiveNode | SetNode>;
+  edges?: Array<Edge>;
+  confidence?: number;
 }
 

@@ -243,7 +243,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
           cellView.highlight();
           this.contextMenu.open(cellView.el, PlsEntityConceptMenuComponent, this.viewContainerRef, {
             entity: node,
-            syntaxNode: node.mappedToData ? this.getMappedPrimitive(node.id) : null
+            syntaxNode: node.syntaxNodeId ? node.syntaxNodeId : null
           });
         }
         if (Nodes.isSyntaxNode(cellView)) {

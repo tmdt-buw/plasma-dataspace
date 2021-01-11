@@ -1,16 +1,16 @@
-import {ModuleWithProviders, NgModule, Optional, SkipSelf} from '@angular/core';
-import {Configuration} from './configuration';
-import {HttpClient} from '@angular/common/http';
+import { ModuleWithProviders, NgModule, Optional, SkipSelf } from '@angular/core';
+import { Configuration } from './configuration';
+import { HttpClient } from '@angular/common/http';
 
 
-import {DataModelingControllerService} from './api/dataModelingController.service';
+import { DataModelingControllerService } from './api/dataModelingController.service';
 
 @NgModule({
-  imports:      [],
+  imports: [],
   declarations: [],
-  exports:      [],
+  exports: [],
   providers: [
-    DataModelingControllerService ]
+    DataModelingControllerService]
 })
 export class ApiModule {
     public static forRoot(configurationFactory: () => Configuration): ModuleWithProviders<ApiModule> {

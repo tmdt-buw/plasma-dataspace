@@ -9,16 +9,16 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import {SyntacticOperationDTO} from './syntacticOperationDTO';
+import { SyntacticOperationDTO } from './syntacticOperationDTO';
 
 
 export interface SchemaNode {
-    uuid?: string;
-    label?: string;
-    x?: number;
-    y?: number;
-    operations?: Array<SyntacticOperationDTO>;
-    isValid?: boolean;
-    _class: string;
+  uuid?: string;
+  label?: string;
+  x?: number;
+  y?: number;
+  operations?: Array<SyntacticOperationDTO>;
+  isValid?: boolean;
+  _class: string;
 }
 

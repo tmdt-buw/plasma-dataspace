@@ -1,7 +1,7 @@
 import { Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { DataModelingControllerService, RelationConceptDTO } from '../../../api/generated/dms';
+import { DataModelingControllerService, RelationConcept } from '../../../api/generated/dms';
 
 @Component({
   selector: 'pls-new-relation-dialog',

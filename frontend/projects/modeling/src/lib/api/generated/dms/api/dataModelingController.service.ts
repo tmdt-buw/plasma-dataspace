@@ -11,10 +11,10 @@
  */
 /* tslint:disable:no-unused-variable member-ordering */
 
-import {Inject, Injectable, Optional} from '@angular/core';
-import {HttpClient, HttpEvent, HttpHeaders, HttpParameterCodec, HttpParams, HttpResponse} from '@angular/common/http';
-import {CustomHttpParameterCodec} from '../encoder';
-import {Observable} from 'rxjs';
+import { Inject, Injectable, Optional } from '@angular/core';
+import { HttpClient, HttpEvent, HttpHeaders, HttpParameterCodec, HttpParams, HttpResponse } from '@angular/common/http';
+import { CustomHttpParameterCodec } from '../encoder';
+import { Observable } from 'rxjs';
 
 import {
   CollisionSchema,
@@ -32,17 +32,17 @@ import {
   SyntacticOperationDTO
 } from '../model/models';
 
-import {BASE_PATH} from '../variables';
-import {Configuration} from '../configuration';
+import { BASE_PATH } from '../variables';
+import { Configuration } from '../configuration';
 
 
 @Injectable()
 export class DataModelingControllerService {
 
-    protected basePath = 'http://plasma-gateway-service:8888';
-    public defaultHeaders = new HttpHeaders();
-    public configuration = new Configuration();
-    public encoder: HttpParameterCodec;
+  protected basePath = 'http://plasma-gateway-service:8888';
+  public defaultHeaders = new HttpHeaders();
+  public configuration = new Configuration();
+  public encoder: HttpParameterCodec;
 
     constructor(protected httpClient: HttpClient, @Optional()@Inject(BASE_PATH) basePath: string, @Optional() configuration: Configuration) {
         if (configuration) {

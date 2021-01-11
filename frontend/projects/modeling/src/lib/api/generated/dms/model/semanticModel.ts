@@ -9,13 +9,13 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import {EntityType} from './entityType';
-import {Relation} from './relation';
+import { EntityType } from './entityType';
+import { Relation } from './relation';
 
 
 export interface SemanticModel {
-    entityId?: string;
-    nodes?: Array<EntityType>;
-    edges?: Array<Relation>;
+  entityId?: string;
+  nodes?: Array<EntityType>;
+  edges?: Array<Relation>;
 }
 
