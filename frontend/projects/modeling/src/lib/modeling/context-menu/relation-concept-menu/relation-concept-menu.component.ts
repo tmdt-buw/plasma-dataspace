@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
-import { RelationConceptDTO } from '../../../api/generated/dms';
+import { RelationDTO } from '../../../api/generated/dms';
 import { ContextMenuService } from '../context-menu.service';
-import { ContextMenuEvent, ContextMenuEventType } from '../context-menu-event';
+import { ContextMenuEvent, ContextMenuEventType } from '../../model/events/context-menu-event';
 
 @Component({
   selector: 'pls-relation-concept-menu',
@@ -10,12 +10,12 @@ import { ContextMenuEvent, ContextMenuEventType } from '../context-menu-event';
 })
 export class PlsRelationConceptMenuComponent {
 
-  @Input() concept: RelationConceptDTO;
+  @Input() relation: RelationDTO;
 
   constructor(private contextMenu: ContextMenuService) {
   }
 
   remove(): void {
-    this.contextMenu.close(new ContextMenuEvent(ContextMenuEventType.removeRelation, this.concept));
+    this.contextMenu.close(new ContextMenuEvent(ContextMenuEventType.removeRelation, this.relation));
   }
 }

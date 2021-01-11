@@ -6,16 +6,17 @@ import { DataModelingControllerService, DataSourceSchemaDTO, EntityTypeDTO, Rela
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { Filter } from './model/common/filter';
 import { MatDialog } from '@angular/material/dialog';
-import { PlsConceptDialogComponent } from './dialogs/concept-dialog/concept-dialog.component';
 import { EntityDroppedEvent } from './model/events/entity-dropped-event';
 import { NodeChangedEvent } from './model/events/node-changed-event';
 import { PlsImportDialogComponent } from './dialogs/import-dialog/import-dialog.component';
 import { UniversalKnowledgeGraphControllerService } from '../api/generated/dms/api/kgsController.service';
 import { LocalKnowledgeControllerService } from '../api/generated/dms/api/kgsModelController.service';
 import { ContextMenuService } from './context-menu/context-menu.service';
-import { ContextMenuEvent, ContextMenuEventType } from './context-menu/context-menu-event';
+import { ContextMenuEvent, ContextMenuEventType } from './model/events/context-menu-event';
 import { Nodes, SyntaxNode } from './model/configuration/node';
 import { Util } from './model/common/util';
+import { PlsOperationsDialogComponent } from './dialogs/operations-dialog/operations-dialog/operations-dialog.component';
+import { PlsConceptDialogComponent } from './dialogs/concept-dialog/concept-dialog.component';
 
 @Component({
   selector: 'pls-modeling',
@@ -62,7 +63,7 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
   accentColorContrast;
 
   // schema
-  schema: DataSourceSchemaDTO; // = test2;
+  schema: DataSourceSchemaDTO;
   initial: boolean = false;
   loading: boolean = true;
 
@@ -97,10 +98,22 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
     this.contextMenu.onClosed.subscribe((event: ContextMenuEvent) => {
       if (event) {
         if (event.type === ContextMenuEventType.removeEntity) {
-          this.modelingService.removeEntityType(this.dataSource, +event.concept.id).subscribe((res) => this.schema = res);
+          this.modelingService.removeEntityType(this.dataSource, +(event.target as EntityTypeDTO).id).subscribe((res: DataSourceSchemaDTO) => this.schema = res);
         }
         if (event.type === ContextMenuEventType.removeRelation) {
-          this.modelingService.removeRelation(this.dataSource, +event.concept.id).subscribe((res) => this.schema = res);
+          this.modelingService.removeRelation(this.dataSource, +(event.target as RelationDTO).id).subscribe((res: DataSourceSchemaDTO) => this.schema = res);
+        }
+        if (event.type === ContextMenuEventType.performOperation) {
+          const dialogRef = this.dialog.open(PlsOperationsDialogComponent, {
+            data: {
+              operation: event.operation
+            }
+          });
+          dialogRef.afterClosed().subscribe(context => {
+            if (context) {
+              this.modelingService.modifySchema(this.dataSource, context.operation).subscribe((res: DataSourceSchemaDTO) => this.schema = res);
+            }
+          });
         }
       }
     });

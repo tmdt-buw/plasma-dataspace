@@ -36,9 +36,6 @@ import { FileDropModule } from '@plasma/common';
     MatTableModule,
     ReactiveFormsModule
   ],
-  entryComponents: [
-    PlsDataSourceDialogComponent
-  ],
   exports: [PlsDataSourceComponent, PlsDataSourceDialogComponent],
   providers: [PlsUploadDialogService]
 })
