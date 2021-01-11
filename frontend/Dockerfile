@@ -3,4 +3,4 @@ FROM nginx
 COPY /dist/plasma /usr/share/nginx/html
 
 # copy a nginx config that works with angular
-COPY nginx.conf.template /etc/nginx/conf.d/default.conf
+COPY nginx.conf /etc/nginx/conf.d/default.conf
