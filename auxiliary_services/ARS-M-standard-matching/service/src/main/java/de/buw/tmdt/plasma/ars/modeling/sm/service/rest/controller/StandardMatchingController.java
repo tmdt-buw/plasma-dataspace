@@ -5,7 +5,7 @@ import de.buw.tmdt.plasma.ars.modeling.sm.shared.api.StandardMatchingAPI;
 import de.buw.tmdt.plasma.ars.modeling.sm.shared.dto.StandardDTO;
 import de.buw.tmdt.plasma.ars.modeling.sm.shared.dto.StandardProvisionDTO;
 import de.buw.tmdt.plasma.ars.modeling.sm.shared.dto.semanticmodel.SemanticModelDTO;
-import de.buw.tmdt.plasma.ars.modeling.sm.shared.dto.syntaxmodel.NodeDTO;
+import de.buw.tmdt.plasma.services.sas.shared.dto.syntaxmodel.NodeDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,11 +40,16 @@ public class StandardMatchingController implements StandardMatchingAPI {
         return standardMatchingHandler.getStandards();
     }
 
-    @NotNull
     @Override
     @Operation(description = "performs semantic modeling using the defined standard on the given combined model")
-    public SemanticModelDTO modelWithStandard(@NotNull NodeDTO syntaxModel, String standardId) {
-        return standardMatchingHandler.modelWithStandard(syntaxModel, standardId);
+    public String modelWithStandard(@NotNull NodeDTO syntaxModel, String standardId, String analysisId) {
+        return standardMatchingHandler.modelWithStandard(syntaxModel, standardId, analysisId);
+    }
+
+    @Override
+    @Operation(description = "returns the semantic model for the given id")
+    public SemanticModelDTO fetchResult(String analysisId) {
+        return standardMatchingHandler.fetchModel(analysisId);
     }
 
 

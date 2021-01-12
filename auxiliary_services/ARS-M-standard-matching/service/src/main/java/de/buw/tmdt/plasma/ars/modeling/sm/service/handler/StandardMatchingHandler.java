@@ -16,10 +16,10 @@ import de.buw.tmdt.plasma.ars.modeling.sm.service.repository.StandardRepository;
 import de.buw.tmdt.plasma.ars.modeling.sm.shared.dto.StandardDTO;
 import de.buw.tmdt.plasma.ars.modeling.sm.shared.dto.StandardProvisionDTO;
 import de.buw.tmdt.plasma.ars.modeling.sm.shared.dto.semanticmodel.SemanticModelDTO;
-import de.buw.tmdt.plasma.ars.modeling.sm.shared.dto.syntaxmodel.NodeDTO;
 import de.buw.tmdt.plasma.services.kgs.shared.dto.knowledgegraph.EntityConceptDTO;
 import de.buw.tmdt.plasma.services.kgs.shared.dto.knowledgegraph.RelationConceptDTO;
 import de.buw.tmdt.plasma.services.kgs.shared.feignclient.UniversalKnowledgeApiClient;
+import de.buw.tmdt.plasma.services.sas.shared.dto.syntaxmodel.NodeDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -91,7 +91,7 @@ public class StandardMatchingHandler {
      * @param standardId     uuid of the standard to use
      * @return dto of the semantic model
      */
-    public SemanticModelDTO modelWithStandard(NodeDTO syntaxModelDTO, String standardId) {
+    public String modelWithStandard(NodeDTO syntaxModelDTO, String standardId, String analysisId) {
 
         // Find the provided standard to apply
         Standard standard =
@@ -101,10 +101,15 @@ public class StandardMatchingHandler {
         SemanticModel semanticModel = generateSemanticModel(syntaxModel, standard);
 
         // Create a new analysis object to make sure that database ids are existing
-        Analysis analysis = new Analysis(UUID.randomUUID());
+        Analysis analysis = new Analysis(UUID.fromString(analysisId));
         analysis.setSemanticModel(semanticModel);
         // load and parse the saved model including ids
-        analysis = analysisRepository.save(analysis);
+        analysisRepository.save(analysis);
+        return analysisId;
+    }
+
+    public SemanticModelDTO fetchModel(String analysisId) {
+        Analysis analysis = analysisRepository.findById(UUID.fromString(analysisId)).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Analysis ID not found"));
         return semanticModelDTOConverter.toDTO(analysis.getSemanticModel());
     }
 

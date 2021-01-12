@@ -1,0 +1,131 @@
+{
+  "name": "GEOSTANDARD",
+  "description": "Default Geo Standards",
+  "entityRules": [
+    {
+      "originalAttribute": "latitude",
+      "conceptName": "Geographische Breite",
+      "conceptDescription": "Die geographische Breite, auch geodätische Breite oder Breitengrad genannt, ist die im Winkelmaß in der Maßeinheit Grad angegebene nördliche oder südliche Entfernung eines Punktes der Erdoberfläche vom Äquator"
+    },
+    {
+      "originalAttribute": "longitude",
+      "conceptName": "Geographische Länge",
+      "conceptDescription": "Die geographische Länge beschreibt eine der beiden Koordinaten eines Ortes auf der Erdoberfläche, und zwar seine Position östlich oder westlich einer definierten Nord-Süd-Linie, des Nullmeridians."
+    },
+    {
+      "originalAttribute": "altitude",
+      "conceptName": "Höhe",
+      "conceptDescription": "Höhen über dem Meeresspiegel (auch See- oder Meereshöhe) dienen der Höhenangabe von geografischen und technischen Objekten, insbesondere von Höhen der Erdoberfläche (Gelände, Berggipfel), von Ortschaften und Verkehrswegen."
+    },
+    {
+      "originalAttribute": "",
+      "conceptName": "Punkt",
+      "conceptDescription": "Eine einzelne Position",
+      "requiredPredecessor": "latitude"
+    },
+    {
+      "originalAttribute": "",
+      "conceptName": "Linie",
+      "conceptDescription": "Eine Menge von mehreren verbundenen Positionen",
+      "requiredPredecessor": "line"
+    },
+    {
+      "originalAttribute": "",
+      "conceptName": "Polygon",
+      "conceptDescription": "Eine zu einem Polygon verbundene Menge von Positionen",
+      "requiredPredecessor": "outerPolygon"
+    },
+    {
+      "originalAttribute": "type",
+      "conceptName": "Geotyp",
+      "conceptDescription": "Gibt an um welche Art von GeoJson Typ es sich bei dem darunter liegenden Objekt handelt.",
+      "requiredPredecessor": "geometry"
+    },
+    {
+      "originalAttribute": "",
+      "conceptName": "Geometrie",
+      "conceptDescription": "Stellt ein Geometrisches Objekt dar.",
+      "requiredPredecessor": "latitude"
+    },
+    {
+      "originalAttribute": "",
+      "conceptName": "MultiPunkt",
+      "conceptDescription": "Eine Menge von einzelnen Positionen",
+      "requiredPredecessor": "points"
+    },
+    {
+      "originalAttribute": "",
+      "conceptName": "MultiPunkt",
+      "conceptDescription": "Eine Menge von einzelnen Positionen",
+      "requiredPredecessor": "points"
+    }
+  ],
+  "relationRules": [
+    {
+      "conceptName": "hat",
+      "fromConcept": "Punkt",
+      "toConcept": "Geographische Breite",
+      "conceptDescription": "hat"
+    },
+    {
+      "conceptName": "hat",
+      "fromConcept": "Punkt",
+      "toConcept": "Geographische Länge",
+      "conceptDescription": "hat"
+    },
+    {
+      "conceptName": "hat",
+      "fromConcept": "Punkt",
+      "toConcept": "Höhe",
+      "conceptDescription": "hat"
+    },
+    {
+      "conceptName": "besteht aus",
+      "fromConcept": "Linie",
+      "toConcept": "Punkt",
+      "conceptDescription": "ist ein Teil eines Ganzen"
+    },
+    {
+      "conceptName": "besteht aus",
+      "fromConcept": "Polygon",
+      "toConcept": "Punkt",
+      "conceptDescription": "ist ein Teil eines Ganzen"
+    },
+    {
+      "conceptName": "hat",
+      "fromConcept": "Geometrie",
+      "toConcept": "Geotyp",
+      "conceptDescription": "hat"
+    },
+    {
+      "conceptName": "realisiert als",
+      "fromConcept": "Geometrie",
+      "toConcept": "Linie",
+      "conceptDescription": "realisiert als"
+    },
+    {
+      "conceptName": "realisiert als",
+      "fromConcept": "Geometrie",
+      "toConcept": "Polygon",
+      "conceptDescription": "realisiert als"
+    },
+    {
+      "conceptName": "realisiert als",
+      "fromConcept": "Geometrie",
+      "toConcept": "Punkt",
+      "conceptDescription": "realisiert als"
+    },
+    {
+      "conceptName": "realisiert als",
+      "fromConcept": "Geometrie",
+      "toConcept": "Mulipunkt",
+      "conceptDescription": "realisiert als"
+    },
+    {
+      "conceptName": "besteht aus",
+      "fromConcept": "Multipunkt",
+      "toConcept": "Punkt",
+      "conceptDescription": "ist ein Teil eines Ganzen"
+    }
+  ]
+}

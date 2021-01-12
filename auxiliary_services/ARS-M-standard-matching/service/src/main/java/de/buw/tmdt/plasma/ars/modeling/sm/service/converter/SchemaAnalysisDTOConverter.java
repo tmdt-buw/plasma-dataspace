@@ -4,8 +4,8 @@ import de.buw.tmdt.plasma.ars.modeling.sm.service.model.semanticmodel.EntityConc
 import de.buw.tmdt.plasma.ars.modeling.sm.service.model.semanticmodel.EntityType;
 import de.buw.tmdt.plasma.ars.modeling.sm.service.model.syntaxmodel.*;
 import de.buw.tmdt.plasma.ars.modeling.sm.service.model.syntaxmodel.members.*;
-import de.buw.tmdt.plasma.ars.modeling.sm.shared.dto.semanticmodel.EntityConceptDTO;
-import de.buw.tmdt.plasma.ars.modeling.sm.shared.dto.syntaxmodel.*;
+import de.buw.tmdt.plasma.services.sas.shared.dto.semanticmodel.EntityConceptDTO;
+import de.buw.tmdt.plasma.services.sas.shared.dto.syntaxmodel.*;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
