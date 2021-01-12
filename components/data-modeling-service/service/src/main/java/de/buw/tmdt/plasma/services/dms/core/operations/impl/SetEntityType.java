@@ -196,6 +196,7 @@ public class SetEntityType extends Operation<Pair<PrimitiveNode, EntityType>> {
 	public Map<SchemaNode, Set<Handle>> generateHandlesForApplicableNodes(@NotNull CombinedModel model) {
 		Map<SchemaNode, Set<Handle>> result = new HashMap<>();
 
+		/* DISABLED AS THERE IS NO USE IN THE FRONTEND RIGHT NOW
 		// get all uuids of mapped primitive nodes
 		List<String> mappedPrimitiveNodeUuids = model.getSemanticModel().getNodes().stream()
 				.map(EntityType::getSyntaxNodeUuid)
@@ -205,6 +206,7 @@ public class SetEntityType extends Operation<Pair<PrimitiveNode, EntityType>> {
 				.filter(schemaNode -> schemaNode instanceof PrimitiveNode)
 				.filter(schemaNode -> !mappedPrimitiveNodeUuids.contains(schemaNode.getUuid()))
 				.forEach(schemaNode -> result.computeIfAbsent(schemaNode, ignored -> new HashSet<>()).add(getHandleOnNode(schemaNode)));
+		*/
 		return result;
 	}
 }
