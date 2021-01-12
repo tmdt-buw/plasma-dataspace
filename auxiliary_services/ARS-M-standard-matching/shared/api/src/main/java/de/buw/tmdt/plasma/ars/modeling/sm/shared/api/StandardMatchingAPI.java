@@ -21,7 +21,7 @@ public interface StandardMatchingAPI {
 	List<StandardDTO> getStandards();
 
 	/**
-	 * Starts to model, using a standard and returns the id of the analysis used to fetch the results
+	 * Starts to model, using a standard and returns the id of the analysis used to fetch the results.
 	 *
 	 * @param syntaxModel Syntax Model of the Data Source
 	 * @param standardId  Id of the Standard to be applied
@@ -34,7 +34,7 @@ public interface StandardMatchingAPI {
 
 
 	/**
-	 * Fetches a created semantic model
+	 * Fetches a created semantic model.
 	 *
 	 * @param analysisId id used to store the results
 	 * @return Semantic Model including identified standards
