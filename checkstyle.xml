@@ -127,7 +127,7 @@
 		<module name="AbbreviationAsWordInName">
 			<property name="allowedAbbreviationLength" value="7"/>
 			<property name="tokens" value="VARIABLE_DEF,CLASS_DEF"/>
-			<property name="allowedAbbreviations" value="ESKAPE,HDFSIO,MSSQLDBIT,PLASMA"/>
+			<property name="allowedAbbreviations" value="HDFSIO,MSSQLDBIT,PLASMA"/>
 		</module>
 		<module name="EmptyStatement"/>
 		<module name="EqualsAvoidNull"/>

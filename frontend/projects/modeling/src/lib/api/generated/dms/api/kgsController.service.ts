@@ -1,5 +1,5 @@
 /**
- * ESKAPE Knowledge Graph Application
+ * Knowledge Graph Application
  * Service for maintaining the Bottom-up Knowledge Graph
  *
  * The version of the OpenAPI document: 1.9.5
