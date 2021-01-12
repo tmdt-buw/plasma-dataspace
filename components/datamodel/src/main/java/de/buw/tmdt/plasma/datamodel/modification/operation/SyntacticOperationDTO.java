@@ -57,8 +57,7 @@ public class SyntacticOperationDTO implements Serializable {
     }
 
     public SyntacticOperationDTO copy() {
-	    // TODO
-	    return this;
+	    return new SyntacticOperationDTO(getName(), getLabel(), getDescription(), parameter.copy());
     }
 
     @Override

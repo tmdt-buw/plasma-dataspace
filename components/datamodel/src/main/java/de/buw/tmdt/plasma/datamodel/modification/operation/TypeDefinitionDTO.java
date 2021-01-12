@@ -112,14 +112,26 @@ public class TypeDefinitionDTO<T extends Serializable> implements Serializable {
 		       + ", \"type\":\"" + type + '"'
 		       + ", \"name\":\"" + name + '"'
 		       + ", \"label\":\"" + label + '"'
-		       + ", \"description\":\"" + description + '"'
-		       + ", \"hidden\":\"" + hidden + '"'
-		       + ", \"value\":" + StringUtilities.arrayToJson(value)
-		       + '}';
+				+ ", \"description\":\"" + description + '"'
+				+ ", \"hidden\":\"" + hidden + '"'
+				+ ", \"value\":" + StringUtilities.arrayToJson(value)
+				+ '}';
 	}
 
 	@JsonProperty(VALUE_PROPERTY)
 	public T[] getValue() {
 		return value != null ? value.clone() : null;
+	}
+
+	public @NotNull TypeDefinitionDTO<?> copy() {
+		return new TypeDefinitionDTO<>(
+				getType(),
+				getName(),
+				getLabel(),
+				getDescription(),
+				getMinCardinality(),
+				getMaxCardinality(),
+				getValue(),
+				isHidden());
 	}
 }
