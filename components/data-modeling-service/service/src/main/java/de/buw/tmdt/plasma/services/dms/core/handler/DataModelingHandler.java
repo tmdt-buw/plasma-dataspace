@@ -261,6 +261,14 @@ public class DataModelingHandler {
         updatePositions(dataSourceUuid, Collections.singletonList(schemaNode));
     }
 
+    /**
+     * Apply a syntactic operation to the model.
+     *
+     * @param dataSourceUuid        The data source to modify
+     * @param syntacticOperationDTO The operation to invoke
+     * @return The updated model
+     * @deprecated Legacy function, use {@link #applyModification(UUID, DeltaModification)} instead
+     */
     @Deprecated
     public @NotNull CombinedModel modifySyntaxModel(@NotNull UUID dataSourceUuid, @NotNull SyntacticOperationDTO syntacticOperationDTO) {
         //load referenced data source
