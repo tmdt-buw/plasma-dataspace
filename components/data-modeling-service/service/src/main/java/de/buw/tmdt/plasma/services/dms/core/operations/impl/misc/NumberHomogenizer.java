@@ -1,5 +1,6 @@
 package de.buw.tmdt.plasma.services.dms.core.operations.impl.misc;
 
+import de.buw.tmdt.plasma.datamodel.modification.operation.DataType;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,9 +16,9 @@ public class NumberHomogenizer extends AbstractSyntaxHomogenizer {
 	private final NumberFormat numberFormat;
 
 	public NumberHomogenizer() {
-		super(DataType.NUMBER);
-		this.numberFormat = NumberFormat.getNumberInstance(Locale.ENGLISH);
-	}
+        super(DataType.Number);
+        this.numberFormat = NumberFormat.getNumberInstance(Locale.ENGLISH);
+    }
 
 	public static double parseHomogenizedRepresentation(@NotNull String homogenizedValue) throws DataTypeException {
 		try {

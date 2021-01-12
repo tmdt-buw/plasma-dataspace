@@ -10,10 +10,13 @@ import de.buw.tmdt.plasma.datamodel.semanticmodel.Relation;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.RelationConcept;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.SchemaNode;
 import de.buw.tmdt.plasma.services.dms.core.handler.DataModelingHandler;
+import de.buw.tmdt.plasma.services.dms.core.operations.OperationLookUp;
 import de.buw.tmdt.plasma.services.dms.shared.api.DataModelingAPI;
 import io.swagger.v3.oas.annotations.Operation;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -24,13 +27,17 @@ import java.util.UUID;
 @RestController("Modeling Controller")
 public class DataModelingController implements DataModelingAPI {
 
+    private final Logger log = LoggerFactory.getLogger(DataModelingController.class);
+
     private final DataModelingHandler dataModelingHandler;
+    private final OperationLookUp operationLookUp;
 
     @Autowired
     public DataModelingController(
-            @NotNull DataModelingHandler dataModelingHandler
-    ) {
+            @NotNull DataModelingHandler dataModelingHandler,
+            OperationLookUp operationLookUp) {
         this.dataModelingHandler = dataModelingHandler;
+        this.operationLookUp = operationLookUp;
     }
 
     @Override
@@ -70,7 +77,7 @@ public class DataModelingController implements DataModelingAPI {
     @Override
     @Operation(description = "Modify the syntactic schema of a datasource by invoking an operation.")
     public CombinedModel modifySchema(@NotNull String dataSourceUuid, @NotNull SyntacticOperationDTO syntacticOperationDTO) {
-        return dataModelingHandler.modifyModel(UUID.fromString(dataSourceUuid), syntacticOperationDTO);
+        return dataModelingHandler.modifySyntaxModel(UUID.fromString(dataSourceUuid), syntacticOperationDTO);
     }
 
     @Override
@@ -217,5 +224,10 @@ public class DataModelingController implements DataModelingAPI {
     public void deleteModel(@NotNull String dataSourceUuid) {
         UUID uuid = UUID.fromString(dataSourceUuid);
         dataModelingHandler.deleteModel(uuid);
+    }
+
+    private void prepareForFrontend(CombinedModel model) {
+        // add syntactic operations
+
     }
 }

@@ -243,7 +243,7 @@ public class CombinedModel implements Serializable {
 									replacedNode.getLabel() + "-" + i,
 									new ArrayList<>(),
 									true,
-									DataType.UNKNOWN.name(),
+									DataType.Unknown,
 									new ArrayList<>(),
 									null));
 						}
@@ -286,7 +286,7 @@ public class CombinedModel implements Serializable {
 					// generate new nodes
 					List<PrimitiveNode> components = new ArrayList<>(splitter.size() + 1);
 					for (int i = 0; i < splitter.size() + 1; i++) {
-						components.add(new PrimitiveNode(replaced.getLabel() + "-" + i, replaced.getOperations(), true, DataType.UNKNOWN.name(), new ArrayList<>(), null));
+						components.add(new PrimitiveNode(replaced.getLabel() + "-" + i, replaced.getOperations(), true, ((PrimitiveNode) replacedNode).getDataType(), new ArrayList<>(), null));
 					}
 
 					// split example values

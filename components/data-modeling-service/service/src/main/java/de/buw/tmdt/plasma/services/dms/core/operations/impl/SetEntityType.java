@@ -117,70 +117,70 @@ public class SetEntityType extends Operation<Pair<PrimitiveNode, EntityType>> {
 	}
 
 	/**
-	 * Make first good estimation of datatype based on the given example values. gracefully user friendly fallback to String rather than unknown for
-	 * available fields.
-	 *
-	 * @param exampleValues List of example data point values.
-	 * @return {@link DataType#UNKNOWN} iff empty values, Number or Boolean iff Homogenizer accepts or String otherwise.
-	 */
+     * Make first good estimation of datatype based on the given example values. gracefully user friendly fallback to String rather than unknown for
+     * available fields.
+     *
+     * @param exampleValues List of example data point values.
+     * @return {@link DataType#Unknown} iff empty values, Number or Boolean iff Homogenizer accepts or String otherwise.
+     */
 	@NotNull
 	public static DataType determineDataType(List<String> exampleValues) {
 		if (exampleValues == null) {
-			return DataType.UNKNOWN;
+            return DataType.Unknown;
 		}
 		List<DataType> possibleDataTypes = exampleValues.stream().map(s -> {
-			if (s.isBlank()) {
-				return DataType.UNKNOWN;
-			}
-			try {
-				BooleanHomogenizer.parseHomogenizedRepresentation(s);
-				return DataType.BOOLEAN;
-			} catch (DataTypeException ignore) {
-				// not a Boolean
-			}
-			try {
-				NumberHomogenizer.parseHomogenizedRepresentation(s);
-				return DataType.NUMBER;
-			} catch (DataTypeException ignore) {
-				// not a Double
-			}
-			// nothing specific, fallthrough String, user can choose otherwise
-			return DataType.STRING;
-		}).collect(Collectors.toList());
+            if (s.isBlank()) {
+                return DataType.Unknown;
+            }
+            try {
+                BooleanHomogenizer.parseHomogenizedRepresentation(s);
+                return DataType.Boolean;
+            } catch (DataTypeException ignore) {
+                // not a Boolean
+            }
+            try {
+                NumberHomogenizer.parseHomogenizedRepresentation(s);
+                return DataType.Number;
+            } catch (DataTypeException ignore) {
+                // not a Double
+            }
+            // nothing specific, fallthrough String, user can choose otherwise
+            return DataType.String;
+        }).collect(Collectors.toList());
 
-		// check for encapsulating data type (it is enough if one is String or Number, so that all have to be)
-		if (possibleDataTypes.contains(DataType.STRING)) {
-			return DataType.STRING;
-		} else if (possibleDataTypes.contains(DataType.NUMBER)) {
-			return DataType.NUMBER;
-		} else {
-			// only then get the most occurring DataType
-			return possibleDataTypes.stream()
-					.reduce(BinaryOperator.maxBy(Comparator.comparingInt(o -> Collections.frequency(possibleDataTypes, o))))
-					.orElse(DataType.UNKNOWN);
+        // check for encapsulating data type (it is enough if one is String or Number, so that all have to be)
+        if (possibleDataTypes.contains(DataType.String)) {
+            return DataType.String;
+        } else if (possibleDataTypes.contains(DataType.Number)) {
+            return DataType.Number;
+        } else {
+            // only then get the most occurring DataType
+            return possibleDataTypes.stream()
+                    .reduce(BinaryOperator.maxBy(Comparator.comparingInt(o -> Collections.frequency(possibleDataTypes, o))))
+                    .orElse(DataType.Unknown);
 		}
 	}
 
 	@Override
 	protected CombinedModel execute(CombinedModel model, Pair<PrimitiveNode, EntityType> input) {
-		PrimitiveNode primitiveNode = input.getLeft();
-		EntityType entityType = input.getRight();
+        PrimitiveNode primitiveNode = input.getLeft();
+        EntityType entityType = input.getRight();
 
-		EntityType modifiedEntityType = entityType.copy();
+        EntityType modifiedEntityType = entityType.copy();
 
-		modifiedEntityType.setSyntaxNodeUuid(primitiveNode.getUuid());
-		modifiedEntityType.setOriginalLabel(primitiveNode.getLabel());
-		if (DataType.UNKNOWN.identifier.equals(primitiveNode.getDataType())) {
-			// if data type is still unknown, try to determine one
-			// TODO why is this here?????
-			DataType dataType = SetEntityType.determineDataType(primitiveNode.getExamples());
-			primitiveNode.setDataType(dataType.identifier);
-		}
-		modifiedEntityType.setXCoordinate(primitiveNode.getXCoordinate());
-		modifiedEntityType.setYCoordinate(primitiveNode.getYCoordinate());
+        modifiedEntityType.setSyntaxNodeUuid(primitiveNode.getUuid());
+        modifiedEntityType.setOriginalLabel(primitiveNode.getLabel());
+        if (DataType.Unknown.equals(primitiveNode.getDataType())) {
+            // if data type is still unknown, try to determine one
+            // TODO why is this here?????
+            DataType dataType = SetEntityType.determineDataType(primitiveNode.getExamples());
+            primitiveNode.setDataType(dataType);
+        }
+        modifiedEntityType.setXCoordinate(primitiveNode.getXCoordinate());
+        modifiedEntityType.setYCoordinate(primitiveNode.getYCoordinate());
 
-		DeltaModification modification = new DeltaModification("local_operation", Set.of(modifiedEntityType), null, null, null);
-		model.apply(modification); // this will also create the explicit mapping
+        DeltaModification modification = new DeltaModification("local_operation", Set.of(modifiedEntityType), null, null, null);
+        model.apply(modification); // this will also create the explicit mapping
 
 		return model;
 	}

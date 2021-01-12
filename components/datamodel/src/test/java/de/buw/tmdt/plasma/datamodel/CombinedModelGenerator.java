@@ -11,13 +11,13 @@ public class CombinedModelGenerator {
     public static CombinedModel getCombinedModel() {
         SchemaNode root = new ObjectNode("ROOT", new ArrayList<>(), true);
         List<String> examples = Arrays.asList("10-11", "20-21", "test-test");
-        PrimitiveNode identifierNode = new PrimitiveNode("ident", null, true, DataType.STRING.name(), examples, null);
-        PrimitiveNode timeNode = new PrimitiveNode("time", null, true, DataType.STRING.name(), null, null);
+        PrimitiveNode identifierNode = new PrimitiveNode("ident", null, true, DataType.String, examples, null);
+        PrimitiveNode timeNode = new PrimitiveNode("time", null, true, DataType.String, null, null);
         ObjectNode companyNode = new ObjectNode("carrier", null, true);
-        PrimitiveNode nameNode = new PrimitiveNode("name", null, true, DataType.STRING.name(), null, null);
+        PrimitiveNode nameNode = new PrimitiveNode("name", null, true, DataType.String, null, null);
 
         SetNode codesNode = new SetNode(null, true);
-        PrimitiveNode codeNode = new PrimitiveNode("codes1", null, true, DataType.STRING.name(), null, null);
+        PrimitiveNode codeNode = new PrimitiveNode("codes1", null, true, DataType.String, null, null);
 
         List<SchemaNode> nodes = Arrays.asList(root, identifierNode, timeNode, companyNode, nameNode, codesNode, codeNode);
 

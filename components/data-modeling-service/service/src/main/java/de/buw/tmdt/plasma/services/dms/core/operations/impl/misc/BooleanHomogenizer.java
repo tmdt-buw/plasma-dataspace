@@ -1,5 +1,6 @@
 package de.buw.tmdt.plasma.services.dms.core.operations.impl.misc;
 
+import de.buw.tmdt.plasma.datamodel.modification.operation.DataType;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,7 +15,7 @@ public class BooleanHomogenizer extends AbstractSyntaxHomogenizer {
 	private static final String TRUE_CONSTANT = "true";
 
 	public BooleanHomogenizer() {
-		super(DataType.BOOLEAN);
+		super(DataType.Boolean);
 	}
 
 	public static boolean parseHomogenizedRepresentation(@NotNull String homogenizedValue) throws DataTypeException {

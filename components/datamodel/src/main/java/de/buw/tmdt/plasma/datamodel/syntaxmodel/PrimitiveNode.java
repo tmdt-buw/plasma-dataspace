@@ -3,6 +3,7 @@ package de.buw.tmdt.plasma.datamodel.syntaxmodel;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
+import de.buw.tmdt.plasma.datamodel.modification.operation.DataType;
 import de.buw.tmdt.plasma.datamodel.modification.operation.SyntacticOperationDTO;
 import de.buw.tmdt.plasma.utilities.collections.CollectionUtilities;
 import de.buw.tmdt.plasma.utilities.misc.StringUtilities;
@@ -24,11 +25,11 @@ public class PrimitiveNode extends SchemaNode {
 
     private String cleansingPattern;
     private List<String> examples;
-    private String dataType;
+    private DataType dataType;
 
     public PrimitiveNode(
             @NotNull String label,
-            @NotNull String dataType
+            @NotNull DataType dataType
     ) {
         this(label, null, true, dataType, new ArrayList<>(), null);
     }
@@ -36,7 +37,7 @@ public class PrimitiveNode extends SchemaNode {
     public PrimitiveNode(
             @NotNull String label,
             boolean isValid,
-            @NotNull String dataType
+            @NotNull DataType dataType
     ) {
         this(label, null, isValid, dataType, new ArrayList<>(), null);
     }
@@ -45,7 +46,7 @@ public class PrimitiveNode extends SchemaNode {
             @NotNull String label,
             @Nullable List<@NotNull SyntacticOperationDTO> operations,
             boolean isValid,
-            @NotNull String dataType,
+            @NotNull DataType dataType,
             @Nullable List<String> examples,
             @Nullable String cleansingPattern
     ) {
@@ -63,7 +64,7 @@ public class PrimitiveNode extends SchemaNode {
             @JsonProperty(Y_COORDINATE_PROPERTY) Double yCoordinate,
             @NotNull @JsonProperty(OPERATIONS_PROPERTY) List<@NotNull SyntacticOperationDTO> operations,
             @JsonProperty(IS_VALID_PROPERTY) boolean isValid,
-            @NotNull @JsonProperty(DATA_TYPE_PROPERTY) String dataType,
+            @NotNull @JsonProperty(DATA_TYPE_PROPERTY) DataType dataType,
             @JsonProperty(EXAMPLES_PROPERTY) List<String> examples,
             @JsonProperty(CLEANSING_PATTERN_PROPERTY) String cleansingPattern
     ) {
@@ -88,7 +89,7 @@ public class PrimitiveNode extends SchemaNode {
     }
 
     @JsonProperty(DATA_TYPE_PROPERTY)
-    public String getDataType() {
+    public DataType getDataType() {
         return dataType;
     }
 
@@ -96,7 +97,7 @@ public class PrimitiveNode extends SchemaNode {
         this.examples = examples;
     }
 
-    public void setDataType(String dataType) {
+    public void setDataType(DataType dataType) {
         this.dataType = dataType;
     }
 

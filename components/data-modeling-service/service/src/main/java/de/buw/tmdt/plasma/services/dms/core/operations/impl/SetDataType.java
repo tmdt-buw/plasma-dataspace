@@ -111,13 +111,13 @@ public class SetDataType extends Operation<Pair<PrimitiveNode, DataType>> {
 
 	@Override
 	protected CombinedModel execute(CombinedModel model, Pair<PrimitiveNode, DataType> input) {
-		PrimitiveNode primitiveNode = input.getLeft();
-		DataType dataType = input.getRight();
-		primitiveNode.setDataType(dataType.identifier);
-		DeltaModification modification = new DeltaModification("local_operation", null, null, Set.of(primitiveNode), null);
-		model.apply(modification);
-		return model;
-	}
+        PrimitiveNode primitiveNode = input.getLeft();
+        DataType dataType = input.getRight();
+        primitiveNode.setDataType(dataType);
+        DeltaModification modification = new DeltaModification("local_operation", null, null, Set.of(primitiveNode), null);
+        model.apply(modification);
+        return model;
+    }
 
 	@Override
 	protected Handle getHandleOnNode(SchemaNode node) {

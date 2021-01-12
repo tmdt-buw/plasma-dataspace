@@ -68,8 +68,8 @@ public final class Type<TRaw extends Serializable, TParsed extends Serializable>
                 "DataType",
                 String.class,
                 DataType.class,
-                DataType::fromIdentifier,
-                pn -> pn.identifier
+                DataType::valueOf,
+                DataType::name
         );
     }
 
