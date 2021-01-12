@@ -57,7 +57,7 @@ class SetEntityTypeTest {
 
 		SchemaNode node = new PrimitiveNode(
 				"label",
-				DataType.UNKNOWN.identifier
+				DataType.Unknown
 		);
 		Edge edge = new Edge(root.getUuid(), node.getUuid());
 
@@ -73,7 +73,7 @@ class SetEntityTypeTest {
 
 		assertEquals(node.getUuid(), entityType.getSyntaxNodeUuid());
 		assertTrue(node instanceof PrimitiveNode);
-		assertEquals(DataType.UNKNOWN.identifier, ((PrimitiveNode) node).getDataType());
+		assertEquals(DataType.Unknown, ((PrimitiveNode) node).getDataType());
 	}
 
 	// TODO move if functionality in operation is moved
@@ -83,7 +83,7 @@ class SetEntityTypeTest {
 
 		SchemaNode node = new PrimitiveNode(
 				"label",
-				DataType.UNKNOWN.identifier
+				DataType.Unknown
 		);
 		Edge edge = new Edge(root.getUuid(), node.getUuid());
 
@@ -101,7 +101,7 @@ class SetEntityTypeTest {
 
 		assertEquals(node.getUuid(), entityType.getSyntaxNodeUuid());
 		assertTrue(node instanceof PrimitiveNode);
-		assertEquals(DataType.STRING.identifier, ((PrimitiveNode) node).getDataType());
+		assertEquals(DataType.String, ((PrimitiveNode) node).getDataType());
 	}
 
 	@Test
@@ -110,7 +110,7 @@ class SetEntityTypeTest {
 
 		SchemaNode node = new PrimitiveNode(
 				"label",
-				DataType.UNKNOWN.identifier
+				DataType.Unknown
 		);
 		Edge edge = new Edge(root.getUuid(), node.getUuid());
 
@@ -127,7 +127,7 @@ class SetEntityTypeTest {
 
 		assertEquals(node.getUuid(), entityType.getSyntaxNodeUuid());
 		assertTrue(node instanceof PrimitiveNode);
-		assertEquals(DataType.NUMBER.identifier, ((PrimitiveNode) node).getDataType());
+		assertEquals(DataType.Number, ((PrimitiveNode) node).getDataType());
 	}
 
 	@Test
@@ -136,7 +136,7 @@ class SetEntityTypeTest {
 
 		SchemaNode node = new PrimitiveNode(
 				"label",
-				DataType.UNKNOWN.identifier
+				DataType.Unknown
 		);
 		Edge edge = new Edge(root.getUuid(), node.getUuid());
 
@@ -155,12 +155,12 @@ class SetEntityTypeTest {
 
 		assertEquals(node.getUuid(), entityType.getSyntaxNodeUuid());
 		assertTrue(node instanceof PrimitiveNode);
-		assertEquals(DataType.BOOLEAN.identifier, ((PrimitiveNode) node).getDataType());
+		assertEquals(DataType.Boolean, ((PrimitiveNode) node).getDataType());
 	}
 
 	@Test
 	void wrongNodeId() {
-		SchemaNode node = new PrimitiveNode("node1", DataType.UNKNOWN.identifier);
+		SchemaNode node = new PrimitiveNode("node1", DataType.Unknown);
 
 		SyntaxModel syntaxModel = new SyntaxModel(node.getUuid(), new ArrayList<>(Collections.singletonList(node)), new ArrayList<>());
 

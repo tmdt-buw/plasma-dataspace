@@ -40,7 +40,7 @@ class SplitPrimitiveTest {
 	void setUp() {
 		MockitoAnnotations.initMocks(this);
 
-		primitiveNode = new PrimitiveNode("primitive", DataType.STRING.identifier);
+		primitiveNode = new PrimitiveNode("primitive", DataType.String);
 		primitiveNode.setExamples(Arrays.asList("Some;Funny:Value", "SomeOther;NotSoFunny:Stuff"));
 
 		SyntaxModel syntaxModel = new SyntaxModel(primitiveNode.getUuid(), new ArrayList<>(Collections.singletonList(primitiveNode)), new ArrayList<>());
@@ -59,14 +59,14 @@ class SplitPrimitiveTest {
 						"node1",
 						new ArrayList<>(),
 						true,
-						DataType.UNKNOWN.identifier,
+						DataType.Unknown,
 						Arrays.asList("Some", "SomeOther"),
 						null),
 				new PrimitiveNode(
 						"node2",
 						new ArrayList<>(),
 						true,
-						DataType.UNKNOWN.identifier,
+						DataType.Unknown,
 						Arrays.asList("Funny", "NotSoFunny"),
 						null),
 
@@ -74,7 +74,7 @@ class SplitPrimitiveTest {
 						"node3",
 						new ArrayList<>(),
 						true,
-						DataType.UNKNOWN.identifier,
+						DataType.Unknown,
 						Arrays.asList("Value", "Stuff"),
 						null)
 		);

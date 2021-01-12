@@ -164,7 +164,7 @@ class DataSourceModelTest {
 
         SchemaNode node = new PrimitiveNode(
                 "node-" + counter++,
-                DataType.UNKNOWN.identifier
+                DataType.Unknown
         );
         Edge edge = new Edge(root.getUuid(), node.getUuid());
         SyntaxModel syntaxModel = new SyntaxModel(root.getUuid(), new ArrayList<>(Arrays.asList(root, node)), new ArrayList<>(Collections.singletonList(edge)));

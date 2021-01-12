@@ -53,6 +53,7 @@ public class DataModelingHandler {
     private final SemanticRecommendationApiClient semanticRecommendationApiClient;
     private final SchemaOperationDTOConverter schemaOperationDTOConverter;
     private final OperationLookUp operationLookUp;
+    private HashMap<SchemaNode, Set<Operation.Handle>> parameterDefinitionLookup;
 
     @Autowired
     public DataModelingHandler(
@@ -72,20 +73,25 @@ public class DataModelingHandler {
         this.operationLookUp = operationLookUp;
     }
 
-    public void initDataSourceSchema(@NotNull UUID uuid, int exampleLimit) {
-        Optional<DataSourceModel> dataSourceResult = dataSourceRepository.findById(uuid);
-        DataSourceModel dataSourceModel;
+    public void initDataSourceSchema(@NotNull UUID dataSourceUuid, int exampleLimit) {
+        DataSourceModel dataSourceModel = dataSourceRepository.findById(dataSourceUuid).orElse(null);
+        if (dataSourceModel != null) {
+            logger.info("Received init request for already existing data source, skipping...");
+            return;
+        }
+        Optional<DataSourceModel> dataSourceResult = dataSourceRepository.findById(dataSourceUuid);
+
         if (dataSourceResult.isPresent()) {
             logger.info("Data source already exists - the current schema is replaced with the last existing one in the SAS");
             dataSourceModel = dataSourceResult.get();
             //dataSourceModel.setDataSourceSchemaStack(Collections.emptyList());
         } else {
             logger.info("Data source does not exist");
-            DataSourceModel dsm = new DataSourceModel(uuid);
+            DataSourceModel dsm = new DataSourceModel(dataSourceUuid);
             dataSourceModel = dataSourceRepository.save(dsm);
             logger.info("Created a new data source");
         }
-        dataSourceModel.pushCombinedModel(createInitialSchema(uuid, exampleLimit, dataSourceModel));
+        dataSourceModel.pushCombinedModel(createInitialSchema(dataSourceUuid, exampleLimit, dataSourceModel));
 
         //store the schema
         dataSourceRepository.save(dataSourceModel);
@@ -149,7 +155,9 @@ public class DataModelingHandler {
 
     public @NotNull CombinedModel getCombinedModel(@NotNull UUID dataSourceUuid) {
 
-        return getCombinedModel(dataSourceUuid, false);
+        CombinedModel combinedModel = getCombinedModel(dataSourceUuid, false);
+        prepareForFrontend(combinedModel);
+        return combinedModel;
     }
 
     /**
@@ -226,7 +234,6 @@ public class DataModelingHandler {
      * @param schemaNodeUuid The reference uuid of the existing {@link SchemaNode} to update
      * @deprecated Legacy function, use {@link #applyModification(UUID, DeltaModification)} instead
      */
-    @Transactional
     @Deprecated
     public void placeSchemaNode(@NotNull UUID dataSourceUuid, @NotNull UUID schemaNodeUuid, @NotNull SchemaNode schemaNode) {
         if (!schemaNodeUuid.toString().equals(schemaNode.getUuid())) {
@@ -254,10 +261,10 @@ public class DataModelingHandler {
         updatePositions(dataSourceUuid, Collections.singletonList(schemaNode));
     }
 
-    @Transactional
-    public @NotNull CombinedModel modifyModel(@NotNull UUID uuid, @NotNull SyntacticOperationDTO syntacticOperationDTO) {
+    @Deprecated
+    public @NotNull CombinedModel modifySyntaxModel(@NotNull UUID dataSourceUuid, @NotNull SyntacticOperationDTO syntacticOperationDTO) {
         //load referenced data source
-        DataSourceModel dataSourceModel = findDataSourceOrThrow(uuid);
+        DataSourceModel dataSourceModel = findDataSourceOrThrow(dataSourceUuid);
 
         CombinedModel combinedModel = getCombinedModel(dataSourceModel, true); // TODO restore clone here?
 
@@ -272,11 +279,32 @@ public class DataModelingHandler {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Parametrization for operation " + syntacticOperationDTO.getName() + " was invalid.");
         }
 
-        //persist and return copy
-        dataSourceModel.pushCombinedModel(modifiedModel);
-        dataSourceModel = dataSourceRepository.save(dataSourceModel);
-        return dataSourceModel.getCurrentModel();
+        persistCombinedModel(dataSourceModel, combinedModel);
+        prepareForFrontend(combinedModel);
+        return combinedModel;
     }
+
+    private void prepareForFrontend(CombinedModel combinedModel) {
+        // add syntactic operations
+        parameterDefinitionLookup = operationLookUp.getOperationHandles(combinedModel);
+
+        combinedModel.getSyntaxModel().getNodes().forEach(schemaNode -> {
+            schemaNode.getOperations().clear();
+            schemaNode.getOperations().addAll(getOperationDTOs(schemaNode, parameterDefinitionLookup));
+        });
+    }
+
+    @NotNull
+    private List<SyntacticOperationDTO> getOperationDTOs(@NotNull SchemaNode node, @NotNull HashMap<SchemaNode, Set<Operation.Handle>> parameterDefinitionLookup) {
+        return parameterDefinitionLookup.getOrDefault(node, new HashSet<>()).stream()
+                .map(handle -> new SyntacticOperationDTO(
+                        handle.getOperation().getName(),
+                        handle.getOperation().getLabel(),
+                        handle.getOperation().getDescription(),
+                        schemaOperationDTOConverter.toDTO(handle.getParameterDefinition())
+                )).collect(Collectors.toList());
+    }
+
 
     /* SEMANTIC MODEL OPERATIONS */
 
@@ -290,7 +318,6 @@ public class DataModelingHandler {
      * @return The updated model
      * @deprecated Legacy function, use {@link #applyModification(UUID, DeltaModification)} instead
      */
-    @Transactional
     @NotNull
     @Deprecated
     public CombinedModel addEntityType(@NotNull UUID dataSourceUuid, @NotNull EntityType entityType, @Nullable String primitiveNodeUuid) {
@@ -313,7 +340,6 @@ public class DataModelingHandler {
      * @deprecated Legacy function, use {@link #applyModification(UUID, DeltaModification)} instead
      */
     @NotNull
-    @Transactional
     @Deprecated
     public CombinedModel updateEntityType(@NotNull UUID dataSourceUuid, @NotNull String entityTypeResourceId, @NotNull EntityType entityType) {
         if (!entityTypeResourceId.equals(entityType.getUuid())) {
@@ -337,7 +363,7 @@ public class DataModelingHandler {
      * @param entityTypeResourceId The reference uuid of the existing {@link EntityType} to update
      * @deprecated Legacy function, use {@link #applyModification(UUID, DeltaModification)} instead
      */
-    @Transactional
+    @Deprecated
     public void placeEntityType(@NotNull UUID dataSourceUuid, @NotNull String entityTypeResourceId, @NotNull EntityType entityType) {
         if (!entityTypeResourceId.equals(entityType.getUuid())) {
             throw new ResponseStatusException(
@@ -371,7 +397,6 @@ public class DataModelingHandler {
      * @deprecated Legacy function, use {@link #applyModification(UUID, DeltaModification)} with {@link DeltaModification#isDeletion()} instead
      */
     @NotNull
-    @Transactional
     @Deprecated
     public CombinedModel removeEntityTypeFromModel(@NotNull UUID dataSourceUuid, @NotNull String entityTypeResourceId) {
 
@@ -392,7 +417,6 @@ public class DataModelingHandler {
      * @deprecated Legacy function, use {@link #applyModification(UUID, DeltaModification)} instead
      */
     @NotNull
-    @Transactional
     @Deprecated
     public CombinedModel addRelation(@NotNull UUID dataSourceUuid, @NotNull Relation relation) {
 
@@ -411,7 +435,6 @@ public class DataModelingHandler {
      * @deprecated Legacy function, use {@link #applyModification(UUID, DeltaModification)} instead
      */
     @NotNull
-    @Transactional
     @Deprecated
     public CombinedModel updateRelation(@NotNull UUID dataSourceUuid, @NotNull String relationResourceId, @NotNull Relation relation) {
         if (!relationResourceId.equals(relation.getUuid())) {
@@ -433,7 +456,6 @@ public class DataModelingHandler {
      * @deprecated Legacy function, use {@link #applyModification(UUID, DeltaModification)} with {@link DeltaModification#isDeletion()} instead
      */
     @NotNull
-    @Transactional
     public CombinedModel removeRelationFromModel(@NotNull UUID dataSourceUuid, @NotNull String relationResourceId) {
         CombinedModel combinedModel = getCombinedModel(dataSourceUuid);
         Relation relation = combinedModel.getSemanticModel().getRelation(relationResourceId);
@@ -451,7 +473,6 @@ public class DataModelingHandler {
      * @return The updated {@link CombinedModel}
      */
     @NotNull
-    @Transactional
     public CombinedModel applyModification(@NotNull UUID dataSourceUuid, @NotNull DeltaModification modification) {
 
         //load schema
@@ -480,7 +501,6 @@ public class DataModelingHandler {
      * @param dataSourceUuid The data source uuid identifying the {@link CombinedModel} to update
      * @param movedElements  A list of elements with updated positions, can be syntactic and semantic elements
      */
-    @Transactional
     public void updatePositions(@NotNull UUID dataSourceUuid, @NotNull List<PositionedCombinedModelElement> movedElements) {
         //load referenced data source
         DataSourceModel dataSourceModel = findDataSourceOrThrow(dataSourceUuid);
@@ -505,12 +525,11 @@ public class DataModelingHandler {
             current.setXCoordinate(movedElement.getXCoordinate());
             current.setYCoordinate(movedElement.getYCoordinate());
         }
-        dataSourceRepository.save(dataSourceModel);
+        persistDataSourceModel(dataSourceModel);
     }
 
     /* CACHING OPERATIONS */
 
-    @Transactional
     public EntityConcept cacheEntityConcept(@NotNull UUID dataSourceUuid, @NotNull EntityConcept entityConcept) {
 
         if (entityConcept.getEntityId() != null) {
@@ -531,23 +550,21 @@ public class DataModelingHandler {
                 combinedModel.getProvisionalEntityConcepts());
 
 
-        dataSourceRepository.save(dataSourceModel);
+        persistDataSourceModel(dataSourceModel);
 
         return usedEntityConcept;
     }
 
-    @Transactional
     public void uncacheEntityConcept(@NotNull UUID dataSourceUuid, String entityConceptUuid) {
         DataSourceModel dataSourceModel = findDataSourceOrThrow(dataSourceUuid);
         CombinedModel combinedModel = getCombinedModel(dataSourceModel, true);
 
         boolean change = combinedModel.getProvisionalEntityConcepts().removeIf(o -> o.getUuid().equals(entityConceptUuid));
         if (change) {
-            dataSourceRepository.save(dataSourceModel);
+            persistDataSourceModel(dataSourceModel);
         }
     }
 
-    @Transactional
     public RelationConcept cacheRelationConcept(@NotNull UUID dataSourceUuid, @NotNull RelationConcept relationConcept) {
 
         if (relationConcept.getEntityId() != null) {
@@ -566,20 +583,19 @@ public class DataModelingHandler {
                 RelationConcept::getUuid,
                 combinedModel.getProvisionalRelationConcepts()
         );
-        dataSourceRepository.save(dataSourceModel);
+        persistDataSourceModel(dataSourceModel);
 
         return usedRelationConcept;
 
     }
 
-    @Transactional
     public void uncacheRelationConcept(@NotNull UUID dataSourceUuid, String relationConceptUuid) {
         DataSourceModel dataSourceModel = findDataSourceOrThrow(dataSourceUuid);
         CombinedModel combinedModel = getCombinedModel(dataSourceModel, true);
 
         boolean change = combinedModel.getProvisionalRelationConcepts().removeIf(o -> o.getUuid().equals(relationConceptUuid));
         if (change) {
-            dataSourceRepository.save(dataSourceModel);
+            persistDataSourceModel(dataSourceModel);
         }
     }
 
@@ -620,14 +636,9 @@ public class DataModelingHandler {
 
     /* UNDO / REDO Functions */
 
-    @Transactional
     public @NotNull CombinedModel undoModelModification(@NotNull UUID dataSourceUuid) {
         //Get the data source from the repository
-        DataSourceModel dataSourceModel = dataSourceRepository.findById(dataSourceUuid)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "Data Source does not exists"
-                ));
+        DataSourceModel dataSourceModel = findDataSourceOrThrow(dataSourceUuid);
         try {
             dataSourceModel.popCombinedModel();
         } catch (UnsupportedOperationException e) {
@@ -636,18 +647,13 @@ public class DataModelingHandler {
                     e.getMessage()
             );
         }
-        dataSourceModel = dataSourceRepository.save(dataSourceModel);
+        persistDataSourceModel(dataSourceModel);
         return dataSourceModel.getCurrentModel();
     }
 
-    @Transactional
     public @NotNull CombinedModel redoModelModification(@NotNull UUID dataSourceUuid) {
         //Get the data source from the repository
-        DataSourceModel dataSourceModel = dataSourceRepository.findById(dataSourceUuid)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "Data Source does not exists"
-                ));
+        DataSourceModel dataSourceModel = findDataSourceOrThrow(dataSourceUuid);
         CombinedModel model;
         try {
             model = dataSourceModel.restoreCombinedModel();
@@ -658,7 +664,7 @@ public class DataModelingHandler {
             );
         }
 
-        dataSourceRepository.save(dataSourceModel);
+        persistDataSourceModel(dataSourceModel);
         return model;
     }
 
@@ -675,6 +681,7 @@ public class DataModelingHandler {
      * @return An updated model instance with the new persistence ids (entityIds) included
      */
     @NotNull
+    @Transactional
     public CombinedModel finishModeling(@NotNull UUID dataSourceUuid) {
         //Load the data source from the repository.
         DataSourceModel dataSourceModel = dataSourceRepository.findById(dataSourceUuid)
@@ -697,6 +704,7 @@ public class DataModelingHandler {
         combinedModel.getRecommendations().clear();
         combinedModel.getProvisionalRelationConcepts().clear();
         combinedModel.getProvisionalEntityConcepts().clear();
+        combinedModel.getSyntaxModel().getNodes().forEach(schemaNode -> schemaNode.getOperations().clear());
 
         // prevent any further modifications
         combinedModel.finalizeModel();
@@ -909,7 +917,7 @@ public class DataModelingHandler {
     //    }
 
     @SuppressWarnings("unused")
-        // utility function, might be used later
+    @Transactional
     void persistCombinedModel(@NotNull UUID dataSourceUuid, @NotNull CombinedModel combinedModel) {
         DataSourceModel dataSourceModel = findDataSourceOrThrow(dataSourceUuid);
         persistCombinedModel(dataSourceModel, combinedModel);
@@ -918,6 +926,11 @@ public class DataModelingHandler {
     @Transactional
     void persistCombinedModel(@NotNull DataSourceModel dataSourceModel, @NotNull CombinedModel combinedModel) {
         dataSourceModel.pushCombinedModel(combinedModel);
+        dataSourceRepository.save(dataSourceModel);
+    }
+
+    @Transactional
+    void persistDataSourceModel(@NotNull DataSourceModel dataSourceModel) {
         dataSourceRepository.save(dataSourceModel);
     }
 

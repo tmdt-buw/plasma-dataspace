@@ -50,26 +50,26 @@ class SetDataTypeTest {
 				"label",
 				new ArrayList<>(),
 				true,
-				DataType.STRING.identifier,
+				DataType.String,
 				new ArrayList<>()
 				, null
 		);
 
-		assertEquals(DataType.STRING.identifier, ((PrimitiveNode) node).getDataType());
+		assertEquals(DataType.String, ((PrimitiveNode) node).getDataType());
 		SyntaxModel syntaxModel = new SyntaxModel(node.getUuid(), new ArrayList<>(Collections.singletonList(node)), new ArrayList<>());
 
 		combinedModel = new CombinedModel("", syntaxModel, null);
 
-		testee.invoke(combinedModel, setParameters(node.getUuid(), DataType.BOOLEAN));
+		testee.invoke(combinedModel, setParameters(node.getUuid(), DataType.Boolean));
 
 		node = combinedModel.getSyntaxModel().getNode(node.getUuid());
 
-		assertEquals(DataType.BOOLEAN.identifier, ((PrimitiveNode) node).getDataType());
+		assertEquals(DataType.Boolean, ((PrimitiveNode) node).getDataType());
 	}
 
 	@Test
 	void wrongNodeId() {
-		SchemaNode node = new PrimitiveNode("node1", true, DataType.STRING.identifier);
+		SchemaNode node = new PrimitiveNode("node1", true, DataType.String);
 
 		SyntaxModel syntaxModel = new SyntaxModel(node.getUuid(), new ArrayList<>(Collections.singletonList(node)), new ArrayList<>());
 
