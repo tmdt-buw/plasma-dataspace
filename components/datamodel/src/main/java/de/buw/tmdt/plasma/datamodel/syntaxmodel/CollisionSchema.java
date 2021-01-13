@@ -18,7 +18,7 @@ public class CollisionSchema extends SchemaNode {
 
     public CollisionSchema(
             @JsonProperty(LABEL_PROPERTY) @NotNull String label,
-            @JsonProperty(OPERATIONS_PROPERTY) @NotNull List<SyntacticOperationDTO> operations,
+            @JsonProperty(OPERATIONS_PROPERTY) @Nullable List<SyntacticOperationDTO> operations,
             @JsonProperty(IS_VALID_PROPERTY) boolean isValid
     ) {
         super(label, operations, isValid);

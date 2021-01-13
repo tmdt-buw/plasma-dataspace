@@ -36,7 +36,7 @@ public abstract class SchemaNode extends PositionedCombinedModelElement {
     private final ArrayList<SyntacticOperationDTO> operations;
 
     public SchemaNode(
-            String label,
+            @NotNull String label,
             @Nullable List<SyntacticOperationDTO> operations,
             boolean isValid
     ) {

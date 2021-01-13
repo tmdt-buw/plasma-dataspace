@@ -22,11 +22,13 @@ public abstract class CombinedModelElement implements Serializable {
      * Fixed UUID that identifies this object.
      * Available from the creation of the element. Never changes.
      */
+    @NotNull
     private final String uuid;
 
     /**
      * The label which is a readable form.
      */
+    @NotNull
     private String label;
 
     public CombinedModelElement(
@@ -56,7 +58,7 @@ public abstract class CombinedModelElement implements Serializable {
         return label;
     }
 
-    public void setLabel(String label) {
+    public void setLabel(@NotNull String label) {
         this.label = label;
     }
 
