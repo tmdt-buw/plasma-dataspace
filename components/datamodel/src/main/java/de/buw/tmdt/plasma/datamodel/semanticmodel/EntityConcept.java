@@ -3,6 +3,7 @@ package de.buw.tmdt.plasma.datamodel.semanticmodel;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import de.buw.tmdt.plasma.datamodel.CombinedModelElement;
+import de.buw.tmdt.plasma.datamodel.CombinedModelIntegrityException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -118,5 +119,14 @@ public class EntityConcept extends CombinedModelElement implements Serializable 
                 + ", \"sourceURI\":\"" + sourceURI + '"'
                 + ", \"description\":\"" + description + '"'
                 + '}';
+    }
+
+    public void validate() throws CombinedModelIntegrityException {
+        if (getLabel().length() < 3) {
+            throw new CombinedModelIntegrityException("Label of EntityConcept '" + getUuid() + "' must not be shorter than 3 characters.");
+        }
+        if (getSourceURI().length() < 3) {
+            throw new CombinedModelIntegrityException("SourceURI of EntityConcept '" + getUuid() + "' must not be shorter than 3 characters.");
+        }
     }
 }

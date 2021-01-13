@@ -2,6 +2,7 @@ package de.buw.tmdt.plasma.datamodel.semanticmodel;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import de.buw.tmdt.plasma.datamodel.CombinedModelIntegrityException;
 import de.buw.tmdt.plasma.datamodel.PositionedCombinedModelElement;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.PrimitiveNode;
 import org.jetbrains.annotations.NotNull;
@@ -159,7 +160,7 @@ public class EntityType extends PositionedCombinedModelElement implements Serial
      *                       Should be equal to a {@link PrimitiveNode#getUuid()}
      * @param originalLabel  The original attributes label
      * @param description    A description for this object, optional
-     * @param entityConcept        The concept to represent
+     * @param entityConcept  The concept to represent
      */
     @JsonCreator
     public EntityType(
@@ -173,7 +174,7 @@ public class EntityType extends PositionedCombinedModelElement implements Serial
             @Nullable @JsonProperty(X_COORDINATE_PROPERTY) Double xCoordinate,
             @Nullable @JsonProperty(Y_COORDINATE_PROPERTY) Double yCoordinate
     ) {
-        super(uuid,  label, xCoordinate, yCoordinate);
+        super(uuid, label, xCoordinate, yCoordinate);
         this.entityId = entityId;
         this.syntaxNodeUuid = syntaxNodeUuid;
         this.originalLabel = originalLabel;
@@ -276,4 +277,10 @@ public class EntityType extends PositionedCombinedModelElement implements Serial
                 + '}';
     }
 
+    public void validate() throws CombinedModelIntegrityException {
+        if (getLabel().length() < 3) {
+            throw new CombinedModelIntegrityException("Label of EntityType '" + getUuid() + "' must not be shorter than 3 characters.");
+        }
+        getEntityConcept().validate();
+    }
 }

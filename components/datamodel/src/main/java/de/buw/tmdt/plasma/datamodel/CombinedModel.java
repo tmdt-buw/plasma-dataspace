@@ -182,7 +182,7 @@ public class CombinedModel implements Serializable {
 	 *
 	 * @param delta The modification to apply
 	 */
-	public void apply(DeltaModification delta) {
+	public void apply(DeltaModification delta) throws CombinedModelIntegrityException {
 		if (finalized) {
 			throw new UnsupportedOperationException("Model is finalized. No more modifications possible");
 		}
@@ -325,6 +325,8 @@ public class CombinedModel implements Serializable {
 
 				List<EntityType> modifiedEntities = new ArrayList<>();
 				for (EntityType entity : delta.getEntities()) {
+					// check if entity is valid
+					entity.validate();
 					// get node that is to be overwritten (i.e. uuids match)
 					EntityType replacedNode = semanticModel.getNodes().stream().filter(entityType -> entityType.getUuid().equals(entity.getUuid())).findFirst().orElse(null);
 
