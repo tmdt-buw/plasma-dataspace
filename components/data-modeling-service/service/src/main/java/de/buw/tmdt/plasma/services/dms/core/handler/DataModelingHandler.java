@@ -335,7 +335,9 @@ public class DataModelingHandler {
 
         DeltaModification modification = new DeltaModification("internal_mod", Collections.singleton(entityType), null, null, null, 0.0);
 
-        return applyModification(dataSourceUuid, modification);
+        CombinedModel combinedModel = applyModification(dataSourceUuid, modification);
+        prepareForFrontend(combinedModel);
+        return combinedModel;
     }
 
     /**
@@ -359,7 +361,9 @@ public class DataModelingHandler {
 
         DeltaModification modification = new DeltaModification("internal_mod", Collections.singleton(entityType), null, null, null, 0.0);
 
-        return applyModification(dataSourceUuid, modification);
+        CombinedModel combinedModel = applyModification(dataSourceUuid, modification);
+        prepareForFrontend(combinedModel);
+        return combinedModel;
 
     }
 
@@ -413,7 +417,9 @@ public class DataModelingHandler {
         DeltaModification modification = new DeltaModification("internal_mod", Collections.singleton(entityType), null, null, null, 0.0);
         modification.setDeletion(true);
 
-        return applyModification(dataSourceUuid, modification);
+        CombinedModel combinedModel = applyModification(dataSourceUuid, modification);
+        prepareForFrontend(combinedModel);
+        return combinedModel;
     }
 
     /**
@@ -430,7 +436,9 @@ public class DataModelingHandler {
 
         DeltaModification modification = new DeltaModification("internal_mod", null, Collections.singleton(relation), null, null, 0.0);
 
-        return applyModification(dataSourceUuid, modification);
+        CombinedModel combinedModel = applyModification(dataSourceUuid, modification);
+        prepareForFrontend(combinedModel);
+        return combinedModel;
     }
 
     /**
@@ -452,7 +460,9 @@ public class DataModelingHandler {
             );
         }
         DeltaModification modification = new DeltaModification("internal_mod", null, Collections.singleton(relation), null, null, 0.0);
-        return applyModification(dataSourceUuid, modification);
+        CombinedModel combinedModel = applyModification(dataSourceUuid, modification);
+        prepareForFrontend(combinedModel);
+        return combinedModel;
     }
 
     /**
@@ -469,7 +479,9 @@ public class DataModelingHandler {
         Relation relation = combinedModel.getSemanticModel().getRelation(relationResourceId);
         DeltaModification modification = new DeltaModification("internal_mod", null, Collections.singleton(relation), null, null, 0.0);
         modification.setDeletion(true);
-        return applyModification(dataSourceUuid, modification);
+        combinedModel = applyModification(dataSourceUuid, modification);
+        prepareForFrontend(combinedModel);
+        return combinedModel;
     }
 
     /**
@@ -499,7 +511,8 @@ public class DataModelingHandler {
         }
         persistCombinedModel(dataSourceModel, clone);
 
-        return dataSourceModel.getCurrentModel();
+        prepareForFrontend(clone);
+        return clone;
     }
 
     /**
@@ -656,7 +669,9 @@ public class DataModelingHandler {
             );
         }
         persistDataSourceModel(dataSourceModel);
-        return dataSourceModel.getCurrentModel();
+        CombinedModel combinedModel = dataSourceModel.getCurrentModel();
+        prepareForFrontend(combinedModel);
+        return combinedModel;
     }
 
     public @NotNull CombinedModel redoModelModification(@NotNull UUID dataSourceUuid) {
@@ -673,7 +688,9 @@ public class DataModelingHandler {
         }
 
         persistDataSourceModel(dataSourceModel);
-        return model;
+        CombinedModel combinedModel = dataSourceModel.getCurrentModel();
+        prepareForFrontend(combinedModel);
+        return combinedModel;
     }
 
     /* Finish operations */
