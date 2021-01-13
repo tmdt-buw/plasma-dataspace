@@ -278,6 +278,7 @@ public abstract class Operation<I> {
 		}
 
 		public CombinedModel invoke(CombinedModel model) throws ParameterParsingException {
+			model = model.copy();
 			return operation.invoke(model, parameterDefinition);
 		}
 	}

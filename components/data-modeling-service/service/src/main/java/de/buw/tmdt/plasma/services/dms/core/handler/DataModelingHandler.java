@@ -274,7 +274,7 @@ public class DataModelingHandler {
         //load referenced data source
         DataSourceModel dataSourceModel = findDataSourceOrThrow(dataSourceUuid);
 
-        CombinedModel combinedModel = getCombinedModel(dataSourceModel, true); // TODO restore clone here?
+        CombinedModel combinedModel = getCombinedModel(dataSourceModel, true);
 
         //deserialize syntactic operation
         Operation.Handle handle = schemaOperationDTOConverter.fromDTO(syntacticOperationDTO);
@@ -287,8 +287,8 @@ public class DataModelingHandler {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Parametrization for operation " + syntacticOperationDTO.getName() + " was invalid.");
         }
 
-        persistCombinedModel(dataSourceModel, combinedModel);
-        prepareForFrontend(combinedModel);
+        persistCombinedModel(dataSourceModel, modifiedModel);
+        prepareForFrontend(modifiedModel);
         return combinedModel;
     }
 
@@ -677,9 +677,8 @@ public class DataModelingHandler {
     public @NotNull CombinedModel redoModelModification(@NotNull UUID dataSourceUuid) {
         //Get the data source from the repository
         DataSourceModel dataSourceModel = findDataSourceOrThrow(dataSourceUuid);
-        CombinedModel model;
         try {
-            model = dataSourceModel.restoreCombinedModel();
+            dataSourceModel.restoreCombinedModel();
         } catch (UnsupportedOperationException e) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
