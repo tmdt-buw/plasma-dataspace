@@ -81,6 +81,17 @@
             <version>${project.parent.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>de.buw.tmdt.plasma.ars.modeling.standardmatching</groupId>
+            <artifactId>feign-client</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>de.buw.tmdt.plasma.ars.modeling.standardmatching</groupId>
+            <artifactId>api</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+
         <!-- Testing -->
         <dependency>
             <groupId>org.springframework</groupId>
