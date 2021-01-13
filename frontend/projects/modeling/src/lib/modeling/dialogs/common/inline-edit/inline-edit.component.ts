@@ -1,5 +1,7 @@
-import { Component, ElementRef, forwardRef, Input, Renderer2 } from '@angular/core';
+import { Component, ElementRef, forwardRef, Input, OnInit, Renderer2 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { BehaviorSubject } from 'rxjs';
+import { EditState } from '../../semantic-node-dialog/model/edit-state';
 
 @Component({
   selector: 'pls-inline-edit',
@@ -12,7 +14,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
     }
   ]
 })
-export class InlineInputEditComponent implements ControlValueAccessor {
+export class InlineInputEditComponent implements ControlValueAccessor, OnInit {
 
   // The control label
   @Input() label = '';
@@ -28,9 +30,16 @@ export class InlineInputEditComponent implements ControlValueAccessor {
   @Input() confirmColor = 'primary';
   // color of the cancel button
   @Input() cancelColor = 'warn';
-  @Input() editing = false;
+
+  @Input() $edit: BehaviorSubject<EditState>;
+
   @Input() empty = '';
 
+  get editing(): boolean {
+    return this._editing;
+  }
+
+  private _editing = false;
   // private value of input
   private _value = '';
   // value prior to editing
@@ -39,6 +48,22 @@ export class InlineInputEditComponent implements ControlValueAccessor {
   public onChange: any = Function.prototype;
   // Callback when the input is accessed
   public onTouched: any = Function.prototype;
+
+  ngOnInit(): void {
+    this.$edit.subscribe(state => {
+      switch (state) {
+        case EditState.start:
+          this.start();
+          break;
+        case EditState.confirm:
+          this.confirm();
+          break;
+        case EditState.cancel:
+          this.cancel();
+          break;
+      }
+    });
+  }
 
   get value(): any {
     return this._value;
@@ -70,29 +95,28 @@ export class InlineInputEditComponent implements ControlValueAccessor {
 
   cancel(): void {
     this.value = this.preValue;
-    this.editing = false;
+    this._editing = false;
   }
 
   confirm(): void {
-    this.editing = false;
+    this._editing = false;
   }
 
   keypress($event): void {
-    if ($event.keyCode === 13) {
-      this.confirm();
-    }
   }
 
   // Start editing
-  edit(value): void {
+  start(): void {
     if (this.disabled) {
       return;
     }
-    this.preValue = value;
-    this.editing = true;
+    this._editing = true;
+    console.log('old value: ' + this.value);
+    this.preValue = this.value;
   }
 
   constructor(element: ElementRef, private _renderer: Renderer2) {
   }
+
 
 }
