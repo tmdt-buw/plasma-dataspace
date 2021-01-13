@@ -75,7 +75,13 @@ public class DataSourceModel {
         if (versionPointer == 0) {
             throw new UnsupportedOperationException("No model available.");
         }
-        return combinedModelVersions.get(versionPointer - 1);
+        try {
+            return combinedModelVersions.get(versionPointer - 1);
+        } catch (IndexOutOfBoundsException e) {
+            // somehow the versions got messed up, reset to latest version
+            versionPointer = combinedModelVersions.size();
+            return combinedModelVersions.get(versionPointer - 1);
+        }
     }
 
     public void popCombinedModel() throws UnsupportedOperationException {
