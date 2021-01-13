@@ -1,5 +1,6 @@
 package de.buw.tmdt.plasma.services.dms.rest.error;
 
+import de.buw.tmdt.plasma.datamodel.CombinedModelIntegrityException;
 import de.buw.tmdt.plasma.datamodel.error.ErrorDTO;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -38,6 +39,14 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
 	public ResponseEntity<Object> handleResponseStatusException(@NotNull ResponseStatusException ex) {
 		logger.warn("A response Status Exception occurred", ex);
 		ErrorDTO errorDTO = new ErrorDTO(ex.getStatus().value(), ex.getReason(), ex.getMessage());
+		return new ResponseEntity<>(errorDTO, HttpStatus.valueOf(errorDTO.getStatus()));
+	}
+
+	@NotNull
+	@ExceptionHandler(value = {CombinedModelIntegrityException.class})
+	public ResponseEntity<Object> handleCombinedModelIntegrityException(@NotNull CombinedModelIntegrityException ex) {
+		logger.warn("A CombinedModelIntegrityException occurred", ex);
+		ErrorDTO errorDTO = new ErrorDTO(HttpStatus.BAD_REQUEST.value(), "Invalid configuration or state of combined model", ex.getMessage());
 		return new ResponseEntity<>(errorDTO, HttpStatus.valueOf(errorDTO.getStatus()));
 	}
 
