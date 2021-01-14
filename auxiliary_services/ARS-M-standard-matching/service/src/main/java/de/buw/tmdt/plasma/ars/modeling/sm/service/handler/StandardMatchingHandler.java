@@ -120,7 +120,7 @@ public class StandardMatchingHandler {
     public DataSourceSchemaDTO fetchModel(String analysisId) {
         Analysis analysis = analysisRepository.findById(UUID.fromString(analysisId))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Analysis ID not found"));
-        @NotNull Pair<SyntaxModelDTO, List<PrimitiveEntityTypeEdgeDTO>> syntaxModelDTO = dataSourceSchemaDTOConverter.toDTO(analysis.getResult());
+        @NotNull Pair<SyntaxModelDTO, List<PrimitiveEntityTypeEdgeDTO>> syntaxModelDTO = dataSourceSchemaDTOConverter.toDTO(analysis.getResult(), analysis.getSemanticModel().getEntityTypes());
         return new DataSourceSchemaDTO(syntaxModelDTO.getLeft(),
                 semanticModelDTOConverter.toDTO(analysis.getSemanticModel()), syntaxModelDTO.getRight(), new ArrayList<>(), false);
 

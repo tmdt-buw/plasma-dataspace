@@ -1,8 +1,11 @@
 package de.buw.tmdt.plasma.ars.modeling.sm.service.converter;
 
+import de.buw.tmdt.plasma.ars.modeling.sm.service.model.semanticmodel.EntityConcept;
+import de.buw.tmdt.plasma.ars.modeling.sm.service.model.semanticmodel.EntityType;
 import de.buw.tmdt.plasma.ars.modeling.sm.service.model.syntaxmodel.*;
 import de.buw.tmdt.plasma.ars.modeling.sm.service.model.syntaxmodel.members.*;
 import de.buw.tmdt.plasma.services.dms.shared.dto.PrimitiveEntityTypeEdgeDTO;
+import de.buw.tmdt.plasma.services.dms.shared.dto.semanticmodel.EntityConceptDTO;
 import de.buw.tmdt.plasma.services.dms.shared.dto.semanticmodel.EntityTypeDTO;
 import de.buw.tmdt.plasma.services.dms.shared.dto.syntaxmodel.*;
 import de.buw.tmdt.plasma.services.dms.shared.dto.syntaxmodel.operation.SyntacticOperationDTO;
@@ -26,8 +29,8 @@ public class DataSourceSchemaDTOConverter {
 	private static final String COLLISION_ELEMENT_LABEL = "COLLISION";
 
 	@NotNull
-	public Pair<SyntaxModelDTO, List<PrimitiveEntityTypeEdgeDTO>> toDTO(@NotNull Node root) {
-		SerializationContext serializationContext = new SerializationContext(new ArrayList<>());
+	public Pair<SyntaxModelDTO, List<PrimitiveEntityTypeEdgeDTO>> toDTO(@NotNull Node root, List<EntityType> entityTypes) {
+		SerializationContext serializationContext = new SerializationContext(entityTypes.stream().map(x -> toDTO(x)).collect(Collectors.toList()));
 		SchemaNodeDTO rootDTO;
 		if (root instanceof SetNode) {
 			rootDTO = toDTO((SetNode) root, ROOT_ELEMENT_LABEL, serializationContext);
@@ -257,6 +260,33 @@ public class DataSourceSchemaDTOConverter {
 			));
 		}
 		return primitiveDTO;
+	}
+
+	private EntityTypeDTO toDTO(@NotNull EntityType entityType) {
+		Double xCoordinate = null;
+		Double yCoordinate = null;
+		if (entityType.getPosition() != null) {
+			xCoordinate = entityType.getPosition().getXCoordinate();
+			yCoordinate = entityType.getPosition().getYCoordinate();
+		}
+
+		EntityConceptDTO entityConceptDTO = toDTO(entityType.getEntityConcept());
+
+		return new EntityTypeDTO(
+				xCoordinate,
+				yCoordinate,
+				entityType.getId(),
+				String.valueOf(entityType.getUuid() == null ? null : UUID.fromString(entityType.getUuid())),
+				entityType.getLabel(),
+				entityType.getOriginalLabel(),
+				entityType.getDescription(),
+				entityConceptDTO,
+				entityType.getOriginalLabel() != null
+		);
+	}
+
+	private EntityConceptDTO toDTO(EntityConcept entityConcept) {
+		return new EntityConceptDTO(entityConcept.getId(), entityConcept.getUuid(), entityConcept.getName(), entityConcept.getDescription(), entityConcept.getSourceURI());
 	}
 
 	private static class SerializationContext {
