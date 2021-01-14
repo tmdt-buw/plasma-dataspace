@@ -3,6 +3,7 @@ package de.buw.tmdt.plasma.datamodel.syntaxmodel;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import de.buw.tmdt.plasma.datamodel.CombinedModelElement;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
@@ -15,32 +16,29 @@ public class Edge extends CombinedModelElement {
 
     private static final String FROM_PROPERTY = "from";
     private static final String TO_PROPERTY = "to";
-    private static final String KEY_PROPERTY = "key";
-    private static final String OPERATIONS_PROPERTY = "operations";
     private static final long serialVersionUID = 40733795713697672L;
 
     /**
      * An identifier of the origin node, references to a {@link SchemaNode#getUuid()}.
      */
+    @NotNull
     private String from;
 
     /**
      * An identifier of the target node, references to a {@link SchemaNode#getUuid()}.
      */
+    @NotNull
     private String to;
 
+    @SuppressFBWarnings("NP_METHOD_PARAMETER_TIGHTENS_ANNOTATION") // does not intent to override
     public Edge(@NotNull String fromUuid, @NotNull String toUuid) {
-        this(fromUuid, toUuid, null);
-    }
-
-    public Edge(@NotNull String fromUuid, @NotNull String toUuid, String key) {
         this(UUID.randomUUID().toString(), "", fromUuid, toUuid);
     }
 
     @JsonCreator
     public Edge(
             @JsonProperty(UUID_PROPERTY) @NotNull String uuid,
-            @NotNull @JsonProperty(LABEL_PROPERTY) String label,
+            @JsonProperty(LABEL_PROPERTY) @NotNull String label,
             @JsonProperty(FROM_PROPERTY) @NotNull String fromUuid,
             @JsonProperty(TO_PROPERTY) @NotNull String toUuid
     ) {
@@ -55,7 +53,7 @@ public class Edge extends CombinedModelElement {
         return from;
     }
 
-    public void setFrom(String from) {
+    public void setFrom(@NotNull String from) {
         this.from = from;
     }
 
@@ -65,7 +63,7 @@ public class Edge extends CombinedModelElement {
         return to;
     }
 
-    public void setTo(String to) {
+    public void setTo(@NotNull String to) {
         this.to = to;
     }
 

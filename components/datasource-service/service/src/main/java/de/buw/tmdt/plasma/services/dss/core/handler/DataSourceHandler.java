@@ -8,6 +8,7 @@ import de.buw.tmdt.plasma.services.dss.shared.dto.DataSourceDTO;
 import de.buw.tmdt.plasma.services.kgs.shared.dto.semanticmodel.SemanticModelDTO;
 import de.buw.tmdt.plasma.services.kgs.shared.feignclient.LocalKnowledgeApiClient;
 import de.buw.tmdt.plasma.services.sas.shared.feignclient.SchemaAnalysisApiClient;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import feign.FeignException;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -61,6 +62,7 @@ public class DataSourceHandler {
 		);
 	}
 
+	@SuppressFBWarnings("NP_NONNULL_RETURN_VIOLATION")
 	@NotNull
 	public DataSourceDTO getDataSource(@NotNull String uuid) {
 		Optional<DataSourceModel> newDataSource = dataSourceRepository.findById(UUID.fromString(uuid));

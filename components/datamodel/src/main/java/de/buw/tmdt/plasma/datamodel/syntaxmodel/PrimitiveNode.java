@@ -31,7 +31,7 @@ public class PrimitiveNode extends SchemaNode {
             @NotNull String label,
             @NotNull DataType dataType
     ) {
-        this(label, null, true, dataType, new ArrayList<>(), null);
+        this(label, null, true, dataType, null, null);
     }
 
     public PrimitiveNode(
@@ -39,12 +39,12 @@ public class PrimitiveNode extends SchemaNode {
             boolean isValid,
             @NotNull DataType dataType
     ) {
-        this(label, null, isValid, dataType, new ArrayList<>(), null);
+        this(label, null, isValid, dataType, null, null);
     }
 
     public PrimitiveNode(
             @NotNull String label,
-            @Nullable List<@NotNull SyntacticOperationDTO> operations,
+            @Nullable List<SyntacticOperationDTO> operations,
             boolean isValid,
             @NotNull DataType dataType,
             @Nullable List<String> examples,
@@ -62,7 +62,7 @@ public class PrimitiveNode extends SchemaNode {
             @JsonProperty(LABEL_PROPERTY) @NotNull String label,
             @JsonProperty(X_COORDINATE_PROPERTY) Double xCoordinate,
             @JsonProperty(Y_COORDINATE_PROPERTY) Double yCoordinate,
-            @NotNull @JsonProperty(OPERATIONS_PROPERTY) List<@NotNull SyntacticOperationDTO> operations,
+            @NotNull @JsonProperty(OPERATIONS_PROPERTY) List<SyntacticOperationDTO> operations,
             @JsonProperty(IS_VALID_PROPERTY) boolean isValid,
             @NotNull @JsonProperty(DATA_TYPE_PROPERTY) DataType dataType,
             @JsonProperty(EXAMPLES_PROPERTY) List<String> examples,

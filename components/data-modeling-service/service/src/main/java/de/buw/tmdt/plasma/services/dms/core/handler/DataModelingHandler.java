@@ -302,6 +302,7 @@ public class DataModelingHandler {
         });
     }
 
+    @SuppressFBWarnings("NP_NONNULL_RETURN_VIOLATION") // .toList() never returns null, SB cant validate
     @NotNull
     private List<SyntacticOperationDTO> getOperationDTOs(@NotNull SchemaNode node, @NotNull HashMap<SchemaNode, Set<Operation.Handle>> parameterDefinitionLookup) {
         return parameterDefinitionLookup.getOrDefault(node, new HashSet<>()).stream()
@@ -551,6 +552,7 @@ public class DataModelingHandler {
 
     /* CACHING OPERATIONS */
 
+    @NotNull
     public EntityConcept cacheEntityConcept(@NotNull UUID dataSourceUuid, @NotNull EntityConcept entityConcept) {
 
         if (entityConcept.getEntityId() != null) {
@@ -586,6 +588,7 @@ public class DataModelingHandler {
         }
     }
 
+    @NotNull
     public RelationConcept cacheRelationConcept(@NotNull UUID dataSourceUuid, @NotNull RelationConcept relationConcept) {
 
         if (relationConcept.getEntityId() != null) {
@@ -631,6 +634,7 @@ public class DataModelingHandler {
      * @param elementCache     the cache of known entries
      * @return an entity concept which is equivalent to {@code entityConcept}
      */
+    @NotNull
     private <T extends CombinedModelElement> T getAndUpdateCache(
             @NotNull T element,
             @NotNull Function<T, String> identityFunction,
@@ -984,7 +988,8 @@ public class DataModelingHandler {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid data source uuid: " + dataSourceUuid));
     }
 
-    public CombinedModel requestRecommendations(String dataSourceUuid, CombinedModel combinedModel) {
+    @NotNull
+    public CombinedModel requestRecommendations(@NotNull String dataSourceUuid, @NotNull CombinedModel combinedModel) {
         return combinedModel;
     }
 }

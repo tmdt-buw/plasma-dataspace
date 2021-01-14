@@ -1,6 +1,7 @@
 package de.buw.tmdt.plasma.services.sas.core.converter;
 
 import de.buw.tmdt.plasma.datamodel.CombinedModel;
+import de.buw.tmdt.plasma.datamodel.modification.operation.DataType;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.Edge;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.SchemaNode;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.Splitting;
@@ -78,7 +79,7 @@ public class CombinedModelConverter {
 		} else {
 			throw new IllegalArgumentException("Unsupported sub-type of " + Node.class + " found: " + node.getClass());
 		}
-		serializationContext.edges.add(new Edge(parent.getUuid(), newDTO.getUuid(), ""));
+		serializationContext.edges.add(new Edge(parent.getUuid(), newDTO.getUuid()));
 		serializationContext.nodeLookUp.put(node.getUuid().toString(), newDTO);
 	}
 
@@ -183,7 +184,7 @@ public class CombinedModelConverter {
 		for (int i = 0; i < componentDTOs.size() - 1; i++) {
 			SchemaNode fromComponentDTO = componentDTOs.get(i);
 			SchemaNode toComponentDTO = componentDTOs.get(i + 1);
-			serializationContext.edges.add(new Edge(fromComponentDTO.getUuid(), toComponentDTO.getUuid(), splitter.get(i).getPattern()));
+			serializationContext.edges.add(new Edge(fromComponentDTO.getUuid(), toComponentDTO.getUuid()));
 		}
 
 		return root;
@@ -246,7 +247,7 @@ public class CombinedModelConverter {
 				yCoordinate,
 				new ArrayList<>(),
 				primitiveNode.isValid(),
-				primitiveNode.getDataType().identifier,
+				DataType.valueOf(primitiveNode.getDataType().identifier),
 				primitiveNode.getExamples(),
 				primitiveNode.getCleansingPattern()
 		);

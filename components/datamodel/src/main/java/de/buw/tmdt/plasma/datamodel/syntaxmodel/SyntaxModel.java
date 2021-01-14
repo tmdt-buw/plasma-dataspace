@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import de.buw.tmdt.plasma.utilities.collections.CollectionUtilities;
 import de.buw.tmdt.plasma.utilities.misc.StringUtilities;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
@@ -55,6 +56,7 @@ public class SyntaxModel implements Serializable {
 		return edges;
 	}
 
+    @SuppressFBWarnings("NP_NONNULL_RETURN_VIOLATION") // throws if not present
     @NotNull
     @JsonIgnore
     public SchemaNode getParentNodeFor(String nodeUuid) {
@@ -66,16 +68,17 @@ public class SyntaxModel implements Serializable {
                 .findFirst().orElseThrow();
     }
 
+    @SuppressFBWarnings("NP_NONNULL_RETURN_VIOLATION")
     @NotNull
     @JsonIgnore
     public List<SchemaNode> getChildNodesForNode(String nodeUuid) {
-	    List<String> childNodeUuids = getEdges().stream()
-			    .filter(edge -> edge.getFrom().equals(nodeUuid))
-			    .map(Edge::getTo)
-			    .collect(Collectors.toList());
-	    return getNodes().stream()
-			    .filter(schemaNode -> childNodeUuids.contains(schemaNode.getUuid()))
-			    .collect(Collectors.toList());
+        List<String> childNodeUuids = getEdges().stream()
+                .filter(edge -> edge.getFrom().equals(nodeUuid))
+                .map(Edge::getTo)
+                .collect(Collectors.toList());
+        return getNodes().stream()
+                .filter(schemaNode -> childNodeUuids.contains(schemaNode.getUuid()))
+                .collect(Collectors.toList());
     }
 
 	@JsonIgnore

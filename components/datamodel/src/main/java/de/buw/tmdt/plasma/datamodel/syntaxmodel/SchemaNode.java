@@ -74,7 +74,6 @@ public abstract class SchemaNode extends PositionedCombinedModelElement {
     }
 
     @JsonProperty(OPERATIONS_PROPERTY)
-    @NotNull
     public List<SyntacticOperationDTO> getOperations() {
         return operations;
     }

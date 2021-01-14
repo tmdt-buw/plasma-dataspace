@@ -19,6 +19,7 @@ public class DataSourceModel {
 
     @Id
     @Column(nullable = false, unique = true, updatable = false, length = 16)
+    @NotNull
     private UUID uuid;
 
     //The value is only set after the schema analysis
@@ -27,6 +28,7 @@ public class DataSourceModel {
     @ElementCollection
     @Convert(converter = CombinedModelPersistenceConverter.class)
     @Lob
+    @NotNull
     private List<@NotNull CombinedModel> combinedModelVersions = new ArrayList<>();
 
     @Column(nullable = false)

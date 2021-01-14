@@ -8,25 +8,29 @@ import java.io.Serializable;
 
 public class SyntacticOperationDTO implements Serializable {
 
-	public static final String NAME_PROPERTY = "name";
-	public static final String LABEL_PROPERTY = "label";
-	public static final String DESCRIPTION_PROPERTY = "description";
-	public static final String TYPE_DEFINITION_PROPERTY = "parameter";
-	private static final long serialVersionUID = -6396493681242743373L;
+    public static final String NAME_PROPERTY = "name";
+    public static final String LABEL_PROPERTY = "label";
+    public static final String DESCRIPTION_PROPERTY = "description";
+    public static final String TYPE_DEFINITION_PROPERTY = "parameter";
+    private static final long serialVersionUID = -6396493681242743373L;
 
-	private final String name;
-	private final String label;
-	private final String description;
-	private final TypeDefinitionDTO<?> parameter;
+    @NotNull
+    private final String name;
+    @NotNull
+    private final String label;
+    @NotNull
+    private final String description;
+    @NotNull
+    private final TypeDefinitionDTO<?> parameter;
 
-	@JsonCreator
-	public SyntacticOperationDTO(
-			@NotNull @JsonProperty(NAME_PROPERTY) String name,
-			@NotNull @JsonProperty(LABEL_PROPERTY) String label,
-			@NotNull @JsonProperty(DESCRIPTION_PROPERTY) String description,
-			@NotNull @JsonProperty(TYPE_DEFINITION_PROPERTY) TypeDefinitionDTO<?> parameter
-	) {
-		this.name = name;
+    @JsonCreator
+    public SyntacticOperationDTO(
+            @NotNull @JsonProperty(NAME_PROPERTY) String name,
+            @NotNull @JsonProperty(LABEL_PROPERTY) String label,
+            @NotNull @JsonProperty(DESCRIPTION_PROPERTY) String description,
+            @NotNull @JsonProperty(TYPE_DEFINITION_PROPERTY) TypeDefinitionDTO<?> parameter
+    ) {
+        this.name = name;
 		this.label = label;
 		this.description = description;
 		this.parameter = parameter;

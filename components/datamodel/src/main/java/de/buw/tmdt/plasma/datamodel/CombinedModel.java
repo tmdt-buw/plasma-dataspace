@@ -46,23 +46,27 @@ public class CombinedModel implements Serializable {
 	 * Stores provisional {@link EntityConcept}s that the user created but are not yet in the knowledge base.
 	 * Only valid for this model.
 	 */
-	private List<EntityConcept> provisionalEntityConcepts;
+	@NotNull
+	private final List<EntityConcept> provisionalEntityConcepts;
 
 	/**
 	 * Stores provisional {@link RelationConcept}s that the user created but are not yet in the knowledge base.
 	 * Only valid for this model.
 	 */
-	private List<RelationConcept> provisionalRelationConcepts;
+	@NotNull
+	private final List<RelationConcept> provisionalRelationConcepts;
 
 	/**
 	 * Supplementary mappings which are used to render edges from syntax nodes to entity types that overshadow syntax nodes.
 	 * Only used for rendering purposes in the frontend.
 	 * Will be updated automatically if {@link #apply(DeltaModification)} is called.
 	 */
+	@NotNull
 	private final ArrayList<PrimitiveEntityTypeMapping> primitiveEntityTypeMappings;
 	/**
 	 * Recommendations represent suggested modifications for the current state of models.
 	 */
+	@NotNull
 	private ArrayList<DeltaModification> recommendations;
 	/**
 	 * A finalized model should not be changed any more.
@@ -147,7 +151,7 @@ public class CombinedModel implements Serializable {
 	}
 
 	// we allow later injections of recommendations, will be solved with new data model
-	public void setRecommendations(ArrayList<DeltaModification> recommendations) {
+	public void setRecommendations(@NotNull ArrayList<DeltaModification> recommendations) {
 		this.recommendations = recommendations;
 	}
 

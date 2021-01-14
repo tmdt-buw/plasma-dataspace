@@ -1,5 +1,6 @@
 package de.buw.tmdt.plasma.ars.modeling.sm.service.model;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -65,6 +66,7 @@ public abstract class TraversableModelBase extends ModelBase implements Traversa
         }
     }
 
+    @SuppressFBWarnings("NP_NONNULL_RETURN_VIOLATION") // deriveIdentity will generate a valid identity
     @Override
     @NotNull
     public Identity<?> getIdentity() {

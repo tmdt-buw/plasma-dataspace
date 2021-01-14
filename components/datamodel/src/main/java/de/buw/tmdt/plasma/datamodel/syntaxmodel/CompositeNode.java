@@ -23,6 +23,7 @@ public class CompositeNode extends SchemaNode {
     private static final String SPLITTER_PROPERTY = "splitter";
     private static final String CLEANSING_PATTERN_PROPERTY = "cleansingPattern";
 
+    @NotNull
     private List<Splitting> splitter;
     private List<String> examples;
     private String cleansingPattern;
