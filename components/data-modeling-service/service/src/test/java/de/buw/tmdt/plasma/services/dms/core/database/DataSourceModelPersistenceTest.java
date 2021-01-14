@@ -7,7 +7,6 @@ import de.buw.tmdt.plasma.datamodel.syntaxmodel.SchemaNode;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.SyntaxModel;
 import de.buw.tmdt.plasma.services.dms.core.model.datasource.DataSourceModel;
 import de.buw.tmdt.plasma.services.dms.core.repository.DataSourceRepository;
-import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,7 +24,6 @@ public class DataSourceModelPersistenceTest {
     @Autowired
     DataSourceRepository dataSourceRepository;
 
-    @Test
     @Transactional
     public void testCreateDataSourceModel() {
         DataSourceModel dsm = new DataSourceModel();

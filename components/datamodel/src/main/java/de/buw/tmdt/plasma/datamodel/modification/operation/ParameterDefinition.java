@@ -2,12 +2,15 @@ package de.buw.tmdt.plasma.datamodel.modification.operation;
 
 import de.buw.tmdt.plasma.utilities.misc.ReflectionUtilities;
 import de.buw.tmdt.plasma.utilities.misc.StringUtilities;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.Serializable;
 import java.lang.reflect.Array;
 
+// fix those issues once the future of this class is determined
+@SuppressFBWarnings({"NP_NONNULL_RETURN_VIOLATION", "NP_NONNULL_RETURN_VIOLATION"})
 public class ParameterDefinition<R extends Serializable, T extends Serializable> implements Serializable {
 	private static final long serialVersionUID = 8679109630152788539L;
 	private final int minCardinality;
@@ -128,8 +131,8 @@ public class ParameterDefinition<R extends Serializable, T extends Serializable>
 		if (!rawArrayClass.isAssignableFrom(payloadClass)) {
 			throw new IllegalArgumentException(
 					TypeDefinitionDTO.class.getSimpleName() + ".type was `" + type.getName()
-					+ "` and it's values were not of type `" + rawArrayClass +
-					"` but of type `" + payloadClass + "`."
+							+ "` and it's values were not of type `" + rawArrayClass +
+							"` but of type `" + payloadClass + "`."
 			);
 		}
 
@@ -199,8 +202,8 @@ public class ParameterDefinition<R extends Serializable, T extends Serializable>
 			} else {
 				throw new IllegalArgumentException(
 						"Type of name " + name +
-						" expected parameter value of type " + this.value.getClass() +
-						" but tried to write " + value.getClass());
+								" expected parameter value of type " + this.value.getClass() +
+								" but tried to write " + value.getClass());
 			}
 		}
 
@@ -230,7 +233,6 @@ public class ParameterDefinition<R extends Serializable, T extends Serializable>
 		return label;
 	}
 
-	@NotNull
 	public String getDescription() {
 		return description;
 	}
@@ -239,14 +241,14 @@ public class ParameterDefinition<R extends Serializable, T extends Serializable>
 	@SuppressWarnings("MagicCharacter")
 	public String toString() {
 		return "{\"@class\":\"ParameterDefinition\""
-		       + ", \"minCardinality\":\"" + minCardinality + '"'
-		       + ", \"maxCardinality\":\"" + maxCardinality + '"'
-		       + ", \"type\":" + type
-		       + ", \"name\":\"" + name + '"'
-		       + ", \"label\":\"" + label + '"'
-		       + ", \"description\":\"" + description + '"'
-		       + ", \"hidden\":\"" + hidden + '"'
-		       + ", \"value\":" + StringUtilities.arrayToJson(value)
-		       + '}';
+				+ ", \"minCardinality\":\"" + minCardinality + '"'
+				+ ", \"maxCardinality\":\"" + maxCardinality + '"'
+				+ ", \"type\":" + type
+				+ ", \"name\":\"" + name + '"'
+				+ ", \"label\":\"" + label + '"'
+				+ ", \"description\":\"" + description + '"'
+				+ ", \"hidden\":\"" + hidden + '"'
+				+ ", \"value\":" + StringUtilities.arrayToJson(value)
+				+ '}';
 	}
 }

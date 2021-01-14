@@ -7,9 +7,9 @@ import org.jetbrains.annotations.NotNull;
 import java.io.Serializable;
 
 /**
- * Deprecated, to be removed as redundant information.
+ * Contains mappings needed to render supplementary edges in the frontend.
+ * Only used for frontend issues, can be ignored everywhere else
  */
-@Deprecated
 public class PrimitiveEntityTypeMapping implements Serializable {
 
     private static final String PARENT_UUID = "from";
@@ -17,14 +17,17 @@ public class PrimitiveEntityTypeMapping implements Serializable {
     private static final String PRIMITIVE_UUID = "mappedPrimitive";
     private static final long serialVersionUID = -6888269571341658964L;
 
+    @NotNull
     private String primitiveUUID;
 
+    @NotNull
     private String entityTypeId;
 
     /**
      * The parent syntax node of the node identified by primitiveUUID.
      * Used for rendering.
      */
+    @NotNull
     private String parentUUID;
 
     @JsonCreator
@@ -45,7 +48,7 @@ public class PrimitiveEntityTypeMapping implements Serializable {
         return parentUUID;
     }
 
-    public void setParentUUID(String parentUUID) {
+    public void setParentUUID(@NotNull String parentUUID) {
         this.parentUUID = parentUUID;
     }
 
@@ -55,7 +58,7 @@ public class PrimitiveEntityTypeMapping implements Serializable {
         return primitiveUUID;
     }
 
-    public void setPrimitiveUUID(String primitiveUUID) {
+    public void setPrimitiveUUID(@NotNull String primitiveUUID) {
         this.primitiveUUID = primitiveUUID;
     }
 
@@ -65,7 +68,7 @@ public class PrimitiveEntityTypeMapping implements Serializable {
         return this.entityTypeId;
     }
 
-    public void setEntityTypeId(String entityTypeId) {
+    public void setEntityTypeId(@NotNull String entityTypeId) {
         this.entityTypeId = entityTypeId;
     }
 

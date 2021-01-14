@@ -8,6 +8,7 @@ import de.buw.tmdt.plasma.services.kgs.shared.dto.semanticmodel.EntityTypeDTO;
 import de.buw.tmdt.plasma.services.kgs.shared.dto.semanticmodel.RelationDTO;
 import de.buw.tmdt.plasma.services.kgs.shared.dto.semanticmodel.SemanticModelDTO;
 import de.buw.tmdt.plasma.utilities.collections.CollectionUtilities;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +17,8 @@ import java.util.*;
 /**
  * Converter between the KGS data model and the shared CombinedModel.
  */
+// somehow SpotBugs does not regard @NotNull annotations on getter functions
+@SuppressFBWarnings("NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE")
 @Service
 public class KnowledgeGraphServiceDTO2CombinedModelConverter {
 

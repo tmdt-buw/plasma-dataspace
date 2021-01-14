@@ -8,6 +8,7 @@ import de.buw.tmdt.plasma.services.kgs.shared.dto.semanticmodel.EntityTypeDTO;
 import de.buw.tmdt.plasma.services.kgs.shared.dto.semanticmodel.RelationDTO;
 import de.buw.tmdt.plasma.services.kgs.shared.dto.semanticmodel.SemanticModelDTO;
 import de.buw.tmdt.plasma.utilities.collections.CollectionUtilities;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -15,6 +16,7 @@ import java.util.*;
 /**
  * Converter between the KGS data model and the shared CombinedModel.
  */
+@SuppressFBWarnings("NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE")
 public class KGS2CMConverter {
 
     /**

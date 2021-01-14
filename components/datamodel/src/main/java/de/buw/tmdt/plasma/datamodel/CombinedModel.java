@@ -61,6 +61,7 @@ public class CombinedModel implements Serializable {
 	 * Only used for rendering purposes in the frontend.
 	 * Will be updated automatically if {@link #apply(DeltaModification)} is called.
 	 */
+	// TODO auto-generate for frontend, remove from apply function
 	@NotNull
 	private final ArrayList<PrimitiveEntityTypeMapping> primitiveEntityTypeMappings;
 	/**

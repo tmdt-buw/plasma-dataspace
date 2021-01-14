@@ -170,7 +170,6 @@ public class CombinedModelConverter {
 		);
 
 		List<PrimitiveNode> components = compositeNode.getComponents();
-		List<Splitter> splitter = compositeNode.getSplitter();
 		for (int i = 0; i < components.size(); i++) {
 			createChild(root, components.get(i), StringUtilities.integerToOrdinal(i, true), serializationContext);
 		}

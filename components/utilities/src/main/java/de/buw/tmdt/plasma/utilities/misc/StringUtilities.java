@@ -1,5 +1,6 @@
 package de.buw.tmdt.plasma.utilities.misc;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -55,6 +56,8 @@ public final class StringUtilities {
      *
      * @throws IllegalArgumentException if the number implies a non-positive value
      */
+    @SuppressFBWarnings("NP_NONNULL_RETURN_VIOLATION")
+    @NotNull
     public static String integerToOrdinal(int number, boolean startCountingWithZero) throws IllegalArgumentException {
         if (startCountingWithZero) {
             number += 1;
@@ -62,8 +65,8 @@ public final class StringUtilities {
         if (number < 1) {
             throw new IllegalArgumentException(
                     "Number must be positive (or 0 if startCountingWithZero is true) but was "
-                    + (number - (startCountingWithZero ? 1 : 0))
-                    + '/' + startCountingWithZero
+                            + (number - (startCountingWithZero ? 1 : 0))
+                            + '/' + startCountingWithZero
             );
         }
         switch (number % 100) {

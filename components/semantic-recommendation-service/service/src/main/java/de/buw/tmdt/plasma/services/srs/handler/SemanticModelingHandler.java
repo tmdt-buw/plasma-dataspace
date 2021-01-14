@@ -3,13 +3,15 @@ package de.buw.tmdt.plasma.services.srs.handler;
 import de.buw.tmdt.plasma.ars.modeling.sm.shared.feignclient.StandardMatchingApiClient;
 import de.buw.tmdt.plasma.services.dms.shared.dto.DataSourceSchemaDTO;
 import de.buw.tmdt.plasma.datamodel.CombinedModel;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 
 
 @Service
 public class SemanticModelingHandler {
 
-    public CombinedModel performModeling(String uuid, CombinedModel combinedModel) {
+    @NotNull
+    public CombinedModel performModeling(@NotNull String uuid, @NotNull CombinedModel combinedModel) {
         // call ARS-R here
         return combinedModel;
     final StandardMatchingApiClient standardMatchingApiClient;
