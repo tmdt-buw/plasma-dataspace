@@ -1,9 +1,7 @@
 package de.buw.tmdt.plasma.ars.modeling.sm.service.handler;
 
 import de.buw.tmdt.plasma.ars.modeling.sm.service.basic.SchemaAnalysisSemanticLabeling;
-import de.buw.tmdt.plasma.ars.modeling.sm.service.converter.RuleDTOConverter;
-import de.buw.tmdt.plasma.ars.modeling.sm.service.converter.SchemaAnalysisDTOConverter;
-import de.buw.tmdt.plasma.ars.modeling.sm.service.converter.SemanticModelDTOConverter;
+import de.buw.tmdt.plasma.ars.modeling.sm.service.converter.*;
 import de.buw.tmdt.plasma.ars.modeling.sm.service.model.Analysis;
 import de.buw.tmdt.plasma.ars.modeling.sm.service.model.EntityRule;
 import de.buw.tmdt.plasma.ars.modeling.sm.service.model.RelationRule;
@@ -15,11 +13,15 @@ import de.buw.tmdt.plasma.ars.modeling.sm.service.repository.AnalysisRepository;
 import de.buw.tmdt.plasma.ars.modeling.sm.service.repository.StandardRepository;
 import de.buw.tmdt.plasma.ars.modeling.sm.shared.dto.StandardDTO;
 import de.buw.tmdt.plasma.ars.modeling.sm.shared.dto.StandardProvisionDTO;
-import de.buw.tmdt.plasma.ars.modeling.sm.shared.dto.semanticmodel.SemanticModelDTO;
+import de.buw.tmdt.plasma.services.dms.shared.dto.DataSourceSchemaDTO;
+import de.buw.tmdt.plasma.services.dms.shared.dto.PrimitiveEntityTypeEdgeDTO;
+import de.buw.tmdt.plasma.services.dms.shared.dto.syntaxmodel.SyntaxModelDTO;
 import de.buw.tmdt.plasma.services.kgs.shared.dto.knowledgegraph.EntityConceptDTO;
 import de.buw.tmdt.plasma.services.kgs.shared.dto.knowledgegraph.RelationConceptDTO;
 import de.buw.tmdt.plasma.services.kgs.shared.feignclient.UniversalKnowledgeApiClient;
 import de.buw.tmdt.plasma.services.sas.shared.dto.syntaxmodel.NodeDTO;
+import de.buw.tmdt.plasma.utilities.misc.Pair;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -36,19 +38,25 @@ public class StandardMatchingHandler {
     private final UniversalKnowledgeApiClient universalKnowledgeApiClient;
     private final AnalysisRepository analysisRepository;
     private final StandardRepository standardRepository;
+    private final SyntaxModelDTOConverter syntaxModelDTOConverter;
+    private final DataSourceSchemaDTOConverter dataSourceSchemaDTOConverter;
+
 
     public StandardMatchingHandler(RuleDTOConverter ruleDTOConverter,
                                    SchemaAnalysisDTOConverter schemaAnalysisDTOConverter,
                                    SemanticModelDTOConverter semanticModelDTOConverter,
                                    UniversalKnowledgeApiClient universalKnowledgeApiClient,
                                    AnalysisRepository analysisRepository,
-                                   StandardRepository standardRepository) {
+                                   StandardRepository standardRepository,
+                                   SyntaxModelDTOConverter syntaxModelDTOConverter, DataSourceSchemaDTOConverter dataSourceSchemaDTOConverter) {
         this.ruleDTOConverter = ruleDTOConverter;
         this.schemaAnalysisDTOConverter = schemaAnalysisDTOConverter;
         this.semanticModelDTOConverter = semanticModelDTOConverter;
         this.universalKnowledgeApiClient = universalKnowledgeApiClient;
         this.analysisRepository = analysisRepository;
         this.standardRepository = standardRepository;
+        this.syntaxModelDTOConverter = syntaxModelDTOConverter;
+        this.dataSourceSchemaDTOConverter = dataSourceSchemaDTOConverter;
     }
 
 
@@ -103,14 +111,19 @@ public class StandardMatchingHandler {
         // Create a new analysis object to make sure that database ids are existing
         Analysis analysis = new Analysis(UUID.fromString(analysisId));
         analysis.setSemanticModel(semanticModel);
+        analysis.setResult(syntaxModel);
         // load and parse the saved model including ids
         analysisRepository.save(analysis);
         return analysisId;
     }
 
-    public SemanticModelDTO fetchModel(String analysisId) {
-        Analysis analysis = analysisRepository.findById(UUID.fromString(analysisId)).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Analysis ID not found"));
-        return semanticModelDTOConverter.toDTO(analysis.getSemanticModel());
+    public DataSourceSchemaDTO fetchModel(String analysisId) {
+        Analysis analysis = analysisRepository.findById(UUID.fromString(analysisId))
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Analysis ID not found"));
+        @NotNull Pair<SyntaxModelDTO, List<PrimitiveEntityTypeEdgeDTO>> syntaxModelDTO = dataSourceSchemaDTOConverter.toDTO(analysis.getResult());
+        return new DataSourceSchemaDTO(syntaxModelDTO.getLeft(),
+                semanticModelDTOConverter.toDTO(analysis.getSemanticModel()), syntaxModelDTO.getRight(), new ArrayList<>(), false);
+
     }
 
     /**
