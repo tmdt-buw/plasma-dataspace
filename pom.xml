@@ -298,11 +298,11 @@
                         <execution>
                             <goals>
                                 <goal>build-info</goal>
-                                <goal>repackage</goal>
                             </goals>
                         </execution>
                     </executions>
                     <configuration>
+                        <classifier>exec</classifier>
                         <additionalProperties> <!-- Overwrite this configuration in the corresponding service -->
                             <title>${project.name}</title>
                             <description>Description of the Service</description>
