@@ -7,6 +7,8 @@ import de.buw.tmdt.plasma.ars.modeling.sm.shared.feignclient.StandardMatchingApi
 import de.buw.tmdt.plasma.services.dms.shared.dto.DataSourceSchemaDTO;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+
 @Service
 public class SemanticModelingHandler {
 
@@ -25,15 +27,15 @@ public class SemanticModelingHandler {
         de.buw.tmdt.plasma.services.dms.shared.dto.semanticmodel.SemanticModelDTO nm = null;
         try {
             sm = objectMapper.writeValueAsString(semanticModelDTOsm);
-            nm =
-                    objectMapper.readValue(sm, de.buw.tmdt.plasma.services.dms.shared.dto.semanticmodel.SemanticModelDTO.class);
+            nm = objectMapper.readValue(sm,
+                    de.buw.tmdt.plasma.services.dms.shared.dto.semanticmodel.SemanticModelDTO.class);
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
 
         return new DataSourceSchemaDTO(
                 dataSourceSchemaDTO.getSyntaxModelDTO(),
-                nm, null, null, false
+                nm, new ArrayList<>(), new ArrayList<>(), false
         );
     }
 }
