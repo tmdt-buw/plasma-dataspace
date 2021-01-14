@@ -8,6 +8,10 @@ import java.util.*;
 
 public class CombinedModelGenerator {
 
+    private CombinedModelGenerator() {
+
+    }
+
     public static CombinedModel getCombinedModel() {
         SchemaNode root = new ObjectNode("ROOT", new ArrayList<>(), true);
         List<String> examples = Arrays.asList("10-11", "20-21", "test-test");

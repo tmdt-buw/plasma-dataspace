@@ -325,6 +325,11 @@
                     <groupId>com.github.spotbugs</groupId>
                     <artifactId>spotbugs-maven-plugin</artifactId>
                     <version>${com.github.spotbugs.plugin.version}</version>
+                    <configuration>
+                        <excludeFilterFile>
+                            spotbugs-exclude.xml
+                        </excludeFilterFile>
+                    </configuration>
                 </plugin>
                 <!-- Source code style checking. -->
                 <plugin>

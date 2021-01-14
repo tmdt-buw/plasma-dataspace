@@ -51,8 +51,8 @@ class SetDataTypeTest {
 				new ArrayList<>(),
 				true,
 				DataType.String,
-				new ArrayList<>()
-				, null
+				new ArrayList<>(),
+				null
 		);
 
 		assertEquals(DataType.String, ((PrimitiveNode) node).getDataType());
