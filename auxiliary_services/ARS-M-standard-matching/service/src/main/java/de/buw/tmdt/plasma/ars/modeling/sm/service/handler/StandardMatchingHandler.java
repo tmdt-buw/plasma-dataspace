@@ -1,26 +1,21 @@
 package de.buw.tmdt.plasma.ars.modeling.sm.service.handler;
 
 import de.buw.tmdt.plasma.ars.modeling.sm.service.basic.SchemaAnalysisSemanticLabeling;
-import de.buw.tmdt.plasma.ars.modeling.sm.service.converter.*;
+import de.buw.tmdt.plasma.ars.modeling.sm.service.converter.KnowledgeGraphServiceDTO2CombinedModelConverter;
+import de.buw.tmdt.plasma.ars.modeling.sm.service.converter.RuleDTOConverter;
 import de.buw.tmdt.plasma.ars.modeling.sm.service.model.Analysis;
 import de.buw.tmdt.plasma.ars.modeling.sm.service.model.EntityRule;
 import de.buw.tmdt.plasma.ars.modeling.sm.service.model.RelationRule;
 import de.buw.tmdt.plasma.ars.modeling.sm.service.model.Standard;
 import de.buw.tmdt.plasma.ars.modeling.sm.service.model.exception.SchemaAnalysisException;
-import de.buw.tmdt.plasma.ars.modeling.sm.service.model.semanticmodel.*;
-import de.buw.tmdt.plasma.ars.modeling.sm.service.model.syntaxmodel.Node;
 import de.buw.tmdt.plasma.ars.modeling.sm.service.repository.AnalysisRepository;
 import de.buw.tmdt.plasma.ars.modeling.sm.service.repository.StandardRepository;
 import de.buw.tmdt.plasma.ars.modeling.sm.shared.dto.StandardDTO;
 import de.buw.tmdt.plasma.ars.modeling.sm.shared.dto.StandardProvisionDTO;
-import de.buw.tmdt.plasma.services.dms.shared.dto.DataSourceSchemaDTO;
-import de.buw.tmdt.plasma.services.dms.shared.dto.PrimitiveEntityTypeEdgeDTO;
-import de.buw.tmdt.plasma.services.dms.shared.dto.syntaxmodel.SyntaxModelDTO;
-import de.buw.tmdt.plasma.services.kgs.shared.dto.knowledgegraph.EntityConceptDTO;
-import de.buw.tmdt.plasma.services.kgs.shared.dto.knowledgegraph.RelationConceptDTO;
+import de.buw.tmdt.plasma.datamodel.CombinedModel;
+import de.buw.tmdt.plasma.datamodel.modification.DeltaModification;
+import de.buw.tmdt.plasma.datamodel.semanticmodel.*;
 import de.buw.tmdt.plasma.services.kgs.shared.feignclient.UniversalKnowledgeApiClient;
-import de.buw.tmdt.plasma.services.sas.shared.dto.syntaxmodel.NodeDTO;
-import de.buw.tmdt.plasma.utilities.misc.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -33,30 +28,22 @@ import java.util.stream.Collectors;
 public class StandardMatchingHandler {
 
     private final RuleDTOConverter ruleDTOConverter;
-    private final SchemaAnalysisDTOConverter schemaAnalysisDTOConverter;
-    private final SemanticModelDTOConverter semanticModelDTOConverter;
     private final UniversalKnowledgeApiClient universalKnowledgeApiClient;
     private final AnalysisRepository analysisRepository;
     private final StandardRepository standardRepository;
-    private final SyntaxModelDTOConverter syntaxModelDTOConverter;
-    private final DataSourceSchemaDTOConverter dataSourceSchemaDTOConverter;
+    private final KnowledgeGraphServiceDTO2CombinedModelConverter kgsDTO2CMConverter;
 
 
     public StandardMatchingHandler(RuleDTOConverter ruleDTOConverter,
-                                   SchemaAnalysisDTOConverter schemaAnalysisDTOConverter,
-                                   SemanticModelDTOConverter semanticModelDTOConverter,
                                    UniversalKnowledgeApiClient universalKnowledgeApiClient,
                                    AnalysisRepository analysisRepository,
                                    StandardRepository standardRepository,
-                                   SyntaxModelDTOConverter syntaxModelDTOConverter, DataSourceSchemaDTOConverter dataSourceSchemaDTOConverter) {
+                                   KnowledgeGraphServiceDTO2CombinedModelConverter kgsDTO2CMConverter) {
         this.ruleDTOConverter = ruleDTOConverter;
-        this.schemaAnalysisDTOConverter = schemaAnalysisDTOConverter;
-        this.semanticModelDTOConverter = semanticModelDTOConverter;
+        this.kgsDTO2CMConverter = kgsDTO2CMConverter;
         this.universalKnowledgeApiClient = universalKnowledgeApiClient;
         this.analysisRepository = analysisRepository;
         this.standardRepository = standardRepository;
-        this.syntaxModelDTOConverter = syntaxModelDTOConverter;
-        this.dataSourceSchemaDTOConverter = dataSourceSchemaDTOConverter;
     }
 
 
@@ -93,236 +80,292 @@ public class StandardMatchingHandler {
     }
 
     /**
-     * Create a semantic model using a syntax model and the uuid of the standard to apply.
+     * Create a semantic model using a syntax model and the id of the standard to apply.
      *
-     * @param syntaxModelDTO syntax model dto, as provided by the sas
-     * @param standardId     uuid of the standard to use
+     * @param combinedModel combined model containing the syntactic model
+     * @param standardId    uuid of the standard to use
      * @return dto of the semantic model
      */
-    public String modelWithStandard(NodeDTO syntaxModelDTO, String standardId, String analysisId) {
+    public String modelWithStandard(CombinedModel combinedModel, String standardId, String analysisId) {
 
         // Find the provided standard to apply
         Standard standard =
                 standardRepository.findById(UUID.fromString(standardId)).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Standard ID not found"));
 
-        Node syntaxModel = schemaAnalysisDTOConverter.fromNodeDTO(syntaxModelDTO);
-        SemanticModel semanticModel = generateSemanticModel(syntaxModel, standard);
+        CombinedModel resultingModel = generateSemanticModel(combinedModel, standard);
 
         // Create a new analysis object to make sure that database ids are existing
-        Analysis analysis = new Analysis(UUID.fromString(analysisId));
-        analysis.setSemanticModel(semanticModel);
-        analysis.setResult(syntaxModel);
+        Analysis analysis = new Analysis(analysisId);
+        analysis.setInput(combinedModel);
+        analysis.setResult(resultingModel);
+
         // load and parse the saved model including ids
         analysisRepository.save(analysis);
         return analysisId;
     }
 
-    public DataSourceSchemaDTO fetchModel(String analysisId) {
-        Analysis analysis = analysisRepository.findById(UUID.fromString(analysisId))
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Analysis ID not found"));
-        @NotNull Pair<SyntaxModelDTO, List<PrimitiveEntityTypeEdgeDTO>> syntaxModelDTO = dataSourceSchemaDTOConverter.toDTO(analysis.getResult(), analysis.getSemanticModel().getEntityTypes());
-        return new DataSourceSchemaDTO(syntaxModelDTO.getLeft(),
-                semanticModelDTOConverter.toDTO(analysis.getSemanticModel()), syntaxModelDTO.getRight(), new ArrayList<>(), false);
-
-    }
 
     /**
      * Returns the semantic model for a given syntax model and standard.
      *
-     * @param syntaxModel The original syntax model as created by SAS
-     * @param standard    The selected standard
+     * @param inputModel CombinedModel containing the original syntax model as created by SAS
+     * @param standard   The selected standard
      * @return semantic model with applied standard
      */
-    public SemanticModel generateSemanticModel(Node syntaxModel, Standard standard) {
+    public CombinedModel generateSemanticModel(@NotNull CombinedModel inputModel, @NotNull Standard standard) {
 
-        SchemaAnalysisSemanticLabeling schemaAnalysisSemanticLabeling = new SchemaAnalysisSemanticLabeling();
-
-        Map<String, String> requiredPredecessors = new HashMap<>();
-        Map<String, RelationConcept> relationConceptMap = new HashMap<>();
-        Map<String, EntityConcept> entityConceptMap = new HashMap<>();
-
-        Analysis analysis = new Analysis(UUID.randomUUID());
-        analysis.setResult(syntaxModel);
+        Analysis analysis = new Analysis(inputModel.getDataSourceUuid());
+        analysis.setInput(inputModel);
         analysis.setStandard(standard);
 
-        if (analysis.getStandard() != null) {
-            schemaAnalysisSemanticLabeling.setFixMappings(getSemanticLabelingByRules(analysis, requiredPredecessors, entityConceptMap));
-        }
+        CombinedModel model = inputModel.copy();
+
+        // Map concept sourceURI -> requiredPredecessor
+        Map<String, String> requiredPredecessors = new HashMap<>();
+
+        // map attributeLabel -> entity concept
+        Map<String, EntityConcept> attributeBoundEntityConceptMap = generateAttributeBoundEntityConcepts(standard, requiredPredecessors);
+
+        // perform the labeling
+        SchemaAnalysisSemanticLabeling schemaAnalysisSemanticLabeling = new SchemaAnalysisSemanticLabeling();
+
+        schemaAnalysisSemanticLabeling.setFixedRulebasedMappings(attributeBoundEntityConceptMap);
 
         schemaAnalysisSemanticLabeling.setRequiredPredecessors(requiredPredecessors);
 
+        SemanticModel semanticModel;
 
         try {
-            schemaAnalysisSemanticLabeling.execute(syntaxModel);
+            schemaAnalysisSemanticLabeling.execute(model);
+            semanticModel = schemaAnalysisSemanticLabeling.getSemanticModel();
         } catch (SchemaAnalysisException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
         }
 
-        Map<String, List<String>> history = schemaAnalysisSemanticLabeling.getNodeHistory();
-        List<EntityType> entityTypes = schemaAnalysisSemanticLabeling.getEntityTypes();
-        List<Relation> relations = new ArrayList<>();
+        // generate a modification and add the computed changes to the combined model
+        DeltaModification labelingModification = new DeltaModification(
+                "semantic_labeling",
+                new HashSet<>(semanticModel.getNodes()),
+                new HashSet<>(semanticModel.getEdges()),
+                null,
+                null
+        );
+        model.apply(labelingModification); // this will also create all needed auxiliary mappings
 
-        if (analysis.getStandard() != null) {
-            modelByRules(analysis, entityTypes, relations, requiredPredecessors, history, entityConceptMap, relationConceptMap);
+        Map<String, List<String>> nodePaths = schemaAnalysisSemanticLabeling.getNodePaths();
+
+        // perform semantic modeling
+        // map sourceURI -> concept
+        Map<String, EntityConcept> unboundEntityConceptMap = generateUnboundEntityConcepts(standard, requiredPredecessors);
+
+        // Map sourceURI -> concept
+        Map<String, RelationConcept> relationConceptMap = generateRelationConcepts(standard);
+
+        try {
+            semanticModel = performSemanticModelingByRules(analysis, requiredPredecessors, nodePaths, unboundEntityConceptMap, relationConceptMap);
+        } catch (SchemaAnalysisException e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
         }
 
-        return new SemanticModel(null, "", "", entityTypes, relations, null);
-
+        // generate a modification and add the computed changes to the combined model
+        DeltaModification modelingModification = new DeltaModification(
+                "semantic_modeling",
+                new HashSet<>(semanticModel.getNodes()),
+                new HashSet<>(semanticModel.getEdges()),
+                null,
+                null
+        );
+        model.apply(modelingModification); // this will also create all needed auxiliary mappings
+        return model;
     }
 
-
     /**
-     * Performs semantic labeling by rules.
+     * Generates the mappings from attributes to concepts as defined by the standard used in the analysis.
      *
-     * @param analysis             the analysis object to select the standard from
+     * @param standard             The standard to obtain the rules from
      * @param requiredPredecessors map defining which predecessors certain labels need before assigning them
-     * @param entityConceptMap     map of labels to entity concepts
      * @return map of labels and mapped concepts
      */
-    private Map<String, EntityConcept> getSemanticLabelingByRules(Analysis analysis, Map<String, String> requiredPredecessors,
-                                                                  Map<String, EntityConcept> entityConceptMap) {
+    private Map<String, EntityConcept> generateAttributeBoundEntityConcepts(@NotNull Standard standard, Map<String, String> requiredPredecessors) {
 
-        List<EntityRule> labelRules =
-                analysis.getStandard().getEntityRules();
+        Map<String, EntityConcept> fixedRulebasedMappings = new HashMap<>();
 
-        Map<String, EntityConcept> fixConcepts = new HashMap<>();
-
-        for (EntityRule entityRule : labelRules) {
+        for (EntityRule entityRule : standard.getEntityRules()) {
             if (entityRule.getOriginalAttribute() != null) {
-                if (!entityConceptMap.containsKey(entityRule.getConceptName())) {
-
-                    String uuid = UUID.randomUUID().toString();
-
-                    for (EntityConceptDTO entityConcept : universalKnowledgeApiClient.getEntityConcepts(entityRule.getConceptName())) {
-                        if (entityConcept.getMainLabel().equals(entityRule.getConceptName()) &&
-                                entityConcept.getDescription().equals(entityRule.getConceptDescription())) {
-                            uuid = entityConcept.getId();
-                        }
-                    }
-                    EntityConcept entityConcept = new EntityConcept(uuid, entityRule.getConceptName(), entityRule.getConceptDescription(), entityRule.getConceptName()); // Use concept name as uri
-                    entityConceptMap.put(entityRule.getConceptName(), entityConcept);
+                if (!fixedRulebasedMappings.containsKey(entityRule.getConceptSourceURI())) {
+                    EntityConcept entityConcept = getOrGenerateEntityConcept(entityRule);
+                    fixedRulebasedMappings.put(entityRule.getOriginalAttribute(), entityConcept);
                 }
-
-                fixConcepts.put(entityRule.getOriginalAttribute(), entityConceptMap.get(entityRule.getConceptName()));
-
             }
-            requiredPredecessors.put(entityRule.getConceptName(), entityRule.getRequiredPredecessor());
+            requiredPredecessors.put(entityRule.getConceptSourceURI(), entityRule.getRequiredPredecessor());
         }
+        return fixedRulebasedMappings;
+    }
 
-        return fixConcepts;
+    /**
+     * Generates the unbound concepts as defined by the standard used in the analysis.
+     *
+     * @param standard             The standard to obtain the rules from
+     * @param requiredPredecessors map defining which predecessors certain labels need before assigning them
+     * @return map of sourceURIs to associated concepts
+     */
+    private Map<String, EntityConcept> generateUnboundEntityConcepts(@NotNull Standard standard, Map<String, String> requiredPredecessors) {
+
+
+        Map<String, EntityConcept> unboundRuleBasedMappings = new HashMap<>();
+
+        for (EntityRule entityRule : standard.getEntityRules()) {
+            if (entityRule.getOriginalAttribute() == null || entityRule.getOriginalAttribute().isEmpty()) {
+                if (!unboundRuleBasedMappings.containsKey(entityRule.getConceptSourceURI())) {
+                    EntityConcept entityConcept = getOrGenerateEntityConcept(entityRule);
+                    unboundRuleBasedMappings.put(entityRule.getOriginalAttribute(), entityConcept);
+                }
+            }
+            requiredPredecessors.put(entityRule.getConceptSourceURI(), entityRule.getRequiredPredecessor());
+        }
+        return unboundRuleBasedMappings;
+    }
+
+    /**
+     * Generates the unbound relation concepts as defined by the standard used in the analysis.
+     *
+     * @param standard The standard to obtain the rules from
+     * @return map of sourceURIs to associated relation concepts
+     */
+    private Map<String, RelationConcept> generateRelationConcepts(@NotNull Standard standard) {
+
+
+        Map<String, RelationConcept> relationConcepts = new HashMap<>();
+
+        for (RelationRule relationRule : standard.getRelationRules()) {
+            if (!relationConcepts.containsKey(relationRule.getConceptSourceURI())) {
+                RelationConcept relationConcept = getOrGenerateRelationConcept(relationRule);
+                relationConcepts.put(relationRule.getConceptSourceURI(), relationConcept);
+            }
+        }
+        return relationConcepts;
+    }
+
+    private EntityConcept getOrGenerateEntityConcept(EntityRule rule) {
+        return universalKnowledgeApiClient.getEntityConcepts(rule.getConceptName()).stream()
+                .filter(kgsEntityConcept -> kgsEntityConcept.getSourceURI().equals(rule.getConceptSourceURI()))
+                .map(kgsDTO2CMConverter::convert)
+                .findFirst()
+                .orElse(new EntityConcept(
+                        rule.getConceptName(),
+                        rule.getConceptDescription(),
+                        "plasma:" + rule.getConceptName().toLowerCase()
+                ));
+    }
+
+    private RelationConcept getOrGenerateRelationConcept(RelationRule rule) {
+        return universalKnowledgeApiClient.getRelationConcepts(rule.getConceptName()).stream()
+                .filter(kgsRelationConcept -> kgsRelationConcept.getSourceURI().equals(rule.getConceptSourceURI()))
+                .map(kgsDTO2CMConverter::convert)
+                .findFirst()
+                .orElse(new RelationConcept(
+                        rule.getConceptName(),
+                        rule.getConceptDescription(),
+                        "plasma:" + rule.getConceptName().toLowerCase()
+                ));
     }
 
 
     /**
      * Perform semantic modeling by rules.
      *
-     * @param analysis             analysis object to pick standard from
-     * @param entityTypes          list of all used entity types
-     * @param relations            list of all used relations
-     * @param requiredPredecessors map defining which predecessors certain labels need before assigning them
-     * @param history              map defining the paths to each node
-     * @param entityConceptMap     map of labels to entity concepts
-     * @param relationConceptMap   map of relation concepts
+     * @param analysis              analysis object to pick standard from
+     * @param requiredPredecessors  map defining which predecessors certain labels need before assigning them
+     * @param nodePaths             map defining the paths to each node
+     * @param unboundEntityConcepts map of sourURIs to entity concepts for non-primitive attached concepts
+     * @param relationConceptMap    map of sourceURI to relation concepts
+     * @return The generated semantic model containing the newly created entities and relations. For internal use only.
      */
-    private void modelByRules(Analysis analysis,
-                              List<EntityType> entityTypes,
-                              List<Relation> relations,
-                              Map<String, String> requiredPredecessors,
-                              Map<String, List<String>> history,
-                              Map<String, EntityConcept> entityConceptMap,
-                              Map<String, RelationConcept> relationConceptMap) {
+    private SemanticModel performSemanticModelingByRules(Analysis analysis,
+                                                         Map<String, String> requiredPredecessors,
+                                                         Map<String, List<String>> nodePaths,
+                                                         Map<String, EntityConcept> unboundEntityConcepts,
+                                                         Map<String, RelationConcept> relationConceptMap) {
 
         List<String> allAvailableTypes = new ArrayList<>();
 
-        for (Map.Entry<String, List<String>> h : history.entrySet()) {
+        for (Map.Entry<String, List<String>> h : nodePaths.entrySet()) {
             allAvailableTypes.addAll(h.getValue());
         }
 
         Set<String> allTypes = new HashSet<>(allAvailableTypes);
+
         allTypes.add(null);
 
-        List<EntityRule> list2 = analysis.getStandard().getEntityRules().stream().filter(x -> x.getOriginalAttribute() == null).collect(Collectors.toList());
-        List<RelationRule> list3 = analysis.getStandard().getRelationRules();
-        List<RelationRule> foundRelations = new ArrayList<>();
+        // only for local use
+        SemanticModel semanticModel = new SemanticModel();
 
+        List<EntityRule> nonPrimitiveEntityRules = analysis.getStandard().getEntityRules().stream().filter(x -> x.getOriginalAttribute() == null).collect(Collectors.toList());
+        List<RelationRule> relationRules = analysis.getStandard().getRelationRules();
+        List<RelationRule> foundRelations = new ArrayList<>();
 
         boolean actionFound = true;
 
         while (actionFound) {
             actionFound = false;
-            for (RelationRule relationRule : list3) {
+            for (RelationRule relationRule : relationRules) {
                 if (foundRelations.contains(relationRule)) {
                     continue;
                 }
-                List<EntityType> candidatesFrom = entityTypes
-                        .stream().filter(x -> x.getEntityConcept().getName().equals(relationRule.getFromConcept())).collect(Collectors.toList());
+                List<EntityType> candidatesFrom = semanticModel.getNodes()
+                        .stream().filter(x -> x.getEntityConcept().getSourceURI().equals(relationRule.getFromConceptSourceURI())).collect(Collectors.toList());
 
-                List<EntityType> candidatesTo = entityTypes
-                        .stream().filter(x -> x.getEntityConcept().getName().equals(relationRule.getToConcept())).collect(Collectors.toList());
+                List<EntityType> candidatesTo = semanticModel.getNodes()
+                        .stream().filter(x -> x.getEntityConcept().getSourceURI().equals(relationRule.getToConceptSourceURI())).collect(Collectors.toList());
 
-                if (candidatesFrom.size() == 0) {
-                    List<EntityRule> candidates = list2
-                            .stream().filter(x -> x.getConceptName().equals(relationRule.getFromConcept())).collect(Collectors.toList());
+                if (candidatesFrom.isEmpty()) {
+                    List<EntityRule> candidates = nonPrimitiveEntityRules
+                            .stream().filter(x -> x.getConceptSourceURI().equals(relationRule.getFromConceptSourceURI())).collect(Collectors.toList());
 
-                    if (candidates.size() > 0) {
-                        for (EntityRule candidate : candidates) {
-                            if (!entityConceptMap.containsKey(candidate.getConceptName())) {
-                                String uuid = UUID.randomUUID().toString();
+                    for (EntityRule candidate : candidates) {
+                        if (!unboundEntityConcepts.containsKey(candidate.getConceptSourceURI())) {
+                            // we have no concept for this
+                            continue;
+                        }
+                        EntityConcept entityConcept = unboundEntityConcepts.get(candidate.getConceptSourceURI());
 
-                                for (EntityConceptDTO entityConcept : universalKnowledgeApiClient.getEntityConcepts(candidate.getConceptName())) {
-                                    if (entityConcept.getMainLabel().equals(candidate.getConceptName()) &&
-                                            entityConcept.getDescription().equals(candidate.getConceptDescription())) {
-                                        uuid = entityConcept.getId();
-                                        break;
-                                    }
-                                }
-                                EntityConcept entityConcept = new EntityConcept(uuid, candidate.getConceptName(),
-                                        candidate.getConceptDescription(), candidate.getConceptName() // Use concept name as uri
-                                );
-                                entityConceptMap.put(candidate.getConceptName(), entityConcept);
-                            }
-                            EntityConcept entityConcept = entityConceptMap.get(candidate.getConceptName());
-
-                            EntityType entityType = new EntityType(null, entityConcept.getName(), entityConcept.getName(), entityConcept.getDescription(),
-                                    entityConcept, null
+                        if (allTypes.contains(requiredPredecessors.get(entityConcept.getLabel()))) {
+                            EntityType entityType = new EntityType(
+                                    entityConcept.getLabel(),
+                                    0.0,
+                                    0.0,
+                                    "",
+                                    entityConcept
                             );
-                            if (allTypes.contains(requiredPredecessors.get(entityConcept.getName()))) {
-                                entityTypes.add(entityType);
-                                candidatesFrom.add(entityType);
-                            }
+                            semanticModel.getNodes().add(entityType);
+                            candidatesFrom.add(entityType);
                         }
                     }
                 }
 
-                if (candidatesTo.size() == 0) {
-                    List<EntityRule> candidates = list2
-                            .stream().filter(x -> x.getConceptName().equals(relationRule.getToConcept())).collect(Collectors.toList());
+                if (candidatesTo.isEmpty()) {
+                    List<EntityRule> candidates = nonPrimitiveEntityRules
+                            .stream().filter(x -> x.getConceptName().equals(relationRule.getToConceptSourceURI())).collect(Collectors.toList());
 
-                    if (candidates.size() > 0) {
+                    if (!candidates.isEmpty()) {
                         for (EntityRule candidate : candidates) {
                             if (allTypes.contains(candidate.getRequiredPredecessor())) {
 
-                                if (!entityConceptMap.containsKey(candidate.getConceptName())) {
-
-                                    String uuid = UUID.randomUUID().toString();
-
-                                    for (EntityConceptDTO entityConcept : universalKnowledgeApiClient.getEntityConcepts(candidate.getConceptName())) {
-                                        if (entityConcept.getMainLabel().equals(candidate.getConceptName()) &&
-                                                entityConcept.getDescription().equals(candidate.getConceptDescription())) {
-                                            uuid = entityConcept.getId();
-                                            break;
-                                        }
-                                    }
-                                    EntityConcept entityConcept = new EntityConcept(uuid, candidate.getConceptName(), candidate.getConceptDescription(), candidate.getConceptName()); // Use concept name as uri
-                                    entityConceptMap.put(candidate.getConceptName(), entityConcept);
+                                EntityConcept entityConcept = unboundEntityConcepts.get(candidate.getConceptName());
+                                if (entityConcept == null) {
+                                    // does not exist
+                                    continue;
                                 }
-                                EntityConcept entityConcept = entityConceptMap.get(candidate.getConceptName());
 
-                                EntityType entityType = new EntityType(null, entityConcept.getName(), entityConcept.getName(), entityConcept.getDescription(),
-                                        entityConcept, null
-                                );
-                                if (allTypes.contains(requiredPredecessors.get(entityConcept.getName()))) {
-                                    entityTypes.add(entityType);
+                                if (allTypes.contains(requiredPredecessors.get(entityConcept.getLabel()))) {
+                                    EntityType entityType = new EntityType(
+                                            entityConcept.getLabel(),
+                                            0.0,
+                                            0.0,
+                                            "",
+                                            entityConcept
+                                    );
+                                    semanticModel.getNodes().add(entityType);
                                     candidatesTo.add(entityType);
                                 }
                             }
@@ -330,44 +373,35 @@ public class StandardMatchingHandler {
                     }
                 }
 
-                if (candidatesFrom.size() > 0 && candidatesTo.size() > 0) {
+                if (!candidatesFrom.isEmpty() && !candidatesTo.isEmpty()) {
                     actionFound = true;
-
-                    if (!relationConceptMap.containsKey(relationRule.getConceptName())) {
-
-                        String uuid = UUID.randomUUID().toString();
-
-                        for (RelationConceptDTO entityConcept : universalKnowledgeApiClient.getRelationConcepts(relationRule.getConceptName())) {
-                            if (entityConcept.getLabel().equals(relationRule.getConceptName()) &&
-                                    entityConcept.getDescription().equals(relationRule.getConceptDescription())) {
-                                uuid = entityConcept.getId();
-                                break;
-                            }
-                        }
-
-                        RelationConcept relationConcept = new RelationConcept(
-                                uuid,
-                                relationRule.getConceptName(),
-                                relationRule.getConceptDescription(),
-                                relationRule.getConceptName(), // Use concept name as uri
-                                new HashSet<>(),
-                                null
-                        );
-                        relationConceptMap.put(relationRule.getConceptName(), relationConcept);
+                    if (!relationConceptMap.containsKey(relationRule.getConceptSourceURI())) {
+                        // no match, something is wrong here...
+                        continue;
                     }
-
-
-                    RelationConcept relationConcept = relationConceptMap.get(relationRule.getConceptName());
+                    RelationConcept relationConcept = relationConceptMap.get(relationRule.getConceptSourceURI());
 
                     for (EntityType fromCandidate : candidatesFrom) {
                         for (EntityType toCandidate : candidatesTo) {
-                            Relation r = new Relation(null, fromCandidate, toCandidate, relationConcept, relationConcept.getDescription(), null);
-                            relations.add(r);
+                            Relation r = new Relation(fromCandidate.getUuid(), toCandidate.getUuid(), relationConcept);
+                            semanticModel.getEdges().add(r);
                             foundRelations.add(relationRule);
                         }
                     }
                 }
             }
         }
+        return semanticModel;
+    }
+
+    public CombinedModel fetchModel(String analysisId) {
+        Analysis analysis = analysisRepository.findById(UUID.fromString(analysisId))
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Analysis ID not found"));
+        CombinedModel combinedModel = analysis.getResult();
+        if (combinedModel == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Result not yet present");
+        }
+        return combinedModel;
+
     }
 }

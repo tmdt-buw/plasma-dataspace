@@ -2,10 +2,11 @@ package de.buw.tmdt.plasma.ars.modeling.sm.service.basic;
 
 
 import de.buw.tmdt.plasma.ars.modeling.sm.service.model.exception.SchemaAnalysisException;
-import de.buw.tmdt.plasma.ars.modeling.sm.service.model.semanticmodel.EntityConcept;
-import de.buw.tmdt.plasma.ars.modeling.sm.service.model.semanticmodel.EntityType;
-import de.buw.tmdt.plasma.ars.modeling.sm.service.model.syntaxmodel.*;
-import de.buw.tmdt.plasma.ars.modeling.sm.service.model.syntaxmodel.members.EntityConceptSuggestion;
+import de.buw.tmdt.plasma.datamodel.CombinedModel;
+import de.buw.tmdt.plasma.datamodel.semanticmodel.EntityConcept;
+import de.buw.tmdt.plasma.datamodel.semanticmodel.EntityType;
+import de.buw.tmdt.plasma.datamodel.semanticmodel.SemanticModel;
+import de.buw.tmdt.plasma.datamodel.syntaxmodel.*;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,132 +15,112 @@ import java.util.*;
 
 public class SchemaAnalysisSemanticLabeling {
 
-	private static final Logger logger = LoggerFactory.getLogger(SchemaAnalysisSemanticLabeling.class);
+    private static final Logger logger = LoggerFactory.getLogger(SchemaAnalysisSemanticLabeling.class);
+    private final Map<String, List<String>> nodePaths = new HashMap<>();
+    // storage entity to hold all newly created entities and concepts
+    private SemanticModel semanticModel;
+    private SyntaxModel syntaxModel;
+    private Map<String, EntityConcept> fixedRulebasedMappings = new HashMap<>();
+    private Map<String, String> requiredPredecessors;
 
-	private List<EntityType> entityTypes;
+    public void setFixedRulebasedMappings(Map<String, EntityConcept> fixedRulebasedMappings) {
+        this.fixedRulebasedMappings = fixedRulebasedMappings;
+    }
 
-	private Map<String, EntityConcept> fixMappings = new HashMap<>();
+    public void setRequiredPredecessors(Map<String, String> requiredPredecessors) {
+        this.requiredPredecessors = requiredPredecessors;
+    }
 
-	private final Map<String, List<String>> nodeHistory = new HashMap<>();
+    public Map<String, List<String>> getNodePaths() {
+        return Collections.unmodifiableMap(nodePaths);
+    }
 
-	private final Map<EntityType, List<String>> entityTypeExamples = new HashMap<>();
+    public void execute(CombinedModel combinedModel) throws SchemaAnalysisException {
+        this.syntaxModel = combinedModel.getSyntaxModel();
+        this.semanticModel = new SemanticModel();
 
-	private Map<String, String> requiredPredecessors;
+        // get root node and start depth first assignment
+        SchemaNode root = syntaxModel.getNode(syntaxModel.getRoot());
+        addEntityConcepts(root, new ArrayList<>());
+    }
 
-	public void setFixMappings(Map<String, EntityConcept> fixMappings) {
-		this.fixMappings = fixMappings;
-	}
+    private void addEntityConcepts(SchemaNode node, List<String> path) throws SchemaAnalysisException {
+        if (node instanceof SetNode) {
+            addEntityConcepts((SetNode) node, path);
+        } else if (node instanceof ObjectNode) {
+            addEntityConcepts((ObjectNode) node, path);
+        } else if (node instanceof PrimitiveNode) {
+            addEntityConcepts((PrimitiveNode) node, path);
+        } else if (node instanceof CollisionSchema) {
+            addEntityConcepts((CollisionSchema) node, path);
+        } else if (null == node) {
+            logger.debug("NullSchema is not going to get a suggested EntityConcept.");
+        } else {
+            throw new SchemaAnalysisException("Unknown node type in " + SchemaNode.class.getCanonicalName());
+        }
+    }
 
-	public Map<EntityType, List<String>> getEntityTypeExamples() {
-		return Collections.unmodifiableMap(entityTypeExamples);
-	}
+    private void addEntityConcepts(@NotNull CollisionSchema collisionNode, List<String> parentPath) throws SchemaAnalysisException {
 
-	public void setRequiredPredecessors(Map<String, String> requiredPredecessors) {
-		this.requiredPredecessors = requiredPredecessors;
-	}
+        List<String> actualPath = new ArrayList<>(parentPath);
+        actualPath.add("*");
+        this.nodePaths.put(collisionNode.getUuid(), actualPath);
 
-	public Map<String, List<String>> getNodeHistory() {
-		return Collections.unmodifiableMap(nodeHistory);
-	}
+        List<SchemaNode> childNodes = syntaxModel.getChildNodesForNode(collisionNode.getUuid());
+        for (SchemaNode child : childNodes) {
+            addEntityConcepts(child, actualPath);
+        }
+    }
 
-	public void execute(Node n) throws SchemaAnalysisException {
-		this.entityTypes = new ArrayList<>();
-		addEntityConcepts("Schema Root", n, new ArrayList<>());
-	}
+    private void addEntityConcepts(@NotNull ObjectNode objectNode, List<String> parentPath) throws SchemaAnalysisException {
+        List<String> actualPath = new ArrayList<>(parentPath);
+        actualPath.add(objectNode.getLabel());
+        this.nodePaths.put(objectNode.getUuid(), actualPath);
 
-	private void addEntityConcepts(String label, Node node, List<String> path) throws SchemaAnalysisException {
-		if (node instanceof SetNode) {
-			assert label != null;
-			addEntityConcepts((SetNode) node, label, path);
-		} else if (node instanceof ObjectNode) {
-			addEntityConcepts((ObjectNode) node, label, path);
-		} else if (node instanceof PrimitiveNode) {
-			assert label != null;
-			addEntityConcepts((PrimitiveNode) node, label, path);
-		} else if (node instanceof CollisionNode) {
-			assert label != null;
-			addEntityConcepts((CollisionNode) node, label, path);
-		} else if (null == node) {
-			logger.debug("NullSchema is not going to get a suggested EntityConcept.");
-		} else {
-			throw new SchemaAnalysisException("Unknown node type in " + Node.class.getCanonicalName());
-		}
-	}
+        List<SchemaNode> childNodes = syntaxModel.getChildNodesForNode(objectNode.getUuid());
+        for (SchemaNode child : childNodes) {
+            addEntityConcepts(child, actualPath);
+        }
+    }
 
-	private void addEntityConcepts(@NotNull CollisionNode collisionNode, @NotNull String label, List<String> parentPath) throws SchemaAnalysisException {
+    private void addEntityConcepts(@NotNull SetNode setNode, List<String> parentPath) throws SchemaAnalysisException {
+        List<String> actualPath = new ArrayList<>(parentPath);
+        actualPath.add("*");
+        this.nodePaths.put(setNode.getUuid(), actualPath);
 
-		List<String> actualPath = new ArrayList<>(parentPath);
-		actualPath.add("*");
-		this.nodeHistory.put(collisionNode.getUuid().toString(), actualPath);
+        List<SchemaNode> childNodes = syntaxModel.getChildNodesForNode(setNode.getUuid());
+        for (SchemaNode child : childNodes) {
+            addEntityConcepts(child, actualPath);
+        }
+    }
 
-		if (collisionNode.getPrimitiveNode() != null) {
-			addEntityConcepts(collisionNode.getPrimitiveNode(), label, actualPath);
-		}
-		if (collisionNode.getObjectNode() != null) {
-			addEntityConcepts(collisionNode.getObjectNode(), label, actualPath);
-		}
-		if (collisionNode.getSetNode() != null) {
-			addEntityConcepts(collisionNode.getSetNode(), label, actualPath);
-		}
-	}
+    private void addEntityConcepts(@NotNull PrimitiveNode primitiveNode, List<String> parentPath) {
 
-	private void addEntityConcepts(@NotNull ObjectNode objectNode, String label, List<String> parentPath) throws SchemaAnalysisException {
-		List<String> actualPath = new ArrayList<>(parentPath);
-		actualPath.add(label);
-		this.nodeHistory.put(objectNode.getUuid().toString(), actualPath);
+        List<String> actualPath = new ArrayList<>(parentPath);
+        actualPath.add(primitiveNode.getLabel());
+        this.nodePaths.put(primitiveNode.getUuid(), actualPath);
+        String label = primitiveNode.getLabel();
 
-		for (Map.Entry<String, Node> child : objectNode.getChildren().entrySet()) {
-			addEntityConcepts(child.getKey(), child.getValue(), actualPath);
-		}
-	}
+        if (fixedRulebasedMappings.containsKey(label)) {
+            EntityConcept concept = fixedRulebasedMappings.get(label);
+            String requiredPredecessor = requiredPredecessors.get(concept.getLabel());
+            if (requiredPredecessor == null ||
+                    requiredPredecessor.equals(parentPath.get(parentPath.size() - 1))) {
+                EntityType entityType = new EntityType(
+                        primitiveNode.getLabel(),
+                        primitiveNode.getXCoordinate(),
+                        primitiveNode.getYCoordinate(),
+                        primitiveNode.getUuid(),
+                        primitiveNode.getLabel(),
+                        null,
+                        concept);
+                semanticModel.getNodes().add(entityType);
+            }
+        }
 
-	private void addEntityConcepts(@NotNull SetNode setNode, @NotNull String label, List<String> parentPath) throws SchemaAnalysisException {
-		List<String> actualPath = new ArrayList<>(parentPath);
-		actualPath.add("*");
-		this.nodeHistory.put(setNode.getUuid().toString(), actualPath);
+    }
 
-		for (SetNode.Child n : setNode.getChildren()) {
-			addEntityConcepts(label, n.getNode(), actualPath);
-		}
-	}
-
-	private void addEntityConcepts(@NotNull PrimitiveNode primitiveNode, @NotNull String label, List<String> parentPath) {
-
-		List<String> actualPath = new ArrayList<>(parentPath);
-		actualPath.add(label);
-		this.nodeHistory.put(primitiveNode.getUuid().toString(), actualPath);
-
-		if (fixMappings.containsKey(label) &&
-				(requiredPredecessors.get(fixMappings.get(label).getName()) == null ||
-						parentPath.get(parentPath.size() - 1).equals(requiredPredecessors.get(fixMappings.get(label).getName())))) {
-			EntityConcept assignedConcept = fixMappings.get(label);
-			primitiveNode.getEntityConceptSuggestions().removeAll(primitiveNode.getEntityConceptSuggestions());
-			primitiveNode.getEntityConceptSuggestions().add(new EntityConceptSuggestion(assignedConcept, 1.0));
-			EntityType entityType = new EntityType(null, label, label, assignedConcept.getDescription(), assignedConcept, null);
-			entityTypes.add(entityType);
-			primitiveNode.setEntityType(entityType);
-			entityTypeExamples.put(entityType, primitiveNode.getExamples());
-		} else if (primitiveNode.getEntityConceptSuggestions().size() > 0) {
-			double bestWeight = 0;
-			EntityConcept bestConcept = null;
-			for (EntityConceptSuggestion ecs : primitiveNode.getEntityConceptSuggestions()) {
-				if (ecs.getWeight() > bestWeight) {
-					bestWeight = ecs.getWeight();
-					bestConcept = ecs.getEntityConcept();
-				}
-			}
-			if (bestConcept == null) {
-				bestConcept = primitiveNode.getEntityConceptSuggestions().get(0).getEntityConcept();
-			}
-			EntityType entityType = new EntityType(null, bestConcept.getName(), label, bestConcept.getDescription(), bestConcept, null);
-			entityTypes.add(entityType);
-			primitiveNode.setEntityType(entityType);
-			entityTypeExamples.put(entityType, primitiveNode.getExamples());
-		}
-	}
-
-	public List<EntityType> getEntityTypes() {
-		return entityTypes;
-	}
-
+    public SemanticModel getSemanticModel() {
+        return semanticModel;
+    }
 }
