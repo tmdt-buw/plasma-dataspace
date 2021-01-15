@@ -18,7 +18,7 @@ export interface PlsConceptDialogData {
   dataSource: string;
   node: any;
   relativeTo: ElementRef;
-  recommendations: DeltaRecommendationDTO[];
+  recommendations: DeltaModification[];
 }
 
 
@@ -47,7 +47,6 @@ export class PlsConceptDialogComponent implements OnInit, AfterViewInit {
   primaryColorContrast;
 
   // TODO find useful recommendation view
-  constructor(public dialogRef: MatDialogRef<PlsConceptDialogComponent>, @Inject(MAT_DIALOG_DATA) public data: { dataSource: string, node: any, relativeTo: ElementRef, recommendations: DeltaModification[] },
   constructor(public dialogRef: MatDialogRef<PlsConceptDialogComponent>, @Inject(MAT_DIALOG_DATA) public data: PlsConceptDialogData,
               private modeling: ModelingService, private modelingService: DataModelingControllerService, public dialog: MatDialog) {
     this.relativeTo = data.relativeTo;

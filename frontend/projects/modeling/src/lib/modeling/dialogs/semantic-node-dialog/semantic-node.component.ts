@@ -1,12 +1,12 @@
-import { Component, ElementRef, Inject, OnInit } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { DataModelingControllerService, EntityType } from '../../../api/generated/dms';
-import { BehaviorSubject } from 'rxjs';
-import { EditState } from './model/edit-state';
+import {Component, ElementRef, Inject, OnInit} from '@angular/core';
+import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
+import {DataModelingControllerService, EntityType} from '../../../api/generated/dms';
+import {BehaviorSubject} from 'rxjs';
+import {EditState} from './model/edit-state';
 
 export interface PlsSemanticNodeDetailsData {
   dataSource: string;
-  node: EntityTypeDTO;
+  node: EntityType;
   relativeTo: ElementRef;
 }
 
