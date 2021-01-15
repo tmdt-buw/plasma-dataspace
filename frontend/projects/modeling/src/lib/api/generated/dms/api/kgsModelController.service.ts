@@ -11,20 +11,15 @@
  */
 /* tslint:disable:no-unused-variable member-ordering */
 
-import { Inject, Injectable, Optional }                      from '@angular/core';
-import { HttpClient, HttpHeaders, HttpParams,
-  HttpResponse, HttpEvent, HttpParameterCodec }       from '@angular/common/http';
-import { CustomHttpParameterCodec }                          from '../encoder';
-import { Observable }                                        from 'rxjs';
-
-import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
-import { Configuration }                                     from '../configuration';
+import { Inject, Injectable, Optional } from '@angular/core';
+import { HttpClient, HttpEvent, HttpHeaders, HttpParameterCodec, HttpParams, HttpResponse } from '@angular/common/http';
+import { CustomHttpParameterCodec } from '../encoder';
+import { Observable } from 'rxjs';
+import { BASE_PATH } from '../variables';
+import { Configuration } from '../configuration';
 
 
-
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable()
 export class LocalKnowledgeControllerService {
 
   protected basePath = 'http://plasma-gateway-service:8888';
@@ -32,7 +27,7 @@ export class LocalKnowledgeControllerService {
   public configuration = new Configuration();
   public encoder: HttpParameterCodec;
 
-  constructor(protected httpClient: HttpClient, @Optional()@Inject(BASE_PATH) basePath: string, @Optional() configuration: Configuration) {
+  constructor(protected httpClient: HttpClient, @Optional() @Inject(BASE_PATH) basePath: string, @Optional() configuration: Configuration) {
     if (configuration) {
       this.configuration = configuration;
     }
@@ -46,9 +41,8 @@ export class LocalKnowledgeControllerService {
   }
 
 
-
   private addToHttpParams(httpParams: HttpParams, value: any, key?: string): HttpParams {
-    if (typeof value === "object" && value instanceof Date === false) {
+    if (typeof value === 'object' && value instanceof Date === false) {
       httpParams = this.addToHttpParamsRecursive(httpParams, value);
     } else {
       httpParams = this.addToHttpParamsRecursive(httpParams, value, key);
@@ -61,24 +55,24 @@ export class LocalKnowledgeControllerService {
       return httpParams;
     }
 
-    if (typeof value === "object") {
+    if (typeof value === 'object') {
       if (Array.isArray(value)) {
-        (value as any[]).forEach( elem => httpParams = this.addToHttpParamsRecursive(httpParams, elem, key));
+        (value as any[]).forEach(elem => httpParams = this.addToHttpParamsRecursive(httpParams, elem, key));
       } else if (value instanceof Date) {
         if (key != null) {
           httpParams = httpParams.append(key,
             (value as Date).toISOString().substr(0, 10));
         } else {
-          throw Error("key may not be null if value is Date");
+          throw Error('key may not be null if value is Date');
         }
       } else {
-        Object.keys(value).forEach( k => httpParams = this.addToHttpParamsRecursive(
+        Object.keys(value).forEach(k => httpParams = this.addToHttpParamsRecursive(
           httpParams, value[k], key != null ? `${key}.${k}` : k));
       }
     } else if (key != null) {
       httpParams = httpParams.append(key, value);
     } else {
-      throw Error("key may not be null if value is not object or array");
+      throw Error('key may not be null if value is not object or array');
     }
     return httpParams;
   }
@@ -95,20 +89,19 @@ export class LocalKnowledgeControllerService {
   public convertSemanticModel(id: string, format?: string, flat?: boolean, observe?: 'body', reportProgress?: boolean): Observable<string>;
   public convertSemanticModel(id: string, format?: string, flat?: boolean, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<string>>;
   public convertSemanticModel(id: string, format?: string, flat?: boolean, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<string>>;
-  public convertSemanticModel(id: string, format?: string, flat?: boolean, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+  public convertSemanticModel(id: string, format?: string, flat?: boolean, observe: any = 'body', reportProgress: boolean = false): Observable<any> {
 
     if (id === null || id === undefined) {
       throw new Error('Required parameter id was null or undefined when calling convertSemanticModel.');
     }
 
 
-
     let queryParameters = new HttpParams({encoder: this.encoder});
     if (format !== undefined && format !== null) {
-      queryParameters = queryParameters.set('format', <any>format);
+      queryParameters = queryParameters.set('format', <any> format);
     }
     if (flat !== undefined && flat !== null) {
-      queryParameters = queryParameters.set('flat', <any>flat);
+      queryParameters = queryParameters.set('flat', <any> flat);
     }
 
     let headers = this.defaultHeaders;
@@ -120,17 +113,16 @@ export class LocalKnowledgeControllerService {
 
 
     // to determine the Content-Type header
-    const consumes: string[] = [
-    ];
+    const consumes: string[] = [];
 
-    return this.httpClient.request<string>('get',`${this.configuration.basePath}/api/plasma-kgs/localknowledge/${encodeURIComponent(String(id))}/export`,
+    return this.httpClient.request<string>('get', `${this.configuration.basePath}/api/plasma-kgs/localknowledge/${encodeURIComponent(String(id))}/export`,
       {
         params: queryParameters,
         withCredentials: this.configuration.withCredentials,
         headers: headers,
         observe: observe,
         reportProgress: reportProgress,
-        responseType: <any>responseType
+        responseType: <any> responseType
       }
     );
   }

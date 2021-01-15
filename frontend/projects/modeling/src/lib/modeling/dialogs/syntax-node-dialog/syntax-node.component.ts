@@ -1,6 +1,11 @@
 import { Component, ElementRef, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 
+export interface PlsSyntaxNodeDetailsData {
+  node: any;
+  relativeTo: ElementRef;
+}
+
 @Component({
   selector: 'pls-syntax-node-details',
   templateUrl: 'syntax-node.component.html',
@@ -10,7 +15,7 @@ export class PlsSyntaxNodeDetailsComponent implements OnInit {
 
   private relativeTo: ElementRef;
 
-  constructor(public dialogRef: MatDialogRef<PlsSyntaxNodeDetailsComponent>, @Inject(MAT_DIALOG_DATA) public data: { node: any, relativeTo: ElementRef }) {
+  constructor(public dialogRef: MatDialogRef<PlsSyntaxNodeDetailsComponent>, @Inject(MAT_DIALOG_DATA) public data: PlsSyntaxNodeDetailsData) {
     this.relativeTo = data.relativeTo;
   }
 

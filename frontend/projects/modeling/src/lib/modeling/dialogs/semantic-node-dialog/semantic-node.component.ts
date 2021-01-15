@@ -2,6 +2,12 @@ import { Component, ElementRef, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { DataModelingControllerService, EntityTypeDTO } from '../../../api/generated/dms';
 
+export interface PlsSemanticNodeDetailsData {
+  dataSource: string;
+  node: EntityTypeDTO;
+  relativeTo: ElementRef;
+}
+
 @Component({
   selector: 'pls-semantic-node-details',
   templateUrl: 'semantic-node.component.html',
@@ -15,7 +21,7 @@ export class PlsSemanticNodeDetailsComponent implements OnInit {
 
   private relativeTo: ElementRef;
 
-  constructor(public dialogRef: MatDialogRef<PlsSemanticNodeDetailsComponent>, @Inject(MAT_DIALOG_DATA) public data: { dataSource: string, node: EntityTypeDTO, relativeTo: ElementRef }, private modelingService: DataModelingControllerService) {
+  constructor(public dialogRef: MatDialogRef<PlsSemanticNodeDetailsComponent>, @Inject(MAT_DIALOG_DATA) public data: PlsSemanticNodeDetailsData, private modelingService: DataModelingControllerService) {
     this.relativeTo = data.relativeTo;
   }
 

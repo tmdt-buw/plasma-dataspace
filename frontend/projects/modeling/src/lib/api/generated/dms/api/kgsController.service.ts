@@ -11,20 +11,15 @@
  */
 /* tslint:disable:no-unused-variable member-ordering */
 
-import { Inject, Injectable, Optional }                      from '@angular/core';
-import { HttpClient, HttpHeaders, HttpParams,
-  HttpResponse, HttpEvent, HttpParameterCodec }       from '@angular/common/http';
-import { CustomHttpParameterCodec }                          from '../encoder';
-import { Observable }                                        from 'rxjs';
-
-import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
-import { Configuration }                                     from '../configuration';
+import { Inject, Injectable, Optional } from '@angular/core';
+import { HttpClient, HttpEvent, HttpHeaders, HttpParameterCodec, HttpParams, HttpResponse } from '@angular/common/http';
+import { CustomHttpParameterCodec } from '../encoder';
+import { Observable } from 'rxjs';
+import { BASE_PATH } from '../variables';
+import { Configuration } from '../configuration';
 
 
-
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable()
 export class UniversalKnowledgeGraphControllerService {
 
   protected basePath = 'http://plasma-gateway-service:8888';
@@ -32,7 +27,7 @@ export class UniversalKnowledgeGraphControllerService {
   public configuration = new Configuration();
   public encoder: HttpParameterCodec;
 
-  constructor(protected httpClient: HttpClient, @Optional()@Inject(BASE_PATH) basePath: string, @Optional() configuration: Configuration) {
+  constructor(protected httpClient: HttpClient, @Optional() @Inject(BASE_PATH) basePath: string, @Optional() configuration: Configuration) {
     if (configuration) {
       this.configuration = configuration;
     }
@@ -46,9 +41,8 @@ export class UniversalKnowledgeGraphControllerService {
   }
 
 
-
   private addToHttpParams(httpParams: HttpParams, value: any, key?: string): HttpParams {
-    if (typeof value === "object" && value instanceof Date === false) {
+    if (typeof value === 'object' && value instanceof Date === false) {
       httpParams = this.addToHttpParamsRecursive(httpParams, value);
     } else {
       httpParams = this.addToHttpParamsRecursive(httpParams, value, key);
@@ -61,24 +55,24 @@ export class UniversalKnowledgeGraphControllerService {
       return httpParams;
     }
 
-    if (typeof value === "object") {
+    if (typeof value === 'object') {
       if (Array.isArray(value)) {
-        (value as any[]).forEach( elem => httpParams = this.addToHttpParamsRecursive(httpParams, elem, key));
+        (value as any[]).forEach(elem => httpParams = this.addToHttpParamsRecursive(httpParams, elem, key));
       } else if (value instanceof Date) {
         if (key != null) {
           httpParams = httpParams.append(key,
             (value as Date).toISOString().substr(0, 10));
         } else {
-          throw Error("key may not be null if value is Date");
+          throw Error('key may not be null if value is Date');
         }
       } else {
-        Object.keys(value).forEach( k => httpParams = this.addToHttpParamsRecursive(
+        Object.keys(value).forEach(k => httpParams = this.addToHttpParamsRecursive(
           httpParams, value[k], key != null ? `${key}.${k}` : k));
       }
     } else if (key != null) {
       httpParams = httpParams.append(key, value);
     } else {
-      throw Error("key may not be null if value is not object or array");
+      throw Error('key may not be null if value is not object or array');
     }
     return httpParams;
   }
@@ -89,10 +83,10 @@ export class UniversalKnowledgeGraphControllerService {
    * @param body The model in Turtle or RDF/XML format to be imported.
    * @return A set of {@link EntityConceptRelationDTO} that correspond to the model triples.
    */
-  public importRdf(body: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json'}): Observable<any[]>;
-  public importRdf(body: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json'}): Observable<HttpResponse<any[]>>;
-  public importRdf(body: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json'}): Observable<HttpEvent<any[]>>;
-  public importRdf(body: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json'}): Observable<any> {
+  public importRdf(body: string, observe?: 'body', reportProgress?: boolean, options?: { httpHeaderAccept?: 'application/json' }): Observable<any[]>;
+  public importRdf(body: string, observe?: 'response', reportProgress?: boolean, options?: { httpHeaderAccept?: 'application/json' }): Observable<HttpResponse<any[]>>;
+  public importRdf(body: string, observe?: 'events', reportProgress?: boolean, options?: { httpHeaderAccept?: 'application/json' }): Observable<HttpEvent<any[]>>;
+  public importRdf(body: string, observe: any = 'body', reportProgress: boolean = false, options?: { httpHeaderAccept?: 'application/json' }): Observable<any> {
     if (body === null || body === undefined) {
       throw new Error('Required parameter body was null or undefined when calling importRdf.');
     }
@@ -122,14 +116,14 @@ export class UniversalKnowledgeGraphControllerService {
     }
 
     let responseType: 'text' | 'json' = 'json';
-    if(httpHeaderAcceptSelected && httpHeaderAcceptSelected.startsWith('text')) {
+    if (httpHeaderAcceptSelected && httpHeaderAcceptSelected.startsWith('text')) {
       responseType = 'text';
     }
 
     return this.httpClient.post<string>(`${this.configuration.basePath}/api/plasma-kgs/universalknowledge/import`,
       body,
       {
-        responseType: <any>responseType,
+        responseType: <any> responseType,
         withCredentials: this.configuration.withCredentials,
         headers: headers,
         observe: observe,
@@ -150,16 +144,15 @@ export class UniversalKnowledgeGraphControllerService {
   public convertGraphToRdf(format?: string, flat?: boolean, observe?: 'body', reportProgress?: boolean): Observable<string>;
   public convertGraphToRdf(format?: string, flat?: boolean, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<string>>;
   public convertGraphToRdf(format?: string, flat?: boolean, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<string>>;
-  public convertGraphToRdf(format?: string, flat?: boolean, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
-
+  public convertGraphToRdf(format?: string, flat?: boolean, observe: any = 'body', reportProgress: boolean = false): Observable<any> {
 
 
     let queryParameters = new HttpParams({encoder: this.encoder});
     if (format !== undefined && format !== null) {
-      queryParameters = queryParameters.set('format', <any>format);
+      queryParameters = queryParameters.set('format', <any> format);
     }
     if (flat !== undefined && flat !== null) {
-      queryParameters = queryParameters.set('flat', <any>flat);
+      queryParameters = queryParameters.set('flat', <any> flat);
     }
 
     let headers = this.defaultHeaders;
@@ -174,11 +167,10 @@ export class UniversalKnowledgeGraphControllerService {
     }
 
     // to determine the Content-Type header
-    const consumes: string[] = [
-    ];
+    const consumes: string[] = [];
 
     let responseType: 'text' | 'json' = 'text';
-    if(httpHeaderAcceptSelected && httpHeaderAcceptSelected.startsWith('text')) {
+    if (httpHeaderAcceptSelected && httpHeaderAcceptSelected.startsWith('text')) {
       responseType = 'text';
     }
 
@@ -189,7 +181,7 @@ export class UniversalKnowledgeGraphControllerService {
         headers: headers,
         observe: observe,
         reportProgress: reportProgress,
-        responseType: <any>responseType
+        responseType: <any> responseType
       }
     );
   }
@@ -205,12 +197,12 @@ export class UniversalKnowledgeGraphControllerService {
   public getUpperOntology(format?: string, observe?: 'body', reportProgress?: boolean): Observable<string>;
   public getUpperOntology(format?: string, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<string>>;
   public getUpperOntology(format?: string, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<string>>;
-  public getUpperOntology(format?: string, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+  public getUpperOntology(format?: string, observe: any = 'body', reportProgress: boolean = false): Observable<any> {
 
 
     let queryParameters = new HttpParams({encoder: this.encoder});
     if (format !== undefined && format !== null) {
-      queryParameters = queryParameters.set('format', <any>format);
+      queryParameters = queryParameters.set('format', <any> format);
     }
 
     let headers = this.defaultHeaders;
@@ -225,26 +217,24 @@ export class UniversalKnowledgeGraphControllerService {
     }
 
     // to determine the Content-Type header
-    const consumes: string[] = [
-    ];
+    const consumes: string[] = [];
 
     let responseType: 'text' | 'json' = 'text';
-    if(httpHeaderAcceptSelected && httpHeaderAcceptSelected.startsWith('text')) {
+    if (httpHeaderAcceptSelected && httpHeaderAcceptSelected.startsWith('text')) {
       responseType = 'text';
     }
 
-    return this.httpClient.request<string>('get',`${this.configuration.basePath}/api/plasma-kgs/universalknowledge/upperOntology`,
+    return this.httpClient.request<string>('get', `${this.configuration.basePath}/api/plasma-kgs/universalknowledge/upperOntology`,
       {
         params: queryParameters,
         withCredentials: this.configuration.withCredentials,
         headers: headers,
         observe: observe,
         reportProgress: reportProgress,
-        responseType: <any>responseType
+        responseType: <any> responseType
       }
     );
   }
-
 
 
 }
