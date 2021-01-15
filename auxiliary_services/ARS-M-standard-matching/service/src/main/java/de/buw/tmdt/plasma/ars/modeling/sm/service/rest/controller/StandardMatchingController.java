@@ -4,7 +4,7 @@ import de.buw.tmdt.plasma.ars.modeling.sm.service.handler.StandardMatchingHandle
 import de.buw.tmdt.plasma.ars.modeling.sm.shared.api.StandardMatchingAPI;
 import de.buw.tmdt.plasma.ars.modeling.sm.shared.dto.StandardDTO;
 import de.buw.tmdt.plasma.ars.modeling.sm.shared.dto.StandardProvisionDTO;
-import de.buw.tmdt.plasma.ars.modeling.sm.shared.dto.semanticmodel.SemanticModelDTO;
+import de.buw.tmdt.plasma.services.dms.shared.dto.DataSourceSchemaDTO;
 import de.buw.tmdt.plasma.services.sas.shared.dto.syntaxmodel.NodeDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import org.jetbrains.annotations.NotNull;
@@ -48,7 +48,7 @@ public class StandardMatchingController implements StandardMatchingAPI {
 
     @Override
     @Operation(description = "returns the semantic model for the given id")
-    public SemanticModelDTO fetchResult(String analysisId) {
+    public DataSourceSchemaDTO fetchResult(String analysisId) {
         return standardMatchingHandler.fetchModel(analysisId);
     }
 
