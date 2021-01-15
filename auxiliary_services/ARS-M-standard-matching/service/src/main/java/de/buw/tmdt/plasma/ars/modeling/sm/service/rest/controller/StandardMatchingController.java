@@ -4,8 +4,7 @@ import de.buw.tmdt.plasma.ars.modeling.sm.service.handler.StandardMatchingHandle
 import de.buw.tmdt.plasma.ars.modeling.sm.shared.api.StandardMatchingAPI;
 import de.buw.tmdt.plasma.ars.modeling.sm.shared.dto.StandardDTO;
 import de.buw.tmdt.plasma.ars.modeling.sm.shared.dto.StandardProvisionDTO;
-import de.buw.tmdt.plasma.services.dms.shared.dto.DataSourceSchemaDTO;
-import de.buw.tmdt.plasma.services.sas.shared.dto.syntaxmodel.NodeDTO;
+import de.buw.tmdt.plasma.datamodel.CombinedModel;
 import io.swagger.v3.oas.annotations.Operation;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,13 +25,11 @@ public class StandardMatchingController implements StandardMatchingAPI {
         this.standardMatchingHandler = standardMatchingHandler;
     }
 
-
     @Override
     @Operation(description = "persists a new standard")
     public String createStandard(@RequestBody StandardProvisionDTO standardProvisionDTO) {
         return standardMatchingHandler.createStandard(standardProvisionDTO);
     }
-
 
     @Override
     @Operation(description = "returns a list of all existing standards")
@@ -42,13 +39,13 @@ public class StandardMatchingController implements StandardMatchingAPI {
 
     @Override
     @Operation(description = "performs semantic modeling using the defined standard on the given combined model")
-    public String modelWithStandard(@NotNull NodeDTO syntaxModel, String standardId, String analysisId) {
-        return standardMatchingHandler.modelWithStandard(syntaxModel, standardId, analysisId);
+    public String modelWithStandard(@NotNull CombinedModel combinedModel, String standardId, String analysisId) {
+        return standardMatchingHandler.modelWithStandard(combinedModel, standardId, analysisId);
     }
 
     @Override
     @Operation(description = "returns the semantic model for the given id")
-    public DataSourceSchemaDTO fetchResult(String analysisId) {
+    public CombinedModel fetchResult(String analysisId) {
         return standardMatchingHandler.fetchModel(analysisId);
     }
 
