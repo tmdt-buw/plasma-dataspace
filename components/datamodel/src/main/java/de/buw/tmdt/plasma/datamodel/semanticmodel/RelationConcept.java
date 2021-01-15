@@ -32,6 +32,17 @@ public class RelationConcept extends CombinedModelElement implements Serializabl
 	public RelationConcept(
 			@NotNull String label,
 			@Nullable String description,
+			@NotNull String sourceURI
+	) {
+		super(label);
+		this.description = description;
+		this.sourceURI = sourceURI;
+		this.properties = new HashSet<>();
+	}
+
+	public RelationConcept(
+			@NotNull String label,
+			@Nullable String description,
 			@Nullable String entityId,
 			@NotNull String sourceURI,
 			@NotNull Set<String> properties

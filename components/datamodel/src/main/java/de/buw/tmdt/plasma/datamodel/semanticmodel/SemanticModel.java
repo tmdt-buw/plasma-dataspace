@@ -10,7 +10,10 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Objects;
 
 public class SemanticModel implements Serializable {
 
@@ -26,14 +29,19 @@ public class SemanticModel implements Serializable {
 	private final List<Relation> edges;
 
 	@JsonCreator
+	public SemanticModel() {
+		this(null, null, null);
+	}
+
+	@JsonCreator
 	public SemanticModel(
 			@Nullable @JsonProperty(ENTITY_ID_PROPERTY) String entityId,
-			@JsonProperty(NODES_PROPERTY) List<EntityType> nodes,
-			@JsonProperty(EDGES_PROPERTY) List<Relation> edges
+			@Nullable @JsonProperty(NODES_PROPERTY) List<EntityType> nodes,
+			@Nullable @JsonProperty(EDGES_PROPERTY) List<Relation> edges
 	) {
 		this.entityId = entityId;
-		this.nodes = nodes != null ? new ArrayList<>(nodes) : Collections.emptyList();
-		this.edges = edges != null ? new ArrayList<>(edges) : Collections.emptyList();
+		this.nodes = nodes != null ? new ArrayList<>(nodes) : new ArrayList<>();
+		this.edges = edges != null ? new ArrayList<>(edges) : new ArrayList<>();
 	}
 
 	/* Getter */

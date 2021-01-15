@@ -108,7 +108,7 @@ public class CombinedModel implements Serializable {
 	) {
 		this.dataSourceUuid = dataSourceUuid;
 		this.syntaxModel = syntaxModel;
-		this.semanticModel = semanticModel == null ? new SemanticModel(null, null, null) : semanticModel;
+		this.semanticModel = semanticModel == null ? new SemanticModel() : semanticModel;
 		this.primitiveEntityTypeMappings = primitiveEntityTypeMappings == null ? new ArrayList<>() : new ArrayList<>(primitiveEntityTypeMappings);
 		this.finalized = finalized;
 		this.recommendations = recommendations == null ? new ArrayList<>() : new ArrayList<>(recommendations);
