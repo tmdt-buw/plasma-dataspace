@@ -198,7 +198,7 @@ public class SetNode extends Node {
 
 		}
 
-		public Child(Selector selector, @NotNull Node node) {
+		public Child(@NotNull Selector selector, @NotNull Node node) {
 			super(null, Identity.random());
 			this.selector = selector;
 			this.node = node;

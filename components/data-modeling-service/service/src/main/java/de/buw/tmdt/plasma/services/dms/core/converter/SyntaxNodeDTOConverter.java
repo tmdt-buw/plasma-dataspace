@@ -3,6 +3,7 @@ package de.buw.tmdt.plasma.services.dms.core.converter;
 import de.buw.tmdt.plasma.services.dms.core.model.datasource.semanticmodel.EntityConcept;
 import de.buw.tmdt.plasma.services.dms.core.model.datasource.semanticmodel.EntityType;
 import de.buw.tmdt.plasma.services.dms.core.model.datasource.syntaxmodel.*;
+import de.buw.tmdt.plasma.services.dms.core.model.datasource.syntaxmodel.members.WildcardSelector;
 import de.buw.tmdt.plasma.services.dms.shared.dto.PrimitiveEntityTypeEdgeDTO;
 import de.buw.tmdt.plasma.services.dms.shared.dto.semanticmodel.EntityConceptDTO;
 import de.buw.tmdt.plasma.services.dms.shared.dto.semanticmodel.EntityTypeDTO;
@@ -14,7 +15,11 @@ import org.jetbrains.annotations.Nullable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class SyntaxNodeDTOConverter {
@@ -93,7 +98,8 @@ public class SyntaxNodeDTOConverter {
     @NotNull
     private SetNode fromSetNodeDTO(@NotNull SetNodeDTO primitiveNodeDTO) {
         return new SetNode(
-                getChildrenForNode(primitiveNodeDTO).stream().map(node -> new SetNode.Child(null, node)).collect(Collectors.toList()),
+                getChildrenForNode(primitiveNodeDTO).entrySet().stream()
+                        .map(node -> new SetNode.Child(new WildcardSelector(), node.getValue())).collect(Collectors.toList()),
                 null,
                 primitiveNodeDTO.getUuid()
         );
@@ -101,19 +107,19 @@ public class SyntaxNodeDTOConverter {
 
     @NotNull
     private ObjectNode fromObjectNodeDTO(@NotNull ObjectNodeDTO objectNodeDTO) {
-        Map<String, Node> children = new HashMap<>();
-        getChildrenForNode(objectNodeDTO).forEach(node -> children.put(node.getUuid().toString(), node));
+        Map<String, Node> children = getChildrenForNode(objectNodeDTO);
         return new ObjectNode(
                 children, null, objectNodeDTO.getUuid()
         );
     }
 
-    private Set<Node> getChildrenForNode(SchemaNodeDTO schemaNodeDTO) {
-        List<SchemaNodeDTO> children = syntaxModelDTO.getEdges().stream().filter(edge -> edge.getFrom().equals(schemaNodeDTO.getUuid())).map(
+    private Map<String, Node> getChildrenForNode(SchemaNodeDTO schemaNodeDTO) {
+        Map<String, SchemaNodeDTO> children = syntaxModelDTO.getEdges().stream().filter(edge -> edge.getFrom().equals(schemaNodeDTO.getUuid())).map(
                 edge -> syntaxModelDTO.getNodes().stream().filter(node -> node.getUuid().equals(edge.getTo())).findFirst().orElseThrow()
-        ).collect(Collectors.toList());
+        ).collect(Collectors.toMap(SchemaNodeDTO::getLabel, Function.identity()));
 
-        return children.stream().map(this::fromNodeDTO).collect(Collectors.toSet());
+        return children.entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, entry -> fromNodeDTO(entry.getValue())));
     }
 
     @NotNull
