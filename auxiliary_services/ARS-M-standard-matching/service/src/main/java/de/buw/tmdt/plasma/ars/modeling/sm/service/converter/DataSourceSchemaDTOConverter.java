@@ -30,7 +30,7 @@ public class DataSourceSchemaDTOConverter {
 
 	@NotNull
 	public Pair<SyntaxModelDTO, List<PrimitiveEntityTypeEdgeDTO>> toDTO(@NotNull Node root, List<EntityType> entityTypes) {
-		SerializationContext serializationContext = new SerializationContext(entityTypes.stream().map(x -> toDTO(x)).collect(Collectors.toList()));
+		SerializationContext serializationContext = new SerializationContext(entityTypes.stream().map(this::toDTO).collect(Collectors.toList()));
 		SchemaNodeDTO rootDTO;
 		if (root instanceof SetNode) {
 			rootDTO = toDTO((SetNode) root, ROOT_ELEMENT_LABEL, serializationContext);
@@ -276,7 +276,7 @@ public class DataSourceSchemaDTOConverter {
 				xCoordinate,
 				yCoordinate,
 				entityType.getId(),
-				String.valueOf(entityType.getUuid() == null ? null : UUID.fromString(entityType.getUuid())),
+				entityType.getUuid() == null ? null : entityType.getUuid(),
 				entityType.getLabel(),
 				entityType.getOriginalLabel(),
 				entityType.getDescription(),
