@@ -13,11 +13,13 @@ public class EntityRuleDTO implements Serializable {
     private static final String ORIGINAL_ATTRIBUTE_PROPERTY = "originalAttribute";
     private static final String CONCEPT_NAME_PROPERTY = "conceptName";
     private static final String CONCEPT_DESCRIPTION_PROPERTY = "conceptDescription";
+    private static final String CONCEPT_SOURCE_URI_PROPERTY = "conceptSourceURI";
     private static final String REQUIRED_PREDECESSOR_PROPERTY = "requiredPredecessor";
 
     private final String originalAttribute;
     private final String conceptName;
     private final String conceptDescription;
+    private final String conceptSourceURI;
     private final String requiredPredecessor;
 
     @JsonCreator
@@ -25,10 +27,12 @@ public class EntityRuleDTO implements Serializable {
             @Nullable @JsonProperty(ORIGINAL_ATTRIBUTE_PROPERTY) String originalAttribute,
             @NotNull @JsonProperty(CONCEPT_NAME_PROPERTY) String conceptName,
             @NotNull @JsonProperty(CONCEPT_DESCRIPTION_PROPERTY) String conceptDescription,
+            @NotNull @JsonProperty(CONCEPT_SOURCE_URI_PROPERTY) String conceptSourceURI,
             @Nullable @JsonProperty(REQUIRED_PREDECESSOR_PROPERTY) String requiredPredecessor) {
         this.originalAttribute = originalAttribute;
         this.conceptName = conceptName;
         this.conceptDescription = conceptDescription;
+        this.conceptSourceURI = conceptSourceURI;
         this.requiredPredecessor = requiredPredecessor;
     }
 
@@ -54,5 +58,11 @@ public class EntityRuleDTO implements Serializable {
     @JsonProperty(REQUIRED_PREDECESSOR_PROPERTY)
     public String getRequiredPredecessor() {
         return requiredPredecessor;
+    }
+
+    @NotNull
+    @JsonProperty(CONCEPT_SOURCE_URI_PROPERTY)
+    public String getConceptSourceURI() {
+        return conceptSourceURI;
     }
 }

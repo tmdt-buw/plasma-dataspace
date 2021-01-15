@@ -15,10 +15,10 @@ public class RelationRule {
     protected UUID uuid;
 
     @Column
-    private String fromConcept;
+    private String fromConceptSourceURI;
 
     @Column
-    private String toConcept;
+    private String toConceptSourceURI;
 
     @Column
     private String conceptName;
@@ -26,13 +26,17 @@ public class RelationRule {
     @Column
     private String conceptDescription;
 
+    @Column
+    private String conceptSourceURI;
+
     protected RelationRule() {
     }
 
-    public RelationRule(@NotNull String fromConcept, @NotNull String toConcept, @NotNull String conceptName, @NotNull String conceptDescription) {
+    public RelationRule(@NotNull String fromConcept, @NotNull String toConcept, @NotNull String conceptName, @NotNull String conceptDescription, @NotNull String conceptSourceURI) {
+        this.conceptSourceURI = conceptSourceURI;
         this.uuid = UUID.randomUUID();
-        this.fromConcept = fromConcept;
-        this.toConcept = toConcept;
+        this.fromConceptSourceURI = fromConcept;
+        this.toConceptSourceURI = toConcept;
         this.conceptName = conceptName;
         this.conceptDescription = conceptDescription;
     }
@@ -41,12 +45,12 @@ public class RelationRule {
         return uuid;
     }
 
-    public String getFromConcept() {
-        return fromConcept;
+    public String getFromConceptSourceURI() {
+        return fromConceptSourceURI;
     }
 
-    public String getToConcept() {
-        return toConcept;
+    public String getToConceptSourceURI() {
+        return toConceptSourceURI;
     }
 
     public String getConceptName() {
@@ -55,5 +59,9 @@ public class RelationRule {
 
     public String getConceptDescription() {
         return conceptDescription;
+    }
+
+    public String getConceptSourceURI() {
+        return conceptSourceURI;
     }
 }

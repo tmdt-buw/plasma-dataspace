@@ -12,10 +12,12 @@ public class RelationRuleDTO implements Serializable {
     private static final long serialVersionUID = -3313200983207222361L;
     private static final String CONCEPT_NAME_PROPERTY = "conceptName";
     private static final String CONCEPT_DESCRIPTION_PROPERTY = "conceptDescription";
+    private static final String CONCEPT_SOURCE_URI_PROPERTY = "conceptSourceURI";
     private static final String FROM_CONCEPT_PROPERTY = "fromConcept";
     private static final String TO_CONCEPT_PROPERTY = "toConcept";
 
     private final String conceptName;
+    private final String conceptSourceURI;
     private final String fromConcept;
     private final String toConcept;
     private final String conceptDescription;
@@ -24,10 +26,12 @@ public class RelationRuleDTO implements Serializable {
     public RelationRuleDTO(
             @Nullable @JsonProperty(CONCEPT_NAME_PROPERTY) String conceptName,
             @NotNull @JsonProperty(CONCEPT_DESCRIPTION_PROPERTY) String conceptDescription,
+            @NotNull @JsonProperty(CONCEPT_SOURCE_URI_PROPERTY) String conceptSourceURI,
             @NotNull @JsonProperty(FROM_CONCEPT_PROPERTY) String fromConcept,
             @NotNull @JsonProperty(TO_CONCEPT_PROPERTY) String toConcept) {
         this.conceptName = conceptName;
         this.conceptDescription = conceptDescription;
+        this.conceptSourceURI = conceptSourceURI;
         this.fromConcept = fromConcept;
         this.toConcept = toConcept;
     }
@@ -54,5 +58,11 @@ public class RelationRuleDTO implements Serializable {
     @JsonProperty(CONCEPT_DESCRIPTION_PROPERTY)
     public String getConceptDescription() {
         return conceptDescription;
+    }
+
+    @NotNull
+    @JsonProperty(CONCEPT_SOURCE_URI_PROPERTY)
+    public String getConceptSourceURI() {
+        return conceptSourceURI;
     }
 }
