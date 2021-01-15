@@ -14,6 +14,7 @@ public class RuleDTOConverter {
                 "".equals(entityRuleDTO.getOriginalAttribute()) ? null : entityRuleDTO.getOriginalAttribute(),
                 entityRuleDTO.getConceptName(),
                 entityRuleDTO.getConceptDescription(),
+                entityRuleDTO.getConceptSourceURI(),
                 entityRuleDTO.getRequiredPredecessor()
         );
     }
@@ -22,6 +23,7 @@ public class RuleDTOConverter {
         return new RelationRule(
                 relationRuleDTO.getFromConcept(),
                 relationRuleDTO.getToConcept(),
+                relationRuleDTO.getConceptSourceURI(),
                 relationRuleDTO.getConceptName(),
                 relationRuleDTO.getConceptDescription()
         );
