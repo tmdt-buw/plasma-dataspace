@@ -212,6 +212,7 @@ services:
     depends_on:
       - discovery
       - kgs
+      - mariadb-ars-m-sm
     ports:
       - 8202:8202
 
