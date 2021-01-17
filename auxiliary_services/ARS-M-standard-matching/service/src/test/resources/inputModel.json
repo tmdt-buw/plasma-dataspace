@@ -1,0 +1,231 @@
+{
+  "dataSourceUuid": "77e89221-5943-4dc2-9141-5cc4c0d6626b",
+  "syntaxModel": {
+    "root": "63dfb9fc-1e75-4dab-93f4-ab39901aff0b",
+    "nodes": [
+      {
+        "@class": "ObjectNode",
+        "uuid": "54f411be-eae9-44d1-a3ff-7f69eea92e87",
+        "label": "*",
+        "x": null,
+        "y": null,
+        "operations": [],
+        "isValid": true
+      },
+      {
+        "@class": "SetNode",
+        "uuid": "e01ba65a-04da-4e39-adca-d22865e234f6",
+        "label": "line",
+        "x": null,
+        "y": null,
+        "operations": [],
+        "isValid": true
+      },
+      {
+        "@class": "PrimitiveNode",
+        "uuid": "f0e153a4-398f-4e50-bf8e-3fa52b50e888",
+        "label": "p2",
+        "x": null,
+        "y": null,
+        "operations": [],
+        "isValid": true,
+        "dataType": "String",
+        "examples": [
+          "v2"
+        ],
+        "cleansingPattern": ""
+      },
+      {
+        "@class": "PrimitiveNode",
+        "uuid": "bb87ab08-02f4-4108-ba23-06e8f2d16492",
+        "label": "latitude",
+        "x": null,
+        "y": null,
+        "operations": [],
+        "isValid": true,
+        "dataType": "Number",
+        "examples": [
+          "51.16",
+          "51.22"
+        ],
+        "cleansingPattern": ""
+      },
+      {
+        "@class": "PrimitiveNode",
+        "uuid": "b8eb78bf-2e93-4757-99c9-ab01851eea0e",
+        "label": "p1",
+        "x": null,
+        "y": null,
+        "operations": [],
+        "isValid": true,
+        "dataType": "String",
+        "examples": [
+          "v1"
+        ],
+        "cleansingPattern": ""
+      },
+      {
+        "@class": "PrimitiveNode",
+        "uuid": "d66a4843-dca1-43c4-ad55-f94409ef66f5",
+        "label": "longitude",
+        "x": null,
+        "y": null,
+        "operations": [],
+        "isValid": true,
+        "dataType": "Number",
+        "examples": [
+          "7.02",
+          "7.22"
+        ],
+        "cleansingPattern": ""
+      },
+      {
+        "@class": "PrimitiveNode",
+        "uuid": "6f4f704f-500e-4e58-a4e7-c1a0a073e1a9",
+        "label": "collectionName",
+        "x": null,
+        "y": null,
+        "operations": [],
+        "isValid": true,
+        "dataType": "String",
+        "examples": [
+          "TestCollection"
+        ],
+        "cleansingPattern": ""
+      },
+      {
+        "@class": "PrimitiveNode",
+        "uuid": "c665b3f1-51dd-43dd-a134-ac7de9bab952",
+        "label": "type",
+        "x": null,
+        "y": null,
+        "operations": [],
+        "isValid": true,
+        "dataType": "String",
+        "examples": [
+          "LineString"
+        ],
+        "cleansingPattern": ""
+      },
+      {
+        "@class": "ObjectNode",
+        "uuid": "b126d8e3-540f-4885-add2-80f9370e269f",
+        "label": "geometry",
+        "x": null,
+        "y": null,
+        "operations": [],
+        "isValid": true
+      },
+      {
+        "@class": "ObjectNode",
+        "uuid": "63dfb9fc-1e75-4dab-93f4-ab39901aff0b",
+        "label": "ROOT",
+        "x": null,
+        "y": null,
+        "operations": [],
+        "isValid": true
+      },
+      {
+        "@class": "ObjectNode",
+        "uuid": "e606edbb-fa6d-4817-b343-3328978d7a23",
+        "label": "properties",
+        "x": null,
+        "y": null,
+        "operations": [],
+        "isValid": true
+      },
+      {
+        "@class": "PrimitiveNode",
+        "uuid": "9f8f90ed-0b08-4d33-9071-0fc8b193d77f",
+        "label": "type",
+        "x": null,
+        "y": null,
+        "operations": [],
+        "isValid": true,
+        "dataType": "String",
+        "examples": [
+          "Feature"
+        ],
+        "cleansingPattern": ""
+      }
+    ],
+    "edges": [
+      {
+        "uuid": "d462951f-e713-403d-9cd1-0193b2cbb5a5",
+        "label": "",
+        "from": "54f411be-eae9-44d1-a3ff-7f69eea92e87",
+        "to": "bb87ab08-02f4-4108-ba23-06e8f2d16492"
+      },
+      {
+        "uuid": "59fbca17-7744-4f0a-9d43-fa2420bb3398",
+        "label": "",
+        "from": "54f411be-eae9-44d1-a3ff-7f69eea92e87",
+        "to": "d66a4843-dca1-43c4-ad55-f94409ef66f5"
+      },
+      {
+        "uuid": "6e80f109-dca8-4a23-888a-7da23cd5ea30",
+        "label": "",
+        "from": "e01ba65a-04da-4e39-adca-d22865e234f6",
+        "to": "54f411be-eae9-44d1-a3ff-7f69eea92e87"
+      },
+      {
+        "uuid": "e0bd6b29-0ff3-42da-9204-5cecd0821f33",
+        "label": "",
+        "from": "b126d8e3-540f-4885-add2-80f9370e269f",
+        "to": "e01ba65a-04da-4e39-adca-d22865e234f6"
+      },
+      {
+        "uuid": "9af2851c-1e99-4c36-960a-5a1a4a6ef593",
+        "label": "",
+        "from": "b126d8e3-540f-4885-add2-80f9370e269f",
+        "to": "c665b3f1-51dd-43dd-a134-ac7de9bab952"
+      },
+      {
+        "uuid": "d29ff9fa-396d-4bed-b5af-89fdd853ec2f",
+        "label": "",
+        "from": "63dfb9fc-1e75-4dab-93f4-ab39901aff0b",
+        "to": "b126d8e3-540f-4885-add2-80f9370e269f"
+      },
+      {
+        "uuid": "ab2c9c83-486e-4c20-967b-50ab7747e6c3",
+        "label": "",
+        "from": "63dfb9fc-1e75-4dab-93f4-ab39901aff0b",
+        "to": "9f8f90ed-0b08-4d33-9071-0fc8b193d77f"
+      },
+      {
+        "uuid": "cdb44db5-e3e0-4494-8c75-3328e8ab9b12",
+        "label": "",
+        "from": "e606edbb-fa6d-4817-b343-3328978d7a23",
+        "to": "b8eb78bf-2e93-4757-99c9-ab01851eea0e"
+      },
+      {
+        "uuid": "6d8671f4-abb1-4b26-b8b8-53699833098a",
+        "label": "",
+        "from": "e606edbb-fa6d-4817-b343-3328978d7a23",
+        "to": "f0e153a4-398f-4e50-bf8e-3fa52b50e888"
+      },
+      {
+        "uuid": "c3a5bdc5-7c0d-4117-aad6-8910b5833935",
+        "label": "",
+        "from": "63dfb9fc-1e75-4dab-93f4-ab39901aff0b",
+        "to": "e606edbb-fa6d-4817-b343-3328978d7a23"
+      },
+      {
+        "uuid": "7e9dd6c0-fb69-4ab7-a1bc-75a16748c172",
+        "label": "",
+        "from": "63dfb9fc-1e75-4dab-93f4-ab39901aff0b",
+        "to": "6f4f704f-500e-4e58-a4e7-c1a0a073e1a9"
+      }
+    ]
+  },
+  "semanticModel": {
+    "entityId": "DUMMY_ID",
+    "nodes": [],
+    "edges": []
+  },
+  "primitiveToEntityTypeList": [],
+  "recommendations": [],
+  "finalized": true,
+  "provisionalEntityConcepts": [],
+  "provisionalRelationConcepts": []
+}
