@@ -5,127 +5,141 @@
     {
       "originalAttribute": "latitude",
       "conceptName": "Geographische Breite",
-      "conceptDescription": "Die geographische Breite, auch geodätische Breite oder Breitengrad genannt, ist die im Winkelmaß in der Maßeinheit Grad angegebene nördliche oder südliche Entfernung eines Punktes der Erdoberfläche vom Äquator"
+      "conceptDescription": "Die geographische Breite, auch geodätische Breite oder Breitengrad genannt, ist die im Winkelmaß in der Maßeinheit Grad angegebene nördliche oder südliche Entfernung eines Punktes der Erdoberfläche vom Äquator",
+      "conceptSourceURI": "plasma:georules_latitude"
     },
     {
       "originalAttribute": "longitude",
       "conceptName": "Geographische Länge",
-      "conceptDescription": "Die geographische Länge beschreibt eine der beiden Koordinaten eines Ortes auf der Erdoberfläche, und zwar seine Position östlich oder westlich einer definierten Nord-Süd-Linie, des Nullmeridians."
+      "conceptDescription": "Die geographische Länge beschreibt eine der beiden Koordinaten eines Ortes auf der Erdoberfläche, und zwar seine Position östlich oder westlich einer definierten Nord-Süd-Linie, des Nullmeridians.",
+      "conceptSourceURI": "plasma:georules_longitude"
     },
     {
       "originalAttribute": "altitude",
       "conceptName": "Höhe",
-      "conceptDescription": "Höhen über dem Meeresspiegel (auch See- oder Meereshöhe) dienen der Höhenangabe von geografischen und technischen Objekten, insbesondere von Höhen der Erdoberfläche (Gelände, Berggipfel), von Ortschaften und Verkehrswegen."
+      "conceptDescription": "Höhen über dem Meeresspiegel (auch See- oder Meereshöhe) dienen der Höhenangabe von geografischen und technischen Objekten, insbesondere von Höhen der Erdoberfläche (Gelände, Berggipfel), von Ortschaften und Verkehrswegen.",
+      "conceptSourceURI": "plasma:georules_altitude"
     },
     {
       "originalAttribute": "",
       "conceptName": "Punkt",
       "conceptDescription": "Eine einzelne Position",
+      "conceptSourceURI": "plasma:georules_point",
       "requiredPredecessor": "latitude"
     },
     {
       "originalAttribute": "",
       "conceptName": "Linie",
       "conceptDescription": "Eine Menge von mehreren verbundenen Positionen",
+      "conceptSourceURI": "plasma:georules_line",
       "requiredPredecessor": "line"
     },
     {
       "originalAttribute": "",
       "conceptName": "Polygon",
       "conceptDescription": "Eine zu einem Polygon verbundene Menge von Positionen",
+      "conceptSourceURI": "plasma:georules_polygon",
       "requiredPredecessor": "outerPolygon"
     },
     {
       "originalAttribute": "type",
       "conceptName": "Geotyp",
       "conceptDescription": "Gibt an um welche Art von GeoJson Typ es sich bei dem darunter liegenden Objekt handelt.",
+      "conceptSourceURI": "plasma:georules_geotype",
       "requiredPredecessor": "geometry"
     },
     {
       "originalAttribute": "",
       "conceptName": "Geometrie",
       "conceptDescription": "Stellt ein Geometrisches Objekt dar.",
+      "conceptSourceURI": "plasma:georules_geometry",
       "requiredPredecessor": "latitude"
     },
     {
       "originalAttribute": "",
       "conceptName": "MultiPunkt",
       "conceptDescription": "Eine Menge von einzelnen Positionen",
-      "requiredPredecessor": "points"
-    },
-    {
-      "originalAttribute": "",
-      "conceptName": "MultiPunkt",
-      "conceptDescription": "Eine Menge von einzelnen Positionen",
+      "conceptSourceURI": "plasma:georules_multipoint",
       "requiredPredecessor": "points"
     }
   ],
   "relationRules": [
     {
       "conceptName": "hat",
-      "fromConcept": "Punkt",
-      "toConcept": "Geographische Breite",
-      "conceptDescription": "hat"
+      "fromConcept": "plasma:georules_point",
+      "toConcept": "plasma:georules_latitude",
+      "conceptDescription": "hat",
+      "conceptSourceURI": "plasma:georules_has"
     },
     {
       "conceptName": "hat",
-      "fromConcept": "Punkt",
-      "toConcept": "Geographische Länge",
-      "conceptDescription": "hat"
+      "fromConcept": "plasma:georules_point",
+      "toConcept": "plasma:georules_longitude",
+      "conceptDescription": "hat",
+      "conceptSourceURI": "plasma:georules_has"
     },
     {
       "conceptName": "hat",
-      "fromConcept": "Punkt",
-      "toConcept": "Höhe",
-      "conceptDescription": "hat"
+      "fromConcept": "plasma:georules_point",
+      "toConcept": "plasma:georules_altitude",
+      "conceptDescription": "hat",
+      "conceptSourceURI": "plasma:georules_has"
     },
     {
       "conceptName": "besteht aus",
-      "fromConcept": "Linie",
-      "toConcept": "Punkt",
-      "conceptDescription": "ist ein Teil eines Ganzen"
+      "fromConcept": "plasma:georules_line",
+      "toConcept": "plasma:georules_point",
+      "conceptDescription": "ist ein Teil eines Ganzen",
+      "conceptSourceURI": "plasma:georules_consists_of"
     },
     {
       "conceptName": "besteht aus",
-      "fromConcept": "Polygon",
-      "toConcept": "Punkt",
-      "conceptDescription": "ist ein Teil eines Ganzen"
+      "fromConcept": "plasma:georules_polygon",
+      "toConcept": "plasma:georules_point",
+      "conceptDescription": "ist ein Teil eines Ganzen",
+      "conceptSourceURI": "plasma:georules_consists_of"
     },
     {
       "conceptName": "hat",
-      "fromConcept": "Geometrie",
-      "toConcept": "Geotyp",
-      "conceptDescription": "hat"
+      "fromConcept": "plasma:georules_geometry",
+      "toConcept": "plasma:georules_geotype",
+      "conceptDescription": "hat",
+      "conceptSourceURI": "plasma:georules_has"
     },
     {
       "conceptName": "realisiert als",
-      "fromConcept": "Geometrie",
-      "toConcept": "Linie",
-      "conceptDescription": "realisiert als"
+      "fromConcept": "plasma:georules_geometry",
+      "toConcept": "plasma:georules_line",
+      "conceptDescription": "realisiert als",
+      "conceptSourceURI": "plasma:georules_realized_as"
     },
     {
       "conceptName": "realisiert als",
-      "fromConcept": "Geometrie",
-      "toConcept": "Polygon",
-      "conceptDescription": "realisiert als"
+      "fromConcept": "plasma:georules_geometry",
+      "toConcept": "plasma:georules_polygon",
+      "conceptDescription": "realisiert als",
+      "conceptSourceURI": "plasma:georules_realized_as"
     },
     {
       "conceptName": "realisiert als",
-      "fromConcept": "Geometrie",
-      "toConcept": "Punkt",
-      "conceptDescription": "realisiert als"
+      "fromConcept": "plasma:georules_geometry",
+      "toConcept": "plasma:georules_point",
+      "conceptDescription": "realisiert als",
+      "conceptSourceURI": "plasma:georules_realized_as"
     },
     {
       "conceptName": "realisiert als",
-      "fromConcept": "Geometrie",
-      "toConcept": "Mulipunkt",
-      "conceptDescription": "realisiert als"
+      "fromConcept": "plasma:georules_geometry",
+      "toConcept": "plasma:georules_multipoint",
+      "conceptDescription": "realisiert als",
+      "conceptSourceURI": "plasma:georules_realized_as"
     },
     {
       "conceptName": "besteht aus",
-      "fromConcept": "Multipunkt",
-      "toConcept": "Punkt",
-      "conceptDescription": "ist ein Teil eines Ganzen"
+      "fromConcept": "plasma:georules_multipoint",
+      "toConcept": "plasma:georules_point",
+      "conceptDescription": "ist ein Teil eines Ganzen",
+      "conceptSourceURI": "plasma:georules_consists_of"
     }
   ]
 }
