@@ -4,6 +4,7 @@ import de.buw.tmdt.plasma.datamodel.CombinedModel;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 
 @Entity
@@ -19,11 +20,13 @@ public class Analysis {
 	/**
 	 * The input as received.
 	 */
+	@Lob
 	private CombinedModel input;
 
 	/**
 	 * Generated result.
 	 */
+	@Lob
 	private CombinedModel result;
 
 	@ManyToOne

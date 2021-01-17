@@ -395,7 +395,7 @@ public class StandardMatchingHandler {
     }
 
     public CombinedModel fetchModel(String analysisId) {
-        Analysis analysis = analysisRepository.findById(UUID.fromString(analysisId))
+        Analysis analysis = analysisRepository.findById(analysisId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Analysis ID not found"));
         CombinedModel combinedModel = analysis.getResult();
         if (combinedModel == null) {
