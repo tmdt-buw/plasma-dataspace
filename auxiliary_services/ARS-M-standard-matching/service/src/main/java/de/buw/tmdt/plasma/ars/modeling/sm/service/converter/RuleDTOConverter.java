@@ -23,9 +23,9 @@ public class RuleDTOConverter {
         return new RelationRule(
                 relationRuleDTO.getFromConcept(),
                 relationRuleDTO.getToConcept(),
-                relationRuleDTO.getConceptSourceURI(),
                 relationRuleDTO.getConceptName(),
-                relationRuleDTO.getConceptDescription()
+                relationRuleDTO.getConceptDescription(),
+                relationRuleDTO.getConceptSourceURI()
         );
     }
 }
