@@ -2,10 +2,7 @@ package de.buw.tmdt.plasma.ars.modeling.sm.service.model;
 
 import de.buw.tmdt.plasma.datamodel.CombinedModel;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Lob;
-import javax.persistence.ManyToOne;
+import javax.persistence.*;
 
 @Entity
 public class Analysis {
@@ -21,12 +18,14 @@ public class Analysis {
 	 * The input as received.
 	 */
 	@Lob
+	@Convert(converter = CombinedModelPersistenceConverter.class)
 	private CombinedModel input;
 
 	/**
 	 * Generated result.
 	 */
 	@Lob
+	@Convert(converter = CombinedModelPersistenceConverter.class)
 	private CombinedModel result;
 
 	@ManyToOne
