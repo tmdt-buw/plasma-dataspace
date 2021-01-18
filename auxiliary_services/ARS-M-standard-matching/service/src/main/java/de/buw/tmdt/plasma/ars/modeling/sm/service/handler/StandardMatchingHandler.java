@@ -162,7 +162,7 @@ public class StandardMatchingHandler {
         Map<String, RelationConcept> relationConceptMap = generateRelationConcepts(standard);
 
         try {
-            semanticModel = performSemanticModelingByRules(analysis, requiredPredecessors, nodePaths, unboundEntityConceptMap, relationConceptMap);
+            semanticModel = performSemanticModelingByRules(analysis, model, requiredPredecessors, nodePaths, unboundEntityConceptMap, relationConceptMap);
         } catch (SchemaAnalysisException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
         }
@@ -218,7 +218,7 @@ public class StandardMatchingHandler {
             if (entityRule.getOriginalAttribute() == null || entityRule.getOriginalAttribute().isEmpty()) {
                 if (!unboundRuleBasedMappings.containsKey(entityRule.getConceptSourceURI())) {
                     EntityConcept entityConcept = getOrGenerateEntityConcept(entityRule);
-                    unboundRuleBasedMappings.put(entityRule.getOriginalAttribute(), entityConcept);
+                    unboundRuleBasedMappings.put(entityRule.getConceptSourceURI(), entityConcept);
                 }
             }
             requiredPredecessors.put(entityRule.getConceptSourceURI(), entityRule.getRequiredPredecessor());
@@ -254,7 +254,7 @@ public class StandardMatchingHandler {
                 .orElse(new EntityConcept(
                         rule.getConceptName(),
                         rule.getConceptDescription(),
-                        "plasma:" + rule.getConceptName().toLowerCase()
+                        rule.getConceptSourceURI()
                 ));
     }
 
@@ -266,7 +266,7 @@ public class StandardMatchingHandler {
                 .orElse(new RelationConcept(
                         rule.getConceptName(),
                         rule.getConceptDescription(),
-                        "plasma:" + rule.getConceptName().toLowerCase()
+                        rule.getConceptSourceURI()
                 ));
     }
 
@@ -275,6 +275,7 @@ public class StandardMatchingHandler {
      * Perform semantic modeling by rules.
      *
      * @param analysis              analysis object to pick standard from
+     * @param combinedModel         The input from the labeling step
      * @param requiredPredecessors  map defining which predecessors certain labels need before assigning them
      * @param nodePaths             map defining the paths to each node
      * @param unboundEntityConcepts map of sourURIs to entity concepts for non-primitive attached concepts
@@ -282,23 +283,18 @@ public class StandardMatchingHandler {
      * @return The generated semantic model containing the newly created entities and relations. For internal use only.
      */
     private SemanticModel performSemanticModelingByRules(Analysis analysis,
+                                                         CombinedModel combinedModel,
                                                          Map<String, String> requiredPredecessors,
                                                          Map<String, List<String>> nodePaths,
                                                          Map<String, EntityConcept> unboundEntityConcepts,
                                                          Map<String, RelationConcept> relationConceptMap) {
 
-        List<String> allAvailableTypes = new ArrayList<>();
+        List<String> syntaxNodeNamesAndTokens = nodePaths.values().stream().flatMap(Collection::stream).distinct().collect(Collectors.toList());
 
-        for (Map.Entry<String, List<String>> h : nodePaths.entrySet()) {
-            allAvailableTypes.addAll(h.getValue());
-        }
-
-        Set<String> allTypes = new HashSet<>(allAvailableTypes);
-
-        allTypes.add(null);
+        syntaxNodeNamesAndTokens.add(null);
 
         // only for local use
-        SemanticModel semanticModel = new SemanticModel();
+        SemanticModel semanticModel = combinedModel.getSemanticModel();
 
         List<EntityRule> nonPrimitiveEntityRules = analysis.getStandard().getEntityRules().stream().filter(x -> x.getOriginalAttribute() == null).collect(Collectors.toList());
         List<RelationRule> relationRules = analysis.getStandard().getRelationRules();
@@ -329,7 +325,7 @@ public class StandardMatchingHandler {
                         }
                         EntityConcept entityConcept = unboundEntityConcepts.get(candidate.getConceptSourceURI());
 
-                        if (allTypes.contains(requiredPredecessors.get(entityConcept.getLabel()))) {
+                        if (syntaxNodeNamesAndTokens.contains(requiredPredecessors.get(entityConcept.getSourceURI()))) {
                             EntityType entityType = new EntityType(
                                     entityConcept.getLabel(),
                                     0.0,
@@ -349,15 +345,15 @@ public class StandardMatchingHandler {
 
                     if (!candidates.isEmpty()) {
                         for (EntityRule candidate : candidates) {
-                            if (allTypes.contains(candidate.getRequiredPredecessor())) {
+                            if (syntaxNodeNamesAndTokens.contains(candidate.getRequiredPredecessor())) {
 
-                                EntityConcept entityConcept = unboundEntityConcepts.get(candidate.getConceptName());
+                                EntityConcept entityConcept = unboundEntityConcepts.get(candidate.getConceptSourceURI());
                                 if (entityConcept == null) {
                                     // does not exist
                                     continue;
                                 }
 
-                                if (allTypes.contains(requiredPredecessors.get(entityConcept.getLabel()))) {
+                                if (syntaxNodeNamesAndTokens.contains(requiredPredecessors.get(entityConcept.getSourceURI()))) {
                                     EntityType entityType = new EntityType(
                                             entityConcept.getLabel(),
                                             0.0,
