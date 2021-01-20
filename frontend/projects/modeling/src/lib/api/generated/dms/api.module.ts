@@ -1,8 +1,6 @@
 import { NgModule, ModuleWithProviders, SkipSelf, Optional } from '@angular/core';
 import { Configuration } from './configuration';
 import { HttpClient } from '@angular/common/http';
-
-
 import { DataModelingControllerService } from './api/dataModelingController.service';
 import { UniversalKnowledgeGraphControllerService } from './api/kgsController.service';
 import { LocalKnowledgeControllerService } from './api/kgsModelController.service';

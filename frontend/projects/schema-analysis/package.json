@@ -1,6 +1,8 @@
 {
-  "name": "schema-analysis",
-  "version": "0.0.1",
+  "name": "@data-platform/sas",
+  "version": "0.0.0-PLACEHOLDER",
+  "author": "TMDT <tlanger@uni-wuppertal.de>",
+  "license": "GPL-3.0",
   "peerDependencies": {
     "@angular/common": "^10.2.0",
     "@angular/core": "^10.2.0"

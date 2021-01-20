@@ -2,7 +2,7 @@ package de.buw.tmdt.plasma.ars.modeling.sm.shared.api;
 
 import de.buw.tmdt.plasma.ars.modeling.sm.shared.dto.StandardDTO;
 import de.buw.tmdt.plasma.ars.modeling.sm.shared.dto.StandardProvisionDTO;
-import de.buw.tmdt.plasma.ars.modeling.sm.shared.dto.semanticmodel.SemanticModelDTO;
+import de.buw.tmdt.plasma.services.dms.shared.dto.DataSourceSchemaDTO;
 import de.buw.tmdt.plasma.services.sas.shared.dto.syntaxmodel.NodeDTO;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.http.MediaType;
@@ -40,6 +40,6 @@ public interface StandardMatchingAPI {
 	 * @return Semantic Model including identified standards
 	 */
 	@GetMapping(path = "/fetch", produces = MediaType.APPLICATION_JSON_VALUE)
-	SemanticModelDTO fetchResult(@RequestParam("analysisId") String analysisId);
+	DataSourceSchemaDTO fetchResult(@RequestParam("analysisId") String analysisId);
 
 }

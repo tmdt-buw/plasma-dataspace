@@ -2,21 +2,21 @@ package de.buw.tmdt.plasma.services.dms.core.services;
 
 import de.buw.tmdt.plasma.services.dms.core.converter.DataSourceSchemaDTOConverter;
 import de.buw.tmdt.plasma.services.dms.core.converter.SchemaAnalysisDTOConverter;
+import de.buw.tmdt.plasma.services.dms.core.converter.SyntaxNodeDTOConverter;
 import de.buw.tmdt.plasma.services.dms.core.model.datasource.DataSourceModel;
 import de.buw.tmdt.plasma.services.dms.core.model.datasource.DataSourceSchema;
 import de.buw.tmdt.plasma.services.dms.core.model.datasource.semanticmodel.*;
-import de.buw.tmdt.plasma.services.dms.core.model.datasource.syntaxmodel.*;
-import de.buw.tmdt.plasma.services.dms.core.model.datasource.syntaxmodel.members.EntityConceptSuggestion;
+import de.buw.tmdt.plasma.services.dms.core.model.datasource.syntaxmodel.Node;
 import de.buw.tmdt.plasma.services.dms.core.repository.*;
 import de.buw.tmdt.plasma.services.dms.shared.dto.DataSourceSchemaDTO;
 import de.buw.tmdt.plasma.services.dms.shared.dto.semanticmodel.EntityTypeDTO;
 import de.buw.tmdt.plasma.services.dms.shared.dto.semanticmodel.RelationConceptDTO;
 import de.buw.tmdt.plasma.services.dms.shared.dto.semanticmodel.RelationDTO;
 import de.buw.tmdt.plasma.services.dms.shared.dto.semanticmodel.SemanticModelDTO;
+import de.buw.tmdt.plasma.services.dms.shared.dto.syntaxmodel.SyntaxModelDTO;
 import de.buw.tmdt.plasma.services.sas.shared.dto.syntaxmodel.NodeDTO;
 import de.buw.tmdt.plasma.services.sas.shared.feignclient.SchemaAnalysisApiClient;
 import de.buw.tmdt.plasma.services.srs.feignclient.SemanticRecommendationApiClient;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import feign.FeignException;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -107,15 +107,15 @@ public class DataSourceModelInitService {
 				uuid.toString(), dataSourceSchemaDTO);
 
 		SemanticModelDTO semanticModelDTO = dataSourceSchemaDTO.getSemanticModelDTO();
+		SyntaxModelDTO syntaxModelDTO = dataSourceSchemaDTO.getSyntaxModelDTO();
 
-		//Convert the fetched schema to the internal model
-		Node syntaxModel = schemaAnalysisDTOConverter.fromNodeDTO(result);
 
 		Map<Long, Long> entityTypeMapping = new HashMap<>();
 
 		Map<String, EntityConcept> entityConceptMap = new HashMap<>();
-		List<EntityType> entityTypes = refreshEntityConcepts(syntaxModel, entityTypeMapping, entityConceptMap);
 		List<EntityType> classEntityTypes = new ArrayList<>();
+
+		List<EntityType> entityTypes = new ArrayList<>();
 
 		for (EntityTypeDTO entityType : semanticModelDTO.getNodes()) {
 
@@ -153,6 +153,7 @@ public class DataSourceModelInitService {
 				classEntityTypes.add(newEntityType);
 			}
 		}
+
 		entityTypes.addAll(classEntityTypes);
 
 		List<Relation> newRelations = new ArrayList<>();
@@ -204,128 +205,32 @@ public class DataSourceModelInitService {
 		List<EntityConcept> entityConceptCache = entityTypes.stream().map(EntityType::getEntityConcept).distinct().collect(Collectors.toList());
 		List<RelationConcept> relationConceptCache = newRelations.stream().map(Relation::getRelationConcept).distinct().collect(Collectors.toList());
 
-		return new DataSourceSchema(
+		//Convert the fetched schema to the internal model
+		SyntaxNodeDTOConverter converter = new SyntaxNodeDTOConverter(syntaxModelDTO,
+				dataSourceSchemaDTO.getPrimitiveEntityTypeEdgeDTOs(), entityTypes, entityTypeMapping);
+		Node syntaxModel = converter.convert();
+
+		schema = new DataSourceSchema(
 				dataSourceModel,
 				syntaxModel,
 				semanticModel,
+				new ArrayList<>(),
+				new ArrayList<>()
+		);
+
+		dataSourceModel.pushDataSourceSchema(schema);
+		dataSourceModel = dataSourceRepository.save(dataSourceModel);
+
+
+		return new DataSourceSchema(
+				dataSourceModel,
+				dataSourceModel.peekDataSourceSchema().getSyntaxModel(),
+				dataSourceModel.peekDataSourceSchema().getSemanticModel(),
 				entityConceptCache,
 				relationConceptCache
 		);
 	}
 
-	private List<EntityType> refreshEntityConcepts(Node node, Map<Long, Long> entityTypeMapping, Map<String, EntityConcept> entityConceptMap) {
-		List<EntityType> entityTypes = new ArrayList<>();
-		if (node instanceof SetNode) {
-			entityTypes.addAll(refreshEntityConcepts((SetNode) node, entityTypeMapping, entityConceptMap));
-		} else if (node instanceof ObjectNode) {
-			entityTypes.addAll(refreshEntityConcepts((ObjectNode) node, entityTypeMapping, entityConceptMap));
-		} else if (node instanceof PrimitiveNode) {
-			entityTypes.addAll(refreshEntityConcepts((PrimitiveNode) node, entityTypeMapping, entityConceptMap));
-		} else if (node instanceof CollisionNode) {
-			entityTypes.addAll(refreshEntityConcepts((CollisionNode) node, entityTypeMapping, entityConceptMap));
-		} else if (null == node) {
-			logger.debug("NullSchema is not going to get a suggested EntityConcept.");
-		}
-		return entityTypes;
-	}
-
-	private List<EntityType> refreshEntityConcepts(SetNode setNode, Map<Long, Long> entityTypeMapping, Map<String, EntityConcept> entityConceptMap) {
-		List<EntityType> entityTypes = new ArrayList<>();
-		for (SetNode.Child n : setNode.getChildren()) {
-			entityTypes.addAll(refreshEntityConcepts(n.getNode(), entityTypeMapping, entityConceptMap));
-		}
-		return entityTypes;
-	}
-
-	private List<EntityType> refreshEntityConcepts(ObjectNode objectNode, Map<Long, Long> entityTypeMapping, Map<String, EntityConcept> entityConceptMap) {
-		List<EntityType> entityTypes = new ArrayList<>();
-		for (Map.Entry<String, Node> child : objectNode.getChildren().entrySet()) {
-			entityTypes.addAll(refreshEntityConcepts(child.getValue(), entityTypeMapping, entityConceptMap));
-		}
-		return entityTypes;
-	}
-
-	private List<EntityType> refreshEntityConcepts(
-			CollisionNode collisionNode,
-			Map<Long, Long> entityTypeMapping,
-			Map<String, EntityConcept> entityConceptMap
-	) {
-		List<EntityType> entityTypes = new ArrayList<>();
-		if (collisionNode.getPrimitiveNode() != null) {
-			entityTypes.addAll(refreshEntityConcepts(collisionNode.getPrimitiveNode(), entityTypeMapping, entityConceptMap));
-		}
-		if (collisionNode.getObjectNode() != null) {
-			entityTypes.addAll(refreshEntityConcepts(collisionNode.getObjectNode(), entityTypeMapping, entityConceptMap));
-		}
-		if (collisionNode.getSetNode() != null) {
-			entityTypes.addAll(refreshEntityConcepts(collisionNode.getSetNode(), entityTypeMapping, entityConceptMap));
-		}
-		return entityTypes;
-	}
-
-	@SuppressFBWarnings(value = "NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE", justification = "Won't be null")
-	private List<EntityType> refreshEntityConcepts(
-			PrimitiveNode primitiveNode,
-			Map<Long, Long> entityTypeMapping,
-			Map<String, EntityConcept> entityConceptMap
-	) {
-
-		List<EntityType> entityTypes = new ArrayList<>();
-
-		List<EntityConceptSuggestion> correctedEntityConceptSuggestions = new ArrayList<>();
-
-		for (EntityConceptSuggestion ec : primitiveNode.getEntityConceptSuggestions()) {
-
-			if (entityConceptMap.containsKey(ec.getEntityConcept().getUuid())) {
-				correctedEntityConceptSuggestions.add(new EntityConceptSuggestion(entityConceptMap.get(ec.getEntityConcept().getUuid()), ec.getWeight()));
-			} else {
-				EntityConcept persistedConcept = new EntityConcept(
-						ec.getEntityConcept().getUuid(),
-						ec.getEntityConcept().getName(),
-						ec.getEntityConcept().getDescription(),
-						ec.getEntityConcept().getSourceURI(),
-						null
-				);
-				persistedConcept = entityConceptRepository.save(persistedConcept);
-				entityConceptMap.put(persistedConcept.getUuid(), persistedConcept);
-				correctedEntityConceptSuggestions.add(new EntityConceptSuggestion(persistedConcept, ec.getWeight()));
-			}
-		}
-		primitiveNode.setEntityConceptSuggestions(correctedEntityConceptSuggestions);
-
-		if (primitiveNode.getEntityType() != null) {
-			EntityConcept fittingConcept = null;
-			for (EntityConceptSuggestion ecs : primitiveNode.getEntityConceptSuggestions()) {
-
-				if (Objects.equals(ecs.getEntityConcept().getUuid(), primitiveNode.getEntityType().getEntityConcept().getUuid())) {
-					fittingConcept = ecs.getEntityConcept();
-					break;
-				}
-			}
-			long oldId = primitiveNode.getEntityType().getId();
-
-			if (fittingConcept != null) {
-
-				EntityType entityType = new EntityType(
-						null,
-						primitiveNode.getEntityType().getLabel(),
-						primitiveNode.getEntityType().getOriginalLabel(),
-						primitiveNode.getEntityType().getDescription(),
-						fittingConcept,
-						null
-				);
-
-				primitiveNode.getEntityType().setEntityConcept(fittingConcept);
-
-				entityType = entityTypeRepository.save(entityType);
-				long newId = entityType.getId();
-				entityTypeMapping.put(oldId, newId);
-				primitiveNode.setEntityType(entityType);
-				entityTypes.add(entityType);
-			}
-		}
-		return entityTypes;
-	}
 
 	private EntityType getEntityTypeById(List<EntityType> entityTypes, long id) {
 		return entityTypes.stream().filter(x -> x.getId() == id).findFirst().orElse(null);

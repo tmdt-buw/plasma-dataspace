@@ -14,6 +14,21 @@ export abstract class Papers {
    * @param primary color function
    */
   static createPaper(graph: dia.Graph, relationConcept: () => RelationConceptDTO, primary: () => string): dia.Paper {
+    const interactive = () => {
+      if (relationConcept()) {
+        return {
+          labelMove: true,
+          addLinkFromMagnet: true,
+          elementMove: false
+        };
+      } else {
+        return {
+          labelMove: true,
+          addLinkFromMagnet: false,
+          elementMove: true
+        };
+      }
+    };
     return new dia.Paper({
       model: graph,
       width: '100%',
@@ -27,21 +42,7 @@ export abstract class Papers {
       // disable links pinning to blank space since we only want to connect nodes with links
       linkPinning: false,
       // enable link drawing and disable move nodes if relation is selected in menu
-      interactive: () => {
-        if (relationConcept()) {
-          return {
-            labelMove: true,
-            addLinkFromMagnet: true,
-            elementMove: false
-          };
-        } else {
-          return {
-            labelMove: true,
-            addLinkFromMagnet: false,
-            elementMove: true
-          };
-        }
-      },
+      interactive,
       // ony allow links between semantic nodes
       allowLink: (linkView: dia.LinkView) => {
         return Links.targetsSemanticNode(linkView);

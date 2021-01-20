@@ -1,6 +1,8 @@
 {
-  "name": "@plasma/common",
-  "version": "0.0.1",
+  "name": "@data-platform/common",
+  "version": "0.0.0-PLACEHOLDER",
+  "author": "TMDT <tlanger@uni-wuppertal.de>",
+  "license": "GPL-3.0",
   "peerDependencies": {
     "@angular/cdk": "^11.0.3",
     "@angular/common": "^11.0.5",

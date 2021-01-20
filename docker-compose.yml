@@ -192,7 +192,7 @@ services:
      - 80:80
 
 ########################### Auxiliary Services ######################################
-     
+
   ars-l-lm:
     image: "plasma/ars-l-lm:${PLASMA_VERSION}"
     hostname: plasma-ars-l-lm
@@ -201,7 +201,17 @@ services:
       - discovery
       - kgs
     ports:
-     - 8201:8201
+      - 8201:8201
+
+  ars-m-sm:
+    image: "plasma/ars-m-sm:${PLASMA_VERSION}"
+    hostname: plasma-ars-m-sm
+    restart: unless-stopped
+    depends_on:
+      - discovery
+      - kgs
+    ports:
+      - 8202:8202
 
 volumes:
   neo4j_data:

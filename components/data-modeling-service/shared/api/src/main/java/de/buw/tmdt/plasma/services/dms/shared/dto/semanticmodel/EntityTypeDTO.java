@@ -98,6 +98,7 @@ public class EntityTypeDTO extends Positioned {
 		this.mappedToData = mappedToData;
 	}
 
+
 	@JsonProperty(ID_PROPERTY)
 	public String getIdAsString() {
 		return StringUtilities.toStringIfExists(id);

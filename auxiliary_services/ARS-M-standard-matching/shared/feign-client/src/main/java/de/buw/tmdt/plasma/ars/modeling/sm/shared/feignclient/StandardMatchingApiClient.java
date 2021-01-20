@@ -6,7 +6,7 @@ import org.springframework.cloud.openfeign.FeignClient;
 @SuppressWarnings("HardcodedFileSeparator - uris")
 @FeignClient(
         name = "plasma-ars-m-sm",
-        contextId = "plasma-ars",
+        contextId = "plasma-ars-m",
         configuration = StandardMatchingFeignConfiguration.class
 )
 public interface StandardMatchingApiClient extends StandardMatchingAPI {

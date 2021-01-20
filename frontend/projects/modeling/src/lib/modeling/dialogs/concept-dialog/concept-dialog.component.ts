@@ -9,6 +9,14 @@ import { ModelingService } from '../../modeling.service';
 import { MatTabChangeEvent } from '@angular/material/tabs';
 import { MatSelectionList } from '@angular/material/list';
 
+export interface PlsConceptDialogData {
+  dataSource: string;
+  node: any;
+  relativeTo: ElementRef;
+  recommendations: DeltaRecommendationDTO[];
+}
+
+
 @Component({
   selector: 'pls-concept-dialog',
   templateUrl: 'concept-dialog.component.html',
@@ -34,7 +42,7 @@ export class PlsConceptDialogComponent implements OnInit, AfterViewInit {
   primaryColorContrast;
 
   // TODO find useful recommendation view
-  constructor(public dialogRef: MatDialogRef<PlsConceptDialogComponent>, @Inject(MAT_DIALOG_DATA) public data: { dataSource: string, node: any, relativeTo: ElementRef, recommendations: DeltaRecommendationDTO[] },
+  constructor(public dialogRef: MatDialogRef<PlsConceptDialogComponent>, @Inject(MAT_DIALOG_DATA) public data: PlsConceptDialogData,
               private modeling: ModelingService, private modelingService: DataModelingControllerService, public dialog: MatDialog) {
     this.relativeTo = data.relativeTo;
   }

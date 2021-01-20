@@ -1,7 +1,7 @@
 package de.buw.tmdt.plasma.ars.modeling.sm.service.converter;
 
 import de.buw.tmdt.plasma.ars.modeling.sm.service.model.semanticmodel.*;
-import de.buw.tmdt.plasma.ars.modeling.sm.shared.dto.semanticmodel.*;
+import de.buw.tmdt.plasma.services.dms.shared.dto.semanticmodel.*;
 import de.buw.tmdt.plasma.utilities.collections.Collectors;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
@@ -21,7 +21,7 @@ public class SemanticModelDTOConverter {
                 .collect(Collectors.getSerializableListCollector());
 
         return new SemanticModelDTO(
-                semanticModel.getId(),
+                String.valueOf(semanticModel.getId()),
                 semanticModel.getUuid(),
                 semanticModel.getLabel(),
                 semanticModel.getDescription(),
@@ -44,12 +44,12 @@ public class SemanticModelDTOConverter {
                 xCoordinate,
                 yCoordinate,
                 entityType.getId(),
-                entityType.getUuid() == null ? null : UUID.fromString(entityType.getUuid()),
+                String.valueOf(entityType.getUuid() == null ? null : UUID.fromString(entityType.getUuid())),
                 entityType.getLabel(),
                 entityType.getOriginalLabel(),
                 entityType.getDescription(),
                 entityConceptDTO,
-                null
+                entityType.getOriginalLabel() != null
         );
     }
 
