@@ -14,7 +14,7 @@ services:
     volumes:
       - neo4j_data:/data
     healthcheck:
-      test: cypher-shell "match (n) return n;"
+      test: cypher-shell "match (n) return n limit 1;"
       interval: 10s
       timeout: 10s
       retries: 3
