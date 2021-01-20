@@ -36,7 +36,7 @@
       <button mat-icon-button matTooltip="more" [matMenuTriggerFor]="more">
         <mat-icon>more_vert</mat-icon>
       </button>
-      <button mat-icon-button matTooltip="Toggle fullscreen" (click)="toggleFullScreen()">
+      <button *ngIf="fullScreen" mat-icon-button matTooltip="Toggle fullscreen" (click)="toggleFullScreen()">
         <mat-icon *ngIf="isFullscreen">fullscreen_exit</mat-icon>
         <mat-icon *ngIf="!isFullscreen">fullscreen</mat-icon>
       </button>

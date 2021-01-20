@@ -9,6 +9,7 @@ import {
   SetNode
 } from '../../../api/generated/dms';
 
+
 /**
  * Node type defs
  */
@@ -133,7 +134,7 @@ export abstract class Nodes {
     }, {
       markup: [{
         tagName: 'rect',
-        selector: 'body',
+        selector: 'body'
       }, {
         tagName: 'text',
         selector: 'icon'
@@ -186,7 +187,7 @@ export abstract class Nodes {
       attrs: {
         body: {
           stroke: color.color,
-          opacity: opacity ? opacity : 1,
+          opacity: opacity ? opacity : 1
         },
         header: {
           fill: color.color,

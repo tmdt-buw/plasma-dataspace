@@ -7,6 +7,14 @@ This library was generated with [Angular CLI](https://github.com/angular/angular
 Run `ng generate component component-name --project modeling` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module --project modeling`.
 > Note: Don't forget to add `--project modeling` or else it will be added to the default project in your `angular.json` file. 
 
+## Development
+
+Install dev dependencies required by jointjs:     
+`"@types/backbone": "^1.4.5",
+"@types/dagre": "^0.7.44",
+"@types/jquery": "^3.5.5",
+"@types/lodash": "^4.14.167",`
+
 ## Build
 
 Run `ng build modeling` to build the project. The build artifacts will be stored in the `dist/` directory.

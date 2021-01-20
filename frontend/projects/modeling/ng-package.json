@@ -10,11 +10,5 @@
       "svg-pan-zoom": "svgPanZoom",
       "lodash": "lodash"
     }
-  },
-  "whitelistedNonPeerDependencies": [
-    "jointjs",
-    "dagre",
-    "graphlib",
-    "svg-pan-zoom"
-  ]
+  }
 }
