@@ -3,10 +3,5 @@
     "target": "http://localhost:8888",
     "secure": false,
     "logLevel": "debug"
-  },
-  "/filesystem": {
-    "target": "http://localhost:8888",
-    "secure": false,
-    "logLevel": "debug"
   }
 }

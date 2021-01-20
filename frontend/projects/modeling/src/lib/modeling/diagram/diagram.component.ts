@@ -1,3 +1,4 @@
+import { Overlay } from '@angular/cdk/overlay';
 import {
   AfterViewInit,
   ChangeDetectionStrategy,
@@ -11,10 +12,12 @@ import {
   ViewChild,
   ViewContainerRef
 } from '@angular/core';
-import { dia, layout } from 'jointjs';
-import { BehaviorSubject, Subject } from 'rxjs';
+import { MatDialog, MatDialogConfig, MatDialogRef } from '@angular/material/dialog';
 import * as dagre from 'dagre';
 import * as graphlib from 'graphlib';
+import { dia, layout } from 'jointjs';
+import { BehaviorSubject, Subject } from 'rxjs';
+import { auditTime, distinctUntilChanged, pairwise, skip } from 'rxjs/operators';
 import * as svgPanZoom from 'svg-pan-zoom';
 import {
   DataSourceSchemaDTO,
@@ -26,24 +29,21 @@ import {
   SemanticModelDTO,
   SyntaxModelDTO
 } from '../../api/generated/dms';
-import { auditTime, distinctUntilChanged, pairwise, skip } from 'rxjs/operators';
-import { Filter } from '../model/common/filter';
-import { MatDialog, MatDialogConfig, MatDialogRef } from '@angular/material/dialog';
-import { PlsSyntaxNodeDetailsComponent } from '../dialogs/syntax-node-dialog/syntax-node.component';
-import { PlsSemanticNodeDetailsComponent } from '../dialogs/semantic-node-dialog/semantic-node.component';
-import { EntityDroppedEvent } from '../model/events/entity-dropped-event';
-import { NodeChangedEvent } from '../model/events/node-changed-event';
-import { ModelingService } from '../modeling.service';
-import { Overlay } from '@angular/cdk/overlay';
 import { ContextMenuService } from '../context-menu/context-menu.service';
 import { PlsEntityConceptMenuComponent } from '../context-menu/entity-concept-menu/entity-concept-menu.component';
 import { PlsRelationConceptMenuComponent } from '../context-menu/relation-concept-menu/relation-concept-menu.component';
+import { PlsSemanticNodeDetailsComponent } from '../dialogs/semantic-node-dialog/semantic-node.component';
+import { PlsSyntaxNodeDetailsComponent } from '../dialogs/syntax-node-dialog/syntax-node.component';
+import { Filter } from '../model/common/filter';
 import { Util } from '../model/common/util';
-import { Icons } from '../model/configuration/icons';
-import { Node, Nodes, SemanticNode, SyntaxNode } from '../model/configuration/node';
 import { Graphs } from '../model/configuration/graph';
-import { Papers } from '../model/configuration/paper';
+import { Icons } from '../model/configuration/icons';
 import { Links } from '../model/configuration/link';
+import { Node, Nodes, SemanticNode, SyntaxNode } from '../model/configuration/node';
+import { Papers } from '../model/configuration/paper';
+import { EntityDroppedEvent } from '../model/events/entity-dropped-event';
+import { NodeChangedEvent } from '../model/events/node-changed-event';
+import { ModelingService } from '../modeling.service';
 
 
 @Component({
@@ -751,8 +751,9 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
    */
   @HostListener('window:resize')
   onResize(): void {
-    this.$resize.next(this.paper.getComputedSize());
+    if (this.$resize) {
+      this.$resize.next(this.paper.getComputedSize());
+    }
   }
-
 
 }

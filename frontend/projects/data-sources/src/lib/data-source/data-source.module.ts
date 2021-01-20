@@ -15,7 +15,7 @@ import { BytesPipe } from './data-source/upload/upload-card/bytes.pipe';
 import { PlsUploadCardComponent } from './data-source/upload/upload-card/upload-card.component';
 import { MatDialogModule } from '@angular/material/dialog';
 import { PlsUploadDialogService } from './data-source-dialog/data-source-dialog.service';
-import { FileDropModule } from '@plasma/common';
+import { FileDropModule } from '@data-platform/common';
 
 
 @NgModule({

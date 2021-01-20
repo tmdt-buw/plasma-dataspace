@@ -40,6 +40,7 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
   readonly Filter = Filter;
 
   @Input() dataSource: string;
+  @Input() fullScreen: boolean = true;
 
   @ViewChild('main') main;
   @ViewChild('primary') primary;

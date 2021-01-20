@@ -4,11 +4,11 @@
   "author": "TMDT <tlanger@uni-wuppertal.de>",
   "license": "GPL-3.0",
   "peerDependencies": {
-    "@angular/cdk": "^11.0.3",
-    "@angular/common": "^11.0.5",
-    "@angular/core": "^11.0.5",
-    "@angular/flex-layout": "^11.0.0-beta.33",
-    "@angular/material": "^11.0.3"
+    "@angular/cdk": ">=10.0.0",
+    "@angular/common": ">=10.0.0",
+    "@angular/core": ">=10.0.0",
+    "@angular/flex-layout": "^10.0.0-beta.32 || ^11.0.0-beta.33",
+    "@angular/material": ">=10.0.0"
   },
   "dependencies": {
     "tslib": "^2.0.0"

@@ -16,19 +16,19 @@
       "dom"
     ],
     "paths": {
-      "@plasma/dss": [
+      "@data-platform/dss": [
         "dist/data-sources/data-sources",
         "dist/data-sources"
       ],
-      "@plasma/dms": [
+      "@data-platform/dms": [
         "dist/modeling/modeling",
         "dist/modeling"
       ],
-      "@plasma/sas": [
+      "@data-platform/sas": [
         "dist/schema-analysis/schema-analysis",
         "dist/schema-analysis"
       ],
-      "@plasma/common": [
+      "@data-platform/common": [
         "dist/common/common",
         "dist/common"
       ]
