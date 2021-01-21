@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import de.buw.tmdt.plasma.datamodel.CombinedModelElement;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.UUID;
@@ -17,6 +18,7 @@ public class Edge extends CombinedModelElement {
     private static final String FROM_PROPERTY = "from";
     private static final String TO_PROPERTY = "to";
     private static final long serialVersionUID = 40733795713697672L;
+    private static final String ANNOTATION_PROPERTY = "annotation";
 
     /**
      * An identifier of the origin node, references to a {@link SchemaNode#getUuid()}.
@@ -30,9 +32,24 @@ public class Edge extends CombinedModelElement {
     @NotNull
     private String to;
 
+    /**
+     * Optional additional annotation / information for this edge.
+     */
+    @Nullable
+    private String annotation;
+
     @SuppressFBWarnings("NP_METHOD_PARAMETER_TIGHTENS_ANNOTATION") // does not intent to override
     public Edge(@NotNull String fromUuid, @NotNull String toUuid) {
-        this(UUID.randomUUID().toString(), "", fromUuid, toUuid);
+        this(UUID.randomUUID().toString(), "", fromUuid, toUuid, null);
+    }
+
+    public Edge(
+            @JsonProperty(UUID_PROPERTY) @NotNull String uuid,
+            @JsonProperty(LABEL_PROPERTY) @NotNull String label,
+            @JsonProperty(FROM_PROPERTY) @NotNull String fromUuid,
+            @JsonProperty(TO_PROPERTY) @NotNull String toUuid
+    ) {
+        this(uuid, label, fromUuid, toUuid, null);
     }
 
     @JsonCreator
@@ -40,11 +57,13 @@ public class Edge extends CombinedModelElement {
             @JsonProperty(UUID_PROPERTY) @NotNull String uuid,
             @JsonProperty(LABEL_PROPERTY) @NotNull String label,
             @JsonProperty(FROM_PROPERTY) @NotNull String fromUuid,
-            @JsonProperty(TO_PROPERTY) @NotNull String toUuid
+            @JsonProperty(TO_PROPERTY) @NotNull String toUuid,
+            @JsonProperty(ANNOTATION_PROPERTY) @Nullable String annotation
     ) {
         super(uuid, label);
         this.from = fromUuid;
         this.to = toUuid;
+        this.annotation = annotation;
     }
 
     @JsonProperty(FROM_PROPERTY)
@@ -67,6 +86,16 @@ public class Edge extends CombinedModelElement {
         this.to = to;
     }
 
+    @Nullable
+    @JsonProperty(ANNOTATION_PROPERTY)
+    public String getAnnotation() {
+        return annotation;
+    }
+
+    public void setAnnotation(@Nullable String annotation) {
+        this.annotation = annotation;
+    }
+
     /**
      * Creates a deep clone of the current entity.
      *
@@ -74,7 +103,7 @@ public class Edge extends CombinedModelElement {
      */
     @Override
     public Edge copy() {
-        return new Edge(getUuid(), getLabel(), getFrom(), getTo());
+        return new Edge(getUuid(), getLabel(), getFrom(), getTo(), getAnnotation());
     }
 
     @Override
