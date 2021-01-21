@@ -45,13 +45,13 @@ public class RelationConcept extends CombinedModelElement implements Serializabl
 			@Nullable String description,
 			@Nullable String entityId,
 			@NotNull String sourceURI,
-			@NotNull Set<String> properties
+			@Nullable Set<String> properties
 	) {
 		super(label);
 		this.entityId = entityId;
 		this.description = description;
 		this.sourceURI = sourceURI;
-		this.properties = new HashSet<>(properties);
+		this.properties = properties == null ? new HashSet<>() : new HashSet<>(properties);
 	}
 
 	@JsonCreator
@@ -61,13 +61,13 @@ public class RelationConcept extends CombinedModelElement implements Serializabl
 			@Nullable @JsonProperty(ENTITY_ID_PROPERTY) String entityId,
 			@Nullable @JsonProperty(DESCRIPTION_PROPERTY) String description,
 			@NotNull @JsonProperty(SOURCE_URI_PROPERTY) String sourceURI,
-			@NotNull @JsonProperty(PROPERTIES_PROPERTY) Set<String> properties
+			@Nullable @JsonProperty(PROPERTIES_PROPERTY) Set<String> properties
 	) {
 		super(uuid, label);
 		this.entityId = entityId;
 		this.description = description;
 		this.sourceURI = sourceURI;
-		this.properties = properties;
+		this.properties = properties == null ? new HashSet<>() : new HashSet<>(properties);
 	}
 
 	@JsonProperty(ENTITY_ID_PROPERTY)
