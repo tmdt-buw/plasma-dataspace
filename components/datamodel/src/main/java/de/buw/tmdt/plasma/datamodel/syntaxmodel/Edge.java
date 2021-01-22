@@ -34,6 +34,7 @@ public class Edge extends CombinedModelElement {
 
     /**
      * Optional additional annotation / information for this edge.
+     * Will, for example, contain the splitting pattern if used to link a composite node to its child nodes.
      */
     @Nullable
     private String annotation;
@@ -130,6 +131,7 @@ public class Edge extends CombinedModelElement {
                 + ", \"uuid\":" + getUuid()
                 + ", \"from\":" + from
                 + ", \"to\":" + to
+                + (annotation != null ? ", \"annotation\":" + annotation : "")
                 + '}';
     }
 }

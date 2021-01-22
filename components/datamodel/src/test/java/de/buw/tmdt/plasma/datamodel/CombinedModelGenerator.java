@@ -14,7 +14,7 @@ public class CombinedModelGenerator {
 
     public static CombinedModel getCombinedModel() {
         SchemaNode root = new ObjectNode("ROOT", new ArrayList<>(), true);
-        List<String> examples = Arrays.asList("10-11", "20-21", "test-test");
+        List<String> examples = Arrays.asList("10-11;suffix1", "20-21;suffix2", "test-test;suffix3");
         PrimitiveNode identifierNode = new PrimitiveNode("ident", null, true, DataType.String, examples, null);
         PrimitiveNode timeNode = new PrimitiveNode("time", null, true, DataType.String, null, null);
         ObjectNode companyNode = new ObjectNode("carrier", null, true);

@@ -61,7 +61,6 @@ public class CombinedModel implements Serializable {
 	 * Only used for rendering purposes in the frontend.
 	 * Will be updated automatically if {@link #apply(DeltaModification)} is called.
 	 */
-	// TODO auto-generate for frontend, remove from apply function
 	@NotNull
 	private final ArrayList<PrimitiveEntityTypeMapping> primitiveEntityTypeMappings;
 	/**
@@ -182,6 +181,7 @@ public class CombinedModel implements Serializable {
 	 * Main method to modify the combined model.
 	 * {@link DeltaModification}s can contain multiple changes at one time and usually define the "wanted" state
 	 * with this method performing the necessary (subsequent) adjustments to the model.
+	 * If any modifications are made to the model outside of this function, consistency is not guaranteed.
 	 * NOTE: This function does not create a copy of the model. In case of an exception being thrown,
 	 * the state of the model is undefined and may be inconsistent.
 	 *
@@ -233,24 +233,32 @@ public class CombinedModel implements Serializable {
 				if (replacedNode instanceof CompositeNode) {
 					// this was split before. we change the splitting patterns
 					CompositeNode replacedCompositeNode = (CompositeNode) replacedNode;
-					ArrayList<PrimitiveNode> newComponents = new ArrayList<>(compositeNode.getSplitter().size() + 1);
-					// get all child nodes of the composite node
-					List<PrimitiveNode> oldComponents = getSyntaxModel().getChildNodesForNode(replacedNode.getUuid()).stream()
-							.map(schemaNode -> (PrimitiveNode) schemaNode)
+					ArrayList<Pair<Edge, PrimitiveNode>> newComponents = new ArrayList<>(compositeNode.getSplitter().size() + 1);
+					// modify child nodes of the composite node
+					// find outgoing edges and construct map of edge -> target node
+					List<Pair<Edge, PrimitiveNode>> children = getSyntaxModel().getEdges().stream()
+							.filter(edge -> edge.getFrom().equals(replacedCompositeNode.getUuid()))
+							.map(edge -> Pair.of(edge, getSyntaxModel().getNodes().stream()
+									.filter(node -> edge.getTo().equals(node.getUuid()))
+									.map(node -> (PrimitiveNode) node)
+									.findFirst().orElseThrow()))
 							.collect(Collectors.toList());
 
 					// recycle old components or create new ones if not enough existing
 					for (int i = 0; i < compositeNode.getSplitter().size() + 1; i++) {
-						if (i < oldComponents.size()) {
-							newComponents.add(oldComponents.get(i));
+						if (i < children.size()) {
+							Pair<Edge, PrimitiveNode> pair = children.get(i);
+							pair.getRight().getExamples().clear(); // will be filled again later
+							newComponents.add(pair);
 						} else {
-							newComponents.add(new PrimitiveNode(
-									replacedNode.getLabel() + "-" + i,
+							PrimitiveNode primitiveNode = new PrimitiveNode(
+									"split" + "-" + i,
 									new ArrayList<>(),
 									true,
 									DataType.Unknown,
 									new ArrayList<>(),
-									null));
+									null);
+							newComponents.add(Pair.of(new Edge(compositeNode.getUuid(), primitiveNode.getUuid()),primitiveNode));
 						}
 					}
 
@@ -258,25 +266,27 @@ public class CombinedModel implements Serializable {
 					for (String example : replacedCompositeNode.getExamples()) {
 						String leftOver = example;
 						for (int i = 0; i < compositeNode.getSplitter().size(); i++) {
-							Pair<String, String> split = compositeNode.getSplitter().get(i).apply(leftOver);
-							newComponents.get(i).getExamples().add(split.getLeft());
+							Splitting splitter = compositeNode.getSplitter().get(i);
+							Pair<String, String> split = splitter.apply(leftOver);
+							// annotate the edge with the splitting pattern
+							newComponents.get(i).getLeft().setAnnotation(splitter.getPattern());
+							newComponents.get(i).getRight().getExamples().add(split.getLeft());
 							leftOver = split.getRight();
 						}
-						newComponents.get(newComponents.size() - 1).getExamples().add(leftOver);
+						newComponents.get(newComponents.size() - 1).getRight().getExamples().add(leftOver);
 					}
 
-					// remove all oldComponents
-					syntaxModel.getNodes().removeAll(oldComponents);
-					// now add newComponents (restoring some or all of the old components to the model)
-					syntaxModel.getNodes().addAll(newComponents);
+					List<PrimitiveNode> newNodes = newComponents.stream().map(Pair::getRight).collect(Collectors.toList());
+					// remove all old nodes
+					children.stream().map(Pair::getRight).forEach(syntaxModel.getNodes()::remove);
+					// now add newNodes (restoring some or all of the old components to the model)
+					syntaxModel.getNodes().addAll(newNodes);
 
-					// finally, remove obsolete edges that linked to oldComponents that have been removed
-					// needed if newComponents.size() < oldComponents.size()
-					oldComponents.removeAll(newComponents);
-					// get the ids of the remaining elements and delete edges going to them
-					List<String> obsoleteOldComponentIds = oldComponents.stream().map(CombinedModelElement::getUuid)
-							.collect(Collectors.toList());
-					getSyntaxModel().getEdges().removeIf(edge -> obsoleteOldComponentIds.contains(edge.getTo()));
+					// similarly, update the edges
+					List<Edge> newEdges = newComponents.stream().map(Pair::getLeft).collect(Collectors.toList());
+					children.stream().map(Pair::getLeft).forEach(syntaxModel.getEdges()::remove);
+					syntaxModel.getEdges().addAll(newEdges);
+
 				} else if (replacedNode instanceof PrimitiveNode) {
 					// we split a previous primitive node
 					PrimitiveNode replaced = (PrimitiveNode) replacedNode;
@@ -289,9 +299,17 @@ public class CombinedModel implements Serializable {
 					List<Splitting> splitter = compositeNode.getSplitter();
 
 					// generate new nodes
-					List<PrimitiveNode> components = new ArrayList<>(splitter.size() + 1);
+					List<Pair<Edge, PrimitiveNode>> newComponents = new ArrayList<>(splitter.size() + 1);
 					for (int i = 0; i < splitter.size() + 1; i++) {
-						components.add(new PrimitiveNode(replaced.getLabel() + "-" + i, replaced.getOperations(), true, ((PrimitiveNode) replacedNode).getDataType(), new ArrayList<>(), null));
+						PrimitiveNode newNode = new PrimitiveNode(
+								replaced.getLabel() + "-" + i,
+								replaced.getOperations(),
+								true,
+								((PrimitiveNode) replacedNode).getDataType(),
+								new ArrayList<>(),
+								null);
+						Edge newEdge = new Edge(compositeNode.getUuid(), newNode.getUuid());
+						newComponents.add(Pair.of(newEdge,newNode));
 					}
 
 					// split example values
@@ -299,22 +317,22 @@ public class CombinedModel implements Serializable {
 
 						String leftOver = example;
 						for (int i = 0; i < splitter.size(); i++) {
+							Splitting splitting = splitter.get(i);
+
 							Pair<String, String> split = splitter.get(i).apply(leftOver);
-							components.get(i).getExamples().add(split.getLeft());
+							newComponents.get(i).getRight().getExamples().add(split.getLeft());
+							newComponents.get(i).getLeft().setAnnotation(splitting.getPattern());
 							leftOver = split.getRight();
 						}
-						components.get(components.size() - 1).getExamples().add(leftOver);
+						newComponents.get(newComponents.size() - 1).getRight().getExamples().add(leftOver);
 					}
 
-					// create edges to new nodes
-					List<Edge> newEdges = new ArrayList<>(components.size());
-					for (PrimitiveNode node : components) {
-						Edge e = new Edge(compositeNode.getUuid(), node.getUuid());
-						newEdges.add(e);
-					}
+					List<PrimitiveNode> newNodes = newComponents.stream().map(Pair::getRight).collect(Collectors.toList());
+					// add newNodes (restoring some or all of the old components to the model)
+					syntaxModel.getNodes().addAll(newNodes);
 
-					// add new nodes and edges to model
-					syntaxModel.getNodes().addAll(components);
+					// similarly, add the edges
+					List<Edge> newEdges = newComponents.stream().map(Pair::getLeft).collect(Collectors.toList());
 					syntaxModel.getEdges().addAll(newEdges);
 				}
 			}
