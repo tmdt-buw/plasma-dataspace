@@ -1,13 +1,14 @@
 package de.buw.tmdt.plasma.services.dms.shared.api;
 
-import de.buw.tmdt.plasma.services.dms.shared.dto.DataSourceSchemaDTO;
-import de.buw.tmdt.plasma.services.dms.shared.dto.recommendation.DeltaRecommendationDTO;
-import de.buw.tmdt.plasma.services.dms.shared.dto.semanticmodel.EntityConceptDTO;
-import de.buw.tmdt.plasma.services.dms.shared.dto.semanticmodel.EntityTypeDTO;
-import de.buw.tmdt.plasma.services.dms.shared.dto.semanticmodel.RelationConceptDTO;
-import de.buw.tmdt.plasma.services.dms.shared.dto.semanticmodel.RelationDTO;
-import de.buw.tmdt.plasma.services.dms.shared.dto.syntaxmodel.SchemaNodeDTO;
-import de.buw.tmdt.plasma.services.dms.shared.dto.syntaxmodel.operation.SyntacticOperationDTO;
+import de.buw.tmdt.plasma.datamodel.CombinedModel;
+import de.buw.tmdt.plasma.datamodel.PositionedCombinedModelElement;
+import de.buw.tmdt.plasma.datamodel.modification.DeltaModification;
+import de.buw.tmdt.plasma.datamodel.modification.operation.SyntacticOperationDTO;
+import de.buw.tmdt.plasma.datamodel.semanticmodel.EntityConcept;
+import de.buw.tmdt.plasma.datamodel.semanticmodel.EntityType;
+import de.buw.tmdt.plasma.datamodel.semanticmodel.Relation;
+import de.buw.tmdt.plasma.datamodel.semanticmodel.RelationConcept;
+import de.buw.tmdt.plasma.datamodel.syntaxmodel.SchemaNode;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.http.MediaType;
@@ -29,120 +30,120 @@ public interface DataModelingAPI {
 
 	@NotNull
 	@GetMapping(value = "/{uuid}/schema", produces = MediaType.APPLICATION_JSON_VALUE)
-	DataSourceSchemaDTO getDataSourceSchema(@NotNull @PathVariable("uuid") String uuid);
+	CombinedModel getCombinedModel(@NotNull @PathVariable("uuid") String uuid);
 
 	@PatchMapping(value = "/{uuid}/schema", consumes = MediaType.APPLICATION_JSON_VALUE)
-	void updatePositions(@NotNull @PathVariable("uuid") String uuid, @NotNull @RequestBody DataSourceSchemaDTO dataSourceSchemaDTO);
+	void updatePositions(@NotNull @PathVariable("uuid") String uuid, @NotNull @RequestBody List<PositionedCombinedModelElement> elements);
 
 	@NotNull
 	@GetMapping(value = "/{uuid}/entityconcepts", produces = MediaType.APPLICATION_JSON_VALUE)
-	List<EntityConceptDTO> getEntityConcepts(@NotNull @PathVariable("uuid") String uuid, @NotNull @RequestParam("prefix") String prefix);
+	List<EntityConcept> getEntityConcepts(@NotNull @PathVariable("uuid") String uuid, @NotNull @RequestParam("prefix") String prefix);
 
 	@NotNull
 	@GetMapping(value = "/{uuid}/relationconcepts", produces = MediaType.APPLICATION_JSON_VALUE)
-	List<RelationConceptDTO> getRelationConcepts(@NotNull @PathVariable("uuid") String uuid, @NotNull @RequestParam("prefix") String prefix);
+	List<RelationConcept> getRelationConcepts(@NotNull @PathVariable("uuid") String uuid, @NotNull @RequestParam("prefix") String prefix);
 
 	@NotNull
 	@PostMapping(value = "/{uuid}/invoke", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	DataSourceSchemaDTO modifySchema(@NotNull @PathVariable("uuid") String uuid, @NotNull @RequestBody SyntacticOperationDTO syntacticOperationDTO);
+	CombinedModel modifySchema(@NotNull @PathVariable("uuid") String uuid, @NotNull @RequestBody SyntacticOperationDTO syntacticOperationDTO);
 
 	@PatchMapping(value = "/{dataSourceUuid}/syntaxmodel/{schemaNodeUuid}", consumes = MediaType.APPLICATION_JSON_VALUE)
 	void positionSchemaNode(
 			@NotNull @PathVariable("dataSourceUuid") String dataSourceUuid,
 			@NotNull @PathVariable("schemaNodeUuid") String schemaNodeUuid,
-			@NotNull @RequestBody SchemaNodeDTO schemaNodeDTO
+			@NotNull @RequestBody SchemaNode schemaNodeDTO
 	);
 
 	/* Cache operations */
 
 	@NotNull
 	@PostMapping(value = "/{uuid}/entityconcept", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	EntityConceptDTO cacheEntityConcept(@NotNull @PathVariable("uuid") String uuid, @NotNull @RequestBody EntityConceptDTO entityConceptDTO);
+	EntityConcept cacheEntityConcept(@NotNull @PathVariable("uuid") String uuid, @NotNull @RequestBody EntityConcept entityConceptDTO);
 
 	@NotNull
 	@DeleteMapping(value = "/{dataSourceUuid}/entityconcept/{entityConceptId}", produces = MediaType.APPLICATION_JSON_VALUE)
-	List<EntityConceptDTO> uncacheEntityConcept(
+	List<EntityConcept> uncacheEntityConcept(
 			@NotNull @PathVariable("dataSourceUuid") String dataSourceUuid,
-			@NotNull @PathVariable("entityConceptId") Long entityConceptId
+			@NotNull @PathVariable("entityConceptId") String entityConceptId
 	);
 
 	@NotNull
 	@PostMapping(value = "/{uuid}/relationconcept", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	RelationConceptDTO cacheRelationConcept(@NotNull @PathVariable("uuid") String uuid, @NotNull @RequestBody RelationConceptDTO relationConceptDTO);
+	RelationConcept cacheRelationConcept(@NotNull @PathVariable("uuid") String uuid, @NotNull @RequestBody RelationConcept relationConceptDTO);
 
 	@NotNull
 	@DeleteMapping(value = "/{dataSourceUuid}/relationconcept/{relationConceptId}", produces = MediaType.APPLICATION_JSON_VALUE)
-	List<RelationConceptDTO> uncacheRelationConcept(
+	List<RelationConcept> uncacheRelationConcept(
 			@NotNull @PathVariable("dataSourceUuid") String dataSourceUuid,
-			@NotNull @PathVariable("relationConceptId") Long relationConceptId
+			@NotNull @PathVariable("relationConceptId") String relationConceptId
 	);
 
 	/* Modeling operations (EntityTypes)*/
 
 	@NotNull
 	@PostMapping(value = "/{uuid}/entitytype", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	DataSourceSchemaDTO addEntityType(
+	CombinedModel addEntityType(
 			@NotNull @PathVariable("uuid") String uuid,
-			@NotNull @RequestBody EntityTypeDTO entityTypeDTO,
+			@NotNull @RequestBody EntityType entityType,
 			@Nullable @RequestParam(value = "primitiveNodeId", required = false) String primitiveNodeIdString
 	);
 
 	@NotNull
 	@PutMapping(value = "/{uuid}/entitytype/{entityTypeId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	DataSourceSchemaDTO updateEntityType(
+	CombinedModel updateEntityType(
 			@NotNull @PathVariable("uuid") String uuid,
-			@NotNull @PathVariable("entityTypeId") Long entityTypeId,
-			@NotNull @RequestBody EntityTypeDTO entityTypeDTO
+			@NotNull @PathVariable("entityTypeId") String entityTypeId,
+			@NotNull @RequestBody EntityType entityTypeDTO
 	);
 
 	@PatchMapping(value = "/{uuid}/entitytype/{entityTypeId}", consumes = MediaType.APPLICATION_JSON_VALUE)
 	void positionEntityType(
 			@NotNull @PathVariable("uuid") String uuid,
-			@NotNull @PathVariable("entityTypeId") Long entityTypeId,
-			@NotNull @RequestBody EntityTypeDTO entityTypeDTO
+			@NotNull @PathVariable("entityTypeId") String entityTypeId,
+			@NotNull @RequestBody EntityType entityTypeDTO
 	);
 
 	@NotNull
 	@DeleteMapping(value = "/{uuid}/entitytype/{entityTypeId}", produces = MediaType.APPLICATION_JSON_VALUE)
-	DataSourceSchemaDTO removeEntityType(@NotNull @PathVariable("uuid") String uuid, @NotNull @PathVariable("entityTypeId") Long entityTypeId);
+	CombinedModel removeEntityType(@NotNull @PathVariable("uuid") String uuid, @NotNull @PathVariable("entityTypeId") String entityTypeId);
 
 	/* Modeling operations (Relations)*/
 
 	@NotNull
 	@PostMapping(value = "/{uuid}/relation", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	DataSourceSchemaDTO addRelation(@NotNull @PathVariable("uuid") String uuid, @NotNull @RequestBody RelationDTO relationDto);
+	CombinedModel addRelation(@NotNull @PathVariable("uuid") String uuid, @NotNull @RequestBody Relation relationDto);
 
 	@NotNull
 	@PutMapping(value = "/{uuid}/relation/{relationId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	DataSourceSchemaDTO updateRelation(
+	CombinedModel updateRelation(
 			@NotNull @PathVariable("uuid") String uuid,
-			@NotNull @PathVariable("relationId") Long entityTypeId,
-			@NotNull @RequestBody RelationDTO relationDto
+			@NotNull @PathVariable("relationId") String entityTypeId,
+			@NotNull @RequestBody Relation relationDto
 	);
 
 	@NotNull
 	@DeleteMapping(value = "/{uuid}/relation/{relationId}", produces = MediaType.APPLICATION_JSON_VALUE)
-	DataSourceSchemaDTO removeRelation(@NotNull @PathVariable("uuid") String uuid, @NotNull @PathVariable("relationId") Long entityTypeId);
+	CombinedModel removeRelation(@NotNull @PathVariable("uuid") String uuid, @NotNull @PathVariable("relationId") String entityTypeId);
 
 	/* Recommendation */
 
 	@NotNull
 	@PostMapping(value = "/{uuid}/recommendation/accept", produces = MediaType.APPLICATION_JSON_VALUE)
-	DataSourceSchemaDTO acceptRecommendation(@NotNull @PathVariable("uuid") String uuid, @NotNull @RequestBody DeltaRecommendationDTO recommendation);
+	CombinedModel acceptRecommendation(@NotNull @PathVariable("uuid") String uuid, @NotNull @RequestBody DeltaModification recommendation);
 
 	/* Undo / Redo / finish */
 
 	@NotNull
 	@PostMapping(value = "/{uuid}/schema/undo", produces = MediaType.APPLICATION_JSON_VALUE)
-	DataSourceSchemaDTO undoDataSourceSchemaModification(@NotNull @PathVariable("uuid") String uuid);
+	CombinedModel undoModification(@NotNull @PathVariable("uuid") String uuid);
 
 	@NotNull
 	@PostMapping(value = "/{uuid}/schema/redo", produces = MediaType.APPLICATION_JSON_VALUE)
-	DataSourceSchemaDTO redoDataSourceSchemaModification(@NotNull @PathVariable("uuid") String uuid);
+	CombinedModel redoModification(@NotNull @PathVariable("uuid") String uuid);
 
 	@NotNull
 	@PostMapping(value = "/{uuid}/schema/finish")
-	DataSourceSchemaDTO finishModeling(@NotNull @PathVariable("uuid") String uuid);
+	CombinedModel finishModeling(@NotNull @PathVariable("uuid") String uuid);
 
 	@DeleteMapping(value = "/{uuid}")
 	void deleteModel(@NotNull @PathVariable("uuid") String uuid);

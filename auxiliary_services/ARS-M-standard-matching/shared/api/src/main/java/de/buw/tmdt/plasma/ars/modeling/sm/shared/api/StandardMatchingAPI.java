@@ -2,8 +2,7 @@ package de.buw.tmdt.plasma.ars.modeling.sm.shared.api;
 
 import de.buw.tmdt.plasma.ars.modeling.sm.shared.dto.StandardDTO;
 import de.buw.tmdt.plasma.ars.modeling.sm.shared.dto.StandardProvisionDTO;
-import de.buw.tmdt.plasma.services.dms.shared.dto.DataSourceSchemaDTO;
-import de.buw.tmdt.plasma.services.sas.shared.dto.syntaxmodel.NodeDTO;
+import de.buw.tmdt.plasma.datamodel.CombinedModel;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -23,14 +22,14 @@ public interface StandardMatchingAPI {
 	/**
 	 * Starts to model, using a standard and returns the id of the analysis used to fetch the results.
 	 *
-	 * @param syntaxModel Syntax Model of the Data Source
-	 * @param standardId  Id of the Standard to be applied
+	 * @param combinedModel CombinedModel containing {@link de.buw.tmdt.plasma.datamodel.syntaxmodel.SyntaxModel} of the Data Source
+	 * @param standardId    Id of the Standard to be applied
 	 * @return id of the analysis
 	 */
 	@PostMapping(path = "/model", produces = MediaType.APPLICATION_JSON_VALUE)
-	String modelWithStandard(@NotNull @RequestBody NodeDTO syntaxModel,
-							 @RequestParam("standardId") String standardId,
-							 @RequestParam("analysisId") String analysisId);
+	String modelWithStandard(@NotNull @RequestBody CombinedModel combinedModel,
+	                         @RequestParam("standardId") String standardId,
+	                         @RequestParam("analysisId") String analysisId);
 
 
 	/**
@@ -40,6 +39,6 @@ public interface StandardMatchingAPI {
 	 * @return Semantic Model including identified standards
 	 */
 	@GetMapping(path = "/fetch", produces = MediaType.APPLICATION_JSON_VALUE)
-	DataSourceSchemaDTO fetchResult(@RequestParam("analysisId") String analysisId);
+	CombinedModel fetchResult(@RequestParam("analysisId") String analysisId);
 
 }

@@ -1,7 +1,8 @@
 package de.buw.tmdt.plasma.services.srs.handler;
 
 import de.buw.tmdt.plasma.ars.labeling.lm.shared.feignclient.LabelMatchingApiClient;
-import de.buw.tmdt.plasma.services.dms.shared.dto.DataSourceSchemaDTO;
+import de.buw.tmdt.plasma.datamodel.CombinedModel;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -13,18 +14,20 @@ public class SemanticLabelingHandler {
 
     final LabelMatchingApiClient labelMatchingApiClient;
 
-    public SemanticLabelingHandler(LabelMatchingApiClient labelMatchingApiClient) {
+    public SemanticLabelingHandler(
+            LabelMatchingApiClient labelMatchingApiClient) {
         this.labelMatchingApiClient = labelMatchingApiClient;
     }
 
-    public DataSourceSchemaDTO performLabeling(String uuid, DataSourceSchemaDTO dataSourceSchemaDTO) {
+    @NotNull
+    public CombinedModel performLabeling(@NotNull String uuid, @NotNull CombinedModel combinedModel) {
         try {
             // call ARS-L here
-            dataSourceSchemaDTO = labelMatchingApiClient.performLabeling(uuid, dataSourceSchemaDTO);
+            combinedModel = labelMatchingApiClient.performLabeling(uuid, combinedModel);
         } catch (Exception ex) {
             log.warn("Could not perform semantic labeling", ex);
         }
 
-        return dataSourceSchemaDTO;
+        return combinedModel;
     }
 }

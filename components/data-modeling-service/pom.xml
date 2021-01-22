@@ -7,7 +7,7 @@
     <parent>
         <artifactId>parent</artifactId>
         <groupId>de.buw.tmdt.plasma</groupId>
-        <version>1.0.0</version>
+        <version>1.1.0</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -32,6 +32,11 @@
         <dependency>
             <groupId>de.buw.tmdt.plasma</groupId>
             <artifactId>utilities</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>de.buw.tmdt.plasma</groupId>
+            <artifactId>datamodel</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
 

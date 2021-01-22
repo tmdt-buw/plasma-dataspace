@@ -7,6 +7,9 @@ import java.util.function.Function;
 
 /**
  * Replacement object for Apache ImmutablePair, used for easy deserialization.
+ *
+ * @param <L> First / left element type
+ * @param <R> Second / right element type
  */
 public class Pair<L, R> implements Serializable, Map.Entry<L, R> {
     private static final long serialVersionUID = 6819455313436787544L;
@@ -41,7 +44,6 @@ public class Pair<L, R> implements Serializable, Map.Entry<L, R> {
      * @param <R>   the right element type
      * @param left  the left element, may be null
      * @param right the right element, may be null
-     *
      * @return a pair formed from the two parameters, not null
      */
     public static <L, R> Pair<L, R> of(final L left, final R right) {
@@ -54,7 +56,6 @@ public class Pair<L, R> implements Serializable, Map.Entry<L, R> {
      * @param entry the map entry to create a pair from
      * @param <L>   the type of left
      * @param <R>   the type of right
-     *
      * @return a pair of map.getKey() and map.getValue()
      */
     public static <L, R> Pair<L, R> of(final Map.Entry<? extends L, ? extends R> entry) {
@@ -85,8 +86,7 @@ public class Pair<L, R> implements Serializable, Map.Entry<L, R> {
      * @param leftMapper  the function to convert the left value
      * @param rightMapper the function to convert the right value
      * @param <TLNew>     the type of the left element of the new pair
-     * @param <TRNew>the  type of the right element of the new pair
-     *
+     * @param <TRNew>     the  type of the right element of the new pair
      * @return a new Pair where both values are mapped
      */
     public <TLNew, TRNew> Pair<TLNew, TRNew> map(Function<? super L, ? extends TLNew> leftMapper, Function<? super R, ? extends TRNew> rightMapper) {
@@ -98,9 +98,7 @@ public class Pair<L, R> implements Serializable, Map.Entry<L, R> {
      *
      * @param leftMapper the function to convert the left value
      * @param <TLNew>    the type of the left element of the new pair
-     *
      * @return a new Pair where the left value was mapped
-     *
      * @see Pair#map(Function, Function)
      */
     public <TLNew> Pair<TLNew, R> mapLeft(Function<? super L, ? extends TLNew> leftMapper) {
@@ -112,9 +110,7 @@ public class Pair<L, R> implements Serializable, Map.Entry<L, R> {
      *
      * @param rightMapper the function to convert the right value
      * @param <TRNew>     the type of the right element of the new pair
-     *
      * @return a new Pair where the right value was mapped
-     *
      * @see Pair#map(Function, Function)
      */
     public <TRNew> Pair<L, TRNew> mapRight(Function<? super R, ? extends TRNew> rightMapper) {
@@ -165,8 +161,8 @@ public class Pair<L, R> implements Serializable, Map.Entry<L, R> {
     @SuppressWarnings("MagicCharacter")
     public String toString() {
         return "{\"@class\":\"Pair\""
-               + ", \"left\": " + left
-               + ", \"right\": " + right
-               + '}';
+                + ", \"left\": " + left
+                + ", \"right\": " + right
+                + '}';
     }
 }

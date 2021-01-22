@@ -1,29 +1,32 @@
 package de.buw.tmdt.plasma.ars.modeling.sm.service.model;
 
-import de.buw.tmdt.plasma.ars.modeling.sm.service.model.semanticmodel.SemanticModel;
-import de.buw.tmdt.plasma.ars.modeling.sm.service.model.syntaxmodel.Node;
+import de.buw.tmdt.plasma.datamodel.CombinedModel;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
 
 @Entity
 public class Analysis {
 
+	/**
+	 * Identifies the analysis.
+	 * Will mostly be equal to the data source id.
+	 */
 	@Id
-	@Column(nullable = false, unique = true, length = 16)
-	protected UUID uuid;
+	protected String uuid;
 
-	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-	private List<Node> subAnalyses;
+	/**
+	 * The input as received.
+	 */
+	@Lob
+	@Convert(converter = CombinedModelPersistenceConverter.class)
+	private CombinedModel input;
 
-	@OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
-	private Node result;
-
-	@OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
-	private SemanticModel semanticModel;
+	/**
+	 * Generated result.
+	 */
+	@Lob
+	@Convert(converter = CombinedModelPersistenceConverter.class)
+	private CombinedModel result;
 
 	@ManyToOne
 	private Standard standard;
@@ -31,33 +34,24 @@ public class Analysis {
 	protected Analysis() {
 	}
 
-	public Analysis(UUID uuid) {
+	public Analysis(String uuid) {
 		this.uuid = uuid;
-		this.subAnalyses = new ArrayList<>();
 	}
 
-	public void addSubAnalysis(Node node) {
-		subAnalyses.add(node);
+	public CombinedModel getInput() {
+		return input;
 	}
 
-	public void setResult(Node result) {
-		this.result = result;
+	public void setInput(CombinedModel input) {
+		this.input = input;
 	}
 
-	public List<Node> getSubAnalyses() {
-		return Collections.unmodifiableList(subAnalyses);
-	}
-
-	public Node getResult() {
+	public CombinedModel getResult() {
 		return result;
 	}
 
-	public SemanticModel getSemanticModel() {
-		return semanticModel;
-	}
-
-	public void setSemanticModel(SemanticModel semanticModel) {
-		this.semanticModel = semanticModel;
+	public void setResult(CombinedModel semanticModel) {
+		this.result = semanticModel;
 	}
 
 	public void setStandard(Standard standard) {

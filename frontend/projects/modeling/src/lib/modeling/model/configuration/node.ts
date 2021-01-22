@@ -1,12 +1,12 @@
-import { dia, shapes } from 'jointjs';
+import {dia, shapes} from 'jointjs';
 import {
-  CollisionSchemaDTO,
-  CompositeDTO,
-  EntityTypeDTO,
-  ObjectNodeDTO,
-  PrimitiveDTO,
-  SchemaNodeDTO,
-  SetNodeDTO
+  CollisionSchema,
+  CompositeNode,
+  EntityType,
+  ObjectNode,
+  PrimitiveNode,
+  SchemaNode,
+  SetNode
 } from '../../../api/generated/dms';
 
 
@@ -14,8 +14,8 @@ import {
  * Node type defs
  */
 export type Node = 'custom.SyntaxNode' | 'custom.SemanticNode';
-export type SyntaxNode = SchemaNodeDTO | CollisionSchemaDTO | CompositeDTO | ObjectNodeDTO | PrimitiveDTO | SetNodeDTO;
-export type SemanticNode = EntityTypeDTO;
+export type SyntaxNode = SchemaNode | CollisionSchema | CompositeNode | ObjectNode | PrimitiveNode | SetNode;
+export type SemanticNode = EntityType;
 
 /**
  * Abstract class that provides configs for nodes

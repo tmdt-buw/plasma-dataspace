@@ -1,11 +1,11 @@
-import { EntityConceptDTO } from '../../../api/generated/dms';
+import {EntityType} from '../../../api/generated/dms';
 
 export class EntityDroppedEvent {
   primitiveNodeUUID?: string;
-  entityConceptDTO: EntityConceptDTO;
+  entityType: EntityType;
 
-  constructor(entityConceptDTO: EntityConceptDTO, primitiveNodeUUID?: string) {
+  constructor(entityType: EntityType, primitiveNodeUUID?: string) {
     this.primitiveNodeUUID = primitiveNodeUUID;
-    this.entityConceptDTO = entityConceptDTO;
+    this.entityType = entityType;
   }
 }

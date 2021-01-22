@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { EntityTypeDTO, SyntacticOperationDTO } from '../../../api/generated/dms';
+import { EntityType, SyntacticOperationDTO } from '../../../api/generated/dms';
 import { ContextMenuEvent, ContextMenuEventType } from '../../model/events/context-menu-event';
 import { ContextMenuService } from '../context-menu.service';
 import { SyntaxNode } from '../../model/configuration/node';
@@ -11,7 +11,7 @@ import { SyntaxNode } from '../../model/configuration/node';
 })
 export class PlsEntityConceptMenuComponent {
 
-  @Input() entity: EntityTypeDTO;
+  @Input() entity: EntityType;
   @Input() syntaxNode: SyntaxNode;
 
   constructor(private contextMenu: ContextMenuService) {

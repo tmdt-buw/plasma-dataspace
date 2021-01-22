@@ -10,7 +10,7 @@ import java.util.function.Consumer;
 /**
  * A FIFO buffer which uses a list as backing data structure.
  *
- * @param <T>
+ * @param <T> The type of contained elements
  */
 public class ListSlidingWindowBuffer<T> implements SlidingWindowBuffer<T> {
 

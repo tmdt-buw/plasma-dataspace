@@ -18,6 +18,11 @@ import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+/**
+ * Reads a file from the resources and generates a runtime representation of it.
+ * If it does not exist, it is persisted.
+ * Will not run if any standard already exists.
+ */
 @Service
 public class StandardPopulator {
 

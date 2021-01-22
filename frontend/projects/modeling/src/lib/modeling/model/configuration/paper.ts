@@ -1,5 +1,5 @@
 import { dia } from 'jointjs';
-import { RelationConceptDTO } from '../../../api/generated/dms';
+import { RelationConcept } from '../../../api/generated/dms';
 import { Links } from './link';
 
 /**
@@ -13,7 +13,7 @@ export abstract class Papers {
    * @param relationConcept function
    * @param primary color function
    */
-  static createPaper(graph: dia.Graph, relationConcept: () => RelationConceptDTO, primary: () => string): dia.Paper {
+  static createPaper(graph: dia.Graph, relationConcept: () => RelationConcept, primary: () => string): dia.Paper {
     const interactive = () => {
       if (relationConcept()) {
         return {
@@ -49,7 +49,7 @@ export abstract class Papers {
       },
       // default link style
       defaultLink: () => {
-        const label = relationConcept().name;
+        const label = relationConcept().label;
         return Links.createDefaultLink(label, primary());
       }
     });

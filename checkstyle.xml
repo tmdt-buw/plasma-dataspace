@@ -202,5 +202,8 @@
 		<module name="AvoidInlineConditionals">
 			<property name="severity" value="ignore"/>
 		</module>
+		<module name="SuppressWarningsHolder"/>
 	</module>
+	<!-- Filter out Checkstyle warnings that have been suppressed with the @SuppressWarnings annotation -->
+	<module name="SuppressWarningsFilter"/>
 </module>

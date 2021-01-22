@@ -2,15 +2,14 @@ import { Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from '@ang
 import { FormControl } from '@angular/forms';
 import { animate, style, transition, trigger } from '@angular/animations';
 import { BehaviorSubject, Subject } from 'rxjs';
-import { DataModelingControllerService, DataSourceSchemaDTO, EntityTypeDTO, RelationDTO } from '../api/generated/dms';
+import { CombinedModel, DataModelingControllerService, EntityType, Relation } from '../api/generated/dms';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { Filter } from './model/common/filter';
 import { MatDialog } from '@angular/material/dialog';
 import { EntityDroppedEvent } from './model/events/entity-dropped-event';
 import { NodeChangedEvent } from './model/events/node-changed-event';
 import { PlsImportDialogComponent } from './dialogs/import-dialog/import-dialog.component';
-import { UniversalKnowledgeGraphControllerService } from '../api/generated/dms/api/kgsController.service';
-import { LocalKnowledgeControllerService } from '../api/generated/dms/api/kgsModelController.service';
+import { LocalKnowledgeControllerService, UniversalKnowledgeGraphControllerService } from '../api/generated/kgs';
 import { ContextMenuService } from './context-menu/context-menu.service';
 import { ContextMenuEvent, ContextMenuEventType } from './model/events/context-menu-event';
 import { Nodes, SyntaxNode } from './model/configuration/node';
@@ -64,9 +63,12 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
   accentColorContrast;
 
   // schema
-  schema: DataSourceSchemaDTO;
+  schema: CombinedModel;
   initial: boolean = false;
   loading: boolean = true;
+
+  // dialogs
+  addConceptDialogRef;
 
   get isFullscreen(): boolean {
     return !!document.fullscreenElement;
@@ -99,10 +101,10 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
     this.contextMenu.onClosed.subscribe((event: ContextMenuEvent) => {
       if (event) {
         if (event.type === ContextMenuEventType.removeEntity) {
-          this.modelingService.removeEntityType(this.dataSource, +(event.target as EntityTypeDTO).id).subscribe((res: DataSourceSchemaDTO) => this.schema = res);
+          this.modelingService.removeEntityType(this.dataSource, (event.target as EntityType).uuid).subscribe((res: CombinedModel) => this.schema = res);
         }
         if (event.type === ContextMenuEventType.removeRelation) {
-          this.modelingService.removeRelation(this.dataSource, +(event.target as RelationDTO).id).subscribe((res: DataSourceSchemaDTO) => this.schema = res);
+          this.modelingService.removeRelation(this.dataSource, (event.target as Relation).uuid).subscribe((res: CombinedModel) => this.schema = res);
         }
         if (event.type === ContextMenuEventType.performOperation) {
           const dialogRef = this.dialog.open(PlsOperationsDialogComponent, {
@@ -112,7 +114,7 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
           });
           dialogRef.afterClosed().subscribe(context => {
             if (context) {
-              this.modelingService.modifySchema(this.dataSource, context.operation).subscribe((res: DataSourceSchemaDTO) => this.schema = res);
+              this.modelingService.modifySchema(this.dataSource, context.operation).subscribe((res: CombinedModel) => this.schema = res);
             }
           });
         }
@@ -127,7 +129,7 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
   }
 
   getSchema(): void {
-    this.modelingService.getDataSourceSchema(this.dataSource).subscribe((schema: DataSourceSchemaDTO) => {
+    this.modelingService.getCombinedModel(this.dataSource).subscribe((schema: CombinedModel) => {
         this.schema = schema;
         this.loading = false;
       },
@@ -141,16 +143,20 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
   // ======= Menu functions ===========
 
   undo(): void {
-    this.modelingService.undoDataSourceSchemaModification(this.dataSource).subscribe((res: DataSourceSchemaDTO) => this.schema = res);
+    this.modelingService.undoModification(this.dataSource).subscribe((res: CombinedModel) => this.schema = res);
   }
 
   redo(): void {
-    this.modelingService.redoDataSourceSchemaModification(this.dataSource).subscribe((res: DataSourceSchemaDTO) => this.schema = res);
+    this.modelingService.redoModification(this.dataSource).subscribe((res: CombinedModel) => this.schema = res);
   }
 
   addConcepts(): void {
     const parentHeight = getComputedStyle(this.main.nativeElement).height.replace('px', '');
-    this.dialog.open(PlsConceptDialogComponent, {
+    if (this.addConceptDialogRef) {
+      this.addConceptDialogRef.close();
+      return;
+    }
+    this.addConceptDialogRef = this.dialog.open(PlsConceptDialogComponent, {
       hasBackdrop: false,
       data: {
         dataSource: this.dataSource,
@@ -159,29 +165,30 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
       },
       maxHeight: `${(+parentHeight - 70)}px`,
       maxWidth: '440px',
-      closeOnNavigation: true
+      closeOnNavigation: true,
     });
+    this.addConceptDialogRef.afterClosed().subscribe(() => this.addConceptDialogRef = undefined);
   }
 
-  onRelationConceptLinked(event: RelationDTO): void {
+  onRelationConceptLinked(event: Relation): void {
     this.modelingService.addRelation(this.dataSource, event).subscribe((res) => this.schema = res);
   }
 
   onConceptMapped(event: EntityDroppedEvent): void {
-    this.modelingService.addEntityType(this.dataSource, event.entityConceptDTO, event.primitiveNodeUUID).subscribe((res) => this.schema = res);
+    this.modelingService.addEntityType(this.dataSource, event.entityType, event.primitiveNodeUUID).subscribe((res) => this.schema = res);
   }
 
-  onGraphLaidOut(event: DataSourceSchemaDTO): void {
-    this.modelingService.updatePositions(this.dataSource, event).subscribe();
+  onGraphLaidOut(event: CombinedModel): void {
+    this.modelingService.updatePositions(this.dataSource, event.semanticModel.nodes.concat(event.syntaxModel.nodes)).subscribe();
   }
 
   onNodePositionChanged(event: NodeChangedEvent): void {
     switch (event.type) {
       case Nodes.syntaxNodeName:
-        this.modelingService.positionSchemaNode(this.dataSource, event.node.id, event.node as SyntaxNode).subscribe();
+        this.modelingService.positionSchemaNode(this.dataSource, event.node.uuid, event.node as SyntaxNode).subscribe();
         break;
       case Nodes.semanticNodeName:
-        this.modelingService.positionEntityType(this.dataSource, +event.node.id, event.node as EntityTypeDTO).subscribe();
+        this.modelingService.positionEntityType(this.dataSource, event.node.uuid, event.node as EntityType).subscribe();
         break;
       default:
         console.error('Unsupported type.');
@@ -191,7 +198,7 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
   onNodeChanged(event: NodeChangedEvent): void {
     switch (event.type) {
       case Nodes.semanticNodeName:
-        this.modelingService.updateEntityType(this.dataSource, +event.node.id, event.node as EntityTypeDTO).subscribe();
+        this.modelingService.updateEntityType(this.dataSource, event.node.uuid, event.node as EntityType).subscribe();
         break;
       default:
         console.error('Unsupported type.');
@@ -240,6 +247,6 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
   }
 
   exportModel(): void {
-    this.kgsModelService.convertSemanticModel(this.schema.semanticModel.uuid, 'turtle', this.$flat.getValue()).subscribe((res) => Util.download('model.rdf', res));
+    this.kgsModelService.convertSemanticModel(this.schema.semanticModel.entityId, 'turtle', this.$flat.getValue()).subscribe((res) => Util.download('model.rdf', res));
   }
 }

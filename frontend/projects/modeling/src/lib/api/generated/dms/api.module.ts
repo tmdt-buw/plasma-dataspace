@@ -1,19 +1,16 @@
-import { NgModule, ModuleWithProviders, SkipSelf, Optional } from '@angular/core';
-import { Configuration } from './configuration';
-import { HttpClient } from '@angular/common/http';
-import { DataModelingControllerService } from './api/dataModelingController.service';
-import { UniversalKnowledgeGraphControllerService } from './api/kgsController.service';
-import { LocalKnowledgeControllerService } from './api/kgsModelController.service';
+import {ModuleWithProviders, NgModule, Optional, SkipSelf} from '@angular/core';
+import {Configuration} from './configuration';
+import {HttpClient} from '@angular/common/http';
+
+
+import {DataModelingControllerService} from './api/dataModelingController.service';
 
 @NgModule({
   imports:      [],
   declarations: [],
   exports:      [],
   providers: [
-    DataModelingControllerService,
-    UniversalKnowledgeGraphControllerService,
-    LocalKnowledgeControllerService
-  ]
+    DataModelingControllerService ]
 })
 export class ApiModule {
     public static forRoot(configurationFactory: () => Configuration): ModuleWithProviders<ApiModule> {

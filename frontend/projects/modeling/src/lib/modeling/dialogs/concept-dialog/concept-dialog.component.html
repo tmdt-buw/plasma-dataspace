@@ -5,7 +5,7 @@
     <mat-tab>
       <ng-template mat-tab-label>
         <mat-icon class="tab-icon">category</mat-icon>
-        Entities
+        Concepts
       </ng-template>
 
       <div fxLayout="column">
@@ -33,9 +33,9 @@
           class="concept-list scroll-list"
           cdkDropListSortingDisabled>
           <div class="concept-box" *ngFor="let entityConcept of entityConcepts" cdkDrag matTooltipPosition="right" matTooltip="{{entityConcept.description}}" [cdkDragData]="entityConcept">
-            {{ entityConcept.name }}
+            {{ entityConcept.label }}
             <div *cdkDragPreview class="concept-preview" [ngStyle]="{ border: '3px solid', 'border-color': primaryColor,  color: primaryColor}">
-              <div class="concept-preview-header" [ngStyle]="{ background: primaryColor, color: primaryColorContrast }"><span class="concept-preview-header-text">{{ entityConcept.name }}</span></div>
+              <div class="concept-preview-header" [ngStyle]="{ background: primaryColor, color: primaryColorContrast }"><span class="concept-preview-header-text">{{ entityConcept.label }}</span></div>
             </div>
           </div>
         </div>
@@ -74,7 +74,7 @@
                            [ngStyle]="{
                              'background': isSelected(relationConcept) ? primaryColor : null,
                              'color': isSelected(relationConcept) ? primaryColorContrast : null
-                           }">{{ relationConcept.name }}</mat-list-option>
+                           }">{{ relationConcept.label }}</mat-list-option>
         </mat-selection-list>
       </div>
 

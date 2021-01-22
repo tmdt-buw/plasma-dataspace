@@ -1,101 +1,114 @@
 package de.buw.tmdt.plasma.services.dms.core.model.datasource;
 
-import de.buw.tmdt.plasma.utilities.misc.StringUtilities;
+import de.buw.tmdt.plasma.datamodel.CombinedModel;
+import de.buw.tmdt.plasma.services.dms.core.database.CombinedModelPersistenceConverter;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.hibernate.annotations.DynamicUpdate;
 import org.jetbrains.annotations.NotNull;
 
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
-@SuppressWarnings("DefaultAnnotationParam - explicit > implicit")
 @DynamicUpdate
 @Entity
 @Table(name = "data_sources")
 public class DataSourceModel {
 
-	@Id
-	@Column(nullable = false, unique = true, updatable = false, length = 16)
-	private UUID uuid;
+    @Id
+    @Column(nullable = false, unique = true, updatable = false, length = 16)
+    @NotNull
+    private UUID uuid;
 
-	//The value is only set after the schema analysis
-	@JoinColumn(name = "owningNode_uuid")
-	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-	private List<DataSourceSchema> dataSourceSchemaStack = new ArrayList<>();
+    //The value is only set after the schema analysis
+    // Map <Version, CombinedModel>
+    @SuppressWarnings("JpaAttributeTypeInspection") // will be custom serialized
+    @ElementCollection
+    @Convert(converter = CombinedModelPersistenceConverter.class)
+    @Lob
+    @NotNull
+    private List<@NotNull CombinedModel> combinedModelVersions = new ArrayList<>();
 
-	@Column(nullable = false)
-	private int stackIndexPointer;
+    @Column(nullable = false)
+    private int versionPointer;
 
-	@OneToOne(cascade = CascadeType.ALL, optional = true)
-	private DataSourceSchema currentSchema;
+    public DataSourceModel() {
+        this.versionPointer = 0;
+        this.uuid = UUID.randomUUID();
+    }
 
-	public DataSourceModel() {
-		this.stackIndexPointer = -1;
-	}
+    public DataSourceModel(UUID uuid) {
+        this();
+        this.uuid = uuid;
+    }
 
-	public DataSourceModel(UUID uuid) {
-		this();
-		this.uuid = uuid;
-	}
+    @NotNull
+    public List<CombinedModel> getAllCombinedModels() {
+        return this.combinedModelVersions;
+    }
 
-	@NotNull
-	public List<DataSourceSchema> getDataSourceSchemaStack() {
-		return new ArrayList<>(this.dataSourceSchemaStack.subList(0, stackIndexPointer + 1));
-	}
+    public void setAllCombinedModels(@NotNull List<CombinedModel> models) {
+        combinedModelVersions.clear();
+        models.stream().filter(Objects::nonNull).forEach(combinedModelVersions::add);
+        versionPointer = combinedModelVersions.size();
+    }
 
-	@SuppressWarnings("AssignmentOrReturnOfFieldWithMutableType - hibernate uses proxies which must not be rewrapped")
-	public void setDataSourceSchemaStack(@NotNull List<DataSourceSchema> schemaDefinitionStack) {
-		this.dataSourceSchemaStack.clear();
-		this.dataSourceSchemaStack.addAll(schemaDefinitionStack);
-		final int lastStackIndex = this.dataSourceSchemaStack.size() - 1;
-		this.currentSchema = lastStackIndex >= 0 ? this.dataSourceSchemaStack.get(lastStackIndex) : null;
-		this.stackIndexPointer = lastStackIndex;
-	}
+    public void pushCombinedModel(@NotNull CombinedModel model) {
+        if (versionPointer >= 1 && versionPointer != combinedModelVersions.size()) {
+            if (combinedModelVersions.size() > versionPointer - 1) {
+                combinedModelVersions.subList(versionPointer, combinedModelVersions.size()).clear();
+            }
+        }
+        combinedModelVersions.add(model);
+        versionPointer++;
+    }
 
-	public void pushDataSourceSchema(@NotNull DataSourceSchema schema) {
-		if (stackIndexPointer >= 0 && stackIndexPointer != dataSourceSchemaStack.size() - 1) {
-			if (dataSourceSchemaStack.size() > stackIndexPointer + 1) {
-				dataSourceSchemaStack.subList(stackIndexPointer + 1, dataSourceSchemaStack.size()).clear();
-			}
-		}
-		dataSourceSchemaStack.add(schema);
-		stackIndexPointer = dataSourceSchemaStack.size() - 1;
-		this.currentSchema = schema;
-	}
+    @NotNull
+    public UUID getUuid() {
+        return uuid;
+    }
 
-	@NotNull
-	public UUID getUuid() {
-		return uuid;
-	}
+    @Transient
+    @NotNull
+    @SuppressFBWarnings("NP_NONNULL_RETURN_VIOLATION") // all values are not null
+    public CombinedModel getCurrentModel() {
+        if (versionPointer == 0) {
+            throw new UnsupportedOperationException("No model available.");
+        }
+        try {
+            return combinedModelVersions.get(versionPointer - 1);
+        } catch (IndexOutOfBoundsException e) {
+            // somehow the versions got messed up, reset to latest version
+            versionPointer = combinedModelVersions.size();
+            return combinedModelVersions.get(versionPointer - 1);
+        }
+    }
 
-	@NotNull
-	public DataSourceSchema peekDataSourceSchema() {
-		return this.currentSchema;
-	}
+    public void popCombinedModel() throws UnsupportedOperationException {
+        if (versionPointer == 0) {
+            throw new UnsupportedOperationException("No model available.");
+        }
+        --this.versionPointer;
+    }
 
-	public void popDataSourceSchema() {
-		if (stackIndexPointer == -1 || stackIndexPointer == 0) {
-			return;
-		}
-		this.currentSchema = this.dataSourceSchemaStack.get(--this.stackIndexPointer);
-	}
+    @NotNull
+    public CombinedModel restoreCombinedModel() throws UnsupportedOperationException {
+        if (versionPointer == this.combinedModelVersions.size()) {
+            throw new UnsupportedOperationException("Already on latest model.");
+        }
+        ++this.versionPointer;
+        return getCurrentModel();
+    }
 
-	@NotNull
-	public DataSourceSchema restoreDataSourceSchema() {
-		if (stackIndexPointer >= this.dataSourceSchemaStack.size() - 1) {
-			throw new RuntimeException("Schema cannot be null");
-		}
-		this.currentSchema = this.dataSourceSchemaStack.get(++this.stackIndexPointer);
-		return this.currentSchema;
-	}
-
-	@Override
-	@SuppressWarnings("MagicCharacter")
-	public String toString() {
-		return "{\"@class\":\"DataSourceModel\""
-		       + ", \"@super\":" + super.toString()
-		       + ", \"dataSourceSchemaStack\":" + StringUtilities.listToJson(dataSourceSchemaStack)
-		       + '}';
-	}
+    @Override
+    @SuppressWarnings("MagicCharacter")
+    public String toString() {
+        return "{\"@class\":\"DataSourceModel\""
+                + ", \"@super\":" + super.toString()
+                + ", \"currentVersion\":" + versionPointer
+                + ", \"maxVersion\":" + combinedModelVersions.size()
+                + '}';
+    }
 }

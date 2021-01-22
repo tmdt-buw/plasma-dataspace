@@ -27,10 +27,18 @@ public class EntityRule {
 	@Column
 	private String requiredPredecessor;
 
+	@Column
+	private String conceptSourceURI;
+
 	protected EntityRule() {
 	}
 
-	public EntityRule(@Nullable String originalAttribute, @NotNull String conceptName, @NotNull String conceptDescription, @Nullable String requiredPredecessor) {
+	public EntityRule(@Nullable String originalAttribute,
+	                  @NotNull String conceptName,
+	                  @NotNull String conceptDescription,
+	                  @NotNull String conceptSourceURI,
+	                  @Nullable String requiredPredecessor) {
+		this.conceptSourceURI = conceptSourceURI;
 		this.uuid = UUID.randomUUID();
 		this.originalAttribute = originalAttribute;
 		this.conceptName = conceptName;
@@ -56,5 +64,9 @@ public class EntityRule {
 
 	public String getRequiredPredecessor() {
 		return requiredPredecessor;
+	}
+
+	public String getConceptSourceURI() {
+		return conceptSourceURI;
 	}
 }

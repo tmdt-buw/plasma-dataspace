@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { RelationDTO } from '../../../api/generated/dms';
+import { Relation } from '../../../api/generated/dms';
 import { ContextMenuService } from '../context-menu.service';
 import { ContextMenuEvent, ContextMenuEventType } from '../../model/events/context-menu-event';
 
@@ -10,7 +10,7 @@ import { ContextMenuEvent, ContextMenuEventType } from '../../model/events/conte
 })
 export class PlsRelationConceptMenuComponent {
 
-  @Input() relation: RelationDTO;
+  @Input() relation: Relation;
 
   constructor(private contextMenu: ContextMenuService) {
   }

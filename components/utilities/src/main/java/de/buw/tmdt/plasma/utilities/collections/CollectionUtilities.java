@@ -1,5 +1,6 @@
 package de.buw.tmdt.plasma.utilities.collections;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -26,7 +27,6 @@ public final class CollectionUtilities {
      * @param collection the collection which is searched
      * @param element    the element which is looked for
      * @param <T>        the element Type
-     *
      * @return true iff there is an element e in collection for which {@code Objects.equals(e, element} is true - false otherwise
      */
     public static <T> boolean collectionContains(@Nullable Collection<? super T> collection, @Nullable T element) {
@@ -52,7 +52,6 @@ public final class CollectionUtilities {
      * @param collection the collection which is searched
      * @param testes     the collection with the testees
      * @param <T>        the element type
-     *
      * @return true iff at least one element of the second collection is in the first collection - false otherwise
      */
     public static <T> boolean containsAny(@Nullable Collection<? super T> collection, @Nullable Collection<T> testes) {
@@ -76,7 +75,6 @@ public final class CollectionUtilities {
      * @param collection the collection to search in
      * @param condition  the condition the element must fulfill
      * @param <T>        the type of the searched element
-     *
      * @return the first element in {@code collection} which is accepted by {@code condition}
      */
     public static <T> Optional<T> findFirst(@Nullable Collection<? extends T> collection, @NotNull Predicate<T> condition) {
@@ -97,7 +95,6 @@ public final class CollectionUtilities {
      * @param source         elements which are copied to {@code supplier}
      * @param <T>            element type
      * @param <C>            collection type
-     *
      * @return The supplied collection where all elements from source are added
      */
     @Contract("null, _ -> fail; _, !null -> !null")
@@ -118,21 +115,33 @@ public final class CollectionUtilities {
      * @param collection            Collection of input elements
      * @param mapping               The mapping function which projects the input elements to the output collection
      * @param collectionConstructor Provider for the resulting collection.
-     *
-     * @return a collection containing all
+     * @return a collection containing all elements mapped using the given function. If {@code collection} is null, an emtpy list is returned.
      */
-    @Contract("_, !null, !null -> !null; _, _, null -> fail; _, null, _ -> fail")
+    @SuppressFBWarnings("NP_NONNULL_RETURN_VIOLATION") // Added explicit null check
     public static <T, U, TCOut extends Collection<? super U>> @NotNull TCOut map(
             @Nullable Iterable<? extends T> collection,
             @NotNull Function<? super T, ? extends U> mapping,
             @NotNull Supplier<TCOut> collectionConstructor
     ) {
         TCOut result = collectionConstructor.get();
+        if (result == null) {
+            throw new UnsupportedOperationException("Cannot construct new instance from given supplier");
+        }
         if (collection != null) {
             for (T t : collection) {
                 result.add(mapping.apply(t));
             }
         }
         return result;
+    }
+
+    /**
+     * Checks if a collection contains any elements.
+     *
+     * @param collection The collection to check
+     * @return False if the collection is null or empty
+     */
+    public static boolean hasElements(@Nullable Collection<?> collection) {
+        return collection != null && !collection.isEmpty();
     }
 }

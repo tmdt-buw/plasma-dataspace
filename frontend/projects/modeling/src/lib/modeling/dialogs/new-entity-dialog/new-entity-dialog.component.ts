@@ -1,7 +1,7 @@
-import { Component, Inject } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { DataModelingControllerService, EntityTypeDTO } from '../../../api/generated/dms';
+import {Component, Inject} from '@angular/core';
+import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
+import {FormControl, FormGroup, Validators} from '@angular/forms';
+import {DataModelingControllerService, EntityConcept} from '../../../api/generated/dms';
 
 @Component({
   selector: 'pls-new-entity-dialog',
@@ -11,7 +11,7 @@ import { DataModelingControllerService, EntityTypeDTO } from '../../../api/gener
 export class PlsNewEntityDialogComponent {
 
   form = new FormGroup({
-    name: new FormControl('', [Validators.required]),
+    label: new FormControl('', [Validators.required]),
     description: new FormControl('', [Validators.required]),
     sourceURI: new FormControl('')
   });
@@ -23,7 +23,7 @@ export class PlsNewEntityDialogComponent {
 
   submit(): void {
     this.error = null;
-    this.modelingService.cacheEntityConcept(this.data, this.form.value as EntityTypeDTO).subscribe(() => this.dialogRef.close(true), error => this.error = error.error.message);
+    this.modelingService.cacheEntityConcept(this.data, this.form.value as EntityConcept).subscribe(() => this.dialogRef.close(true), error => this.error = error.error.message);
   }
 
 }

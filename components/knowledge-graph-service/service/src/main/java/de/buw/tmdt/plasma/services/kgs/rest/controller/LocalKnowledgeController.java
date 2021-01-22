@@ -1,7 +1,7 @@
 package de.buw.tmdt.plasma.services.kgs.rest.controller;
 
-import de.buw.tmdt.plasma.services.kgs.shared.api.LocalKnowledgeApi;
 import de.buw.tmdt.plasma.services.kgs.core.knowledge.local.LocalKnowledgeGraphHandler;
+import de.buw.tmdt.plasma.services.kgs.shared.api.LocalKnowledgeApi;
 import de.buw.tmdt.plasma.services.kgs.shared.dto.semanticmodel.EntityTypeDTO;
 import de.buw.tmdt.plasma.services.kgs.shared.dto.semanticmodel.SemanticModelCreationResponse;
 import de.buw.tmdt.plasma.services.kgs.shared.dto.semanticmodel.SemanticModelDTO;
@@ -50,15 +50,9 @@ public class LocalKnowledgeController implements LocalKnowledgeApi {
     }
 
     @Override
-    @Operation(description = "Load Semantic Model by its DataSourceId")
-    public SemanticModelDTO getSemanticModelByDataSourceId(@NotNull String dataSourceId) {
+    @Operation(description = "Find Semantic Model by its DataSourceId")
+    public SemanticModelDTO findSemanticModelByDataSourceId(@NotNull String dataSourceId) {
         return localKnowledgeGraphHandler.getSemanticModelByDataSourceId(dataSourceId);
-    }
-
-    @Override
-    @Operation(description = "Delete Semantic Model by its DataSourceId")
-    public void deleteSemanticModelByDataSourceId(@NotNull String dataSourceId) {
-        localKnowledgeGraphHandler.deleteSemanticModelByDataSourceId(dataSourceId);
     }
 
     @Override

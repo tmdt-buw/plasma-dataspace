@@ -20,14 +20,14 @@ import { BehaviorSubject, Subject } from 'rxjs';
 import { auditTime, distinctUntilChanged, pairwise, skip } from 'rxjs/operators';
 import * as svgPanZoom from 'svg-pan-zoom';
 import {
-  DataSourceSchemaDTO,
-  DeltaRecommendationDTO,
-  EntityConceptDTO,
-  PrimitiveDTO,
-  RelationConceptDTO,
-  RelationDTO,
-  SemanticModelDTO,
-  SyntaxModelDTO
+  CombinedModel,
+  DeltaModification,
+  EntityConcept,
+  PrimitiveNode,
+  Relation,
+  RelationConcept,
+  SemanticModel,
+  SyntaxModel
 } from '../../api/generated/dms';
 import { ContextMenuService } from '../context-menu/context-menu.service';
 import { PlsEntityConceptMenuComponent } from '../context-menu/entity-concept-menu/entity-concept-menu.component';
@@ -55,14 +55,14 @@ import { ModelingService } from '../modeling.service';
 export class PlsDiagramComponent implements OnInit, AfterViewInit {
 
   // create graph if input schema changes and graph has already been initialized
-  @Input() set schema(schema: DataSourceSchemaDTO) {
+  @Input() set schema(schema: CombinedModel) {
     this._schema = schema;
     if (!this.initializing) {
-      this.createGraph();
+      this.createGraph(this.$flat.getValue());
     }
   }
 
-  get schema(): DataSourceSchemaDTO {
+  get schema(): CombinedModel {
     return this._schema;
   }
 
@@ -79,7 +79,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
   @Input() accentColorContrast;
   // data
   initializing = true;
-  _schema: DataSourceSchemaDTO;
+  _schema: CombinedModel;
 
   @Input() initial: boolean;
 
@@ -95,15 +95,15 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
 
   // modeling
   entityConcept;
-  relationConcept: RelationConceptDTO;
+  relationConcept: RelationConcept;
   hoveredElement;
   mousePosition;
   recommendations = [];
 
   // events
-  @Output() graphLaidOut = new EventEmitter<DataSourceSchemaDTO>();
+  @Output() graphLaidOut = new EventEmitter<CombinedModel>();
   @Output() entityConceptMapped = new EventEmitter<EntityDroppedEvent>();
-  @Output() relationConceptLinked = new EventEmitter<RelationDTO>();
+  @Output() relationConceptLinked = new EventEmitter<Relation>();
   @Output() nodeChanged = new EventEmitter<NodeChangedEvent>();
   @Output() nodePositionChanged = new EventEmitter<NodeChangedEvent>();
 
@@ -208,10 +208,9 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
         const model = linkView.model.attributes;
         const from = model.source.id;
         const to = model.target.id;
-        const relation: RelationDTO = {
+        const relation: Relation = {
           from,
           to,
-          description: this.relationConcept.description,
           concept: this.relationConcept
         };
         this.relationConceptLinked.emit(relation);
@@ -233,7 +232,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
       'cell:contextmenu': (cellView: dia.CellView) => {
         const id = cellView.model.attributes.id;
         if (Links.isSemanticLink(cellView)) {
-          const link = this.schema.semanticModel.edges.find(edge => edge.id === id);
+          const link = this.schema.semanticModel.edges.find(edge => edge.uuid === id);
           this.contextMenu.open(cellView.el, PlsRelationConceptMenuComponent, this.viewContainerRef, {
             relation: link
           });
@@ -244,7 +243,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
           cellView.highlight();
           this.contextMenu.open(cellView.el, PlsEntityConceptMenuComponent, this.viewContainerRef, {
             entity: node,
-            syntaxNode: node.mappedToData ? this.getMappedPrimitive(node.id) : null
+            syntaxNode: node.syntaxNodeId ? node.syntaxNodeId : null
           });
         }
         if (Nodes.isSyntaxNode(cellView)) {
@@ -308,13 +307,13 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
         x: position.x,
         y: position.y
       };
-      this.entityConceptMapped.emit(new EntityDroppedEvent(entityType, node.id));
+      this.entityConceptMapped.emit(new EntityDroppedEvent(entityType, node.uuid));
       // dropped in blank area
     } else if (event.isPointerOverContainer) {
       const localPosition = this.paper.clientToLocalPoint(this.mousePosition.x, this.mousePosition.y);
       const entityType: SemanticNode = {
         concept: this.entityConcept,
-        label: this.entityConcept.name,
+        label: this.entityConcept.label,
         description: this.entityConcept.description,
         x: localPosition.x,
         y: localPosition.y
@@ -342,13 +341,13 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
         this.createSemanticGraph(this.schema.semanticModel, flat);
         // filter syntax nodes
         const map = this.schema.primitiveToEntityTypeList;
-        const mappedSyntaxNodes = Object.values(map).map(entityMap => entityMap.mappedPrimitive);
-        const filteredSyntaxNodes = this.schema.syntaxModel.nodes.filter(node => !mappedSyntaxNodes.includes(node.id));
-        const filteredSyntaxNodesIds = filteredSyntaxNodes.map(node => node.id);
+        const mappedSyntaxNodes = this.schema.semanticModel.nodes.map(entityType => entityType.syntaxNodeId);
+        const filteredSyntaxNodes = this.schema.syntaxModel.nodes.filter(node => !mappedSyntaxNodes.includes(node.uuid));
+        const filteredSyntaxNodesIds = filteredSyntaxNodes.map(node => node.uuid);
         const filteredSyntaxModel = {
           root: this.schema.syntaxModel.root,
           nodes: filteredSyntaxNodes,
-          edges: map.concat(...this.schema.syntaxModel.edges.filter(edge => filteredSyntaxNodesIds.includes(edge.from) && filteredSyntaxNodesIds.includes(edge.to)))
+          edges: map.concat(this.schema.syntaxModel.edges.filter(edge => filteredSyntaxNodesIds.includes(edge.from) && filteredSyntaxNodesIds.includes(edge.to)))
         };
         this.createSyntaxGraph(filteredSyntaxModel);
         break;
@@ -373,18 +372,18 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
    * @param semanticModel the semantic model
    * @param flat maps names to url
    */
-  private createSemanticGraph(semanticModel: SemanticModelDTO, flat: boolean): void {
+  private createSemanticGraph(semanticModel: SemanticModel, flat: boolean): void {
     const color = 'primary';
     if (semanticModel.nodes.length > 0) {
       semanticModel.nodes.forEach(node => {
         let icon = '';
-        if (node.mappedToData) {
+        if (node.syntaxNodeId) {
           // get icon from syntax node
-          icon = Icons.getIcon(this.getMappedPrimitive(node.id));
+          icon = Icons.getIcon(this.findSyntaxNodeById(node.syntaxNodeId));
         }
-        this.addSemanticNode(node.id, flat ? node.concept.sourceURI : node.concept.name, node.label, icon, color, node.x, node.y);
+        this.addSemanticNode(node.uuid, flat ? node.concept.sourceURI : node.concept.label, node.label, icon, color, node.x, node.y);
       });
-      semanticModel.edges.forEach(edge => this.addSemanticLink(edge.id, edge.from, edge.to, flat ? edge.concept.sourceURI : edge.concept.name), color);
+      semanticModel.edges.forEach(edge => this.addSemanticLink(edge.uuid, edge.from, edge.to, flat ? edge.concept.sourceURI : edge.concept.label), color);
     }
   }
 
@@ -392,9 +391,9 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
    * Creates nodes and edges from syntax model
    * @param syntaxModel the syntax model
    */
-  private createSyntaxGraph(syntaxModel: SyntaxModelDTO): void {
+  private createSyntaxGraph(syntaxModel: SyntaxModel): void {
     if (syntaxModel.nodes.length > 0) {
-      syntaxModel.nodes.forEach(node => this.addSyntaxNode(node.id, node.label, Icons.getIcon(node), node.x, node.y));
+      syntaxModel.nodes.forEach(node => this.addSyntaxNode(node.uuid, node.label, Icons.getIcon(node), node.x, node.y));
       syntaxModel.edges.forEach(edge => this.addSyntaxLink(edge.from, edge.to));
     }
   }
@@ -403,17 +402,17 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
    * Creates nodes and edges from recommendation and adds it to global variable
    * @param recommendation the recommendation
    */
-  private showRecommendation(recommendation: DeltaRecommendationDTO): void {
+  private showRecommendation(recommendation: DeltaModification): void {
     const opacity = 0.6;
     const color = 'accent';
     recommendation.entities.forEach(node => {
       let icon = '';
-      if (node.mappedToData) {
-        icon = Icons.getIcon(this.getMappedPrimitive(node.id));
+      if (node.syntaxNodeId) {
+        icon = Icons.getIcon(this.findSyntaxNodeById(node.syntaxNodeId));
       }
-      this.recommendations.push(this.addSemanticNode(node.id, node.concept.name, node.label, icon, color, node.x, node.y, opacity));
+      this.recommendations.push(this.addSemanticNode(node.uuid, node.concept.label, node.label, icon, color, node.x, node.y, opacity));
     });
-    recommendation.relations.forEach(edge => this.recommendations.push(this.addSemanticLink(edge.id, edge.from, edge.to, edge.concept.name, color, opacity)));
+    recommendation.relations.forEach(edge => this.recommendations.push(this.addSemanticLink(edge.uuid, edge.from, edge.to, edge.concept.label, color, opacity)));
   }
 
   /**
@@ -586,8 +585,8 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
           this.nodePositionChanged.emit(nodeChanges);
         }
         // update mapped syntax node position
-        if (node.mappedToData) {
-          const mappedNode = this.getMappedPrimitive(node.id);
+        if (node.syntaxNodeId) {
+          const mappedNode = this.findSyntaxNodeById(node.syntaxNodeId);
           mappedNode.x = position.x;
           mappedNode.y = position.y;
           if (emitEvent) {
@@ -669,10 +668,10 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
    * Searches a syntax node for gi
    * @param elementView search element
    */
-  private getIfLeafNode(elementView: dia.ElementView): PrimitiveDTO {
+  private getIfLeafNode(elementView: dia.ElementView): PrimitiveNode {
     if (Nodes.isSyntaxNode(elementView)) {
       const node = this.findSyntaxNodeById(elementView.model.id.toString());
-      if (node['@class'] === 'PrimitiveDTO') {
+      if (node['@class'] === 'PrimitiveNode') {
         return node;
       }
     }
@@ -680,21 +679,11 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
   }
 
   /**
-   * Finds syntax node for given id of semantic node
-   * @param id of semantic node
-   * @returns mapped syntax node
-   */
-  private getMappedPrimitive(id: string): SyntaxNode {
-    const syntaxNodeId = this.schema.primitiveToEntityTypeList.find(map => map.to === id).mappedPrimitive;
-    return this.schema.syntaxModel.nodes.find(node => node.id === syntaxNodeId);
-  }
-
-  /**
    * Finds syntax node data model for given id
    * @param id of node to find
    */
   private findSyntaxNodeById(id: string): SyntaxNode {
-    return this.schema.syntaxModel.nodes.find(node => node.id === id);
+    return this.schema.syntaxModel.nodes.find(node => node.uuid === id);
   }
 
   /**
@@ -702,14 +691,14 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
    * @param id of node to find
    */
   private findSemanticNodeById(id: string): SemanticNode {
-    return this.schema.semanticModel.nodes.find(node => node.id === id);
+    return this.schema.semanticModel.nodes.find(node => node.uuid === id);
   }
 
   /**
    * Setter for entity concept
    * @param concept - the new concept
    */
-  setEntityConcept(concept: EntityConceptDTO): void {
+  setEntityConcept(concept: EntityConcept): void {
     this.entityConcept = concept;
   }
 

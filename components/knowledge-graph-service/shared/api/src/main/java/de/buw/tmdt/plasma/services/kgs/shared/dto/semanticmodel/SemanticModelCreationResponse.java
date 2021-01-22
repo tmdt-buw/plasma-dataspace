@@ -16,6 +16,7 @@ public class SemanticModelCreationResponse implements Serializable {
 	private static final String SEMANTIC_MODEL_PROPERTY = "semanticModelDto";
 
 	private final Map<String, String> oldToNewIdLookup;
+	@NotNull
 	private final SemanticModelDTO semanticModelDTO;
 
 	@JsonCreator

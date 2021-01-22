@@ -1,87 +1,83 @@
 package de.buw.tmdt.plasma.services.dms.rest.controller;
 
-import de.buw.tmdt.plasma.services.dms.core.converter.DataSourceSchemaDTOConverter;
-import de.buw.tmdt.plasma.services.dms.core.converter.SemanticModelDTOConverter;
+import de.buw.tmdt.plasma.datamodel.CombinedModel;
+import de.buw.tmdt.plasma.datamodel.PositionedCombinedModelElement;
+import de.buw.tmdt.plasma.datamodel.modification.DeltaModification;
+import de.buw.tmdt.plasma.datamodel.modification.operation.SyntacticOperationDTO;
+import de.buw.tmdt.plasma.datamodel.semanticmodel.EntityConcept;
+import de.buw.tmdt.plasma.datamodel.semanticmodel.EntityType;
+import de.buw.tmdt.plasma.datamodel.semanticmodel.Relation;
+import de.buw.tmdt.plasma.datamodel.semanticmodel.RelationConcept;
+import de.buw.tmdt.plasma.datamodel.syntaxmodel.SchemaNode;
 import de.buw.tmdt.plasma.services.dms.core.handler.DataModelingHandler;
-import de.buw.tmdt.plasma.services.dms.core.model.datasource.DataSourceModel;
-import de.buw.tmdt.plasma.services.dms.core.model.datasource.DataSourceSchema;
+import de.buw.tmdt.plasma.services.dms.core.operations.OperationLookUp;
 import de.buw.tmdt.plasma.services.dms.shared.api.DataModelingAPI;
-import de.buw.tmdt.plasma.services.dms.shared.dto.DataSourceSchemaDTO;
-import de.buw.tmdt.plasma.services.dms.shared.dto.recommendation.DeltaRecommendationDTO;
-import de.buw.tmdt.plasma.services.dms.shared.dto.semanticmodel.EntityConceptDTO;
-import de.buw.tmdt.plasma.services.dms.shared.dto.semanticmodel.EntityTypeDTO;
-import de.buw.tmdt.plasma.services.dms.shared.dto.semanticmodel.RelationConceptDTO;
-import de.buw.tmdt.plasma.services.dms.shared.dto.semanticmodel.RelationDTO;
-import de.buw.tmdt.plasma.services.dms.shared.dto.syntaxmodel.SchemaNodeDTO;
-import de.buw.tmdt.plasma.services.dms.shared.dto.syntaxmodel.operation.SyntacticOperationDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+
 
 @RestController("Modeling Controller")
 public class DataModelingController implements DataModelingAPI {
 
+    private final Logger log = LoggerFactory.getLogger(DataModelingController.class);
+
     private final DataModelingHandler dataModelingHandler;
-    private final DataSourceSchemaDTOConverter dataSourceSchemaDTOConverter;
-    private final SemanticModelDTOConverter semanticModelDTOConverter;
+    private final OperationLookUp operationLookUp;
 
     @Autowired
     public DataModelingController(
             @NotNull DataModelingHandler dataModelingHandler,
-            @NotNull DataSourceSchemaDTOConverter dataSourceSchemaDTOConverter,
-            @NotNull SemanticModelDTOConverter semanticModelDTOConverter
-    ) {
+            OperationLookUp operationLookUp) {
         this.dataModelingHandler = dataModelingHandler;
-        this.dataSourceSchemaDTOConverter = dataSourceSchemaDTOConverter;
-        this.semanticModelDTOConverter = semanticModelDTOConverter;
+        this.operationLookUp = operationLookUp;
     }
 
     @Override
     @Operation(description = "Initializes the current schema of the specified data source.")
-    public void initDataSourceSchema(@NotNull String uuid, @NotNull Integer exampleLimit) {
-        dataModelingHandler.initDataSourceSchema(UUID.fromString(uuid), exampleLimit);
+    public void initDataSourceSchema(@NotNull String dataSourceUuid, @NotNull Integer exampleLimit) {
+        dataModelingHandler.initDataSourceSchema(UUID.fromString(dataSourceUuid), exampleLimit);
     }
 
     @NotNull
     @Override
     @Operation(description = "Returns the current schema of the specified data source.")
-    public DataSourceSchemaDTO getDataSourceSchema(@NotNull String uuid) {
-        return dataSourceSchemaDTOConverter.toDTO(dataModelingHandler.getDataSourceSchema(UUID.fromString(uuid)));
+    public CombinedModel getCombinedModel(@NotNull String dataSourceUuid) {
+        return dataModelingHandler.getCombinedModel(UUID.fromString(dataSourceUuid));
     }
 
     @Override
-    @Operation(description = "Stores the position of all nodes in the schema.")
-    public void updatePositions(@NotNull String uuid, @NotNull DataSourceSchemaDTO dataSourceSchemaDTO) {
-        dataModelingHandler.updatePositions(UUID.fromString(uuid), dataSourceSchemaDTO);
-    }
-
-    @NotNull
-    @Override
-    @Operation(description = "Returns all entity concepts either persistent in the backend or cached for the referenced data source sorted alphabetically.")
-    public List<EntityConceptDTO> getEntityConcepts(@NotNull String uuid, @NotNull String prefix) {
-        return dataModelingHandler.getEntityConcepts(UUID.fromString(uuid), prefix);
+    @Operation(description = "Stores the position of all provided elements.")
+    public void updatePositions(@NotNull String dataSourceUuid, @NotNull List<PositionedCombinedModelElement> elements) {
+        dataModelingHandler.updatePositions(UUID.fromString(dataSourceUuid), elements);
     }
 
     @NotNull
     @Override
-    @Operation(description = "Returns all entity concepts either persistent in the backend or cached for the referenced data source sorted alphabetically.")
-    public List<RelationConceptDTO> getRelationConcepts(@NotNull String uuid, @NotNull String prefix) {
-        return dataModelingHandler.getRelationConcepts(UUID.fromString(uuid), prefix);
+    @Operation(description = "Returns all entity concepts either persistent in the knowledge base or cached for the referenced data source sorted alphabetically.")
+    public List<EntityConcept> getEntityConcepts(@NotNull String dataSourceUuid, @NotNull String prefix) {
+        return dataModelingHandler.getEntityConcepts(UUID.fromString(dataSourceUuid), prefix);
+    }
+
+    @NotNull
+    @Override
+    @Operation(description = "Returns all entity concepts either persistent in the knowledge base or cached for the referenced data source sorted alphabetically.")
+    public List<RelationConcept> getRelationConcepts(@NotNull String dataSourceUuid, @NotNull String prefix) {
+        return dataModelingHandler.getRelationConcepts(UUID.fromString(dataSourceUuid), prefix);
     }
 
     @NotNull
     @Override
     @Operation(description = "Modify the syntactic schema of a datasource by invoking an operation.")
-    public DataSourceSchemaDTO modifySchema(@NotNull String uuid, @NotNull SyntacticOperationDTO syntacticOperationDTO) {
-        return dataSourceSchemaDTOConverter.toDTO(dataModelingHandler.modifySchema(UUID.fromString(uuid), syntacticOperationDTO));
+    public CombinedModel modifySchema(@NotNull String dataSourceUuid, @NotNull SyntacticOperationDTO syntacticOperationDTO) {
+        return dataModelingHandler.modifySyntaxModel(UUID.fromString(dataSourceUuid), syntacticOperationDTO);
     }
 
     @Override
@@ -89,37 +85,37 @@ public class DataModelingController implements DataModelingAPI {
     public void positionSchemaNode(
             @NotNull String dataSourceUuid,
             @NotNull String schemaNodeUuid,
-            @NotNull SchemaNodeDTO schemaNodeDTO
+            @NotNull SchemaNode schemaNode
     ) {
-        dataModelingHandler.placeSchemaNode(UUID.fromString(dataSourceUuid), UUID.fromString(schemaNodeUuid), schemaNodeDTO);
+        dataModelingHandler.placeSchemaNode(UUID.fromString(dataSourceUuid), UUID.fromString(schemaNodeUuid), schemaNode);
     }
 
     @NotNull
     @Override
-    @Operation(description = "Adds a new entity concept to the cache of the data source.")
-    public EntityConceptDTO cacheEntityConcept(@NotNull String uuid, @NotNull EntityConceptDTO entityConceptDTO) {
-        return semanticModelDTOConverter.toDTO(dataModelingHandler.cacheEntityConcept(UUID.fromString(uuid), entityConceptDTO));
+    @Operation(description = "Adds a new provisional entity concept to the cache of the data source.")
+    public EntityConcept cacheEntityConcept(@NotNull String dataSourceUuid, @NotNull EntityConcept entityConcept) {
+        return dataModelingHandler.cacheEntityConcept(UUID.fromString(dataSourceUuid), entityConcept);
     }
 
     @NotNull
     @Override
-    @Operation(description = "Removes a temporary entity concept from the cache of the data source.")
-    public List<EntityConceptDTO> uncacheEntityConcept(@NotNull String dataSourceUuid, @NotNull Long entityConceptId) {
+    @Operation(description = "Removes a provisional entity concept from the cache of the data source.")
+    public List<EntityConcept> uncacheEntityConcept(@NotNull String dataSourceUuid, @NotNull String entityConceptId) {
         dataModelingHandler.uncacheEntityConcept(UUID.fromString(dataSourceUuid), entityConceptId);
         return dataModelingHandler.getEntityConcepts(UUID.fromString(dataSourceUuid), "");
     }
 
     @NotNull
     @Override
-    @Operation(description = "Adds a new relation concept to the cache of the data source.")
-    public RelationConceptDTO cacheRelationConcept(@NotNull String uuid, @NotNull RelationConceptDTO relationConceptDTO) {
-        return semanticModelDTOConverter.toDTO(dataModelingHandler.cacheRelationConcept(UUID.fromString(uuid), relationConceptDTO));
+    @Operation(description = "Adds a provisional relation concept to the cache of the data source.")
+    public RelationConcept cacheRelationConcept(@NotNull String dataSourceUuid, @NotNull RelationConcept relationConcept) {
+        return dataModelingHandler.cacheRelationConcept(UUID.fromString(dataSourceUuid), relationConcept);
     }
 
     @NotNull
     @Override
     @Operation(description = "Removes a temporary entity concept from the cache of the data source.")
-    public List<RelationConceptDTO> uncacheRelationConcept(@NotNull String dataSourceUuid, @NotNull Long relationConceptId) {
+    public List<RelationConcept> uncacheRelationConcept(@NotNull String dataSourceUuid, @NotNull String relationConceptId) {
         dataModelingHandler.uncacheRelationConcept(UUID.fromString(dataSourceUuid), relationConceptId);
         return dataModelingHandler.getRelationConcepts(UUID.fromString(dataSourceUuid), "");
     }
@@ -127,118 +123,111 @@ public class DataModelingController implements DataModelingAPI {
     @NotNull
     @Override
     @Operation(description = "Adds an entity type and caches or creates the referenced entity concept if it is not present yet.")
-    public DataSourceSchemaDTO addEntityType(
-            @NotNull String uuid,
-            @NotNull EntityTypeDTO entityTypeDTO,
-            @Nullable String primitiveNodeIdString
+    public CombinedModel addEntityType(
+            @NotNull String dataSourceUuid,
+            @NotNull EntityType entityType,
+            @Nullable String primitiveNodeUuid
     ) {
-        @Nullable UUID primitiveNodeUuid;
-        if (primitiveNodeIdString != null && !primitiveNodeIdString.isEmpty()) {
-            primitiveNodeUuid = UUID.fromString(primitiveNodeIdString);
-        } else {
-            primitiveNodeUuid = null;
-        }
         // modify the sementic model
-        DataSourceSchema dataSourceSchema = dataModelingHandler.addEntityType(UUID.fromString(uuid), entityTypeDTO, primitiveNodeUuid);
+        CombinedModel combinedModel = dataModelingHandler.addEntityType(UUID.fromString(dataSourceUuid), entityType, primitiveNodeUuid);
         // request recommendations
-        ArrayList<DeltaRecommendationDTO> recommendations = dataModelingHandler.getRecommendations(uuid, dataSourceSchema);
-        DataSourceSchemaDTO dto = dataSourceSchemaDTOConverter.toDTO(dataSourceSchema);
-        dto.setRecommendations(recommendations);
-        return dto;
+        combinedModel = dataModelingHandler.requestRecommendations(dataSourceUuid, combinedModel);
+        return combinedModel;
     }
 
     @NotNull
     @Override
     @Operation(description = "Updates an entity type and caches the referenced entity concept if it is not present yet.")
-    public DataSourceSchemaDTO updateEntityType(
-            @NotNull String uuid,
-            @NotNull Long entityTypeId,
-            @NotNull EntityTypeDTO entityTypeDTO
+    public CombinedModel updateEntityType(
+            @NotNull String dataSourceUuid,
+            @NotNull String entityTypeId,
+            @NotNull EntityType entityType
     ) {
-        return dataSourceSchemaDTOConverter.toDTO(dataModelingHandler.updateEntityType(UUID.fromString(uuid), entityTypeId, entityTypeDTO));
+        return dataModelingHandler.updateEntityType(UUID.fromString(dataSourceUuid), entityTypeId, entityType);
     }
 
     @NotNull
-    @PostMapping(value = "/recommendation/accept", produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Accepts a recommendation and adds the contents to the semantic model.")
-    public DataSourceSchemaDTO acceptRecommendation(@NotNull String uuid, @NotNull DeltaRecommendationDTO recommendation) {
-        DataSourceModel model = dataModelingHandler.acceptRecommendation(UUID.fromString(uuid), recommendation);
+    public CombinedModel acceptRecommendation(@NotNull String dataSourceUuid, @NotNull DeltaModification recommendation) {
+        @NotNull CombinedModel model = dataModelingHandler.applyModification(UUID.fromString(dataSourceUuid), recommendation);
 
-        // get new recommendations here
-        ArrayList<DeltaRecommendationDTO> recommendations = dataModelingHandler.getRecommendations(uuid, model.peekDataSourceSchema());
         // request recommendations
-        DataSourceSchemaDTO dto = dataSourceSchemaDTOConverter.toDTO(model.peekDataSourceSchema());
-        dto.setRecommendations(recommendations);
-        return dto;
+        model = dataModelingHandler.requestRecommendations(dataSourceUuid, model);
+        return model;
     }
 
     @Override
     @Operation(description = "Patches the position of an entity type node.")
     public void positionEntityType(
-            @NotNull String uuid,
-            @NotNull Long entityTypeId,
-            @NotNull EntityTypeDTO entityTypeDTO
+            @NotNull String dataSourceUuid,
+            @NotNull String entityTypeId,
+            @NotNull EntityType entityType
     ) {
-        dataModelingHandler.placeEntityType(UUID.fromString(uuid), entityTypeId, entityTypeDTO);
+        dataModelingHandler.placeEntityType(UUID.fromString(dataSourceUuid), entityTypeId, entityType);
     }
 
     @NotNull
     @Override
     @Operation(description = "Removes an entity type.")
-    public DataSourceSchemaDTO removeEntityType(@NotNull String uuid, @NotNull Long entityTypeId) {
-        return dataSourceSchemaDTOConverter.toDTO(dataModelingHandler.removeEntityTypeFromSchema(UUID.fromString(uuid), entityTypeId));
+    public CombinedModel removeEntityType(@NotNull String dataSourceUuid, @NotNull String entityTypeId) {
+        return dataModelingHandler.removeEntityTypeFromModel(UUID.fromString(dataSourceUuid), entityTypeId);
     }
 
     @NotNull
     @Override
     @Operation(description = "Adds a relation and caches or creates the referenced relation concept if it is not present yet.")
-    public DataSourceSchemaDTO addRelation(@NotNull String uuid, @NotNull RelationDTO relationDto) {
-        return dataSourceSchemaDTOConverter.toDTO(dataModelingHandler.addRelation(UUID.fromString(uuid), relationDto));
+    public CombinedModel addRelation(@NotNull String dataSourceUuid, @NotNull Relation relation) {
+        return dataModelingHandler.addRelation(UUID.fromString(dataSourceUuid), relation);
     }
 
     @NotNull
     @Override
     @Operation(description = "Updates a relation and caches the referenced relation concept if it is not present yet.")
-    public DataSourceSchemaDTO updateRelation(
-            @NotNull String uuid,
-            @NotNull Long entityTypeId,
-            @NotNull RelationDTO relationDto
+    public CombinedModel updateRelation(
+            @NotNull String dataSourceUuid,
+            @NotNull String relationId,
+            @NotNull Relation relationDto
     ) {
-        return dataSourceSchemaDTOConverter.toDTO(dataModelingHandler.updateRelation(UUID.fromString(uuid), entityTypeId, relationDto));
+        return dataModelingHandler.updateRelation(UUID.fromString(dataSourceUuid), relationId, relationDto);
     }
 
     @NotNull
     @Override
     @Operation(description = "Removes a relation.")
-    public DataSourceSchemaDTO removeRelation(@NotNull String uuid, @NotNull Long entityTypeId) {
-        return dataSourceSchemaDTOConverter.toDTO(dataModelingHandler.removeRelationFromSchema(UUID.fromString(uuid), entityTypeId));
+    public CombinedModel removeRelation(@NotNull String dataSourceUuid, @NotNull String entityTypeId) {
+        return dataModelingHandler.removeRelationFromModel(UUID.fromString(dataSourceUuid), entityTypeId);
     }
 
     @NotNull
     @Override
     @Operation(description = "pop last element from datasource's schema stack")
-    public DataSourceSchemaDTO undoDataSourceSchemaModification(@NotNull String uuid) {
-        return dataSourceSchemaDTOConverter.toDTO(dataModelingHandler.undoDataSourceSchemaModification(UUID.fromString(uuid)));
+    public CombinedModel undoModification(@NotNull String dataSourceUuid) {
+        return dataModelingHandler.undoModelModification(UUID.fromString(dataSourceUuid));
     }
 
     @NotNull
     @Override
     @Operation(description = "push last element from datasource's schema stack")
-    public DataSourceSchemaDTO redoDataSourceSchemaModification(@NotNull String uuid) {
-        return dataSourceSchemaDTOConverter.toDTO(dataModelingHandler.redoDataSourceSchemaModification(UUID.fromString(uuid)));
+    public CombinedModel redoModification(@NotNull String dataSourceUuid) {
+        return dataModelingHandler.redoModelModification(UUID.fromString(dataSourceUuid));
     }
 
     @NotNull
     @Override
     @Operation(description = "finish schema modelling process")
-    public DataSourceSchemaDTO finishModeling(@NotNull String uuid) {
-        UUID dataSourceUuid = UUID.fromString(uuid);
-        return dataSourceSchemaDTOConverter.toDTO(dataModelingHandler.finishModeling(dataSourceUuid));
+    public CombinedModel finishModeling(@NotNull String dataSourceUuid) {
+        UUID uuid = UUID.fromString(dataSourceUuid);
+        return dataModelingHandler.finishModeling(uuid);
     }
 
     @Override
-    public void deleteModel(@NotNull String uuid) {
-        UUID dataSourceUuid = UUID.fromString(uuid);
-        dataModelingHandler.deleteModel(dataSourceUuid);
+    public void deleteModel(@NotNull String dataSourceUuid) {
+        UUID uuid = UUID.fromString(dataSourceUuid);
+        dataModelingHandler.deleteModel(uuid);
+    }
+
+    private void prepareForFrontend(CombinedModel model) {
+        // add syntactic operations
+
     }
 }

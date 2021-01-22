@@ -6,7 +6,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>de.buw.tmdt.plasma</groupId>
     <artifactId>parent</artifactId>
-    <version>1.0.0</version>
+    <version>1.1.0</version>
     <name>PLASMA Parent</name>
     <packaging>pom</packaging>
 
@@ -20,6 +20,7 @@
         <module>components/semantic-recommendation-service</module>
         <module>components/semantic-database-service</module>
         <module>components/utilities</module>
+        <module>components/datamodel</module>
         <module>components/datasource-service</module>
         <module>auxiliary_services/ARS-L-label-matching</module>
         <module>auxiliary_services/ARS-M-standard-matching</module>
@@ -324,6 +325,11 @@
                     <groupId>com.github.spotbugs</groupId>
                     <artifactId>spotbugs-maven-plugin</artifactId>
                     <version>${com.github.spotbugs.plugin.version}</version>
+                    <configuration>
+                        <excludeFilterFile>
+                            spotbugs-exclude.xml
+                        </excludeFilterFile>
+                    </configuration>
                 </plugin>
                 <!-- Source code style checking. -->
                 <plugin>

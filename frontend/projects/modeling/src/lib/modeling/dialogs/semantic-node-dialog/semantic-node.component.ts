@@ -1,10 +1,12 @@
-import { Component, ElementRef, Inject, OnInit } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { DataModelingControllerService, EntityTypeDTO } from '../../../api/generated/dms';
+import {Component, ElementRef, Inject, OnInit} from '@angular/core';
+import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
+import {DataModelingControllerService, EntityType} from '../../../api/generated/dms';
+import {BehaviorSubject} from 'rxjs';
+import {EditState} from './model/edit-state';
 
 export interface PlsSemanticNodeDetailsData {
   dataSource: string;
-  node: EntityTypeDTO;
+  node: EntityType;
   relativeTo: ElementRef;
 }
 
@@ -15,7 +17,7 @@ export interface PlsSemanticNodeDetailsData {
 })
 export class PlsSemanticNodeDetailsComponent implements OnInit {
 
-  edit: boolean = false;
+  $edit: BehaviorSubject<EditState> = new BehaviorSubject<EditState>(EditState.confirm);
   label: string;
   description: string;
 
@@ -32,16 +34,24 @@ export class PlsSemanticNodeDetailsComponent implements OnInit {
   }
 
   startEdit(): void {
-    this.edit = true;
+    this.$edit.next(EditState.start);
     this.label = this.data.node.label;
     this.description = this.data.node.description;
   }
 
   acceptEdit(): void {
-    this.edit = false;
-    this.modelingService.updateEntityType(this.data.dataSource, +this.data.node.id, this.data.node).subscribe(() => null, () => {
+    this.$edit.next(EditState.confirm);
+    this.modelingService.updateEntityType(this.data.dataSource, this.data.node.uuid, this.data.node).subscribe(() => null, () => {
       this.data.node.label = this.label;
       this.data.node.description = this.description;
     });
+  }
+
+  cancelEdit(): void {
+    this.$edit.next(EditState.cancel);
+  }
+
+  get editing(): boolean {
+    return this.$edit.getValue() === EditState.start;
   }
 }

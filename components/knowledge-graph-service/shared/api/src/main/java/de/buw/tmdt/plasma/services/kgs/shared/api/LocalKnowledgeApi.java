@@ -43,9 +43,12 @@ public interface LocalKnowledgeApi {
     @GetMapping(value = "/entityType", produces = MediaType.APPLICATION_JSON_VALUE)
     List<EntityTypeDTO> getEntityTypes(@NotNull @RequestParam("ids") List<String> ids);
 
-    @GetMapping(value = "/byDataSourceId/{dataSourceId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    SemanticModelDTO getSemanticModelByDataSourceId(@NotNull String dataSourceId);
-
-    @DeleteMapping(value = "/byDataSourceId/{dataSourceId}")
-    void deleteSemanticModelByDataSourceId(@NotNull String dataSourceId);
+    /**
+     * Utility function to find a semantic model by its data source id.
+     *
+     * @param dataSourceId The data source id to look for
+     * @return An existing model. Will throw 404 if non found.
+     */
+    @GetMapping(value = "/search", produces = MediaType.APPLICATION_JSON_VALUE)
+    SemanticModelDTO findSemanticModelByDataSourceId(@NotNull @RequestParam("dataSourceId") String dataSourceId);
 }

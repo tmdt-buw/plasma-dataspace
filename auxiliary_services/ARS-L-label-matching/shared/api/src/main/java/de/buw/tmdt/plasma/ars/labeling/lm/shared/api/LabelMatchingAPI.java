@@ -1,6 +1,6 @@
 package de.buw.tmdt.plasma.ars.labeling.lm.shared.api;
 
-import de.buw.tmdt.plasma.services.dms.shared.dto.DataSourceSchemaDTO;
+import de.buw.tmdt.plasma.datamodel.CombinedModel;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,6 +14,6 @@ public interface LabelMatchingAPI {
 
 	@NotNull
 	@PostMapping(value = "", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	DataSourceSchemaDTO performLabeling(@NotNull @RequestParam("uuid") String uuid, @NotNull @RequestBody DataSourceSchemaDTO combined);
+	CombinedModel performLabeling(@NotNull @RequestParam("uuid") String uuid, @NotNull @RequestBody CombinedModel combined);
 
 }

@@ -1,19 +1,24 @@
-import { AfterViewInit, Component, ElementRef, Inject, OnInit, ViewChild } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { DataModelingControllerService, DeltaRecommendationDTO, EntityConceptDTO, RelationConceptDTO } from '../../../api/generated/dms';
-import { FormControl } from '@angular/forms';
-import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
-import { PlsNewEntityDialogComponent } from '../new-entity-dialog/new-entity-dialog.component';
-import { PlsNewRelationDialogComponent } from '../new-relation-dialog/new-relation-dialog.component';
-import { ModelingService } from '../../modeling.service';
-import { MatTabChangeEvent } from '@angular/material/tabs';
-import { MatSelectionList } from '@angular/material/list';
+import {AfterViewInit, Component, ElementRef, Inject, OnInit, ViewChild} from '@angular/core';
+import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from '@angular/material/dialog';
+import {
+  DataModelingControllerService,
+  DeltaModification,
+  EntityConcept,
+  RelationConcept
+} from '../../../api/generated/dms';
+import {FormControl} from '@angular/forms';
+import {debounceTime, distinctUntilChanged} from 'rxjs/operators';
+import {PlsNewEntityDialogComponent} from '../new-entity-dialog/new-entity-dialog.component';
+import {PlsNewRelationDialogComponent} from '../new-relation-dialog/new-relation-dialog.component';
+import {ModelingService} from '../../modeling.service';
+import {MatTabChangeEvent} from '@angular/material/tabs';
+import {MatSelectionList} from '@angular/material/list';
 
 export interface PlsConceptDialogData {
   dataSource: string;
   node: any;
   relativeTo: ElementRef;
-  recommendations: DeltaRecommendationDTO[];
+  recommendations: DeltaModification[];
 }
 
 
@@ -35,8 +40,8 @@ export class PlsConceptDialogComponent implements OnInit, AfterViewInit {
   loadingEntityConcepts = true;
   loadingRelationConcepts = true;
 
-  entityConcepts: EntityConceptDTO[] = [];
-  relationConcepts: RelationConceptDTO[] = [];
+  entityConcepts: EntityConcept[] = [];
+  relationConcepts: RelationConcept[] = [];
 
   primaryColor;
   primaryColorContrast;
@@ -90,7 +95,7 @@ export class PlsConceptDialogComponent implements OnInit, AfterViewInit {
     }
   }
 
-  toggleRelation(index: number, relationConcept: RelationConceptDTO): void {
+  toggleRelation(index: number, relationConcept: RelationConcept): void {
     const option = this.relationsList.options.toArray()[index];
     if (this.isSelected(relationConcept)) {
       option.toggle();
@@ -100,7 +105,7 @@ export class PlsConceptDialogComponent implements OnInit, AfterViewInit {
     }
   }
 
-  isSelected(relationConcept: RelationConceptDTO): boolean {
+  isSelected(relationConcept: RelationConcept): boolean {
     const current = this.modeling.relationConcept.getValue();
     return current === relationConcept;
   }
@@ -131,7 +136,7 @@ export class PlsConceptDialogComponent implements OnInit, AfterViewInit {
     });
   }
 
-  setRecommendation(recommendation: DeltaRecommendationDTO): void {
+  setRecommendation(recommendation: DeltaModification): void {
     this.modeling.recommendation.next(recommendation);
   }
 }

@@ -1,21 +1,20 @@
 package de.buw.tmdt.plasma.services.dms.core.operations.impl;
 
-import de.buw.tmdt.plasma.services.dms.core.model.Traversable;
-import de.buw.tmdt.plasma.services.dms.core.model.datasource.DataSourceSchema;
-import de.buw.tmdt.plasma.services.dms.core.model.datasource.semanticmodel.EntityType;
-import de.buw.tmdt.plasma.services.dms.core.model.datasource.syntaxmodel.Node;
-import de.buw.tmdt.plasma.services.dms.core.model.datasource.syntaxmodel.PrimitiveNode;
+import de.buw.tmdt.plasma.datamodel.CombinedModel;
+import de.buw.tmdt.plasma.datamodel.modification.DeltaModification;
+import de.buw.tmdt.plasma.datamodel.modification.operation.DataType;
+import de.buw.tmdt.plasma.datamodel.modification.operation.ParameterDefinition;
+import de.buw.tmdt.plasma.datamodel.modification.operation.Type;
+import de.buw.tmdt.plasma.datamodel.modification.operation.TypeDefinitionDTO;
+import de.buw.tmdt.plasma.datamodel.semanticmodel.EntityType;
+import de.buw.tmdt.plasma.datamodel.syntaxmodel.PrimitiveNode;
+import de.buw.tmdt.plasma.datamodel.syntaxmodel.SchemaNode;
 import de.buw.tmdt.plasma.services.dms.core.operations.Operation;
 import de.buw.tmdt.plasma.services.dms.core.operations.OperationLookUp;
 import de.buw.tmdt.plasma.services.dms.core.operations.exceptions.ParameterParsingException;
 import de.buw.tmdt.plasma.services.dms.core.operations.impl.misc.BooleanHomogenizer;
+import de.buw.tmdt.plasma.services.dms.core.operations.impl.misc.DataTypeException;
 import de.buw.tmdt.plasma.services.dms.core.operations.impl.misc.NumberHomogenizer;
-import de.buw.tmdt.plasma.services.dms.core.operations.impl.misc.SLTDataTypeException;
-import de.buw.tmdt.plasma.services.dms.shared.dto.syntaxmodel.operation.DataType;
-import de.buw.tmdt.plasma.services.dms.shared.dto.syntaxmodel.operation.ParameterDefinition;
-import de.buw.tmdt.plasma.services.dms.shared.dto.syntaxmodel.operation.Type;
-import de.buw.tmdt.plasma.services.dms.shared.dto.syntaxmodel.operation.TypeDefinitionDTO;
-import de.buw.tmdt.plasma.utilities.misc.ObjectUtilities;
 import de.buw.tmdt.plasma.utilities.misc.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,7 +60,6 @@ public class SetEntityType extends Operation<Pair<PrimitiveNode, EntityType>> {
 							1,
 							1
 					)
-
 			);
 
 	@Autowired
@@ -77,9 +75,9 @@ public class SetEntityType extends Operation<Pair<PrimitiveNode, EntityType>> {
 
 	@Override
 	public Pair<PrimitiveNode, EntityType> parseParameterDefinition(
-			DataSourceSchema schema, ParameterDefinition<?, ?> parameterDefinition
+			CombinedModel model, ParameterDefinition<?, ?> parameterDefinition
 	) throws ParameterParsingException {
-		final UUID nodeId;
+		final String nodeId;
 		final EntityType entityType;
 
 		validateParameterDefinition(parameterDefinition);
@@ -98,104 +96,117 @@ public class SetEntityType extends Operation<Pair<PrimitiveNode, EntityType>> {
 		if (entityTypeIdDefinition == null) {
 			throw new ParameterParsingException("entityTypeIdDefinition is missing");
 		}
-		final Long entityTypeId = getValueAs(entityTypeIdDefinition, Type.ENTITY_TYPE_ID, 0, false);
-		final Traversable entityTypeTraversable = schema.find(new Traversable.Identity<>(entityTypeId));
-		entityType = ObjectUtilities.checkedReturn(entityTypeTraversable, EntityType.class);
+		final String entityTypeId = getValueAs(entityTypeIdDefinition, Type.ENTITY_TYPE_ID, 0, false);
 
-		final Traversable node = schema.find(new Traversable.Identity<>(nodeId));
+		entityType = model.getSemanticModel().getEntityType(entityTypeId);
+		if (entityType == null) {
+			throw new ParameterParsingException("Did not find entitytype with id `" + entityTypeId + "` in model.");
+		}
+		SchemaNode node = model.getSyntaxModel().getNode(nodeId);
 		if (node == null) {
-			throw new ParameterParsingException("Did not find node with id `" + nodeId + "` in schema.");
+			throw new ParameterParsingException("Did not find node with id `" + nodeId + "` in model.");
 		}
 		if (!(node instanceof PrimitiveNode)) {
 			throw new ParameterParsingException(
 					"Node id identified illegal node type. Expected `"
-					+ PrimitiveNode.class + "` but found `"
-					+ node.getClass() + "`."
+							+ PrimitiveNode.class + "` but found `"
+							+ node.getClass() + "`."
 			);
 		}
-
 		return new Pair<>((PrimitiveNode) node, entityType);
 	}
 
 	/**
-	 * make first good estimation of datatype based on the given example values. gracefully user friendly fallback to String rather than unknown for
-	 * available fields.
-	 *
-	 * @param exampleValues List of example data point values.
-	 *
-	 * @return DataTpye Unknown iff empty values, Number or Boolean iff Homogenizer accepts or String otherwise.
-	 */
+     * Make first good estimation of datatype based on the given example values. gracefully user friendly fallback to String rather than unknown for
+     * available fields.
+     *
+     * @param exampleValues List of example data point values.
+     * @return {@link DataType#Unknown} iff empty values, Number or Boolean iff Homogenizer accepts or String otherwise.
+     */
+	@NotNull
 	public static DataType determineDataType(List<String> exampleValues) {
 		if (exampleValues == null) {
-			return DataType.UNKNOWN;
+            return DataType.Unknown;
 		}
 		List<DataType> possibleDataTypes = exampleValues.stream().map(s -> {
-			if (s.isBlank()) {
-				return DataType.UNKNOWN;
-			}
-			try {
-				BooleanHomogenizer.parseHomogenizedRepresentation(s);
-				return DataType.BOOLEAN;
-			} catch (SLTDataTypeException ignore) {
-				// not a Boolean
-			}
+            if (s.isBlank()) {
+                return DataType.Unknown;
+            }
+            try {
+                BooleanHomogenizer.parseHomogenizedRepresentation(s);
+                return DataType.Boolean;
+            } catch (DataTypeException ignore) {
+                // not a Boolean
+            }
+            try {
+                NumberHomogenizer.parseHomogenizedRepresentation(s);
+                return DataType.Number;
+            } catch (DataTypeException ignore) {
+                // not a Double
+            }
+            // nothing specific, fallthrough String, user can choose otherwise
+            return DataType.String;
+        }).collect(Collectors.toList());
 
-			try {
-				NumberHomogenizer.parseHomogenizedRepresentation(s);
-				return DataType.NUMBER;
-			} catch (SLTDataTypeException ignore) {
-				// not a Double
-			}
-
-			// nothing specific, fallthrough String, user can choose otherwise
-			return DataType.STRING;
-		}).collect(Collectors.toList());
-
-		// check for encapsulating data type (it is enough if one is String or Number, so that all have to be)
-		if (possibleDataTypes.contains(DataType.STRING)) {
-			return DataType.STRING;
-		} else if (possibleDataTypes.contains(DataType.NUMBER)) {
-			return DataType.NUMBER;
-		} else {
-			// only then get the most occurring DataType
-			return possibleDataTypes.stream()
-					.reduce(BinaryOperator.maxBy(Comparator.comparingInt(o -> Collections.frequency(possibleDataTypes, o))))
-					.orElse(DataType.UNKNOWN);
+        // check for encapsulating data type (it is enough if one is String or Number, so that all have to be)
+        if (possibleDataTypes.contains(DataType.String)) {
+            return DataType.String;
+        } else if (possibleDataTypes.contains(DataType.Number)) {
+            return DataType.Number;
+        } else {
+            // only then get the most occurring DataType
+            return possibleDataTypes.stream()
+                    .reduce(BinaryOperator.maxBy(Comparator.comparingInt(o -> Collections.frequency(possibleDataTypes, o))))
+                    .orElse(DataType.Unknown);
 		}
 	}
 
 	@Override
-	protected DataSourceSchema execute(DataSourceSchema schema, Pair<PrimitiveNode, EntityType> input) {
-		PrimitiveNode primitiveNode = input.getLeft();
-		EntityType entityType = input.getRight();
+	protected CombinedModel execute(CombinedModel model, Pair<PrimitiveNode, EntityType> input) {
+        PrimitiveNode primitiveNode = input.getLeft();
+        EntityType entityType = input.getRight();
 
-		primitiveNode.setEntityType(entityType);
-		if (primitiveNode.getDataType() == DataType.UNKNOWN) {
-			// if data type is still unknown, try to determine one
-			primitiveNode.setDataType(SetEntityType.determineDataType(primitiveNode.getExamples()));
-		}
+        EntityType modifiedEntityType = entityType.copy();
 
-		entityType.setPosition(primitiveNode.getPosition());
+        modifiedEntityType.setSyntaxNodeUuid(primitiveNode.getUuid());
+        modifiedEntityType.setOriginalLabel(primitiveNode.getLabel());
+        if (DataType.Unknown.equals(primitiveNode.getDataType())) {
+            // if data type is still unknown, try to determine one
+            // TODO why is this here?????
+            DataType dataType = SetEntityType.determineDataType(primitiveNode.getExamples());
+            primitiveNode.setDataType(dataType);
+        }
+        modifiedEntityType.setXCoordinate(primitiveNode.getXCoordinate());
+        modifiedEntityType.setYCoordinate(primitiveNode.getYCoordinate());
 
-		return schema;
+        DeltaModification modification = new DeltaModification("local_operation", Set.of(modifiedEntityType), null, null, null);
+        model.apply(modification); // this will also create the explicit mapping
+
+		return model;
 	}
 
 	@Override
-	protected Handle getHandleOnNode(Node node) {
+	protected Handle getHandleOnNode(SchemaNode node) {
 		ParameterDefinition<?, ?> parameterDefinitionClone = getParameterPrototype();
 		parameterDefinitionClone.replaceValue(NODE_ID_PARAMETER_NAME, node.getUuid());
 		return new Handle(this, parameterDefinitionClone);
 	}
 
 	@Override
-	public Map<Node, Set<Handle>> generateParameterDefinitionsOnGraph(@NotNull Node root) {
-		Map<Node, Set<Handle>> result = new HashMap<>();
-		root.execute(traversable -> {
-			if (traversable instanceof PrimitiveNode && ((PrimitiveNode) traversable).getEntityType() == null) {
-				result.computeIfAbsent((PrimitiveNode) traversable, ignored -> new HashSet<>())
-						.add(getHandleOnNode((PrimitiveNode) traversable));
-			}
-		});
+	public Map<SchemaNode, Set<Handle>> generateHandlesForApplicableNodes(@NotNull CombinedModel model) {
+		Map<SchemaNode, Set<Handle>> result = new HashMap<>();
+
+		/* DISABLED AS THERE IS NO USE IN THE FRONTEND RIGHT NOW
+		// get all uuids of mapped primitive nodes
+		List<String> mappedPrimitiveNodeUuids = model.getSemanticModel().getNodes().stream()
+				.map(EntityType::getSyntaxNodeUuid)
+				.collect(Collectors.toList());
+		// using this get the unmapped primitive nodes and generated the handles
+		model.getSyntaxModel().getNodes().stream()
+				.filter(schemaNode -> schemaNode instanceof PrimitiveNode)
+				.filter(schemaNode -> !mappedPrimitiveNodeUuids.contains(schemaNode.getUuid()))
+				.forEach(schemaNode -> result.computeIfAbsent(schemaNode, ignored -> new HashSet<>()).add(getHandleOnNode(schemaNode)));
+		*/
 		return result;
 	}
 }
