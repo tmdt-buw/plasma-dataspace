@@ -1,21 +1,21 @@
-import { Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { FormControl } from '@angular/forms';
 import { animate, style, transition, trigger } from '@angular/animations';
-import { BehaviorSubject, Subject } from 'rxjs';
-import { CombinedModel, DataModelingControllerService, EntityType, Relation } from '../api/generated/dms';
-import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
-import { Filter } from './model/common/filter';
+import { Component, ElementRef, Input, OnInit, ViewChild, ViewContainerRef } from '@angular/core';
+import { FormControl } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
-import { EntityDroppedEvent } from './model/events/entity-dropped-event';
-import { NodeChangedEvent } from './model/events/node-changed-event';
-import { PlsImportDialogComponent } from './dialogs/import-dialog/import-dialog.component';
+import { BehaviorSubject, Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { CombinedModel, DataModelingControllerService, EntityType, Relation } from '../api/generated/dms';
 import { LocalKnowledgeControllerService, UniversalKnowledgeGraphControllerService } from '../api/generated/kgs';
 import { ContextMenuService } from './context-menu/context-menu.service';
-import { ContextMenuEvent, ContextMenuEventType } from './model/events/context-menu-event';
-import { Nodes, SyntaxNode } from './model/configuration/node';
-import { Util } from './model/common/util';
-import { PlsOperationsDialogComponent } from './dialogs/operations-dialog/operations-dialog/operations-dialog.component';
 import { PlsConceptDialogComponent } from './dialogs/concept-dialog/concept-dialog.component';
+import { PlsImportDialogComponent } from './dialogs/import-dialog/import-dialog.component';
+import { PlsOperationsDialogComponent } from './dialogs/operations-dialog/operations-dialog/operations-dialog.component';
+import { Filter } from './model/common/filter';
+import { Util } from './model/common/util';
+import { Nodes, SyntaxNode } from './model/configuration/node';
+import { ContextMenuEvent, ContextMenuEventType } from './model/events/context-menu-event';
+import { EntityDroppedEvent } from './model/events/entity-dropped-event';
+import { NodeChangedEvent } from './model/events/node-changed-event';
 
 @Component({
   selector: 'pls-modeling',
@@ -26,19 +26,20 @@ import { PlsConceptDialogComponent } from './dialogs/concept-dialog/concept-dial
     trigger('search', [
       transition(':enter', [
         style({width: '0'}),
-        animate('300ms', style({width: '180px'})),
+        animate('300ms', style({width: '180px'}))
       ]),
       transition(':leave', [
         animate('300ms', style({width: '0'}))
       ])
-    ]),
+    ])
   ]
 })
-export class PlsModelingComponent implements OnInit, OnDestroy {
+export class PlsModelingComponent implements OnInit {
 
   readonly Filter = Filter;
 
   @Input() dataSource: string;
+  @Input() backgroundColor: string;
   @Input() fullScreen: boolean = true;
 
   @ViewChild('main') main;
@@ -71,14 +72,15 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
   addConceptDialogRef;
 
   get isFullscreen(): boolean {
-    return !!document.fullscreenElement;
+    return !!this.main?.fullScreenIsActive;
   }
 
   hasColors(): boolean {
     return this.primaryColor && this.primaryColorContrast && this.accentColor && this.accentColorContrast;
   }
 
-  constructor(private modelingService: DataModelingControllerService, private contextMenu: ContextMenuService, public dialog: MatDialog, private kgsService: UniversalKnowledgeGraphControllerService, private kgsModelService: LocalKnowledgeControllerService) {
+  constructor(private modelingService: DataModelingControllerService, private contextMenu: ContextMenuService, public dialog: MatDialog,
+              private kgsService: UniversalKnowledgeGraphControllerService, private kgsModelService: LocalKnowledgeControllerService, private viewContainerRef: ViewContainerRef) {
   }
 
   ngOnInit(): void {
@@ -122,12 +124,6 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
     });
   }
 
-  ngOnDestroy(): void {
-    if (document.fullscreenElement) {
-      document.exitFullscreen();
-    }
-  }
-
   getSchema(): void {
     this.modelingService.getCombinedModel(this.dataSource).subscribe((schema: CombinedModel) => {
         this.schema = schema;
@@ -151,12 +147,13 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
   }
 
   addConcepts(): void {
-    const parentHeight = getComputedStyle(this.main.nativeElement).height.replace('px', '');
+    const parentHeight = getComputedStyle(this.main._el.nativeElement).height.replace('px', '');
     if (this.addConceptDialogRef) {
       this.addConceptDialogRef.close();
       return;
     }
     this.addConceptDialogRef = this.dialog.open(PlsConceptDialogComponent, {
+      autoFocus: false,
       hasBackdrop: false,
       data: {
         dataSource: this.dataSource,
@@ -166,6 +163,7 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
       maxHeight: `${(+parentHeight - 70)}px`,
       maxWidth: '440px',
       closeOnNavigation: true,
+      viewContainerRef: this.viewContainerRef
     });
     this.addConceptDialogRef.afterClosed().subscribe(() => this.addConceptDialogRef = undefined);
   }
@@ -230,16 +228,6 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
 
   onExportOntology(): void {
     this.kgsService.getUpperOntology('turtle').subscribe((res) => Util.download('upperOntology.rdf', res));
-  }
-
-  toggleFullScreen(): void {
-    if (document) {
-      if (document.fullscreenElement) {
-        document.exitFullscreen();
-      } else {
-        document.documentElement.requestFullscreen();
-      }
-    }
   }
 
   finalizeModel(): void {

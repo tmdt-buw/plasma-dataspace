@@ -260,7 +260,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
         // turn off this trigger
         this.paper.off('render:done');
         if (this.initial) {
-          // on first view layout and center
+          // on first view layout
           this.layout();
           this.initial = false;
           setTimeout(() => this.center(), 100);
@@ -615,7 +615,8 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
       maxHeight: '90%',
       maxWidth: '500px',
       closeOnNavigation: true,
-      autoFocus: false
+      autoFocus: false,
+      viewContainerRef: this.viewContainerRef
     };
     switch (type) {
       case Nodes.syntaxNodeName:

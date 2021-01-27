@@ -34,7 +34,6 @@ public class DataSourceModel {
 	@Column
 	private String fileName;
 
-	@NotNull
 	public UUID getUuid() {
 		return uuid;
 	}
