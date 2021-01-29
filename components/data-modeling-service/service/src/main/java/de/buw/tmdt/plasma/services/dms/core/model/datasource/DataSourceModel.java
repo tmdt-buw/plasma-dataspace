@@ -74,7 +74,7 @@ public class DataSourceModel {
     @NotNull
     @SuppressFBWarnings("NP_NONNULL_RETURN_VIOLATION") // all values are not null
     public CombinedModel getCurrentModel() {
-        if (versionPointer == 0) {
+        if (versionPointer == 0 || combinedModelVersions.isEmpty()) {
             throw new UnsupportedOperationException("No model available.");
         }
         try {
