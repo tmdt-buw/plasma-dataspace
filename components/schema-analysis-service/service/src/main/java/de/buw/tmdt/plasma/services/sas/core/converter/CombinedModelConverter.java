@@ -137,7 +137,7 @@ public class CombinedModelConverter {
 
 		de.buw.tmdt.plasma.datamodel.syntaxmodel.ObjectNode root =
 				new de.buw.tmdt.plasma.datamodel.syntaxmodel.ObjectNode(
-						UUID.randomUUID().toString(), label, xCoordinate, yCoordinate, new ArrayList<>(), objectNode.isValid());
+						label, xCoordinate, yCoordinate, new ArrayList<>(), objectNode.isValid());
 
 		for (Map.Entry<String, Node> entry : objectNode.getChildren().entrySet()) {
 			createChild(root, entry.getValue(), entry.getKey(), serializationContext);
@@ -183,7 +183,8 @@ public class CombinedModelConverter {
 		for (int i = 0; i < componentDTOs.size() - 1; i++) {
 			SchemaNode fromComponentDTO = componentDTOs.get(i);
 			SchemaNode toComponentDTO = componentDTOs.get(i + 1);
-			serializationContext.edges.add(new Edge(fromComponentDTO.getUuid(), toComponentDTO.getUuid()));
+			Edge edge = new Edge(fromComponentDTO.getUuid(), toComponentDTO.getUuid());
+			serializationContext.edges.add(edge);
 		}
 
 		return root;

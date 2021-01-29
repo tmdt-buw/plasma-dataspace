@@ -10,6 +10,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * This node represents a node that is the root of an object.
@@ -28,8 +29,18 @@ public class ObjectNode extends SchemaNode {
         super(label, operations == null ? new ArrayList<>() : operations, isValid);
     }
 
-	@JsonCreator
-	public ObjectNode(
+    public ObjectNode(
+            @NotNull String label,
+            @Nullable Double xCoordinate,
+            @Nullable Double yCoordinate,
+            @NotNull List<SyntacticOperationDTO> operations,
+            boolean isValid
+    ) {
+        super(UUID.randomUUID().toString(), label, xCoordinate, yCoordinate, operations, isValid);
+    }
+
+    @JsonCreator
+    public ObjectNode(
             @NotNull @JsonProperty(UUID_PROPERTY) String uuid,
             @NotNull @JsonProperty(LABEL_PROPERTY) String label,
             @Nullable @JsonProperty(X_COORDINATE_PROPERTY) Double xCoordinate,
