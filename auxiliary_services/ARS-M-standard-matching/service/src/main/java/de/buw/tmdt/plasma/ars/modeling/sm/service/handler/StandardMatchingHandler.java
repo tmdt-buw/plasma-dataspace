@@ -35,7 +35,8 @@ public class StandardMatchingHandler {
 
 
     public StandardMatchingHandler(RuleDTOConverter ruleDTOConverter,
-                                   UniversalKnowledgeApiClient universalKnowledgeApiClient,
+                                   @SuppressWarnings({"SpringJavaInjectionPointsAutowiringInspection"})
+                                           UniversalKnowledgeApiClient universalKnowledgeApiClient,
                                    AnalysisRepository analysisRepository,
                                    StandardRepository standardRepository,
                                    KnowledgeGraphServiceDTO2CombinedModelConverter kgsDTO2CMConverter) {

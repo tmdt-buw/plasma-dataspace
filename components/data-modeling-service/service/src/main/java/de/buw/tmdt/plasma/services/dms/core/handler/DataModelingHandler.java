@@ -57,12 +57,18 @@ public class DataModelingHandler {
 
     @Autowired
     public DataModelingHandler(
+            @SuppressWarnings({"SpringJavaInjectionPointsAutowiringInspection"})
             @NotNull LocalKnowledgeApiClient localKnowledgeApiClient,
+            @SuppressWarnings({"SpringJavaInjectionPointsAutowiringInspection"})
             @NotNull UniversalKnowledgeApiClient universalKnowledgeApiClient,
             @NotNull KnowledgeGraphServiceDTO2CombinedModelConverter kgs2CMConverter,
             @NotNull DataSourceRepository dataSourceRepository,
+            @SuppressWarnings({"SpringJavaInjectionPointsAutowiringInspection"})
             @NotNull SchemaAnalysisApiClient schemaAnalysisApiClient,
-            @NotNull SemanticRecommendationApiClient semanticRecommendationApiClient, SchemaOperationDTOConverter schemaOperationDTOConverter, OperationLookUp operationLookUp) {
+            @SuppressWarnings({"SpringJavaInjectionPointsAutowiringInspection"})
+            @NotNull SemanticRecommendationApiClient semanticRecommendationApiClient,
+            @NotNull SchemaOperationDTOConverter schemaOperationDTOConverter,
+            @NotNull OperationLookUp operationLookUp) {
         this.localKnowledgeApiClient = localKnowledgeApiClient;
         this.universalKnowledgeApiClient = universalKnowledgeApiClient;
         this.kgs2CMConverter = kgs2CMConverter;
