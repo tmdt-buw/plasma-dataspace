@@ -278,9 +278,9 @@ public class EntityType extends PositionedCombinedModelElement implements Serial
     }
 
     public void validate() throws CombinedModelIntegrityException {
-        if (getLabel().length() < 3) {
-            throw new CombinedModelIntegrityException("Label of EntityType '" + getUuid() + "' must not be shorter than 3 characters.");
-        }
+        //if (getLabel().length() < 3) {
+        //throw new CombinedModelIntegrityException("Label of EntityType '" + getUuid() + "' must not be shorter than 3 characters.");
+        //}
         getEntityConcept().validate();
     }
 }
