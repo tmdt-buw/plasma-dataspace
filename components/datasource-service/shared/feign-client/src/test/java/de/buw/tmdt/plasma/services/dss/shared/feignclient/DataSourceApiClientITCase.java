@@ -15,7 +15,7 @@ import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @SpringBootTest(classes = DataSourceService.class, webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
-class DataSourceApiClientITTest {
+class DataSourceApiClientITCase {
 
     @Autowired
     DataSourceApiClient dataSourceApiClient;
