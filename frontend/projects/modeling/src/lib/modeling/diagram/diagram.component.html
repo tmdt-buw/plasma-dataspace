@@ -1,4 +1,4 @@
-<div fxFill class="canvas-container">
+<div fxFill class="canvas-container" #graphContainer>
   <div class="canvas" #graph cdkDropList [cdkDropListConnectedTo]="['entityList']"
        (cdkDropListEntered)="setEntityConcept($event.item.data)" (cdkDropListExited)="setEntityConcept(null)" (cdkDropListDropped)="entityDropped($event)" id="canvasContainer">
   </div>

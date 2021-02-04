@@ -1,4 +1,4 @@
-<div fxLayout="column" fxFill cdkDropListGroup #main>
+<div fxLayout="column" fxFill cdkDropListGroup #main="plsFullScreen" plsFullScreen [style.background-color]="backgroundColor">
   <div fxFlex="40px" fxLayout="row" fxLayoutAlign="space-between center" fxLayoutGap="5px" class="modeling-toolbar">
     <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="15px">
       <button mat-icon-button matTooltip="Undo" (click)="undo()">
@@ -36,7 +36,7 @@
       <button mat-icon-button matTooltip="more" [matMenuTriggerFor]="more">
         <mat-icon>more_vert</mat-icon>
       </button>
-      <button *ngIf="fullScreen" mat-icon-button matTooltip="Toggle fullscreen" (click)="toggleFullScreen()">
+      <button *ngIf="fullScreen" mat-icon-button matTooltip="Toggle fullscreen" (click)="main.toggleFullScreen()">
         <mat-icon *ngIf="isFullscreen">fullscreen_exit</mat-icon>
         <mat-icon *ngIf="!isFullscreen">fullscreen</mat-icon>
       </button>

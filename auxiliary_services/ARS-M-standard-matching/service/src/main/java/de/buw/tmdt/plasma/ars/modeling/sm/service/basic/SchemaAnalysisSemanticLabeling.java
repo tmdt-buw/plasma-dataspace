@@ -85,7 +85,7 @@ public class SchemaAnalysisSemanticLabeling {
 
     private void addEntityConcepts(@NotNull SetNode setNode, List<String> parentPath) throws SchemaAnalysisException {
         List<String> actualPath = new ArrayList<>(parentPath);
-        actualPath.add("*");
+        actualPath.add(setNode.getLabel());
         this.nodePaths.put(setNode.getUuid(), actualPath);
 
         List<SchemaNode> childNodes = syntaxModel.getChildNodesForNode(setNode.getUuid());
