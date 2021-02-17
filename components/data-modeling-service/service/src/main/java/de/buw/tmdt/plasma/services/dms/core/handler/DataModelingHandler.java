@@ -972,8 +972,18 @@ public class DataModelingHandler {
     @SuppressWarnings("SameParameterValue") // this might change
     @NotNull
     private CombinedModel getCombinedModel(@NotNull UUID dataSourceUuid, boolean modelWillBeModified) {
-        DataSourceModel dataSourceModel = findDataSourceOrThrow(dataSourceUuid);
-        return getCombinedModel(dataSourceModel, modelWillBeModified);
+        Optional<DataSourceModel> dataSourceModel = dataSourceRepository.findById(dataSourceUuid);
+        if (dataSourceModel.isPresent()) {
+            return getCombinedModel(dataSourceModel.get(), modelWillBeModified);
+        }
+        //Check if a model is available in the KGS
+        try {
+            SemanticModelDTO semanticModelByDataSourceId = localKnowledgeApiClient.findSemanticModelByDataSourceId(dataSourceUuid.toString());
+            SemanticModel model = kgs2CMConverter.convert(semanticModelByDataSourceId);
+            return new CombinedModel(dataSourceUuid.toString(), null, model);
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Semantic Model was not found");
+        }
     }
 
     @NotNull
