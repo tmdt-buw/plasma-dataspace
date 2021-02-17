@@ -329,8 +329,6 @@ public class StandardMatchingHandler {
                         if (syntaxNodeNamesAndTokens.contains(requiredPredecessors.get(entityConcept.getSourceURI()))) {
                             EntityType entityType = new EntityType(
                                     entityConcept.getLabel(),
-                                    0.0,
-                                    0.0,
                                     "",
                                     entityConcept
                             );
@@ -357,8 +355,6 @@ public class StandardMatchingHandler {
                                 if (syntaxNodeNamesAndTokens.contains(requiredPredecessors.get(entityConcept.getSourceURI()))) {
                                     EntityType entityType = new EntityType(
                                             entityConcept.getLabel(),
-                                            0.0,
-                                            0.0,
                                             "",
                                             entityConcept
                                     );
