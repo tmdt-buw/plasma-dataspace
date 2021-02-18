@@ -24,6 +24,11 @@ public class SyntaxModel implements Serializable {
 	private final ArrayList<SchemaNode> nodes;
 	private final ArrayList<Edge> edges;
 
+	public SyntaxModel() {
+		this.root = "";
+		this.nodes = new ArrayList<>();
+		this.edges = new ArrayList<>();
+	}
 
 	public SyntaxModel(
 			@JsonProperty(ROOT_PROPERTY) @NotNull String root,

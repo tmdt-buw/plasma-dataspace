@@ -974,13 +974,19 @@ public class DataModelingHandler {
     private CombinedModel getCombinedModel(@NotNull UUID dataSourceUuid, boolean modelWillBeModified) {
         Optional<DataSourceModel> dataSourceModel = dataSourceRepository.findById(dataSourceUuid);
         if (dataSourceModel.isPresent()) {
-            return getCombinedModel(dataSourceModel.get(), modelWillBeModified);
+            try {
+                return getCombinedModel(dataSourceModel.get(), modelWillBeModified);
+            } catch (Exception e) {
+                logger.warn("Could not get Combined Model in DMS, falling back to KGS:", e);
+            }
         }
         //Check if a model is available in the KGS
         try {
             SemanticModelDTO semanticModelByDataSourceId = localKnowledgeApiClient.findSemanticModelByDataSourceId(dataSourceUuid.toString());
             SemanticModel model = kgs2CMConverter.convert(semanticModelByDataSourceId);
-            return new CombinedModel(dataSourceUuid.toString(), null, model);
+            CombinedModel combinedModel = new CombinedModel(dataSourceUuid.toString(), null, model);
+            combinedModel.finalizeModel();
+            return combinedModel;
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Semantic Model was not found");
         }
