@@ -127,30 +127,30 @@ class SplitPrimitiveTest {
 				new Pair<>(primitiveNode, new ArrayList<>(splitters))
 		);
 
-		assertEquals(4, combinedModel.getSyntaxModel().getNodes().size());
-		assertEquals(3, combinedModel.getSyntaxModel().getEdges().size());
+        assertEquals(4, combinedModel.getSyntaxModel().getNodes().size());
+        assertEquals(3, combinedModel.getSyntaxModel().getEdges().size());
 
-		SchemaNode replacementCompositeNode = combinedModel.getSyntaxModel().getNodes().stream().filter(schemaNode -> schemaNode.getUuid().equals(primitiveNode.getUuid())).findFirst().orElseThrow();
+        SchemaNode replacementCompositeNode = combinedModel.getSyntaxModel().getNodes().stream().filter(schemaNode -> schemaNode.getUuid().equals(primitiveNode.getUuid())).findFirst().orElseThrow();
 
-		assertTrue(replacementCompositeNode instanceof CompositeNode, "New node has wrong type");
-		assertEquals(2, ((CompositeNode) replacementCompositeNode).getSplitter().size(), "Splitting is missing in new node");
-		assertEquals(primitiveNode.getCleansingPattern(), ((CompositeNode) replacementCompositeNode).getCleansingPattern(), "Cleansing patterns do not match");
+        assertTrue(replacementCompositeNode instanceof CompositeNode, "New node has wrong type");
+        assertEquals(2, ((CompositeNode) replacementCompositeNode).getSplitter().size(), "Splitting is missing in new node");
+        assertEquals(primitiveNode.getCleansingPattern(), ((CompositeNode) replacementCompositeNode).getCleansingPattern(), "Cleansing patterns do not match");
 
-		// get outgoing edges
-		List<Edge> newEdges = combinedModel.getSyntaxModel().getEdges().stream().filter(edge -> edge.getFrom().equals(replacementCompositeNode.getUuid())).collect(Collectors.toList());
+        // get outgoing edges
+        List<Edge> newEdges = combinedModel.getSyntaxModel().getEdges().stream().filter(edge -> edge.getFromId().equals(replacementCompositeNode.getUuid())).collect(Collectors.toList());
 
-		// get the generated nodes
-		List<String> generatedNodesUuids = newEdges.stream().map(Edge::getTo).collect(Collectors.toList());
-		List<PrimitiveNode> generatedNodes = combinedModel.getSyntaxModel().getNodes().stream()
-				.filter(schemaNode -> generatedNodesUuids.contains(schemaNode.getUuid()))
-				.map(schemaNode -> (PrimitiveNode) schemaNode)
-				.sorted(Comparator.comparing(CombinedModelElement::getLabel)).collect(Collectors.toList());
+        // get the generated nodes
+        List<String> generatedNodesUuids = newEdges.stream().map(Edge::getToId).collect(Collectors.toList());
+        List<PrimitiveNode> generatedNodes = combinedModel.getSyntaxModel().getNodes().stream()
+                .filter(schemaNode -> generatedNodesUuids.contains(schemaNode.getUuid()))
+                .map(schemaNode -> (PrimitiveNode) schemaNode)
+                .sorted(Comparator.comparing(CombinedModelElement::getLabel)).collect(Collectors.toList());
 
-		assertEquals(3, generatedNodes.size());
+        assertEquals(3, generatedNodes.size());
 
-		// validate example values of generated nodes
-		assertIterableEquals(expectedPrimitiveNodes.get(0).getExamples(), generatedNodes.get(0).getExamples(), "First generated nodes example values do not match");
-		assertIterableEquals(expectedPrimitiveNodes.get(1).getExamples(), generatedNodes.get(1).getExamples(), "Second generated nodes example values do not match");
+        // validate example values of generated nodes
+        assertIterableEquals(expectedPrimitiveNodes.get(0).getExamples(), generatedNodes.get(0).getExamples(), "First generated nodes example values do not match");
+        assertIterableEquals(expectedPrimitiveNodes.get(1).getExamples(), generatedNodes.get(1).getExamples(), "Second generated nodes example values do not match");
 		assertIterableEquals(expectedPrimitiveNodes.get(2).getExamples(), generatedNodes.get(2).getExamples(), "Third generated nodes example values do not match");
 	}
 }

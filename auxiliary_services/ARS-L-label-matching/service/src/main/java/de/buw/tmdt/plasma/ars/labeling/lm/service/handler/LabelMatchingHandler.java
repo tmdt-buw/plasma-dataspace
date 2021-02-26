@@ -54,11 +54,11 @@ public class LabelMatchingHandler {
                 et.setSyntaxNodeUuid(node.getUuid());
                 combined.getSemanticModel().getNodes().add(et);
                 // add a mapping from ET to node
-                Optional<Edge> firstEdge = syntaxModelDTO.getEdges().stream().filter(edgeDTO -> edgeDTO.getTo().equals(node.getUuid())).findFirst();
+                Optional<Edge> firstEdge = syntaxModelDTO.getEdges().stream().filter(edgeDTO -> edgeDTO.getToId().equals(node.getUuid())).findFirst();
                 if (firstEdge.isPresent()) {
                     // we got an edge, find where it comes from
                     Edge edge = firstEdge.get();
-                    Optional<SchemaNode> parentNode = syntaxModelDTO.getNodes().stream().filter(schemaNodeDTO -> schemaNodeDTO.getUuid().equals(edge.getFrom())).findFirst();
+                    Optional<SchemaNode> parentNode = syntaxModelDTO.getNodes().stream().filter(schemaNodeDTO -> schemaNodeDTO.getUuid().equals(edge.getFromId())).findFirst();
                     if (parentNode.isPresent()) {
                         PrimitiveEntityTypeMapping mapping = new PrimitiveEntityTypeMapping(
                                 node.getUuid(),

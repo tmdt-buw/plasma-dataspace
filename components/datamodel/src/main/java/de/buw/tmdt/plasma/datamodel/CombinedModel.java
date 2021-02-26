@@ -4,10 +4,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import de.buw.tmdt.plasma.datamodel.modification.DeltaModification;
 import de.buw.tmdt.plasma.datamodel.modification.operation.DataType;
-import de.buw.tmdt.plasma.datamodel.semanticmodel.EntityConcept;
-import de.buw.tmdt.plasma.datamodel.semanticmodel.EntityType;
-import de.buw.tmdt.plasma.datamodel.semanticmodel.RelationConcept;
-import de.buw.tmdt.plasma.datamodel.semanticmodel.SemanticModel;
+import de.buw.tmdt.plasma.datamodel.semanticmodel.*;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.*;
 import de.buw.tmdt.plasma.utilities.collections.CollectionUtilities;
 import de.buw.tmdt.plasma.utilities.misc.Pair;
@@ -21,6 +18,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * The combined model contains all elements that model the current state of the syntactic
@@ -63,11 +61,13 @@ public class CombinedModel implements Serializable {
      */
     @NotNull
     private final ArrayList<PrimitiveEntityTypeMapping> primitiveEntityTypeMappings;
+
     /**
      * Recommendations represent suggested modifications for the current state of models.
      */
     @NotNull
     private ArrayList<DeltaModification> recommendations;
+
     /**
      * A finalized model should not be changed any more.
      */
@@ -106,7 +106,7 @@ public class CombinedModel implements Serializable {
 
     ) {
         this.dataSourceUuid = dataSourceUuid;
-        this.syntaxModel = syntaxModel == null ? new SyntaxModel() : syntaxModel;
+        this.syntaxModel = syntaxModel;
         this.semanticModel = semanticModel == null ? new SemanticModel() : semanticModel;
         this.primitiveEntityTypeMappings = primitiveEntityTypeMappings == null ? new ArrayList<>() : new ArrayList<>(primitiveEntityTypeMappings);
         this.finalized = finalized;
@@ -237,9 +237,9 @@ public class CombinedModel implements Serializable {
                     // modify child nodes of the composite node
                     // find outgoing edges and construct map of edge -> target node
                     List<Pair<Edge, PrimitiveNode>> children = getSyntaxModel().getEdges().stream()
-                            .filter(edge -> edge.getFrom().equals(replacedCompositeNode.getUuid()))
+                            .filter(edge -> edge.getFromId().equals(replacedCompositeNode.getUuid()))
                             .map(edge -> Pair.of(edge, getSyntaxModel().getNodes().stream()
-                                    .filter(node -> edge.getTo().equals(node.getUuid()))
+                                    .filter(node -> edge.getToId().equals(node.getUuid()))
                                     .map(node -> (PrimitiveNode) node)
                                     .findFirst().orElseThrow()))
                             .collect(Collectors.toList());
@@ -473,7 +473,120 @@ public class CombinedModel implements Serializable {
      * Validates the state of the current model.
      */
     public void validate() {
+        List<String> errors = new ArrayList<>();
+        // 1. Validate syntax model
+        try {
+            getSyntaxModel().validate();
+        } catch (CombinedModelIntegrityException e) {
+            errors.add(e.getMessage());
+        }
+        // 2. Validate semantic model
+        try {
+            getSemanticModel().validate();
+        } catch (CombinedModelIntegrityException e) {
+            errors.add(e.getMessage());
+        }
+        // 3. Validate links between the models
+        getSemanticModel().getNodes().stream()
+                .filter(node -> node.getSyntaxNodeUuid() != null)
+                .forEach(node -> {
+                    if (getSyntaxModel().getNodes().stream().noneMatch(schemaNode -> schemaNode.getUuid().equals(node.getSyntaxNodeUuid()))) {
+                        errors.add("EntityType " + node.getUuid() + " references non-existing syntax node " + node.getSyntaxNodeUuid());
+                    }
+                });
+        // 4. Validate recommendations
+        validateRecommendations();
+        // 5. Validate generated frontend links
         // TODO
+
+        if (!errors.isEmpty()) {
+            String errorMessage = String.join("\n", errors);
+            throw new CombinedModelIntegrityException(errorMessage);
+        }
+    }
+
+    /**
+     * Validates if the given recommendations are sound.
+     */
+    public void validateRecommendations() {
+        List<String> errors = new ArrayList<>();
+
+        // uuids of all existing nodes (semantic + syntactic)
+        List<String> modelUuids = new ArrayList<>();
+        List<String> modelSyntaxUuids = getSyntaxModel().getNodes().stream()
+                .map(CombinedModelElement::getUuid)
+                .peek(modelUuids::add)
+                .collect(Collectors.toList());
+        List<String> modelSemanticUuids = getSemanticModel().getNodes().stream()
+                .map(CombinedModelElement::getUuid)
+                .peek(modelUuids::add)
+                .collect(Collectors.toList());
+
+        for (DeltaModification recommendation : getRecommendations()) {
+            // newly introduced uuids for this modification
+            ArrayList<String> recommendationUuids = new ArrayList<>(modelUuids);
+            List<String> recommendationSyntaxUuids = recommendation.getNodes().stream()
+                    .map(CombinedModelElement::getUuid)
+                    .peek(recommendationUuids::add)
+                    .collect(Collectors.toList());
+            List<String> recommendationSemanticUuids = recommendation.getEntities().stream()
+                    .map(CombinedModelElement::getUuid)
+                    .peek(recommendationUuids::add)
+                    .collect(Collectors.toList());
+
+            // Validate the state of this modification
+
+            for (Edge edge : recommendation.getEdges()) {
+                long fromCount = Stream.concat(modelSyntaxUuids.stream(), recommendationSyntaxUuids.stream())
+                        .filter(uuid -> Objects.equals(uuid, edge.getFromId())).count();
+                if (fromCount != 1) {
+                    errors.add("Edge " + edge.getUuid() + " fromId matches " + fromCount + " SchemaNodes (must be 1)");
+                }
+                long toCount = Stream.concat(modelSyntaxUuids.stream(), recommendationSyntaxUuids.stream())
+                        .filter(uuid -> Objects.equals(uuid, edge.getToId())).count();
+                if (toCount != 1) {
+                    errors.add("Edge " + edge.getUuid() + " toId matches " + toCount + " SchemaNodes (must be 1)");
+                }
+            }
+
+            for (EntityType entityType : recommendation.getEntities()) {
+                EntityConcept entityConcept = entityType.getEntityConcept();
+                if (entityConcept == null) {
+                    errors.add("EntityType " + entityType.getUuid() + " has no EntityConcept assigned");
+                }
+            }
+            for (Relation edge : recommendation.getRelations()) {
+                long fromCount = Stream.concat(modelSemanticUuids.stream(), recommendationSemanticUuids.stream())
+                        .filter(uuid -> Objects.equals(uuid, edge.getFromId())).count();
+                if (fromCount != 1) {
+                    errors.add("Relation " + edge.getUuid() + " fromId matches " + fromCount + " EntityTypes (must be 1)");
+                }
+                long toCount = Stream.concat(modelSemanticUuids.stream(), recommendationSemanticUuids.stream())
+                        .filter(uuid -> Objects.equals(uuid, edge.getToId())).count();
+                if (toCount != 1) {
+                    errors.add("Relation " + edge.getUuid() + " toId matches " + toCount + " EntityTypes (must be 1)");
+                }
+            }
+            // 3. Validate links between the models
+            recommendation.getEntities().stream()
+                    .filter(node -> node.getSyntaxNodeUuid() != null)
+                    .forEach(node -> {
+                        if (Stream.concat(modelSyntaxUuids.stream(), recommendationSyntaxUuids.stream())
+                                .noneMatch(uuid -> uuid.equals(node.getSyntaxNodeUuid()))) {
+                            errors.add("EntityType " + node.getUuid() + " references non-existing syntax node " + node.getSyntaxNodeUuid());
+                        }
+                    });
+
+
+            // 4. Validate anchors are valid existing syntax / semantic node ids
+
+            recommendation.getAnchors().stream().filter(anchor -> !modelUuids.contains(anchor))
+                    .forEach(anchor -> errors.add("No node found for anchor " + anchor + " in recommendation " + recommendation.getReference()));
+        }
+        if (!errors.isEmpty()) {
+            String errorMessage = String.join("\n", errors);
+            throw new CombinedModelIntegrityException(errorMessage);
+        }
     }
 
     @Override

@@ -24,13 +24,13 @@ public class Edge extends CombinedModelElement {
      * An identifier of the origin node, references to a {@link SchemaNode#getUuid()}.
      */
     @NotNull
-    private String from;
+    private String fromId;
 
     /**
      * An identifier of the target node, references to a {@link SchemaNode#getUuid()}.
      */
     @NotNull
-    private String to;
+    private String toId;
 
     /**
      * Optional additional annotation / information for this edge.
@@ -62,29 +62,29 @@ public class Edge extends CombinedModelElement {
             @JsonProperty(ANNOTATION_PROPERTY) @Nullable String annotation
     ) {
         super(uuid, label);
-        this.from = fromUuid;
-        this.to = toUuid;
+        this.fromId = fromUuid;
+        this.toId = toUuid;
         this.annotation = annotation;
     }
 
     @JsonProperty(FROM_PROPERTY)
     @NotNull
-    public String getFrom() {
-        return from;
+    public String getFromId() {
+        return fromId;
     }
 
-    public void setFrom(@NotNull String from) {
-        this.from = from;
+    public void setFromId(@NotNull String fromId) {
+        this.fromId = fromId;
     }
 
     @JsonProperty(TO_PROPERTY)
     @NotNull
-    public String getTo() {
-        return to;
+    public String getToId() {
+        return toId;
     }
 
-    public void setTo(@NotNull String to) {
-        this.to = to;
+    public void setToId(@NotNull String toId) {
+        this.toId = toId;
     }
 
     @Nullable
@@ -104,7 +104,7 @@ public class Edge extends CombinedModelElement {
      */
     @Override
     public Edge copy() {
-        return new Edge(getUuid(), getLabel(), getFrom(), getTo(), getAnnotation());
+        return new Edge(getUuid(), getLabel(), getFromId(), getToId(), getAnnotation());
     }
 
     @Override
@@ -129,8 +129,8 @@ public class Edge extends CombinedModelElement {
     public String toString() {
         return "{\"@class\":\"Edge\""
                 + ", \"uuid\":" + getUuid()
-                + ", \"from\":" + from
-                + ", \"to\":" + to
+                + ", \"from\":" + fromId
+                + ", \"to\":" + toId
                 + (annotation != null ? ", \"annotation\":" + annotation : "")
                 + '}';
     }

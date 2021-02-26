@@ -11,9 +11,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.Serializable;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 import static de.buw.tmdt.plasma.datamodel.syntaxmodel.SyntaxModel.EDGES_PROPERTY;
 import static de.buw.tmdt.plasma.datamodel.syntaxmodel.SyntaxModel.NODES_PROPERTY;
@@ -27,6 +25,7 @@ public class DeltaModification implements Serializable {
     private static final String DELETION_PROPERTY = "deletion";
     private static final String ENTITIES_PROPERTY = "entities";
     private static final String RELATIONS_PROPERTY = "relations";
+    private static final String ANCHORS_PROPERTY = "anchors";
     private static final String CONFIDENCE_PROPERTY = "confidence";
 
     /**
@@ -56,6 +55,13 @@ public class DeltaModification implements Serializable {
      */
     private Set<Edge> edges;
 
+    /**
+     * Lists the ids of anchor elements.
+     * An anchor is a node that belongs to the current state of the model and serves as a connection point
+     * for this modification. This list might be empty, e.g. in case a single new semantic node is added.
+     */
+    private List<String> anchors;
+
     private Double confidence;
 
     public DeltaModification(@NotNull String reference,
@@ -63,7 +69,7 @@ public class DeltaModification implements Serializable {
                              @Nullable Set<Relation> relations,
                              @Nullable Set<SchemaNode> nodes,
                              @Nullable Set<Edge> edges) {
-        this(reference, entities, relations, nodes, edges, 0.0);
+        this(reference, false, entities, relations, nodes, edges, null, 0.0);
     }
 
     public DeltaModification(@NotNull String reference,
@@ -72,12 +78,7 @@ public class DeltaModification implements Serializable {
                              @Nullable Set<SchemaNode> nodes,
                              @Nullable Set<Edge> edges,
                              @Nullable Double confidence) {
-        this.reference = reference;
-        this.entities = entities == null ? new HashSet<>() : entities;
-        this.relations = relations == null ? new HashSet<>() : relations;
-        this.nodes = nodes == null ? new HashSet<>() : nodes;
-        this.edges = edges == null ? new HashSet<>() : edges;
-        this.confidence = confidence;
+        this(reference, false, entities, relations, nodes, edges, null, confidence);
     }
 
     @JsonCreator
@@ -87,6 +88,7 @@ public class DeltaModification implements Serializable {
                              @Nullable @JsonProperty(RELATIONS_PROPERTY) Set<Relation> relations,
                              @Nullable @JsonProperty(NODES_PROPERTY) Set<SchemaNode> nodes,
                              @Nullable @JsonProperty(EDGES_PROPERTY) Set<Edge> edges,
+                             @Nullable @JsonProperty(ANCHORS_PROPERTY) List<String> anchors,
                              @Nullable @JsonProperty(CONFIDENCE_PROPERTY) Double confidence) {
         this.reference = reference;
         this.deletion = deletion;
@@ -94,6 +96,7 @@ public class DeltaModification implements Serializable {
         this.relations = relations == null ? new HashSet<>() : relations;
         this.nodes = nodes == null ? new HashSet<>() : nodes;
         this.edges = edges == null ? new HashSet<>() : edges;
+        this.anchors = anchors == null ? new ArrayList<>() : anchors;
         this.confidence = confidence;
     }
 
@@ -108,24 +111,34 @@ public class DeltaModification implements Serializable {
         return deletion;
     }
 
+    @NotNull
     @JsonProperty(ENTITIES_PROPERTY)
     public Set<EntityType> getEntities() {
         return entities;
     }
 
+    @NotNull
     @JsonProperty(RELATIONS_PROPERTY)
     public Set<Relation> getRelations() {
         return relations;
     }
 
+    @NotNull
     @JsonProperty(NODES_PROPERTY)
     public Set<SchemaNode> getNodes() {
         return nodes;
     }
 
+    @NotNull
     @JsonProperty(EDGES_PROPERTY)
     public Set<Edge> getEdges() {
         return edges;
+    }
+
+    @NotNull
+    @JsonProperty(ANCHORS_PROPERTY)
+    public List<String> getAnchors() {
+        return anchors;
     }
 
     @Nullable
@@ -154,8 +167,22 @@ public class DeltaModification implements Serializable {
         this.edges = edges;
     }
 
+    public void setAnchors(List<String> anchors) {
+        this.anchors = anchors;
+    }
+
     public void setConfidence(Double confidence) {
         this.confidence = confidence;
+    }
+
+    /**
+     * Checks if a given id is set as an anchor for this modification.
+     *
+     * @param id The element id to check.
+     * @return true if the id is listed as an anchor node, false otherwise
+     */
+    public boolean hasAnchor(String id) {
+        return anchors.contains(id);
     }
 
     /**
@@ -179,6 +206,7 @@ public class DeltaModification implements Serializable {
                 CollectionUtilities.map(getEdges(),
                         Edge::copy,
                         HashSet::new),
+                new ArrayList<>(anchors),
                 getConfidence()
         );
     }
@@ -205,10 +233,10 @@ public class DeltaModification implements Serializable {
         return "DeltaModification{" +
                 "reference='" + reference + '\'' +
                 ". deletion=" + isDeletion() +
-                ", entities=" + entities.size() +
-                ", relations=" + relations.size() +
-                ", modes=" + (getNodes() != null ? getNodes().size() : 0) +
-                ", edges=" + (getEdges() != null ? getEdges().size() : 0) +
+                ", entities=" + getEntities().size() +
+                ", relations=" + getRelations().size() +
+                ", modes=" + getNodes().size() +
+                ", edges=" + getEdges().size() +
                 ", confidence=" + confidence +
                 '}';
     }

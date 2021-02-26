@@ -2,6 +2,7 @@ package de.buw.tmdt.plasma.datamodel.syntaxmodel;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import de.buw.tmdt.plasma.datamodel.CombinedModelIntegrityException;
 import de.buw.tmdt.plasma.utilities.collections.CollectionUtilities;
 import de.buw.tmdt.plasma.utilities.misc.StringUtilities;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -66,10 +67,10 @@ public class SyntaxModel implements Serializable {
     @JsonIgnore
     public SchemaNode getParentNodeFor(String nodeUuid) {
         Edge edgeToParent = getEdges().stream()
-                .filter(edge -> edge.getTo().equals(nodeUuid))
+		        .filter(edge -> edge.getToId().equals(nodeUuid))
                 .findFirst().orElseThrow();
         return getNodes().stream()
-                .filter(schemaNode -> schemaNode.getUuid().equals(edgeToParent.getFrom()))
+		        .filter(schemaNode -> schemaNode.getUuid().equals(edgeToParent.getFromId()))
                 .findFirst().orElseThrow();
     }
 
@@ -78,12 +79,12 @@ public class SyntaxModel implements Serializable {
     @JsonIgnore
     public List<SchemaNode> getChildNodesForNode(String nodeUuid) {
         List<String> childNodeUuids = getEdges().stream()
-                .filter(edge -> edge.getFrom().equals(nodeUuid))
-                .map(Edge::getTo)
+		        .filter(edge -> edge.getFromId().equals(nodeUuid))
+		        .map(Edge::getToId)
                 .collect(Collectors.toList());
-        return getNodes().stream()
-                .filter(schemaNode -> childNodeUuids.contains(schemaNode.getUuid()))
-                .collect(Collectors.toList());
+	    return getNodes().stream()
+			    .filter(schemaNode -> childNodeUuids.contains(schemaNode.getUuid()))
+			    .collect(Collectors.toList());
     }
 
 	@JsonIgnore
@@ -91,6 +92,31 @@ public class SyntaxModel implements Serializable {
 		return getNodes().stream()
 				.filter(schemaNode -> nodeUuid.equals(schemaNode.getUuid()))
 				.findFirst().orElse(null);
+	}
+
+	/**
+	 * Validates the internal integrity of the {@link SyntaxModel}
+	 * Checks that:
+	 * 1. All {@link Edge}s have valid (existing and unique) 'from' and 'to' ids matching existing {@link SchemaNode} ids
+	 *
+	 * @throws CombinedModelIntegrityException If one or more errors occur
+	 */
+	public void validate() throws CombinedModelIntegrityException {
+		List<String> errors = new ArrayList<>();
+		for (Edge edge : getEdges()) {
+			long fromCount = getNodes().stream().filter(schemaNode -> Objects.equals(schemaNode.getUuid(), edge.getFromId())).count();
+			if (fromCount != 1) {
+				errors.add("Edge " + edge.getUuid() + " fromId matches " + fromCount + " SchemaNodes (must be 1)");
+			}
+			long toCount = getNodes().stream().filter(entityType -> Objects.equals(entityType.getUuid(), edge.getToId())).count();
+			if (toCount != 1) {
+				errors.add("Edge " + edge.getUuid() + " toId matches " + toCount + " SchemaNodes (must be 1)");
+			}
+		}
+		if (!errors.isEmpty()) {
+			String errorMessage = String.join("\n", errors);
+			throw new CombinedModelIntegrityException(errorMessage);
+		}
 	}
 
 	/**

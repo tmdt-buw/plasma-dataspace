@@ -127,11 +127,10 @@ public class SemanticModel implements Serializable {
 	}
 
 	/**
-	 * Validates the interal integrity of the {@link SemanticModel}
+	 * Validates the internal integrity of the {@link SemanticModel}
 	 * Checks that:
-	 * 1. All {@link EntityType}s have an {@link EntityConcept} assigend
+	 * 1. All {@link EntityType}s have an {@link EntityConcept} assigned
 	 * 2. All Relations have valid (existing and unique) 'from' and 'to' ids matching existing EntityType ids
-	 * 3. All Relations have a {@link RelationConcept} assigned
 	 *
 	 * @throws CombinedModelIntegrityException If one or more errors occur
 	 */
@@ -151,10 +150,6 @@ public class SemanticModel implements Serializable {
 			long toCount = getNodes().stream().filter(entityType -> Objects.equals(entityType.getUuid(), edge.getToId())).count();
 			if (toCount != 1) {
 				errors.add("Relation " + edge.getUuid() + " toId matches " + toCount + " EntityTypes (must be 1)");
-			}
-			RelationConcept concept = edge.getConcept();
-			if (concept == null) {
-				errors.add("Relation " + edge.getUuid() + " has no RelationConcept assigned");
 			}
 		}
 		if (!errors.isEmpty()) {

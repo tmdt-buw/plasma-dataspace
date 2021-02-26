@@ -59,7 +59,7 @@ public class CombinedModelSyntacticModificationTest {
         assertTrue(model.getPrimitiveEntityTypeMappings().stream().noneMatch(primitiveEntityTypeMapping -> primitiveEntityTypeMapping.getPrimitiveUUID().equals(identNode.getUuid())), "Explicit mapping to old node has not been removed");
 
         // get outgoing edges
-        List<Edge> newEdges = model.getSyntaxModel().getEdges().stream().filter(edge -> edge.getFrom().equals(compositeNode.getUuid())).collect(Collectors.toList());
+        List<Edge> newEdges = model.getSyntaxModel().getEdges().stream().filter(edge -> edge.getFromId().equals(compositeNode.getUuid())).collect(Collectors.toList());
 
         assertEquals(expectedNewEdgesCount, newEdges.size(), "Missing created edges or edges not properly instantiated");
 
@@ -73,7 +73,7 @@ public class CombinedModelSyntacticModificationTest {
             Pair<String, List<String>> currentPair = tokenToStrings.stream().filter(pair -> Objects.equals(newEdge.getAnnotation(), pair.getLeft()))
                     .findFirst().orElseThrow();
             PrimitiveNode generatedNode = model.getSyntaxModel().getNodes().stream()
-                    .filter(schemaNode -> newEdge.getTo().equals(schemaNode.getUuid()))
+                    .filter(schemaNode -> newEdge.getToId().equals(schemaNode.getUuid()))
                     .map(schemaNode -> (PrimitiveNode) schemaNode)
                     .findFirst().orElseThrow();
             // validate example values of generated node
@@ -126,8 +126,8 @@ public class CombinedModelSyntacticModificationTest {
         assertEquals(model.getSyntaxModel().getEdges().size() + expectedNewEdgesCount, modifiedModel.getSyntaxModel().getEdges().size(), "Number of expected edges does not match");
 
         // get outgoing edges
-        List<Edge> newEdges = modifiedModel.getSyntaxModel().getEdges().stream().filter(edge -> edge.getFrom().equals(compositeNode.getUuid())).collect(Collectors.toList());
-        List<Edge> oldEdges = model.getSyntaxModel().getEdges().stream().filter(edge -> edge.getFrom().equals(compositeNode.getUuid())).collect(Collectors.toList());
+        List<Edge> newEdges = modifiedModel.getSyntaxModel().getEdges().stream().filter(edge -> edge.getFromId().equals(compositeNode.getUuid())).collect(Collectors.toList());
+        List<Edge> oldEdges = model.getSyntaxModel().getEdges().stream().filter(edge -> edge.getFromId().equals(compositeNode.getUuid())).collect(Collectors.toList());
 
         assertEquals(oldEdges.size() + expectedNewEdgesCount, newEdges.size(), "Missing created edges or edges not properly instantiated");
 
@@ -142,7 +142,7 @@ public class CombinedModelSyntacticModificationTest {
             Pair<String, List<String>> currentPair = tokenToStrings.stream().filter(pair -> Objects.equals(newEdge.getAnnotation(), pair.getLeft()))
                     .findFirst().orElseThrow();
             PrimitiveNode generatedNode = modifiedModel.getSyntaxModel().getNodes().stream()
-                    .filter(schemaNode -> newEdge.getTo().equals(schemaNode.getUuid()))
+                    .filter(schemaNode -> newEdge.getToId().equals(schemaNode.getUuid()))
                     .map(schemaNode -> (PrimitiveNode) schemaNode)
                     .findFirst().orElseThrow();
             // validate example values of generated node

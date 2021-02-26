@@ -175,8 +175,8 @@ public class CombinedModelConverter {
 		}
 
 		final List<@NotNull SchemaNode> componentDTOs = serializationContext.edges.stream()
-				.filter(edgeDTO -> edgeDTO.getFrom().equals(compositeNode.getUuid().toString()))
-				.map(Edge::getTo)
+                .filter(edgeDTO -> edgeDTO.getFromId().equals(compositeNode.getUuid().toString()))
+                .map(Edge::getToId)
 				.map(serializationContext.nodeLookUp::get)
 				.collect(Collectors.toList());
 
