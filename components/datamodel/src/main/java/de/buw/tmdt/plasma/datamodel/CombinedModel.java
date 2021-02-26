@@ -474,19 +474,20 @@ public class CombinedModel implements Serializable {
      */
     public void validate() {
         List<String> errors = new ArrayList<>();
-        // 1. Validate syntax model
+        // Validate syntax model
         try {
             getSyntaxModel().validate();
         } catch (CombinedModelIntegrityException e) {
             errors.add(e.getMessage());
         }
-        // 2. Validate semantic model
+        // Validate semantic model
         try {
             getSemanticModel().validate();
         } catch (CombinedModelIntegrityException e) {
             errors.add(e.getMessage());
         }
-        // 3. Validate links between the models
+
+        // Validate links between the models
         getSemanticModel().getNodes().stream()
                 .filter(node -> node.getSyntaxNodeUuid() != null)
                 .forEach(node -> {
@@ -494,9 +495,9 @@ public class CombinedModel implements Serializable {
                         errors.add("EntityType " + node.getUuid() + " references non-existing syntax node " + node.getSyntaxNodeUuid());
                     }
                 });
-        // 4. Validate recommendations
+        // Validate recommendations
         validateRecommendations();
-        // 5. Validate generated frontend links
+        // Validate generated frontend links
         // TODO
 
         if (!errors.isEmpty()) {
@@ -550,17 +551,14 @@ public class CombinedModel implements Serializable {
                     .collect(Collectors.toList());
 
             // Validate the state of this modification
-
             for (Edge edge : recommendation.getEdges()) {
-                long fromCount = Stream.concat(modelSyntaxUuids.stream(), recommendationSyntaxUuids.stream())
-                        .filter(uuid -> Objects.equals(uuid, edge.getFromId())).count();
-                if (fromCount != 1) {
-                    errors.add("Edge " + edge.getUuid() + " fromId matches " + fromCount + " SchemaNodes (must be 1)");
+                if (Stream.concat(modelSyntaxUuids.stream(), recommendationSyntaxUuids.stream())
+                        .noneMatch(uuid -> Objects.equals(uuid, edge.getFromId()))) {
+                    errors.add("Edge " + edge.getUuid() + " fromId matches " + 0 + " SchemaNodes (must be >= 1)");
                 }
-                long toCount = Stream.concat(modelSyntaxUuids.stream(), recommendationSyntaxUuids.stream())
-                        .filter(uuid -> Objects.equals(uuid, edge.getToId())).count();
-                if (toCount != 1) {
-                    errors.add("Edge " + edge.getUuid() + " toId matches " + toCount + " SchemaNodes (must be 1)");
+                if (Stream.concat(modelSyntaxUuids.stream(), recommendationSyntaxUuids.stream())
+                        .noneMatch(uuid -> Objects.equals(uuid, edge.getToId()))) {
+                    errors.add("Edge " + edge.getUuid() + " toId matches " + 0 + " SchemaNodes (must be >= 1)");
                 }
             }
 
@@ -571,18 +569,16 @@ public class CombinedModel implements Serializable {
                 }
             }
             for (Relation edge : recommendation.getRelations()) {
-                long fromCount = Stream.concat(modelSemanticUuids.stream(), recommendationSemanticUuids.stream())
-                        .filter(uuid -> Objects.equals(uuid, edge.getFromId())).count();
-                if (fromCount != 1) {
-                    errors.add("Relation " + edge.getUuid() + " fromId matches " + fromCount + " EntityTypes (must be 1)");
+                if (Stream.concat(modelSemanticUuids.stream(), recommendationSemanticUuids.stream())
+                        .noneMatch(uuid -> Objects.equals(uuid, edge.getFromId()))) {
+                    errors.add("Relation " + edge.getUuid() + " fromId matches " + 0 + " EntityTypes (must be >= 1)");
                 }
-                long toCount = Stream.concat(modelSemanticUuids.stream(), recommendationSemanticUuids.stream())
-                        .filter(uuid -> Objects.equals(uuid, edge.getToId())).count();
-                if (toCount != 1) {
-                    errors.add("Relation " + edge.getUuid() + " toId matches " + toCount + " EntityTypes (must be 1)");
+                if (Stream.concat(modelSemanticUuids.stream(), recommendationSemanticUuids.stream())
+                        .noneMatch(uuid -> Objects.equals(uuid, edge.getToId()))) {
+                    errors.add("Relation " + edge.getUuid() + " toId matches " + 0 + " EntityTypes (must be >=1 )");
                 }
             }
-            // 3. Validate links between the models
+            // Validate links between the models
             recommendation.getEntities().stream()
                     .filter(node -> node.getSyntaxNodeUuid() != null)
                     .forEach(node -> {
@@ -593,7 +589,7 @@ public class CombinedModel implements Serializable {
                     });
 
 
-            // 4. Validate anchors are valid existing syntax / semantic node ids
+            // Validate anchors are valid existing syntax / semantic node ids
 
             recommendation.getAnchors().stream().filter(anchor -> !modelUuids.contains(anchor))
                     .forEach(anchor -> errors.add("No node found for anchor " + anchor + " in recommendation " + recommendation.getReference()));
