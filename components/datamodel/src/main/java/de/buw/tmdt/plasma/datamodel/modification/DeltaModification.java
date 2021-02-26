@@ -41,18 +41,22 @@ public class DeltaModification implements Serializable {
     /**
      * The set of modified semantic entities.
      */
+    @NotNull
     private Set<EntityType> entities;
     /**
      * The set of modified semantic relations.
      */
+    @NotNull
     private Set<Relation> relations;
     /**
      * The set of modified syntactic nodes.
      */
+    @NotNull
     private Set<SchemaNode> nodes;
     /**
      * The set of modified syntactic edges.
      */
+    @NotNull
     private Set<Edge> edges;
 
     /**
@@ -60,6 +64,7 @@ public class DeltaModification implements Serializable {
      * An anchor is a node that belongs to the current state of the model and serves as a connection point
      * for this modification. This list might be empty, e.g. in case a single new semantic node is added.
      */
+    @NotNull
     private List<String> anchors;
 
     private Double confidence;
@@ -151,23 +156,23 @@ public class DeltaModification implements Serializable {
         this.deletion = deletion;
     }
 
-    public void setEntities(Set<EntityType> entities) {
+    public void setEntities(@NotNull Set<EntityType> entities) {
         this.entities = entities;
     }
 
-    public void setRelations(Set<Relation> relations) {
+    public void setRelations(@NotNull Set<Relation> relations) {
         this.relations = relations;
     }
 
-    public void setNodes(Set<SchemaNode> nodes) {
+    public void setNodes(@NotNull Set<SchemaNode> nodes) {
         this.nodes = nodes;
     }
 
-    public void setEdges(Set<Edge> edges) {
+    public void setEdges(@NotNull Set<Edge> edges) {
         this.edges = edges;
     }
 
-    public void setAnchors(List<String> anchors) {
+    public void setAnchors(@NotNull List<String> anchors) {
         this.anchors = anchors;
     }
 
