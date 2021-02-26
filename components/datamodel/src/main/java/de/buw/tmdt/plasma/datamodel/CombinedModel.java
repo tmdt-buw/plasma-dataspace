@@ -13,10 +13,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -191,6 +188,9 @@ public class CombinedModel implements Serializable {
         if (finalized || syntaxModel == null) {
             throw new UnsupportedOperationException("Model is finalized. No more modifications possible");
         }
+        // check if this modification contains any inconsistencies
+        validateModification(delta);
+
         // apply syntactic modifications
         // update nodes
         List<SchemaNode> nodesToBeReplaced = new ArrayList<>();
@@ -506,9 +506,27 @@ public class CombinedModel implements Serializable {
     }
 
     /**
-     * Validates if the given recommendations are sound.
+     * Validates if the recommendations contained in this model are sound.
      */
     public void validateRecommendations() {
+        validateModifications(getRecommendations());
+    }
+
+    /**
+     * Validates if the given modification is sound.
+     *
+     * @param modification The {@link DeltaModification} to check
+     */
+    public void validateModification(DeltaModification modification) {
+        validateModifications(Collections.singletonList(modification));
+    }
+
+    /**
+     * Validates if the given modifications are sound.
+     *
+     * @param modifications The {@link DeltaModification}s to check
+     */
+    public void validateModifications(Iterable<DeltaModification> modifications) {
         List<String> errors = new ArrayList<>();
 
         // uuids of all existing nodes (semantic + syntactic)
@@ -522,16 +540,13 @@ public class CombinedModel implements Serializable {
                 .peek(modelUuids::add)
                 .collect(Collectors.toList());
 
-        for (DeltaModification recommendation : getRecommendations()) {
+        for (DeltaModification recommendation : modifications) {
             // newly introduced uuids for this modification
-            ArrayList<String> recommendationUuids = new ArrayList<>(modelUuids);
             List<String> recommendationSyntaxUuids = recommendation.getNodes().stream()
                     .map(CombinedModelElement::getUuid)
-                    .peek(recommendationUuids::add)
                     .collect(Collectors.toList());
             List<String> recommendationSemanticUuids = recommendation.getEntities().stream()
                     .map(CombinedModelElement::getUuid)
-                    .peek(recommendationUuids::add)
                     .collect(Collectors.toList());
 
             // Validate the state of this modification
