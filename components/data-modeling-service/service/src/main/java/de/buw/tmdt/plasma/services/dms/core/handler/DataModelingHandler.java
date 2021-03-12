@@ -295,7 +295,7 @@ public class DataModelingHandler {
 
         persistCombinedModel(dataSourceModel, modifiedModel);
         prepareForFrontend(modifiedModel);
-        return combinedModel;
+        return modifiedModel;
     }
 
     private void prepareForFrontend(CombinedModel combinedModel) {
