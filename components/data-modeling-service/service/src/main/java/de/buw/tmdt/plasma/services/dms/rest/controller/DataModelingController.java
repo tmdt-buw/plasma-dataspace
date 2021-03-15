@@ -50,7 +50,9 @@ public class DataModelingController implements DataModelingAPI {
     @Override
     @Operation(description = "Returns the current schema of the specified data source.")
     public CombinedModel getCombinedModel(@NotNull String dataSourceUuid) {
-        return dataModelingHandler.getCombinedModel(UUID.fromString(dataSourceUuid));
+        CombinedModel combinedModel = dataModelingHandler.getCombinedModel(UUID.fromString(dataSourceUuid));
+        dataModelingHandler.prepareForFrontend(combinedModel);
+        return combinedModel;
     }
 
     @Override
@@ -77,7 +79,9 @@ public class DataModelingController implements DataModelingAPI {
     @Override
     @Operation(description = "Modify the syntactic schema of a datasource by invoking an operation.")
     public CombinedModel modifySchema(@NotNull String dataSourceUuid, @NotNull SyntacticOperationDTO syntacticOperationDTO) {
-        return dataModelingHandler.modifySyntaxModel(UUID.fromString(dataSourceUuid), syntacticOperationDTO);
+        CombinedModel combinedModel = dataModelingHandler.modifySyntaxModel(UUID.fromString(dataSourceUuid), syntacticOperationDTO);
+        dataModelingHandler.prepareForFrontend(combinedModel);
+        return combinedModel;
     }
 
     @Override
@@ -132,6 +136,7 @@ public class DataModelingController implements DataModelingAPI {
         CombinedModel combinedModel = dataModelingHandler.addEntityType(UUID.fromString(dataSourceUuid), entityType, primitiveNodeUuid);
         // request recommendations
         combinedModel = dataModelingHandler.requestRecommendations(dataSourceUuid, combinedModel);
+        dataModelingHandler.prepareForFrontend(combinedModel);
         return combinedModel;
     }
 
@@ -143,7 +148,9 @@ public class DataModelingController implements DataModelingAPI {
             @NotNull String entityTypeId,
             @NotNull EntityType entityType
     ) {
-        return dataModelingHandler.updateEntityType(UUID.fromString(dataSourceUuid), entityTypeId, entityType);
+        CombinedModel combinedModel = dataModelingHandler.updateEntityType(UUID.fromString(dataSourceUuid), entityTypeId, entityType);
+        dataModelingHandler.prepareForFrontend(combinedModel);
+        return combinedModel;
     }
 
     @NotNull
@@ -153,6 +160,7 @@ public class DataModelingController implements DataModelingAPI {
 
         // request recommendations
         model = dataModelingHandler.requestRecommendations(dataSourceUuid, model);
+        dataModelingHandler.prepareForFrontend(model);
         return model;
     }
 
@@ -170,14 +178,19 @@ public class DataModelingController implements DataModelingAPI {
     @Override
     @Operation(description = "Removes an entity type.")
     public CombinedModel removeEntityType(@NotNull String dataSourceUuid, @NotNull String entityTypeId) {
-        return dataModelingHandler.removeEntityTypeFromModel(UUID.fromString(dataSourceUuid), entityTypeId);
+        CombinedModel combinedModel = dataModelingHandler.removeEntityTypeFromModel(UUID.fromString(dataSourceUuid), entityTypeId);
+        dataModelingHandler.prepareForFrontend(combinedModel);
+        return combinedModel;
     }
 
     @NotNull
     @Override
     @Operation(description = "Adds a relation and caches or creates the referenced relation concept if it is not present yet.")
     public CombinedModel addRelation(@NotNull String dataSourceUuid, @NotNull Relation relation) {
-        return dataModelingHandler.addRelation(UUID.fromString(dataSourceUuid), relation);
+
+        CombinedModel combinedModel = dataModelingHandler.addRelation(UUID.fromString(dataSourceUuid), relation);
+        dataModelingHandler.prepareForFrontend(combinedModel);
+        return combinedModel;
     }
 
     @NotNull
@@ -188,28 +201,36 @@ public class DataModelingController implements DataModelingAPI {
             @NotNull String relationId,
             @NotNull Relation relationDto
     ) {
-        return dataModelingHandler.updateRelation(UUID.fromString(dataSourceUuid), relationId, relationDto);
+        CombinedModel combinedModel = dataModelingHandler.updateRelation(UUID.fromString(dataSourceUuid), relationId, relationDto);
+        dataModelingHandler.prepareForFrontend(combinedModel);
+        return combinedModel;
     }
 
     @NotNull
     @Override
     @Operation(description = "Removes a relation.")
     public CombinedModel removeRelation(@NotNull String dataSourceUuid, @NotNull String entityTypeId) {
-        return dataModelingHandler.removeRelationFromModel(UUID.fromString(dataSourceUuid), entityTypeId);
+        CombinedModel combinedModel = dataModelingHandler.removeRelationFromModel(UUID.fromString(dataSourceUuid), entityTypeId);
+        dataModelingHandler.prepareForFrontend(combinedModel);
+        return combinedModel;
     }
 
     @NotNull
     @Override
     @Operation(description = "pop last element from datasource's schema stack")
     public CombinedModel undoModification(@NotNull String dataSourceUuid) {
-        return dataModelingHandler.undoModelModification(UUID.fromString(dataSourceUuid));
+        CombinedModel combinedModel = dataModelingHandler.undoModelModification(UUID.fromString(dataSourceUuid));
+        dataModelingHandler.prepareForFrontend(combinedModel);
+        return combinedModel;
     }
 
     @NotNull
     @Override
     @Operation(description = "push last element from datasource's schema stack")
     public CombinedModel redoModification(@NotNull String dataSourceUuid) {
-        return dataModelingHandler.redoModelModification(UUID.fromString(dataSourceUuid));
+        CombinedModel combinedModel = dataModelingHandler.redoModelModification(UUID.fromString(dataSourceUuid));
+        dataModelingHandler.prepareForFrontend(combinedModel);
+        return combinedModel;
     }
 
     @NotNull
@@ -224,10 +245,5 @@ public class DataModelingController implements DataModelingAPI {
     public void deleteModel(@NotNull String dataSourceUuid) {
         UUID uuid = UUID.fromString(dataSourceUuid);
         dataModelingHandler.deleteModel(uuid);
-    }
-
-    private void prepareForFrontend(CombinedModel model) {
-        // add syntactic operations
-
     }
 }

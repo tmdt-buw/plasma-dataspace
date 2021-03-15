@@ -161,9 +161,7 @@ public class DataModelingHandler {
 
     public @NotNull CombinedModel getCombinedModel(@NotNull UUID dataSourceUuid) {
 
-        CombinedModel combinedModel = getCombinedModel(dataSourceUuid, false);
-        prepareForFrontend(combinedModel);
-        return combinedModel;
+        return getCombinedModel(dataSourceUuid, false);
     }
 
     /**
@@ -294,11 +292,10 @@ public class DataModelingHandler {
         }
 
         persistCombinedModel(dataSourceModel, modifiedModel);
-        prepareForFrontend(modifiedModel);
         return modifiedModel;
     }
 
-    private void prepareForFrontend(CombinedModel combinedModel) {
+    public void prepareForFrontend(CombinedModel combinedModel) {
         // add syntactic operations
         parameterDefinitionLookup = operationLookUp.getOperationHandles(combinedModel);
 
@@ -342,9 +339,7 @@ public class DataModelingHandler {
 
         DeltaModification modification = new DeltaModification("internal_mod", Collections.singleton(entityType), null, null, null, 0.0);
 
-        CombinedModel combinedModel = applyModification(dataSourceUuid, modification);
-        prepareForFrontend(combinedModel);
-        return combinedModel;
+        return applyModification(dataSourceUuid, modification);
     }
 
     /**
@@ -368,9 +363,7 @@ public class DataModelingHandler {
 
         DeltaModification modification = new DeltaModification("internal_mod", Collections.singleton(entityType), null, null, null, 0.0);
 
-        CombinedModel combinedModel = applyModification(dataSourceUuid, modification);
-        prepareForFrontend(combinedModel);
-        return combinedModel;
+        return applyModification(dataSourceUuid, modification);
 
     }
 
@@ -424,9 +417,7 @@ public class DataModelingHandler {
         DeltaModification modification = new DeltaModification("internal_mod", Collections.singleton(entityType), null, null, null, 0.0);
         modification.setDeletion(true);
 
-        CombinedModel combinedModel = applyModification(dataSourceUuid, modification);
-        prepareForFrontend(combinedModel);
-        return combinedModel;
+        return applyModification(dataSourceUuid, modification);
     }
 
     /**
@@ -443,9 +434,7 @@ public class DataModelingHandler {
 
         DeltaModification modification = new DeltaModification("internal_mod", null, Collections.singleton(relation), null, null, 0.0);
 
-        CombinedModel combinedModel = applyModification(dataSourceUuid, modification);
-        prepareForFrontend(combinedModel);
-        return combinedModel;
+        return applyModification(dataSourceUuid, modification);
     }
 
     /**
@@ -467,9 +456,7 @@ public class DataModelingHandler {
             );
         }
         DeltaModification modification = new DeltaModification("internal_mod", null, Collections.singleton(relation), null, null, 0.0);
-        CombinedModel combinedModel = applyModification(dataSourceUuid, modification);
-        prepareForFrontend(combinedModel);
-        return combinedModel;
+        return applyModification(dataSourceUuid, modification);
     }
 
     /**
@@ -487,7 +474,6 @@ public class DataModelingHandler {
         DeltaModification modification = new DeltaModification("internal_mod", null, Collections.singleton(relation), null, null, 0.0);
         modification.setDeletion(true);
         combinedModel = applyModification(dataSourceUuid, modification);
-        prepareForFrontend(combinedModel);
         return combinedModel;
     }
 
@@ -678,9 +664,7 @@ public class DataModelingHandler {
             );
         }
         persistDataSourceModel(dataSourceModel);
-        CombinedModel combinedModel = dataSourceModel.getCurrentModel();
-        prepareForFrontend(combinedModel);
-        return combinedModel;
+        return dataSourceModel.getCurrentModel();
     }
 
     public @NotNull CombinedModel redoModelModification(@NotNull UUID dataSourceUuid) {
@@ -696,9 +680,7 @@ public class DataModelingHandler {
         }
 
         persistDataSourceModel(dataSourceModel);
-        CombinedModel combinedModel = dataSourceModel.getCurrentModel();
-        prepareForFrontend(combinedModel);
-        return combinedModel;
+        return dataSourceModel.getCurrentModel();
     }
 
     /* Finish operations */
@@ -828,78 +810,6 @@ public class DataModelingHandler {
         return combinedModel;
     }
 
-    /* Probably unused, needs to be adjusted to new data model if still needed or deleted if not
-     * May be needed for compatibility to other components*/
-
-
-    //    @NotNull
-    //    private DataSourceSchema createFinalDataSourceSchema(
-    //            @NotNull DataSourceSchema currentDataSourceSchema,
-    //            @NotNull SemanticModel retrievedSemanticModel,
-    //            @NotNull Map<Long, String> modeling2KGSmapping
-    //    ) {
-    //        Map<Traversable.Identity<?>, Traversable> oldIdentityToNewTraversable = new HashMap<>();
-    //        final Node newSyntaxModel = currentDataSourceSchema.getSyntaxModel().copy(oldIdentityToNewTraversable);
-    //
-    //        //find all entity types which are mapped by a primitive node
-    //        final Set<EntityType> mappedEntityTypes = oldIdentityToNewTraversable.values().stream()
-    //                .filter(PrimitiveNode.class::isInstance)
-    //                .map(PrimitiveNode.class::cast)
-    //                .filter(p -> p.getEntityType() != null)
-    //                .map(PrimitiveNode::getEntityType)
-    //                .collect(Collectors.toSet());
-    //
-    //        for (EntityType mappedEntityType : mappedEntityTypes) {
-    //            final Traversable.Identity<?> oldEntityTypeIdentity = MapUtilities.keyOfValue(oldIdentityToNewTraversable, mappedEntityType);
-    //            final Traversable traversable = currentDataSourceSchema.find(oldEntityTypeIdentity);
-    //            assert traversable instanceof EntityType;
-    //            EntityType oldEntityType = (EntityType) traversable;
-    //            final String actualEntityTypeUuid = modeling2KGSmapping.get(oldEntityType.getId());
-    //
-    //            EntityType replacement = null;
-    //            for (EntityType entityType : retrievedSemanticModel.getEntityTypes()) {
-    //                if (actualEntityTypeUuid.equals(entityType.getUuid())) {
-    //                    replacement = entityType;
-    //                    break;
-    //                }
-    //            }
-    //            if (replacement == null) {
-    //                logger.warn(
-    //                        "Defective response for semantic model creation.\n" + "Mapping: {}\n" + "SemanticModel: {}",
-    //                        modeling2KGSmapping,
-    //                        retrievedSemanticModel
-    //                );
-    //                throw new RuntimeException(
-    //                        "Failed to find entity type for id `" + oldEntityType.getId() + "` which should be mapped to `" + actualEntityTypeUuid + "`."
-    //                );
-    //            }
-    //            newSyntaxModel.replace(mappedEntityType.getIdentity(), replacement);
-    //        }
-    //
-    //        //Update positions
-    //        //Create a map between all old entity types and their new backend ID
-    //        Map<String, EntityType> backendIDtoOldEntityTypeMapping =
-    //                currentDataSourceSchema.getSemanticModel().getEntityTypes().stream().collect(Collectors.toMap(
-    //                        x -> modeling2KGSmapping.get(x.getId()),
-    //                        Function.identity()
-    //                ));
-    //
-    //        //Update positions
-    //        for (EntityType entityType : retrievedSemanticModel.getEntityTypes()) {
-    //            entityType.setPosition(backendIDtoOldEntityTypeMapping.get(entityType.getUuid()).getPosition());
-    //        }
-    //
-    //        DataSourceSchema finalSchema = new DataSourceSchema(
-    //                currentDataSourceSchema.getOwningNode(),
-    //                newSyntaxModel,
-    //                retrievedSemanticModel,
-    //                Collections.emptyList(),
-    //                Collections.emptyList()
-    //        );
-    //        finalSchema.setFinalized(true);
-    //        return finalSchema;
-    //    }
-
     @Transactional
     public void deleteModel(@NotNull UUID dataSourceUuid) {
         Optional<DataSourceModel> possibleSchema = dataSourceRepository.findById(dataSourceUuid);
@@ -909,45 +819,6 @@ public class DataModelingHandler {
             logger.warn("Model with id {} was not available", dataSourceUuid);
         }
     }
-
-
-    /*
-     Utility functions
-     */
-
-    // CURRENTLY UNUSED, may be restored later
-    //    /**
-    //     * Loads a ModelBase element from the given repository and validates if the loaded element's UUID matches the given element's UUID in relation to the
-    //     * passed globalIdFunction.
-    //     *
-    //     * @param element       the element to load
-    //     * @param uuidGenerator the function to determine a global UUID from the given elements type
-    //     * @param repository    the repository to load from
-    //     * @return attached element matching the given transient element
-    //     */
-    //    @NotNull
-    //    private <T extends ModelBase> T loadFromRepository(
-    //            @NotNull T element,
-    //            @NotNull Function<T, String> uuidGenerator,
-    //            @NotNull JpaRepository<T, Long> repository
-    //    ) {
-    //        String uuid = uuidGenerator.apply(element);
-    //        Long longId = element.getId();
-    //        final T result = repository.findById(longId)
-    //                .orElseThrow(() -> new ResponseStatusException(
-    //                        HttpStatus.BAD_REQUEST,
-    //                        "Not a valid " + element.getClass().getSimpleName() + " id: " + longId
-    //                ));
-    //
-    //        if (uuid != null && !uuid.equals(uuidGenerator.apply(result))) {
-    //            //noinspection MagicCharacter
-    //            throw new ResponseStatusException(
-    //                    HttpStatus.BAD_REQUEST,
-    //                    "Inconsistent " + element.getClass().getSimpleName() + " received: id and uuid did not match data base state."
-    //            );
-    //        }
-    //        return result;
-    //    }
 
     @SuppressWarnings("unused")
     @Transactional
@@ -1012,8 +883,7 @@ public class DataModelingHandler {
     @NotNull
     public CombinedModel requestRecommendations(@NotNull String dataSourceUuid, @NotNull CombinedModel combinedModel) {
         try {
-            CombinedModel updatedModel = semanticRecommendationApiClient.performSemanticRefinement(dataSourceUuid, combinedModel);
-            return updatedModel;
+            return semanticRecommendationApiClient.performSemanticRefinement(dataSourceUuid, combinedModel);
         } catch (Exception e) {
             logger.warn("Could not reach SRS");
         }
