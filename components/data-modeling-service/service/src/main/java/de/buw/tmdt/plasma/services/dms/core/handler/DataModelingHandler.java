@@ -518,7 +518,6 @@ public class DataModelingHandler {
         }
         persistCombinedModel(dataSourceModel, clone);
 
-        prepareForFrontend(clone);
         return clone;
     }
 
@@ -1012,6 +1011,12 @@ public class DataModelingHandler {
 
     @NotNull
     public CombinedModel requestRecommendations(@NotNull String dataSourceUuid, @NotNull CombinedModel combinedModel) {
+        try {
+            CombinedModel updatedModel = semanticRecommendationApiClient.performSemanticRefinement(dataSourceUuid, combinedModel);
+            return updatedModel;
+        } catch (Exception e) {
+            logger.warn("Could not reach SRS");
+        }
         return combinedModel;
     }
 }
