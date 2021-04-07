@@ -39,6 +39,7 @@ a component outside of Docker.
 127.0.0.1 plasma-dms
 127.0.0.1 plasma-srs
 127.0.0.1 plasma-ars-l-lm
+127.0.0.1 plasma-ars-m-sm
 ```
 
 ## Development and Building of the Backend Components
