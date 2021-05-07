@@ -241,6 +241,17 @@
                     <artifactId>jib-maven-plugin</artifactId>
                     <version>${com.google.cloud.tools.jib.version}</version>
                     <configuration>
+                        <extraDirectories>
+                            <permissions>
+                                <permission>
+                                    <file>logs/**</file>
+                                    <mode>777</mode>
+                                </permission>
+                            </permissions>
+                        </extraDirectories>
+                        <container>
+                            <user>1000</user>
+                        </container>
                         <skip>true</skip>
                     </configuration>
                 </plugin>
