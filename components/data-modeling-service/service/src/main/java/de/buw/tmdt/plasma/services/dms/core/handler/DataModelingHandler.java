@@ -189,7 +189,7 @@ public class DataModelingHandler {
         // Retrieve the concepts that were created within this semantic model...
         CombinedModel combinedModel = getCombinedModel(findDataSourceOrThrow(dataSourceUuid), false);
         combinedModel.getProvisionalEntityConcepts().stream()
-                .filter(entityConcept -> entityConcept.getLabel().startsWith(prefix))
+                .filter(entityConcept -> entityConcept.getLabel().toLowerCase().startsWith(prefix.toLowerCase()))
                 // ... and add them to the ones from the KGS while ensuring that there are no conflicts
                 .filter(entityConcept -> availableEntityConcepts.stream().noneMatch(aec -> aec.sameAs(entityConcept)))
                 .forEach(availableEntityConcepts::add);
