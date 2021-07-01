@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class SemanticRefinementHandler {
     @NotNull
-    public CombinedModel performRefinement(@NotNull String uuid, @NotNull CombinedModel combinedModel) {
+    public CombinedModel performRefinement(@NotNull String uuid, String configId, @NotNull CombinedModel combinedModel) {
         // call ARS-R here
 
         // TODO ensure that all recommendations have a non-empty set of anchor points

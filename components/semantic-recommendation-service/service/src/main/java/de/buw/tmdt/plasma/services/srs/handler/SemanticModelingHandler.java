@@ -27,7 +27,7 @@ public class SemanticModelingHandler {
      * @return The updated model or the original one if no services were called
      */
     @NotNull
-    public CombinedModel performModeling(@NotNull String uuid, @NotNull CombinedModel combinedModel) {
+    public CombinedModel performModeling(@NotNull String uuid, String configId, @NotNull CombinedModel combinedModel) {
         // Call ARS - Modeling - Standard Matching
         try {
             combinedModel = standardMatchingApiClient.fetchResult(uuid);

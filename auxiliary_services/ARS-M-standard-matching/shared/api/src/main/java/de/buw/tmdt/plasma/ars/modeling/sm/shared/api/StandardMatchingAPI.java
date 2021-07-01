@@ -20,25 +20,27 @@ public interface StandardMatchingAPI {
 	List<StandardDTO> getStandards();
 
 	/**
-	 * Starts to model, using a standard and returns the id of the analysis used to fetch the results.
-	 *
-	 * @param combinedModel CombinedModel containing {@link de.buw.tmdt.plasma.datamodel.syntaxmodel.SyntaxModel} of the Data Source
-	 * @param standardId    Id of the Standard to be applied
-	 * @return id of the analysis
-	 */
-	@PostMapping(path = "/model", produces = MediaType.APPLICATION_JSON_VALUE)
-	String modelWithStandard(@NotNull @RequestBody CombinedModel combinedModel,
-	                         @RequestParam("standardId") String standardId,
-	                         @RequestParam("analysisId") String analysisId);
-
-
-	/**
 	 * Fetches a created semantic model.
 	 *
-	 * @param analysisId id used to store the results
+	 * @param dataSourceId id used to store the results
 	 * @return Semantic Model including identified standards
 	 */
 	@GetMapping(path = "/fetch", produces = MediaType.APPLICATION_JSON_VALUE)
-	CombinedModel fetchResult(@RequestParam("analysisId") String analysisId);
+	CombinedModel fetchResult(@RequestParam("dataSourceId") String dataSourceId);
+
+	/**
+	 * Starts to model, using a standard and returns the id of the analysis used to fetch the results.
+	 *
+	 * @param model          CombinedModel containing {@link de.buw.tmdt.plasma.datamodel.syntaxmodel.SyntaxModel} of the Data Source
+	 * @param dataSourceUuid The uuid of the data source used to reference this analysis
+	 * @param configId       The id of the config to retrieve
+	 *                       The config must have the "STANDARD_ID" set
+	 * @return Returns the original model. Use {@link #fetchResult(String)} to retrieve the result later on
+	 */
+	@NotNull
+	@PostMapping(value = "model", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	CombinedModel performModeling(@NotNull @RequestParam("uuid") String dataSourceUuid,
+								  @RequestParam("configId") String configId,
+								  @NotNull @RequestBody CombinedModel model);
 
 }

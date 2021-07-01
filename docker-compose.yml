@@ -170,11 +170,13 @@ services:
     image: "plasma/dms:${PLASMA_VERSION}"
     hostname: plasma-dms
     restart: unless-stopped
+    volumes:
+      - configs:/var/plasma/configs
     depends_on:
       - discovery
-      - mariadb-dms      
+      - mariadb-dms
     ports:
-     - 8186:8186   
+      - 8186:8186
 
   srs:
     image: "plasma/srs:${PLASMA_VERSION}"
@@ -222,3 +224,4 @@ volumes:
   mariadb_sas:   
   mariadb_dms:
   mariadb_ars_m_sm:
+  configs:

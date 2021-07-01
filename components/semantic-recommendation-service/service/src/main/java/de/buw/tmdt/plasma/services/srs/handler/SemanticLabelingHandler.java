@@ -20,10 +20,10 @@ public class SemanticLabelingHandler {
     }
 
     @NotNull
-    public CombinedModel performLabeling(@NotNull String uuid, @NotNull CombinedModel combinedModel) {
+    public CombinedModel performLabeling(@NotNull String uuid, String configId, @NotNull CombinedModel combinedModel) {
         try {
             // call ARS-L here
-            combinedModel = labelMatchingApiClient.performLabeling(uuid, combinedModel);
+            combinedModel = labelMatchingApiClient.performLabeling(uuid, configId, combinedModel);
         } catch (Exception ex) {
             log.warn("Could not perform semantic labeling", ex);
         }

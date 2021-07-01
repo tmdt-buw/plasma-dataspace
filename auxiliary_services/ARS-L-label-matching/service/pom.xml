@@ -80,6 +80,11 @@
             <artifactId>feign-client</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
+        <dependency>
+            <groupId>de.buw.tmdt.plasma.services.srs</groupId>
+            <artifactId>supplements</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
 
         <!-- Testing -->
         <dependency>
