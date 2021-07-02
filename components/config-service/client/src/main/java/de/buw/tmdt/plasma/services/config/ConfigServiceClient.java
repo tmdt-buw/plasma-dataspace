@@ -49,4 +49,12 @@ public interface ConfigServiceClient {
      * @param token    Authentication token used to delete config values
      */
     void removeConfig(String configId, String token);
+
+    /**
+     * Formats the given configuration in the same way it is saved.
+     *
+     * @param config The config to format
+     * @return A formatted string representing the config.
+     */
+    String printFormattedConfig(Map<String, Serializable> config);
 }

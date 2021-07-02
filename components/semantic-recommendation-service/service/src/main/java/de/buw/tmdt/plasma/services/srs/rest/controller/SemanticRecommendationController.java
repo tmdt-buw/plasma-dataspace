@@ -31,21 +31,21 @@ public class SemanticRecommendationController implements SemanticRecommendationA
     @NotNull
     @Override
     @Operation(description = "do a semantic labeling")
-    public CombinedModel performSemanticLabeling(@NotNull String uuid, String configId, @NotNull CombinedModel combinedModel) {
-        return labelingHandler.performLabeling(uuid, configId, combinedModel);
+    public CombinedModel performSemanticLabeling(@NotNull String uuid, String configId, String configToken, @NotNull CombinedModel combinedModel) {
+        return labelingHandler.performLabeling(uuid, configId, configToken, combinedModel);
     }
 
     @NotNull
     @Override
     @Operation(description = "do a semantic modeling")
-    public CombinedModel performSemanticModeling(@NotNull String uuid, String configId, @NotNull CombinedModel combinedModel) {
-        return modelingHandler.performModeling(uuid, configId, combinedModel);
+    public CombinedModel performSemanticModeling(@NotNull String uuid, String configId, String configToken, @NotNull CombinedModel combinedModel) {
+        return modelingHandler.performModeling(uuid, configId, configToken, combinedModel);
     }
 
     @NotNull
     @Override
     @Operation(description = "request semantic refinement recommendations")
-    public CombinedModel performSemanticRefinement(@NotNull String uuid, String configId, @NotNull CombinedModel combinedModel) {
-        return refinementHandler.performRefinement(uuid, configId, combinedModel);
+    public CombinedModel performSemanticRefinement(@NotNull String uuid, String configId, String configToken, @NotNull CombinedModel combinedModel) {
+        return refinementHandler.performRefinement(uuid, configId, configToken, combinedModel);
     }
 }

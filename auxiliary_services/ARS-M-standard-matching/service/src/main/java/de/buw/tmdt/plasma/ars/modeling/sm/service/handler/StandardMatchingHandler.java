@@ -15,23 +15,30 @@ import de.buw.tmdt.plasma.ars.modeling.sm.shared.dto.StandardProvisionDTO;
 import de.buw.tmdt.plasma.datamodel.CombinedModel;
 import de.buw.tmdt.plasma.datamodel.modification.DeltaModification;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.*;
+import de.buw.tmdt.plasma.services.config.ConfigServiceClient;
 import de.buw.tmdt.plasma.services.kgs.shared.feignclient.UniversalKnowledgeApiClient;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.io.Serializable;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 public class StandardMatchingHandler {
 
+    private static final Logger log = LoggerFactory.getLogger(StandardMatchingHandler.class);
+
     private final RuleDTOConverter ruleDTOConverter;
     private final UniversalKnowledgeApiClient universalKnowledgeApiClient;
     private final AnalysisRepository analysisRepository;
     private final StandardRepository standardRepository;
     private final KnowledgeGraphServiceDTO2CombinedModelConverter kgsDTO2CMConverter;
+    private final ConfigServiceClient configServiceClient;
 
 
     public StandardMatchingHandler(RuleDTOConverter ruleDTOConverter,
@@ -39,12 +46,13 @@ public class StandardMatchingHandler {
                                            UniversalKnowledgeApiClient universalKnowledgeApiClient,
                                    AnalysisRepository analysisRepository,
                                    StandardRepository standardRepository,
-                                   KnowledgeGraphServiceDTO2CombinedModelConverter kgsDTO2CMConverter) {
+                                   KnowledgeGraphServiceDTO2CombinedModelConverter kgsDTO2CMConverter, ConfigServiceClient configServiceClient) {
         this.ruleDTOConverter = ruleDTOConverter;
         this.kgsDTO2CMConverter = kgsDTO2CMConverter;
         this.universalKnowledgeApiClient = universalKnowledgeApiClient;
         this.analysisRepository = analysisRepository;
         this.standardRepository = standardRepository;
+        this.configServiceClient = configServiceClient;
     }
 
 
@@ -84,10 +92,19 @@ public class StandardMatchingHandler {
      * Create a semantic model using a syntax model and the id of the standard to apply.
      *
      * @param combinedModel combined model containing the syntactic model
-     * @param standardId    uuid of the standard to use
+     * @param configId      id of the config for this task
+     * @param configToken   Token to retrieve the config
      * @return dto of the semantic model
      */
-    public String modelWithStandard(CombinedModel combinedModel, String standardId, String analysisId) {
+    public String modelWithStandard(CombinedModel combinedModel, String configId, String configToken, String analysisId) {
+
+        Map<String, Serializable> config = configServiceClient.getConfig(configId, configToken);
+        log.info("Received config: {}", configServiceClient.printFormattedConfig(config));
+
+        String standardId = String.valueOf(config.get("STANDARD_ID"));
+        if (standardId == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "A valid standard id has to be provided as the \"STANDARD_ID\" field in the given config. Was \"" + standardId + "\" or could not be retrieved at all.");
+        }
 
         // Find the provided standard to apply
         Standard standard =

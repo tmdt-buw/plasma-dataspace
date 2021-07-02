@@ -14,6 +14,7 @@ public interface LabelMatchingAPI {
     @PostMapping(value = "", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     CombinedModel performLabeling(@NotNull @RequestParam("uuid") String uuid,
                                   @RequestParam("configId") String configId,
+                                  @RequestParam("configToken") String configToken,
                                   @NotNull @RequestBody CombinedModel model);
 
 }

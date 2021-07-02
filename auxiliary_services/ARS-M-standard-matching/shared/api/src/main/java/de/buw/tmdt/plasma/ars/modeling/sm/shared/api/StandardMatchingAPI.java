@@ -35,12 +35,14 @@ public interface StandardMatchingAPI {
 	 * @param dataSourceUuid The uuid of the data source used to reference this analysis
 	 * @param configId       The id of the config to retrieve
 	 *                       The config must have the "STANDARD_ID" set
+	 * @param configToken    The token to use to retrieve the config
 	 * @return Returns the original model. Use {@link #fetchResult(String)} to retrieve the result later on
 	 */
 	@NotNull
 	@PostMapping(value = "model", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	CombinedModel performModeling(@NotNull @RequestParam("uuid") String dataSourceUuid,
 								  @RequestParam("configId") String configId,
+								  @RequestParam("configToken") String configToken,
 								  @NotNull @RequestBody CombinedModel model);
 
 }

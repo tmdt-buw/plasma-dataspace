@@ -18,10 +18,11 @@ public interface SemanticRecommendationAPI {
      * @param uuid          A reference uuid to identify the modeling process which may also be used to request metadata.
      *                      Usually the data source id
      * @param configId      The configuration id for additional parameters
+     * @param configToken   The token to retrieve the config
      * @return A combined model containing a new semantic labeling as a basic semantic model
      */
     @PostMapping(value = "/labeling", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    CombinedModel performSemanticLabeling(@RequestParam("uuid") String uuid, @RequestParam("configId") String configId, @NotNull @RequestBody CombinedModel combinedModel);
+    CombinedModel performSemanticLabeling(@RequestParam("uuid") String uuid, @RequestParam("configId") String configId, @RequestParam("configToken") String configToken, @NotNull @RequestBody CombinedModel combinedModel);
 
 
     /**
@@ -31,11 +32,12 @@ public interface SemanticRecommendationAPI {
      * @param uuid          A reference uuid to identify the modeling process which may also be used to request metadata.
      *                      Usually the data source id
      * @param configId      The configuration id for additional parameters
+     * @param configToken      The token to retrieve the config
      * @return The combined model
      */
     @NotNull
     @PostMapping(value = "/modeling/{uuid}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    CombinedModel performSemanticModeling(@NotNull @PathVariable("uuid") String uuid, @RequestParam("configId") String configId, @NotNull @RequestBody CombinedModel combinedModel);
+    CombinedModel performSemanticModeling(@NotNull @PathVariable("uuid") String uuid, @RequestParam("configId") String configId, @RequestParam("configToken") String configToken, @NotNull @RequestBody CombinedModel combinedModel);
 
     /**
      * Requests a semantic refinement for the combined model.
@@ -44,10 +46,11 @@ public interface SemanticRecommendationAPI {
      * @param uuid          A reference uuid to identify the modeling process which may also be used to request metadata.
      *                      Usually the data source id
      * @param configId      The configuration id for additional parameters
+     * @param configToken      The token to retrieve the config
      * @return The combined model containing the recommended changes
      */
     @PostMapping(value = "/refinement/{uuid}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    CombinedModel performSemanticRefinement(@NotNull @PathVariable("uuid") String uuid, @RequestParam("configId") String configId, @NotNull @RequestBody CombinedModel combinedModel);
+    CombinedModel performSemanticRefinement(@NotNull @PathVariable("uuid") String uuid, @RequestParam("configId") String configId, @RequestParam("configToken") String configToken, @NotNull @RequestBody CombinedModel combinedModel);
 
 
 }

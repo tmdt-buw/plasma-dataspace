@@ -72,8 +72,6 @@ public class SchemaAnalysisHandler {
 		return syntaxModel;
 	}
 
-
-
 	public void finish(UUID uuid) {
 		if (!analysisService.exists(uuid)) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The requested id is not existing: " + uuid);

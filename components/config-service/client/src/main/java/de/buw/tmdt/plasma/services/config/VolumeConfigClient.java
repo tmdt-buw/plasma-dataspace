@@ -1,5 +1,6 @@
 package de.buw.tmdt.plasma.services.config;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -41,12 +42,12 @@ public class VolumeConfigClient implements ConfigServiceClient {
             return new HashMap<>();
         }
         Path filePath = getConfigFilePath(configId);
-        log.info("Reading log from " + filePath);
+        log.info("Reading config from " + filePath);
         try {
             JavaType type = mapper.getTypeFactory().constructParametricType(HashMap.class, String.class, Serializable.class);
             Map<String, Serializable> map = mapper.readValue(filePath.toFile(), type);
             if (map == null) {
-                throw new NoSuchElementException("Could not find file or valid property: " + filePath);
+                throw new NoSuchElementException("Could not find file or valid config: " + filePath);
             }
             return map;
         } catch (IOException e) {
@@ -115,6 +116,16 @@ public class VolumeConfigClient implements ConfigServiceClient {
             }
         } catch (IOException e) {
             throw new NoSuchElementException("Could not write to requested file " + filePath);
+        }
+    }
+
+    @Override
+    public String printFormattedConfig(Map<String, Serializable> config) {
+        try {
+            return mapper.writeValueAsString(config);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            return config.toString();
         }
     }
 }

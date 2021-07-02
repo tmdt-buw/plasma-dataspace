@@ -142,17 +142,19 @@ public class DataModelingHandler {
 
         try {
             Map<String, Serializable> parameters = new HashMap<>();
-            parameters.put("testvalue", "the value");
+            parameters.put("testvalue", "the value TODO REMOVE ONCE TESTING FINISHED");
             String uuid = UUID.randomUUID().toString();
-            configServiceClient.storeConfig(uuid, parameters);
+            String token = configServiceClient.storeConfig(uuid, parameters);
             CombinedModel labeledCombinedModel;
             labeledCombinedModel = semanticRecommendationApiClient.performSemanticLabeling(
-                    dataSourceUuid.toString(), uuid, combinedModel);
+                    dataSourceUuid.toString(), uuid, token, combinedModel);
             try {
                 CombinedModel modeledCombinedModel;
                 // request semantic modeling
+                uuid = null;
+                token = null;
                 modeledCombinedModel = semanticRecommendationApiClient.performSemanticModeling(
-                        dataSourceUuid.toString(), uuid, labeledCombinedModel);
+                        dataSourceUuid.toString(), uuid, token, labeledCombinedModel);
                 return modeledCombinedModel;
             } catch (Exception e) {
                 logger.warn("Semantic modeling did not succeed: ", e);
@@ -894,7 +896,7 @@ public class DataModelingHandler {
     @NotNull
     public CombinedModel requestRecommendations(@NotNull String dataSourceUuid, @NotNull CombinedModel combinedModel) {
         try {
-            return semanticRecommendationApiClient.performSemanticRefinement(dataSourceUuid, null, combinedModel);
+            return semanticRecommendationApiClient.performSemanticRefinement(dataSourceUuid, null, null, combinedModel);
         } catch (Exception e) {
             logger.warn("Could not reach SRS");
         }
