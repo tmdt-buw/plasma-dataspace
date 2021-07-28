@@ -1,42 +1,14 @@
-.tab-container {
-  position: relative;
-}
-
-.scroll-list {
-  overflow: auto;
-}
-
-.tab-icon {
-  margin-right: 8px;
-}
-
-.tab-search-container {
-  margin-top: 5px;
-  height: 40px;
-  overflow: hidden;
-
-  .tab-search-bar {
-    width: 180px;
-    height: 40px;
-    font-size: 14px;
-
-    ::ng-deep .mat-form-field-flex > .mat-form-field-infix { padding: 0.4em 0 !important;}
-    ::ng-deep .mat-form-field-label-wrapper { top: -1.5em; }
-
-    ::ng-deep .mat-form-field-appearance-outline.mat-form-field-can-float.mat-form-field-should-float .mat-form-field-label {
-      transform: translateY(-1.1em) scale(.75);
-      width: 133.33333%;
-    }
-  }
-}
-
 .concept-list {
   border: solid 1px #ccc;
   min-height: 60px;
   background: white;
   border-radius: 4px;
-  overflow: hidden;
   display: block;
+  overflow: auto;
+  position: relative;
+  bottom: 0;
+  left: 0;
+  right: 0;
 }
 
 .concept-box {
@@ -80,3 +52,31 @@
     }
   }
 }
+
+:host {
+  ::ng-deep .ant-tabs {
+    height: 100%;
+
+    .ant-tabs-content {
+      height: 100%;
+    }
+
+    .ant-tabs-tabpane > div {
+      height: 100%
+    }
+
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+

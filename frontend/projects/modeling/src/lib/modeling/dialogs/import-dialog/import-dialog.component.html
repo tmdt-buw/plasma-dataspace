@@ -1,19 +1,10 @@
-<h2 mat-dialog-title fxLayout="row" fxLayoutAlign="space-between center" fxLayoutGap="15px" class="dialog-header"><span>Import ontology</span>
-  <mat-icon class="close-icon" [mat-dialog-close]="true">close</mat-icon>
-</h2>
-
-<div mat-dialog-content>
-  <div class="drop-zone-container">
-    <div class="drop-zone" fxLayoutAlign="center center" plsFileDrop [multiple]="false" (fileDrop)="dropped($event)">
-      <div class="drop-zone-overlay" ></div>
-      <div fxLayout="column" fxLayoutAlign="center center">
-        <span>drop file</span>
-        <span>or</span>
-        <button mat-stroked-button color="accent" class="upload-btn-wrapper">
-          <span>choose file</span>
-          <input #fileInput (change)="select()" name="file" type="file">
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
+<nz-upload
+  nzType="drag"
+  [nzMultiple]="false"
+  (nzChange)="handleChange($event)"
+>
+  <ng-container>
+    <i class="upload-icon" nz-icon [nzType]="loading ? 'loading' : 'plus'"></i>
+    <div class="ant-upload-text">Upload</div>
+  </ng-container>
+</nz-upload>

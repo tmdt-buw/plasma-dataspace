@@ -1,38 +1,30 @@
-import {AfterViewInit, Component, ElementRef, Inject, OnInit, ViewChild} from '@angular/core';
-import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from '@angular/material/dialog';
+import { Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { FormControl } from '@angular/forms';
+import { ModalOptions, NzModalService } from 'ng-zorro-antd/modal';
+import { NzTabChangeEvent } from 'ng-zorro-antd/tabs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import {
   DataModelingControllerService,
   DeltaModification,
   EntityConcept,
   RelationConcept
 } from '../../../api/generated/dms';
-import {FormControl} from '@angular/forms';
-import {debounceTime, distinctUntilChanged} from 'rxjs/operators';
-import {PlsNewEntityDialogComponent} from '../new-entity-dialog/new-entity-dialog.component';
-import {PlsNewRelationDialogComponent} from '../new-relation-dialog/new-relation-dialog.component';
-import {ModelingService} from '../../modeling.service';
-import {MatTabChangeEvent} from '@angular/material/tabs';
-import {MatSelectionList} from '@angular/material/list';
-
-export interface PlsConceptDialogData {
-  dataSource: string;
-  node: any;
-  relativeTo: ElementRef;
-  recommendations: DeltaModification[];
-}
+import { ModelingService } from '../../modeling.service';
+import { ModalBaseConfig } from '../common/modal.base-config';
+import { PlsNewEntityDialogComponent } from '../new-entity-dialog/new-entity-dialog.component';
+import { PlsNewRelationDialogComponent } from '../new-relation-dialog/new-relation-dialog.component';
 
 
 @Component({
   selector: 'pls-concept-dialog',
   templateUrl: 'concept-dialog.component.html',
-  styleUrls: ['../common/dialog.styles.scss', 'concept-dialog.component.scss']
+  styleUrls: ['../common/dialog.styles.scss', 'concept-dialog.component.less']
 })
-export class PlsConceptDialogComponent implements OnInit, AfterViewInit {
+export class PlsConceptDialogComponent implements OnInit, OnDestroy {
+
+  @Input() dataSource: string;
 
   @ViewChild('colorEl') color;
-  @ViewChild('relationsList') relationsList: MatSelectionList;
-
-  private relativeTo: ElementRef;
 
   entitySearchControl = new FormControl('');
   relationSearchControl = new FormControl('');
@@ -43,19 +35,12 @@ export class PlsConceptDialogComponent implements OnInit, AfterViewInit {
   entityConcepts: EntityConcept[] = [];
   relationConcepts: RelationConcept[] = [];
 
-  primaryColor;
-  primaryColorContrast;
-
   // TODO find useful recommendation view
-  constructor(public dialogRef: MatDialogRef<PlsConceptDialogComponent>, @Inject(MAT_DIALOG_DATA) public data: PlsConceptDialogData,
-              private modeling: ModelingService, private modelingService: DataModelingControllerService, public dialog: MatDialog) {
-    this.relativeTo = data.relativeTo;
+  constructor(private modeling: ModelingService, private modelingService: DataModelingControllerService, private modal: NzModalService) {
+
   }
 
   ngOnInit(): void {
-    const rect: DOMRect = this.relativeTo.nativeElement.getBoundingClientRect();
-    const position = {top: `${rect.top + 15}px`, left: `${rect.left + 15}px`};
-    this.dialogRef.updatePosition(position);
     this.entitySearchControl.valueChanges.pipe(
       debounceTime(500),
       distinctUntilChanged()
@@ -68,14 +53,14 @@ export class PlsConceptDialogComponent implements OnInit, AfterViewInit {
     this.getRelationConcepts();
   }
 
-  ngAfterViewInit(): void {
-    this.primaryColor = getComputedStyle(this.color._elementRef.nativeElement).background;
-    this.primaryColorContrast = getComputedStyle(this.color._elementRef.nativeElement).color;
+  ngOnDestroy(): void {
+    // remove any selected relation concept
+    this.modeling.relationConcept.next(null);
   }
 
   getEntityConcepts(): void {
     this.loadingEntityConcepts = true;
-    this.modelingService.getEntityConcepts(this.data.dataSource, this.entitySearchControl.value).subscribe((res) => {
+    this.modelingService.getEntityConcepts(this.dataSource, this.entitySearchControl.value).subscribe((res) => {
       this.entityConcepts = res;
       this.loadingEntityConcepts = false;
     });
@@ -83,22 +68,20 @@ export class PlsConceptDialogComponent implements OnInit, AfterViewInit {
 
   getRelationConcepts(): void {
     this.loadingRelationConcepts = true;
-    this.modelingService.getRelationConcepts(this.data.dataSource, this.entitySearchControl.value).subscribe((res) => {
+    this.modelingService.getRelationConcepts(this.dataSource, this.relationSearchControl.value).subscribe((res) => {
       this.relationConcepts = res;
       this.loadingRelationConcepts = false;
     });
   }
 
-  onIndexChange(event: MatTabChangeEvent): void {
+  onIndexChange(event: NzTabChangeEvent): void {
     if (event.index !== 1) {
       this.modeling.relationConcept.next(null);
     }
   }
 
   toggleRelation(index: number, relationConcept: RelationConcept): void {
-    const option = this.relationsList.options.toArray()[index];
     if (this.isSelected(relationConcept)) {
-      option.toggle();
       this.modeling.relationConcept.next(null);
     } else {
       this.modeling.relationConcept.next(relationConcept);
@@ -111,12 +94,15 @@ export class PlsConceptDialogComponent implements OnInit, AfterViewInit {
   }
 
   newEntityConcept(): void {
-    const ref = this.dialog.open(PlsNewEntityDialogComponent, {
-      width: '650px',
-      maxHeight: this.relativeTo.nativeElement.offsetHeight,
-      data: this.data.dataSource
-    });
-    ref.afterClosed().subscribe(res => {
+    const config: ModalOptions = {
+      nzTitle: 'New entity concept',
+      nzContent: PlsNewEntityDialogComponent,
+      nzComponentParams: {
+        dataSource: this.dataSource
+      }
+    };
+    const ref = this.modal.create(Object.assign(config, ModalBaseConfig));
+    ref.afterClose.subscribe(res => {
       if (res) {
         this.getEntityConcepts();
       }
@@ -124,12 +110,15 @@ export class PlsConceptDialogComponent implements OnInit, AfterViewInit {
   }
 
   newRelationConcept(): void {
-    const ref = this.dialog.open(PlsNewRelationDialogComponent, {
-      width: '650px',
-      maxHeight: this.relativeTo.nativeElement.offsetHeight,
-      data: this.data.dataSource
-    });
-    ref.afterClosed().subscribe(res => {
+    const config: ModalOptions = {
+      nzTitle: 'New relation concept',
+      nzContent: PlsNewRelationDialogComponent,
+      nzComponentParams: {
+        dataSource: this.dataSource
+      }
+    };
+    const ref = this.modal.create(Object.assign(config, ModalBaseConfig));
+    ref.afterClose.subscribe(res => {
       if (res) {
         this.getRelationConcepts();
       }

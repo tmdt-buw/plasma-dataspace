@@ -1,13 +1,11 @@
-import {Component, ElementRef, Inject, OnInit} from '@angular/core';
-import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
-import {DataModelingControllerService, EntityType} from '../../../api/generated/dms';
-import {BehaviorSubject} from 'rxjs';
-import {EditState} from './model/edit-state';
+import { Component, Input } from '@angular/core';
+import { BehaviorSubject } from 'rxjs';
+import { DataModelingControllerService, EntityType } from '../../../api/generated/dms';
+import { EditState } from './model/edit-state';
 
 export interface PlsSemanticNodeDetailsData {
   dataSource: string;
   node: EntityType;
-  relativeTo: ElementRef;
 }
 
 @Component({
@@ -15,22 +13,16 @@ export interface PlsSemanticNodeDetailsData {
   templateUrl: 'semantic-node.component.html',
   styleUrls: ['../common/dialog.styles.scss']
 })
-export class PlsSemanticNodeDetailsComponent implements OnInit {
+export class PlsSemanticNodeDetailsComponent {
+
+  @Input() data: PlsSemanticNodeDetailsData;
 
   $edit: BehaviorSubject<EditState> = new BehaviorSubject<EditState>(EditState.confirm);
   label: string;
   description: string;
 
-  private relativeTo: ElementRef;
+  constructor(private modelingService: DataModelingControllerService) {
 
-  constructor(public dialogRef: MatDialogRef<PlsSemanticNodeDetailsComponent>, @Inject(MAT_DIALOG_DATA) public data: PlsSemanticNodeDetailsData, private modelingService: DataModelingControllerService) {
-    this.relativeTo = data.relativeTo;
-  }
-
-  ngOnInit(): void {
-    const rect: DOMRect = this.relativeTo.nativeElement.getBoundingClientRect();
-    const position = {top: `${rect.top + 15}px`, right: `${rect.left + 15}px`};
-    this.dialogRef.updatePosition(position);
   }
 
   startEdit(): void {

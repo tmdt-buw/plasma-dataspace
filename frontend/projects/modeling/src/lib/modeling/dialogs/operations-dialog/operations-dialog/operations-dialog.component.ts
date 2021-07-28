@@ -1,10 +1,7 @@
-import { Component, Inject } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { Component, Input } from '@angular/core';
+import { NzModalRef } from 'ng-zorro-antd/modal';
 import { SyntacticOperationDTO } from '../../../../api/generated/dms';
 
-export interface PlsOperationsDialogData {
-  operation: SyntacticOperationDTO;
-}
 
 @Component({
   selector: 'pls-operations-dialog',
@@ -13,12 +10,20 @@ export interface PlsOperationsDialogData {
 })
 export class PlsOperationsDialogComponent {
 
+  @Input() operation: SyntacticOperationDTO;
+
   error;
 
-  constructor(public dialogRef: MatDialogRef<PlsOperationsDialogComponent>, @Inject(MAT_DIALOG_DATA) public data: PlsOperationsDialogData) {
+  constructor(private modalRef: NzModalRef<PlsOperationsDialogComponent>) {
   }
 
   apply(): void {
-    this.dialogRef.close(this.data);
+    this.error = null;
+    this.modalRef.close(this.operation);
+  }
+
+  cancel(): void {
+    this.error = null;
+    this.modalRef.close();
   }
 }

@@ -15,5 +15,4 @@ stages:
   - docker_deploy
 
 include:
-  - local: '.gitlab-ci-java.yml'
   - local: '.gitlab-ci-ui.yml'

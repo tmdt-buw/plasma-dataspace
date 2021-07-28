@@ -1,6 +1,9 @@
-<mat-card class="menu-card">
-  <mat-selection-list [multiple]="false">
-    <div mat-subheader>Edit relation</div>
-    <mat-list-option (click)="remove()"><mat-icon mat-list-icon>delete</mat-icon>Remove relation</mat-list-option>
-  </mat-selection-list>
-</mat-card>
+<nz-card class="menu-card">
+  <ul nz-menu nzSelectable>
+    <li *ngIf="relation" nz-menu-group nzTitle="Edit relation">
+      <ul>
+        <li nz-menu-item nzDanger (click)="remove()"><i nz-icon nzType="delete"></i>Remove relation</li>
+      </ul>
+    </li>
+  </ul>
+</nz-card>

@@ -122,11 +122,11 @@ public class EntityConcept extends CombinedModelElement implements Serializable 
     }
 
     public void validate() throws CombinedModelIntegrityException {
-        if (getLabel().length() < 3) {
-            throw new CombinedModelIntegrityException("Label of EntityConcept '" + getUuid() + "' must not be shorter than 3 characters.");
+        if (getLabel().trim().length() < 1) {
+            throw new CombinedModelIntegrityException("Label of EntityConcept '" + getLabel() + "' must not be shorter than 1 characters.");
         }
-        if (getSourceURI().length() < 3) {
-            throw new CombinedModelIntegrityException("SourceURI of EntityConcept '" + getUuid() + "' must not be shorter than 3 characters.");
+        if (getSourceURI().trim().length() < 3) {
+            throw new CombinedModelIntegrityException("SourceURI of EntityConcept '" + getLabel() + "' must not be shorter than 3 characters.");
         }
     }
 }

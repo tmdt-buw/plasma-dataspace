@@ -21,8 +21,8 @@
         "dist/data-sources"
       ],
       "@data-platform/dms": [
-        "dist/modeling/modeling",
-        "dist/modeling"
+        "dist/@data-platform/dms/@data-platform/dms",
+        "dist/@data-platform/dms"
       ],
       "@data-platform/sas": [
         "dist/schema-analysis/schema-analysis",

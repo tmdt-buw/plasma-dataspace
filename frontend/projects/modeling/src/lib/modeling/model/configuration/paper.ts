@@ -13,8 +13,9 @@ export abstract class Papers {
    * @param relationConcept function
    * @param primary color function
    */
-  static createPaper(graph: dia.Graph, relationConcept: () => RelationConcept, primary: () => string): dia.Paper {
+  static createPaper(graph: dia.Graph, relationConcept: () => RelationConcept, primary: () => string, lockDragAndDrop: boolean): dia.Paper {
     const interactive = () => {
+      if (!lockDragAndDrop) {
       if (relationConcept()) {
         return {
           labelMove: true,
@@ -26,6 +27,12 @@ export abstract class Papers {
           labelMove: true,
           addLinkFromMagnet: false,
           elementMove: true
+        };
+      } } else {
+        return {
+          labelMove: false,
+          addLinkFromMagnet: false,
+          elementMove: false
         };
       }
     };

@@ -4,18 +4,18 @@
   <div class="input-group" fxLayout="row">
     <input type="text" class="form-control" [(ngModel)]="formElement.value[i]">
     <div *ngIf="formElement.minCardinality != formElement.maxCardinality" class="input-group-append">
-      <button mat-button color="warn" [disabled]="formElement.value.length == formElement.minCardinality"
+      <button nz-button nzType="danger" [disabled]="formElement.value.length == formElement.minCardinality"
               (click)="removeElement(i)">
-        <mat-icon>remove</mat-icon>
+        <i nz-icon nzType="close"></i>
       </button>
     </div>
   </div>
 </div>
 <div class="form-group clearfix">
   <button *ngIf="formElement.minCardinality != formElement.maxCardinality"
-          mat-stroked-button color="primary"
+          nz-button nzType="primary"
           class="float-right"
           (click)="addElement($event)" [disabled]="formElement.value.length == formElement.maxCardinality">
-    <mat-icon>add</mat-icon>
+    <i nz-icon nzType="plus"></i>
   </button>
 </div>
