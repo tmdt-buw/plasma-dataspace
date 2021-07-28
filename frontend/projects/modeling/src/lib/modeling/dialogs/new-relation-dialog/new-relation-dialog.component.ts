@@ -1,6 +1,6 @@
-import { Component, Inject } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { Component, Input } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { NzModalRef } from 'ng-zorro-antd/modal';
 import { DataModelingControllerService, RelationConcept } from '../../../api/generated/dms';
 
 @Component({
@@ -10,6 +10,8 @@ import { DataModelingControllerService, RelationConcept } from '../../../api/gen
 })
 export class PlsNewRelationDialogComponent {
 
+  @Input() dataSource: string;
+
   form = new FormGroup({
     label: new FormControl('', [Validators.required]),
     description: new FormControl('', [Validators.required]),
@@ -17,13 +19,23 @@ export class PlsNewRelationDialogComponent {
   });
 
   error;
+  defaultConceptPrefix = 'http://plasma/';
 
-  constructor(public dialogRef: MatDialogRef<PlsNewRelationDialogComponent>, @Inject(MAT_DIALOG_DATA) public data: string, private modelingService: DataModelingControllerService) {
+  constructor(private modalRef: NzModalRef, private modelingService: DataModelingControllerService) {
   }
 
   submit(): void {
     this.error = null;
-    this.modelingService.cacheRelationConcept(this.data, this.form.value as RelationConcept).subscribe(() => this.dialogRef.close(true), error => this.error = error.error.message);
+    if (this.form.get('sourceURI').value === '') {
+      const defaultUri = this.defaultConceptPrefix + this.form.get('label').value;
+      this.form.get('sourceURI').setValue(defaultUri);
+    }
+    this.modelingService.cacheRelationConcept(this.dataSource, this.form.value as RelationConcept).subscribe(() => this.modalRef.close(true), error => this.error = error.error.message);
+  }
+
+  cancel(): void {
+    this.error = null;
+    this.modalRef.close();
   }
 
 }

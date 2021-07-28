@@ -1,0 +1,72 @@
+/* Paper */
+.joint-paper {
+  background-color: @modeling-background-color;
+}
+
+/*  Links  */
+.joint-type-custom-syntaxlink {
+  path[joint-selector="line"] {
+    stroke: @modeling-primary-color;
+  }
+}
+
+.joint-type-custom-semanticlink {
+  path[joint-selector="line"] {
+    stroke: @modeling-primary-color;
+  }
+
+  .label {
+    rect {
+      fill-opacity: 0;
+    }
+    text {
+      fill: @modeling-primary-color;
+    }
+  }
+}
+
+/* Link arrow header */
+marker {
+  path {
+    stroke: @modeling-primary-color;
+    fill: @modeling-primary-color;
+  }
+}
+
+/* Nodes */
+.joint-type-custom-syntaxnode {
+  rect {
+    stroke: @modeling-primary-color;
+    fill:  @modeling-background-color;
+  }
+
+  text {
+    fill: @modeling-primary-color;
+  }
+}
+
+.joint-type-custom-semanticnode {
+  rect {
+    stroke: @modeling-primary-color;
+  }
+
+  rect[joint-selector="body"] {
+    fill: @modeling-background-color;
+  }
+
+  rect[joint-selector="header"] {
+    fill: @modeling-primary-color;
+  }
+
+  text[joint-selector="headerText"] {
+    fill: @modeling-text-color;
+  }
+
+  text[joint-selector="bodyIcon"], text[joint-selector="bodyText"] {
+    fill: @modeling-primary-color;
+  }
+}
+
+.joint-highlight-stroke {
+  stroke: @modeling-highlight-color;
+}

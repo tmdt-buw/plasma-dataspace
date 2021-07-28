@@ -10,12 +10,13 @@ import {
   OnInit,
   Output,
   ViewChild,
-  ViewContainerRef
+  ViewContainerRef,
+  ViewEncapsulation
 } from '@angular/core';
-import { MatDialog, MatDialogConfig, MatDialogRef } from '@angular/material/dialog';
 import * as dagre from 'dagre';
 import * as graphlib from 'graphlib';
 import { dia, layout } from 'jointjs';
+import { ModalOptions, NzModalRef, NzModalService } from 'ng-zorro-antd/modal';
 import { BehaviorSubject, Subject } from 'rxjs';
 import { auditTime, distinctUntilChanged, pairwise, skip } from 'rxjs/operators';
 import * as svgPanZoom from 'svg-pan-zoom';
@@ -32,10 +33,13 @@ import {
 import { ContextMenuService } from '../context-menu/context-menu.service';
 import { PlsEntityConceptMenuComponent } from '../context-menu/entity-concept-menu/entity-concept-menu.component';
 import { PlsRelationConceptMenuComponent } from '../context-menu/relation-concept-menu/relation-concept-menu.component';
-import { PlsSemanticNodeDetailsComponent } from '../dialogs/semantic-node-dialog/semantic-node.component';
+import { ModalMouseEnabledConfig } from '../dialogs/common/modal.base-config';
+import {
+  PlsSemanticNodeDetailsComponent,
+  PlsSemanticNodeDetailsData
+} from '../dialogs/semantic-node-dialog/semantic-node.component';
 import { PlsSyntaxNodeDetailsComponent } from '../dialogs/syntax-node-dialog/syntax-node.component';
 import { Filter } from '../model/common/filter';
-import { Util } from '../model/common/util';
 import { Graphs } from '../model/configuration/graph';
 import { Icons } from '../model/configuration/icons';
 import { Links } from '../model/configuration/link';
@@ -49,7 +53,8 @@ import { ModelingService } from '../modeling.service';
 @Component({
   selector: 'pls-modeling-diagram',
   templateUrl: './diagram.component.html',
-  styleUrls: ['./diagram.component.scss'],
+  styleUrls: ['./diagram.component.less'],
+  encapsulation: ViewEncapsulation.None,
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class PlsDiagramComponent implements OnInit, AfterViewInit {
@@ -72,6 +77,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
   @Input() $layout: Subject<any>;
   @Input() $filter: BehaviorSubject<Filter>;
   @Input() $flat: BehaviorSubject<boolean>;
+  @Input() lockDragAndDrop: boolean;
   // config
   @Input() primaryColor;
   @Input() primaryColorContrast;
@@ -81,17 +87,15 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
   initializing = true;
   _schema: CombinedModel;
 
-  @Input() initial: boolean;
-
   // graph elements
-  @ViewChild('graph') canvas: ElementRef = null;
+  @ViewChild('graph') canvas: ElementRef;
   private graph: dia.Graph;
   private paper: dia.Paper;
   private panAndZoom: SvgPanZoom.Instance;
   private $resize: BehaviorSubject<{ width: number, height: number }>;
 
   // dialog
-  private nodeDialogRef: MatDialogRef<any>;
+  private nodeDialogRef: NzModalRef<any>;
 
   // modeling
   entityConcept;
@@ -106,11 +110,12 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
   @Output() relationConceptLinked = new EventEmitter<Relation>();
   @Output() nodeChanged = new EventEmitter<NodeChangedEvent>();
   @Output() nodePositionChanged = new EventEmitter<NodeChangedEvent>();
+  @Output() nodeClicked = new EventEmitter<string>();
 
   // hidden canvas to calculate label widths
   private _canvas = document.createElement('canvas');
 
-  constructor(public dialog: MatDialog, private overlay: Overlay, private modelingService: ModelingService, private contextMenu: ContextMenuService, private viewContainerRef: ViewContainerRef) {
+  constructor(private overlay: Overlay, private modelingService: ModelingService, private contextMenu: ContextMenuService, private viewContainerRef: ViewContainerRef, private modal: NzModalService) {
   }
 
   /**
@@ -120,7 +125,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
     // init joint.js graph
     this.graph = Graphs.createGraph();
     // init joint.js paper
-    this.paper = Papers.createPaper(this.graph, () => this.relationConcept, () => this.colorToHex('primary'));
+    this.paper = Papers.createPaper(this.graph, () => this.relationConcept, () => this.colorToHex('primary'), this.lockDragAndDrop);
     // create nodes and links
     this.createGraph();
     // subscribe to relation tool
@@ -158,6 +163,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
   ngAfterViewInit(): void {
     this.canvas.nativeElement.append(this.paper.el);
     this.paper.unfreeze();
+
     // init pan and zoom
     this.panAndZoom = svgPanZoom(this.canvas.nativeElement.firstChild.childNodes[2],
       {
@@ -182,7 +188,14 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
         this.unhighlightAll();
         elementView.highlight();
         const model = elementView.model.attributes;
-        this.openDetails(model.id, model.type);
+        if (!this.lockDragAndDrop) {
+          this.openDetails(model.id, model.type);
+        }
+      },
+      // emit node id
+      'element:pointerdown': (elementView: dia.ElementView) => {
+        const model = elementView.model.attributes;
+        this.nodeClicked.emit(model.id);
       },
       // adjust edges and persist element position on pointer up
       'element:pointerup': (elementView: dia.ElementView) => {
@@ -259,11 +272,14 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
       'render:done': () => {
         // turn off this trigger
         this.paper.off('render:done');
-        if (this.initial) {
-          // on first view layout
-          this.layout();
-          this.initial = false;
-          setTimeout(() => this.center(), 100);
+        // if there are no coordinates set, we guess its the initial view
+        const initial = !this.schema.syntaxModel.nodes[0].x;
+        if (initial) {
+          setTimeout(() => {
+            // on first view layout and center
+            this.layout();
+            setTimeout(() => this.center(), 500);
+          }, 500);
         } else {
           this.center();
         }
@@ -605,44 +621,44 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
    */
   private openDetails(id: string, type: Node): void {
     this.closeDialog();
-    const config: MatDialogConfig = {
-      hasBackdrop: false,
-      data: {
-        dataSource: this.dataSource,
-        node: null,
-        relativeTo: this.canvas
-      },
-      maxHeight: '90%',
-      maxWidth: '500px',
-      closeOnNavigation: true,
-      autoFocus: false,
-      viewContainerRef: this.viewContainerRef
-    };
     switch (type) {
       case Nodes.syntaxNodeName:
-        config.data.node = this.findSyntaxNodeById(id);
-        this.nodeDialogRef = this.dialog.open(PlsSyntaxNodeDetailsComponent, config);
-        this.nodeDialogRef.beforeClosed().subscribe((res) => {
+        const syntaxNode = this.findSyntaxNodeById(id);
+        this.nodeDialogRef = this.modal.create(this.createConfig(syntaxNode.label, PlsSyntaxNodeDetailsComponent, syntaxNode));
+        this.nodeDialogRef.afterClose.subscribe((res) => {
           if (res) {
             this.nodeDialogRef = null;
           }
         });
         break;
       case Nodes.semanticNodeName:
-        config.data.node = this.findSemanticNodeById(id);
-        this.nodeDialogRef = this.dialog.open(PlsSemanticNodeDetailsComponent, config);
-        this.nodeDialogRef.beforeClosed().subscribe((res) => {
+        const semanticNode = this.findSemanticNodeById(id);
+        const title = `${semanticNode.concept.label} (${semanticNode.concept.sourceURI})`;
+        this.nodeDialogRef = this.modal.create(this.createConfig(title, PlsSemanticNodeDetailsComponent, { dataSource: this.dataSource, node: semanticNode }));
+        this.nodeDialogRef.afterClose.subscribe((res) => {
           if (res) {
             this.nodeDialogRef = null;
+            const element = this.graph.getElements().find(el => el.attributes.id === id);
+            // TODO update width
+            element.attr('bodyText/text', semanticNode.label);
           }
-          const element = this.graph.getElements().find(el => el.attributes.id === id);
-          // TODO update width
-          element.attr('bodyText/text', config.data.node.label);
         });
         break;
       default:
         console.error('Unsupported node type');
     }
+  }
+
+  private createConfig(title: string, content: any, data: SyntaxNode | PlsSemanticNodeDetailsData): ModalOptions {
+    const rect: DOMRect = this.viewContainerRef.element.nativeElement.getBoundingClientRect();
+    return Object.assign({
+      nzStyle: {position: 'absolute', top: `${rect.top + 15}px`, right: `15px`},
+      nzTitle: title,
+      nzContent: content,
+      nzComponentParams: {
+        data
+      }
+    }, ModalMouseEnabledConfig);
   }
 
   /**
@@ -712,15 +728,15 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
     switch (color) {
       case 'primary':
         if (contrast) {
-          return Util.rgbToHex(this.primaryColorContrast);
+          return '#fff';
         } else {
-          return Util.rgbToHex(this.primaryColor);
+          return '#000';
         }
       case 'accent':
         if (contrast) {
-          return Util.rgbToHex(this.accentColorContrast);
+          return '#fff';
         } else {
-          return Util.rgbToHex(this.accentColor);
+          return '#111d4f';
         }
     }
   }

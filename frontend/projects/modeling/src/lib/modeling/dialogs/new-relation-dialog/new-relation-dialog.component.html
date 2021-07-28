@@ -1,33 +1,34 @@
-<h2 mat-dialog-title fxLayout="row" fxLayoutAlign="space-between center" fxLayoutGap="15px" class="dialog-header"><span>New Relation concept</span>
-  <mat-icon class="close-icon" [mat-dialog-close]="true">close</mat-icon>
-</h2>
+<form nz-form [formGroup]="form" (submit)="submit()" fxLayout="column">
 
-<form [formGroup]="form" (submit)="submit()" fxLayout="column">
-  <div mat-dialog-content fxLayout="column" fxLayoutGap="5px">
-    <mat-form-field appearance="outline">
-      <mat-label>Name</mat-label>
-      <input matInput formControlName="label" required>
-      <mat-hint>This will identify the concept in multiple sources, so it should be
-        independent from your current data set.
-      </mat-hint>
-    </mat-form-field>
-    <mat-form-field appearance="outline">
-      <mat-label>Description</mat-label>
-      <textarea matInput formControlName="description" mat-autosize></textarea>
-      <mat-hint>Detailed description of the entity concept.</mat-hint>
-    </mat-form-field>
-    <mat-form-field appearance="outline">
-      <mat-label>Source URI</mat-label>
-      <input matInput formControlName="sourceURI">
-      <mat-hint>URI of the concept from an ontology.</mat-hint>
-    </mat-form-field>
-  </div>
+  <nz-form-item>
+    <nz-form-label nzRequired nzFor="label">Label</nz-form-label>
+    <nz-form-control nzErrorTip="Label is required"
+                     nzExtra="This will identify the concept in multiple sources, so it should be independent from your current data set.">
+      <input nz-input formControlName="label"/>
+    </nz-form-control>
+  </nz-form-item>
 
-  <div fxLayout="row" fxLayoutAlign="space-between">
-    <mat-error *ngIf="error">{{ error }}</mat-error>
-    <div fxLayout="row" fxLayoutGap="5px" fxLayoutAlign="end center" fxFlex="grow">
-      <button mat-button mat-dialog-close>Cancel</button>
-      <button mat-raised-button color="primary" type="submit">Save</button>
-    </div>
-  </div>
+  <nz-form-item>
+    <nz-form-label nzRequired nzFor="description">Description</nz-form-label>
+    <nz-form-control nzErrorTip="Description is required"
+                     nzExtra="Detailed description of the entity concept.">
+      <input nz-input formControlName="description"/>
+    </nz-form-control>
+  </nz-form-item>
+
+  <nz-form-item>
+    <nz-form-label nzFor="sourceURI">Source URI</nz-form-label>
+    <nz-form-control nzExtra="URI of the concept from an ontology.">
+      <input nz-input formControlName="sourceURI" placeholder="{{'http://plasma/' +  form.get('label').value}}"/>
+    </nz-form-control>
+  </nz-form-item>
+
 </form>
+
+<div fxLayout="column" fxLayoutGap="5px">
+  <nz-alert nzType="error" *ngIf="error">{{ error }}</nz-alert>
+  <div fxLayout="row" fxLayoutGap="5px" fxLayoutAlign="end">
+    <button nz-button (click)="cancel()">Cancel</button>
+    <button nz-button nzType="primary" (click)="submit()" [disabled]="!form.valid || form.get('sourceURI').value.length === 1 || form.get('sourceURI').value.length === 2">Save</button>
+  </div>
+</div>

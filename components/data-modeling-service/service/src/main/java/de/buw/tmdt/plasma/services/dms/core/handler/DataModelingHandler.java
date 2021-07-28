@@ -553,6 +553,8 @@ public class DataModelingHandler {
             );
         }
 
+        entityConcept.validate();
+
         //load schema - DON'T COPY since caching of transient concepts is not "undoable"
         DataSourceModel dataSourceModel = findDataSourceOrThrow(dataSourceUuid);
         CombinedModel combinedModel = getCombinedModel(dataSourceModel, true);
@@ -588,6 +590,8 @@ public class DataModelingHandler {
                     "New relation concept must not have an entity id."
             );
         }
+
+        relationConcept.validate();
 
         //load schema - DON'T COPY since caching of transient concepts is not "undoable"
         DataSourceModel dataSourceModel = findDataSourceOrThrow(dataSourceUuid);
