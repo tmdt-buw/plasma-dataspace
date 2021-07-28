@@ -17,6 +17,7 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Set;
 
 /**
  * This is a client to write and read configs from a local storage mount
@@ -37,20 +38,21 @@ public class VolumeConfigClient implements ConfigServiceClient {
     }
 
     @Override
-    public Map<String, Serializable> getConfig(String configId, String token) throws NoSuchElementException {
+    public Map<String, String> getConfig(String configId, String token) throws NoSuchElementException {
         if (configId == null) {
             return new HashMap<>();
         }
         Path filePath = getConfigFilePath(configId);
         log.info("Reading config from " + filePath);
         try {
-            JavaType type = mapper.getTypeFactory().constructParametricType(HashMap.class, String.class, Serializable.class);
-            Map<String, Serializable> map = mapper.readValue(filePath.toFile(), type);
+            JavaType type = mapper.getTypeFactory().constructParametricType(HashMap.class, String.class, String.class);
+            Map<String, String> map = mapper.readValue(filePath.toFile(), type);
             if (map == null) {
                 throw new NoSuchElementException("Could not find file or valid config: " + filePath);
             }
             return map;
         } catch (IOException e) {
+            log.error(e.getMessage());
             throw new NoSuchElementException("Could not find or properly read requested file " + filePath + ":\n" + e.getMessage());
         }
     }
@@ -63,38 +65,41 @@ public class VolumeConfigClient implements ConfigServiceClient {
     }
 
     @Override
-    public void updateConfig(String configId, Map<String, Serializable> configs, String token) {
+    public void updateConfig(String configId, Map<String, Serializable> config, String token) {
         if (configId == null) {
             return;
         }
-        if (configs == null) {
-            configs = new HashMap<>();
+        if (config == null) {
+            config = new HashMap<>();
         }
         Path filePath = getConfigFilePath(configId);
         try {
             if (Files.exists(filePath)) {
                 Files.delete(filePath);
             }
-            mapper.writeValue(filePath.toFile(), configs);
+            storeConfig(configId, config);
         } catch (IOException e) {
             throw new NoSuchElementException("Could not write to requested file " + filePath);
         }
     }
 
     @Override
-    public String storeConfig(String configId, Map<String, Serializable> configs) {
+    public String storeConfig(String configId, Map<String, Serializable> config) {
         if (configId == null) {
             throw new UnsupportedOperationException("A configId needs to be specified");
         }
-        if (configs == null) {
-            configs = new HashMap<>();
+        Map<String, String> serializedConfig;
+        if (config == null) {
+            serializedConfig = new HashMap<>();
+        } else {
+            serializedConfig = serializeValues(config);
         }
         Path filePath = getConfigFilePath(configId);
         try {
             if (Files.exists(filePath)) {
                 throw new UnsupportedOperationException("Cannot write to " + filePath.toString() + ". Config alredy exists");
             }
-            mapper.writeValue(filePath.toFile(), configs);
+            mapper.writeValue(filePath.toFile(), serializedConfig);
         } catch (IOException e) {
             throw new NoSuchElementException("Could not write to requested file " + filePath);
         }
@@ -122,10 +127,28 @@ public class VolumeConfigClient implements ConfigServiceClient {
     @Override
     public String printFormattedConfig(Map<String, Serializable> config) {
         try {
-            return mapper.writeValueAsString(config);
+            return mapper.writeValueAsString(serializeValues(config));
         } catch (JsonProcessingException e) {
             e.printStackTrace();
             return config.toString();
         }
+    }
+
+    private Map<String, String> serializeValues(Map<String, Serializable> config) {
+        Map<String, String> serializedConfig = new HashMap<>();
+        Set<String> keys = config.keySet();
+        for (String key : keys) {
+            Serializable value = config.get(key);
+            if (!(value instanceof String)) {
+                try {
+                    serializedConfig.put(key, mapper.writeValueAsString(value));
+                } catch (JsonProcessingException e) {
+                    throw new IllegalArgumentException("Error converting non-string value '" + key + "' to string: " + e.getMessage());
+                }
+            } else {
+                serializedConfig.put(key, (String) value);
+            }
+        }
+        return serializedConfig;
     }
 }

@@ -24,7 +24,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.io.Serializable;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -39,7 +38,6 @@ public class StandardMatchingHandler {
     private final StandardRepository standardRepository;
     private final KnowledgeGraphServiceDTO2CombinedModelConverter kgsDTO2CMConverter;
     private final ConfigServiceClient configServiceClient;
-
 
     public StandardMatchingHandler(RuleDTOConverter ruleDTOConverter,
                                    @SuppressWarnings({"SpringJavaInjectionPointsAutowiringInspection"})
@@ -98,8 +96,8 @@ public class StandardMatchingHandler {
      */
     public String modelWithStandard(CombinedModel combinedModel, String configId, String configToken, String analysisId) {
 
-        Map<String, Serializable> config = configServiceClient.getConfig(configId, configToken);
-        log.info("Received config: {}", configServiceClient.printFormattedConfig(config));
+        Map<String, String> config = configServiceClient.getConfig(configId, configToken);
+        log.info("Received config: {}", config);
 
         String standardId = String.valueOf(config.get("STANDARD_ID"));
         if (standardId == null) {

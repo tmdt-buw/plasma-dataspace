@@ -17,7 +17,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.io.Serializable;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
@@ -39,8 +38,8 @@ public class LabelMatchingHandler {
     }
 
     public CombinedModel performLabeling(String dataSourceUUID, String configId, String configToken, CombinedModel combined) {
-        Map<String, Serializable> config = configClient.getConfig(configId, configToken);
-        log.info("Received config: {}", configClient.printFormattedConfig(config));
+        Map<String, String> config = configClient.getConfig(configId, configToken);
+        log.info("Received config: {}", config);
 
         SyntaxModel syntaxModelDTO = combined.getSyntaxModel();
         for (SchemaNode node : syntaxModelDTO.getNodes()) {

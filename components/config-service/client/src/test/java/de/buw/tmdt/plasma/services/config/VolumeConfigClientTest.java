@@ -1,5 +1,7 @@
 package de.buw.tmdt.plasma.services.config;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,10 +14,7 @@ import java.io.Serializable;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -29,8 +28,11 @@ class VolumeConfigClientTest {
     VolumeConfigClient client;
     String configId = "testconfigId";
 
+    ObjectMapper mapper;
+
     @BeforeEach
     public void setUp() throws IOException {
+        mapper = new ObjectMapper();
         try {
             Files.delete(Path.of(STORAGE_LOCATION, configId + ".cfg"));
         } catch (NoSuchFileException ignore) {
@@ -39,16 +41,30 @@ class VolumeConfigClientTest {
     }
 
     @Test
-    void testGetConfig() {
+    void testGetConfig() throws JsonProcessingException {
         Map<String, Serializable> map = new HashMap<>();
         map.put("testvalue1", "testvalue1");
         ArrayList<String> list = new ArrayList<>(Arrays.asList("Test", " Test"));
         map.put("testvalue2", list);
 
+        ArrayList<AComplexObject> complexList = new ArrayList<>();
+        Map<String, String> anotherMap = new HashMap<>();
+        anotherMap.put("test", "test");
+        anotherMap.put("test2", "test2");
+        anotherMap.put("test3", null);
+        complexList.add(new AComplexObject("complexObject", anotherMap));
+
+        map.put("thecomplexList", complexList);
+
         client.storeConfig(configId, map);
 
-        Map<String, Serializable> config = client.getConfig(configId, null);
-        assertEquals(map, config);
+        Map<String, String> config = client.getConfig(configId, null);
+        assertEquals("testvalue1", config.get("testvalue1"));
+
+        assertEquals(list, mapper.readValue(config.get("testvalue2"), mapper.getTypeFactory().constructCollectionType(ArrayList.class, String.class)));
+
+        assertEquals(complexList, mapper.readValue(config.get("thecomplexList"), mapper.getTypeFactory().constructCollectionType(ArrayList.class, AComplexObject.class)));
+
     }
 
     @Test
@@ -94,5 +110,31 @@ class VolumeConfigClientTest {
 
         client.storeConfig(configId, map);
         assertTrue(client.hasConfig(configId));
+    }
+
+    private static class AComplexObject {
+        public Map<String, String> map;
+        public String identifier;
+
+        public AComplexObject() {
+
+        }
+
+        public AComplexObject(String identifier, Map<String, String> map) {
+            this.map = map;
+            this.identifier = identifier;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            AComplexObject that = (AComplexObject) o;
+
+            if (!Objects.equals(map, that.map)) return false;
+            return Objects.equals(identifier, that.identifier);
+        }
+
     }
 }
