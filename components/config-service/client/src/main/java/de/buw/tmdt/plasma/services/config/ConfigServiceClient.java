@@ -35,7 +35,7 @@ public interface ConfigServiceClient {
     String storeConfig(String configId, Map<String, Serializable> config);
 
     /**
-     * Checks if a config for a given identifier exists
+     * Checks if a config for a given identifier exists.
      *
      * @param configId The configuration id to identify the config
      * @return true if a config exists, false otherwise
@@ -43,7 +43,7 @@ public interface ConfigServiceClient {
     boolean hasConfig(String configId);
 
     /**
-     * Removes a stored config from the service
+     * Removes a stored config from the service.
      *
      * @param configId The configuration id to identify the config
      * @param token    Authentication token used to delete config values

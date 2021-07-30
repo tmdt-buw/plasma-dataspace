@@ -17,10 +17,9 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.Set;
 
 /**
- * This is a client to write and read configs from a local storage mount
+ * This is a client to write and read configs from a local storage mount.
  */
 @Service
 @ConditionalOnProperty(value = "plasma.config.local.path")
@@ -31,7 +30,7 @@ public class VolumeConfigClient implements ConfigServiceClient {
     private final ObjectMapper mapper;
 
     @Value("${plasma.config.local.path}")
-    protected String STORAGE_LOCATION;
+    protected String storageLocation;
 
     public VolumeConfigClient() {
         mapper = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT);
@@ -58,10 +57,10 @@ public class VolumeConfigClient implements ConfigServiceClient {
     }
 
     private Path getConfigFilePath(String configId) {
-        if (STORAGE_LOCATION == null || STORAGE_LOCATION.isEmpty()) {
+        if (storageLocation == null || storageLocation.isEmpty()) {
             throw new RuntimeException("Cannot initialize ConfigService with empty or null path.");
         }
-        return Path.of(STORAGE_LOCATION, configId + ".cfg");
+        return Path.of(storageLocation, configId + ".cfg");
     }
 
     @Override
@@ -109,7 +108,7 @@ public class VolumeConfigClient implements ConfigServiceClient {
     @Override
     public boolean hasConfig(String configId) {
         Path filePath = getConfigFilePath(configId);
-        return (Files.exists(filePath));
+        return Files.exists(filePath);
     }
 
     @Override
@@ -136,9 +135,9 @@ public class VolumeConfigClient implements ConfigServiceClient {
 
     private Map<String, String> serializeValues(Map<String, Serializable> config) {
         Map<String, String> serializedConfig = new HashMap<>();
-        Set<String> keys = config.keySet();
-        for (String key : keys) {
-            Serializable value = config.get(key);
+        for (Map.Entry<String, Serializable> entry : config.entrySet()) {
+            Serializable value = entry.getValue();
+            String key = entry.getKey();
             if (!(value instanceof String)) {
                 try {
                     serializedConfig.put(key, mapper.writeValueAsString(value));

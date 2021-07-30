@@ -104,6 +104,11 @@
             <artifactId>feign-client</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
+        <dependency>
+            <groupId>de.buw.tmdt.plasma.services.config</groupId>
+            <artifactId>client</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
 
         <!-- MariaDB -->
         <dependency>

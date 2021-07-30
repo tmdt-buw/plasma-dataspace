@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class VolumeConfigClientTest {
 
     @Value("${plasma.config.local.path}")
-    protected String STORAGE_LOCATION;
+    protected String storageLocation;
     @Autowired
     VolumeConfigClient client;
     String configId = "testconfigId";
@@ -34,7 +34,7 @@ class VolumeConfigClientTest {
     public void setUp() throws IOException {
         mapper = new ObjectMapper();
         try {
-            Files.delete(Path.of(STORAGE_LOCATION, configId + ".cfg"));
+            Files.delete(Path.of(storageLocation, configId + ".cfg"));
         } catch (NoSuchFileException ignore) {
 
         }
@@ -127,14 +127,26 @@ class VolumeConfigClientTest {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
 
             AComplexObject that = (AComplexObject) o;
 
-            if (!Objects.equals(map, that.map)) return false;
+            if (!Objects.equals(map, that.map)) {
+                return false;
+            }
             return Objects.equals(identifier, that.identifier);
         }
 
+        @Override
+        public int hashCode() {
+            int result = map != null ? map.hashCode() : 0;
+            result = 31 * result + (identifier != null ? identifier.hashCode() : 0);
+            return result;
+        }
     }
 }
