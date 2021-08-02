@@ -2,6 +2,7 @@ package de.buw.tmdt.plasma.services.config;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,9 +32,11 @@ class VolumeConfigClientTest {
 
     ObjectMapper mapper;
 
+    @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_BAD_PRACTICE")
     @BeforeEach
     public void setUp() throws IOException {
         mapper = new ObjectMapper();
+        //noinspection ResultOfMethodCallIgnored
         new File(storageLocation).mkdir();
         try {
             Files.delete(Path.of(storageLocation, configId + ".cfg"));
