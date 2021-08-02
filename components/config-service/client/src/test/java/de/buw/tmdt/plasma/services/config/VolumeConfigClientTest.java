@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.nio.file.Files;
@@ -19,7 +20,7 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(classes = TestApplication.class)
-@TestPropertySource(properties = {"plasma.config.local.path = C://temp"})
+@TestPropertySource(properties = {"plasma.config.local.path = ./temp"})
 class VolumeConfigClientTest {
 
     @Value("${plasma.config.local.path}")
@@ -33,6 +34,7 @@ class VolumeConfigClientTest {
     @BeforeEach
     public void setUp() throws IOException {
         mapper = new ObjectMapper();
+        new File(storageLocation).mkdir();
         try {
             Files.delete(Path.of(storageLocation, configId + ".cfg"));
         } catch (NoSuchFileException ignore) {
