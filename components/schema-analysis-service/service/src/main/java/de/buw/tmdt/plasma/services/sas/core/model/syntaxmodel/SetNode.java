@@ -1,12 +1,12 @@
 package de.buw.tmdt.plasma.services.sas.core.model.syntaxmodel;
 
-import de.buw.tmdt.plasma.services.sas.core.model.syntaxmodel.members.PatternSelector;
-import de.buw.tmdt.plasma.services.sas.core.model.syntaxmodel.members.WildcardSelector;
-import de.buw.tmdt.plasma.services.sas.core.model.Traversable;
-import de.buw.tmdt.plasma.services.sas.core.model.syntaxmodel.members.Selector;
 import de.buw.tmdt.plasma.services.sas.core.model.Position;
+import de.buw.tmdt.plasma.services.sas.core.model.Traversable;
 import de.buw.tmdt.plasma.services.sas.core.model.TraversableModelBase;
 import de.buw.tmdt.plasma.services.sas.core.model.exception.SchemaAnalysisException;
+import de.buw.tmdt.plasma.services.sas.core.model.syntaxmodel.members.PatternSelector;
+import de.buw.tmdt.plasma.services.sas.core.model.syntaxmodel.members.Selector;
+import de.buw.tmdt.plasma.services.sas.core.model.syntaxmodel.members.WildcardSelector;
 import de.buw.tmdt.plasma.utilities.collections.CollectionUtilities;
 import de.buw.tmdt.plasma.utilities.misc.ObjectUtilities;
 import de.buw.tmdt.plasma.utilities.misc.StringUtilities;
@@ -211,10 +211,10 @@ public class SetNode extends Node {
 					PatternSelector patternSelector = (PatternSelector) selector;
 					if (modulus == -1 && offset == -1) {
 						modulus = patternSelector.getModulus();
-						offset = patternSelector.getOffset();
+						offset = patternSelector.getTheOffset();
 						continue;
 					}
-					if (modulus != patternSelector.getModulus() || offset != patternSelector.getOffset()) {
+					if (modulus != patternSelector.getModulus() || offset != patternSelector.getTheOffset()) {
 						return false;
 					}
 					if (Collections.disjoint(indexes, patternSelector.getSelections())) {
