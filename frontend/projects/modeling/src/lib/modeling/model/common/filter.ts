@@ -1,3 +1,3 @@
 export enum Filter {
-  ALL, SYNTAX, SEMANTIC
+  ALL = 'All', SYNTAX = 'Syntax', SEMANTIC = 'Semantic'
 }

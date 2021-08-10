@@ -6,7 +6,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>de.buw.tmdt.plasma</groupId>
     <artifactId>parent</artifactId>
-    <version>1.1.5</version>
+    <version>1.2.3</version>
     <name>PLASMA Parent</name>
     <packaging>pom</packaging>
 
@@ -24,6 +24,7 @@
         <module>components/datasource-service</module>
         <module>auxiliary_services/ARS-L-label-matching</module>
         <module>auxiliary_services/ARS-M-standard-matching</module>
+        <module>components/config-service</module>
     </modules>
 
     <properties>

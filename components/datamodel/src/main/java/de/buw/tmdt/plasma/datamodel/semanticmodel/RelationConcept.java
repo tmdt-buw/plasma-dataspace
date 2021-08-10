@@ -3,6 +3,7 @@ package de.buw.tmdt.plasma.datamodel.semanticmodel;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import de.buw.tmdt.plasma.datamodel.CombinedModelElement;
+import de.buw.tmdt.plasma.datamodel.CombinedModelIntegrityException;
 import de.buw.tmdt.plasma.utilities.misc.StringUtilities;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -147,4 +148,12 @@ public class RelationConcept extends CombinedModelElement implements Serializabl
 				+ '}';
 	}
 
+		public void validate() throws CombinedModelIntegrityException {
+			if (getLabel().trim().length() < 1) {
+				throw new CombinedModelIntegrityException("Label of RelationConcept '" + getLabel() + "' must not be shorter than 1 characters.");
+			}
+			if (getSourceURI().trim().length() < 3) {
+				throw new CombinedModelIntegrityException("SourceURI of RelationConcept '" + getLabel() + "' must not be shorter than 3 characters.");
+			}
+    }
 }

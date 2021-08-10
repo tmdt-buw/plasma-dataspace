@@ -1,80 +1,53 @@
 <div fxLayout="column" fxFill cdkDropListGroup #main="plsFullScreen" plsFullScreen [style.background-color]="backgroundColor">
-  <div fxFlex="40px" fxLayout="row" fxLayoutAlign="space-between center" fxLayoutGap="5px" class="modeling-toolbar">
+  <div *ngIf="!readonly" fxFlex="40px" fxLayout="row" fxLayoutAlign="space-between center" fxLayoutGap="5px" class="modeling-toolbar">
     <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="15px">
-      <button mat-icon-button matTooltip="Undo" (click)="undo()">
-        <mat-icon>undo</mat-icon>
-      </button>
-      <button mat-icon-button matTooltip="Redo" (click)="redo()">
-        <mat-icon>redo</mat-icon>
-      </button>
-      <button mat-stroked-button color="primary" matTooltip="Add entity or relation concept" (click)="addConcepts()">
-        <mat-icon>device_hub</mat-icon>
-        <span>Add concepts and relations</span>
-      </button>
-      <mat-slide-toggle (change)="toggleFlatMode($event)">View URIs</mat-slide-toggle>
+      <button nz-button nzType="text" nzShape="circle" (click)="undo()" nz-tooltip nzTooltipTitle="Undo"><i nz-icon nzType="undo"></i></button>
+      <button nz-button nzType="text" nzShape="circle" (click)="redo()" nz-tooltip nzTooltipTitle="Redo"><i nz-icon nzType="redo"></i></button>
+      <button nz-button nzType="primary" nz-tooltip nzTooltipTitle="Add entity or relation concept" (click)="addConcepts()"><i nz-icon nzType="deployment-unit"></i>Add concepts and relations</button>
+      <nz-switch (change)="toggleFlatMode($event)"></nz-switch>
     </div>
 
     <div class="modeling-search-bar-container">
-      <button mat-icon-button (click)="toggleSearch()">
-        <mat-icon>search</mat-icon>
-      </button>
-      <mat-form-field class="modeling-search-bar" @search *ngIf="isSearchExpanded">
-        <input matInput [formControl]="searchControl">
-        <button mat-button *ngIf="searchControl.dirty" matSuffix mat-icon-button (click)="searchControl.reset()">
-          <mat-icon>close</mat-icon>
-        </button>
-      </mat-form-field>
-      <button mat-icon-button [matMenuTriggerFor]="filter">
-        <mat-icon>filter_alt</mat-icon>
-      </button>
-      <button mat-icon-button matTooltip="Layout graph" (click)="$layout.next()">
-        <mat-icon>format_line_spacing</mat-icon>
-      </button>
-      <button mat-icon-button matTooltip="Center graph" (click)="$center.next()">
-        <mat-icon>open_with</mat-icon>
-      </button>
-      <button mat-icon-button matTooltip="more" [matMenuTriggerFor]="more">
-        <mat-icon>more_vert</mat-icon>
-      </button>
-      <button *ngIf="fullScreen" mat-icon-button matTooltip="Toggle fullscreen" (click)="main.toggleFullScreen()">
-        <mat-icon *ngIf="isFullscreen">fullscreen_exit</mat-icon>
-        <mat-icon *ngIf="!isFullscreen">fullscreen</mat-icon>
+      <button nz-button nzType="text" nzShape="circle" (click)="toggleSearch()" nz-tooltip nzTooltipTitle="Search"><i nz-icon nzType="search"></i></button>
+      <nz-input-group [nzSuffix]="inputClearTpl" class="modeling-search-bar" @search *ngIf="isSearchExpanded">
+        <input type="text" nz-input [formControl]="searchControl" placeholder="Search" />
+      </nz-input-group>
+      <ng-template #inputClearTpl>
+        <i nz-icon nzType="close-circle" *ngIf="searchControl.dirty" (click)="searchControl.reset()"></i>
+      </ng-template>
+
+      <nz-select nzBorderless [nzPlaceHolder]="filterTpl" [ngModel]="$filter | async" (ngModelChange)="onFilterChange($event)">
+        <nz-option [nzValue]="Filter.ALL" nzLabel="All"></nz-option>
+        <nz-option [nzValue]="Filter.SEMANTIC" nzLabel="Semantic"></nz-option>
+        <nz-option [nzValue]="Filter.SYNTAX" nzLabel="Syntax"></nz-option>
+      </nz-select>
+      <ng-template #filterTpl let-selected>
+        <i nz-icon nzType="filter"></i> {{selected}}
+      </ng-template>
+
+      <button nz-button nzType="text" nzShape="circle" (click)="$layout.next()" nz-tooltip nzTooltipTitle="Layout graph"><i nz-icon nzType="apartment"></i></button>
+      <button nz-button nzType="text" nzShape="circle" (click)="$center.next()" nz-tooltip nzTooltipTitle="Center graph"><i nz-icon nzType="pic-center"></i></button>
+
+      <button *ngIf="fullScreen" nz-button nzType="text" nzShape="circle" (click)="main.toggleFullScreen()" nz-tooltip nzTooltipTitle="Toggle fullscreen">
+        <i *ngIf="isFullscreen" nz-icon nzType="fullscreen-exit"></i>
+        <i *ngIf="!isFullscreen" nz-icon nzType="fullscreen"></i>
       </button>
     </div>
   </div>
 
-  <div *ngIf="loading" fxFlex fxLayout="column" fxLayoutAlign="center center">
-    <mat-spinner [diameter]="60"></mat-spinner>
-  </div>
-
-  <div fxFlex *ngIf="hasColors() && schema" #modelingArea>
-    <pls-modeling-diagram [$filter]="$filter" [$center]="$center" [$layout]="$layout" [$flat]="$flat" [dataSource]="dataSource"
-                          [primaryColor]="primaryColor" [primaryColorContrast]="primaryColorContrast" [accentColor]="accentColor" [accentColorContrast]="accentColorContrast"
-                          [schema]="schema" [initial]="initial"
-                          (graphLaidOut)="onGraphLaidOut($event)"
-                          (entityConceptMapped)="onConceptMapped($event)"
-                          (relationConceptLinked)="onRelationConceptLinked($event)"
-                          (nodePositionChanged)="onNodePositionChanged($event)"
-                          (nodeChanged)="onNodeChanged($event)">
-    </pls-modeling-diagram>
-    <button class="action-button" *ngIf="!schema.finalized" mat-raised-button color="primary" (click)="finalizeModel()"><mat-icon>stop</mat-icon><span>Finish</span></button>
-    <button class="action-button" *ngIf="schema.finalized" mat-raised-button color="primary" (click)="exportModel()"><mat-icon>vertical_align_bottom</mat-icon><span>Export</span></button>
-  </div>
-  <button mat-raised-button color="primary" #primary style="{display: none}"></button>
-  <button mat-raised-button color="accent" #accent style="{display: none}"></button>
+  <nz-spin fxFlex class="modeling-container" nzTip="Loading..." [nzSpinning]="loading">
+    <div class="modeling-area" *ngIf="schema" #modelingArea>
+      <pls-modeling-diagram [$filter]="$filter" [$center]="$center" [$layout]="$layout" [$flat]="$flat" [dataSource]="dataSource" [lockDragAndDrop]="lockDragAndDrop"
+                            [schema]="schema"
+                            (graphLaidOut)="onGraphLaidOut($event)"
+                            (entityConceptMapped)="onConceptMapped($event)"
+                            (relationConceptLinked)="onRelationConceptLinked($event)"
+                            (nodePositionChanged)="onNodePositionChanged($event)"
+                            (nodeChanged)="onNodeChanged($event)"
+                            (nodeClicked)="onNodeClicked($event)">
+      </pls-modeling-diagram>
+      <button *ngIf="!schema.finalized && !hideFinalAndExportButton" class="action-button" nz-button nzType="primary" (click)="finalizeModel()"><i nz-icon nzType="play-circle"></i>Finish</button>
+      <button *ngIf="schema.finalized && !hideFinalAndExportButton" class="action-button" nz-button nzType="primary" (click)="exportModel()"><i nz-icon nzType="download"></i>Export</button>
+    </div>
+  </nz-spin>
 </div>
-
-<mat-menu #filter="matMenu">
-  <mat-selection-list [multiple]="false" (selectionChange)="onFilterChange($event.options[0].value)">
-    <mat-list-option selected [value]="Filter.ALL">All</mat-list-option>
-    <mat-list-option [value]="Filter.SEMANTIC">Semantic Model</mat-list-option>
-    <mat-list-option [value]="Filter.SYNTAX">Syntax Model</mat-list-option>
-  </mat-selection-list>
-</mat-menu>
-
-<mat-menu #more="matMenu">
-  <button mat-menu-item (click)="onImport()"><mat-icon>cloud_upload</mat-icon>Import Ontology</button>
-  <button mat-menu-item (click)="onExportKnowledgeGraph()"><mat-icon>vertical_align_bottom</mat-icon>Export Knowledge Graph</button>
-  <button mat-menu-item (click)="onExportOntology()"><mat-icon>vertical_align_bottom</mat-icon>Export Upper Ontology</button>
-</mat-menu>
-

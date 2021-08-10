@@ -1,14 +1,14 @@
 import { animate, style, transition, trigger } from '@angular/animations';
-import { Component, ElementRef, Input, OnInit, ViewChild, ViewContainerRef } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { FormControl } from '@angular/forms';
-import { MatDialog } from '@angular/material/dialog';
+import { ModalOptions, NzModalService } from 'ng-zorro-antd/modal';
 import { BehaviorSubject, Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { CombinedModel, DataModelingControllerService, EntityType, Relation } from '../api/generated/dms';
 import { LocalKnowledgeControllerService, UniversalKnowledgeGraphControllerService } from '../api/generated/kgs';
 import { ContextMenuService } from './context-menu/context-menu.service';
+import { ModalBaseConfig, ModalMouseEnabledConfig } from './dialogs/common/modal.base-config';
 import { PlsConceptDialogComponent } from './dialogs/concept-dialog/concept-dialog.component';
-import { PlsImportDialogComponent } from './dialogs/import-dialog/import-dialog.component';
 import { PlsOperationsDialogComponent } from './dialogs/operations-dialog/operations-dialog/operations-dialog.component';
 import { Filter } from './model/common/filter';
 import { Util } from './model/common/util';
@@ -20,7 +20,7 @@ import { NodeChangedEvent } from './model/events/node-changed-event';
 @Component({
   selector: 'pls-modeling',
   templateUrl: './modeling.component.html',
-  styleUrls: ['./modeling.component.scss'],
+  styleUrls: ['./modeling.component.less'],
   animations: [
     // search bar animation
     trigger('search', [
@@ -34,18 +34,22 @@ import { NodeChangedEvent } from './model/events/node-changed-event';
     ])
   ]
 })
-export class PlsModelingComponent implements OnInit {
+export class PlsModelingComponent implements OnInit, OnDestroy {
 
   readonly Filter = Filter;
 
   @Input() dataSource: string;
   @Input() backgroundColor: string;
   @Input() fullScreen: boolean = true;
+  @Input() readonly: boolean = false;
+  @Input() lockDragAndDrop: boolean = false;
+  @Input() hideFinalAndExportButton: boolean = false;
 
   @ViewChild('main') main;
-  @ViewChild('primary') primary;
-  @ViewChild('accent') accent;
   @ViewChild('modelingArea') modelingArea: ElementRef;
+
+  @Output() finished = new EventEmitter();
+  @Output() clickedNode = new EventEmitter();
 
   // search bar
   searchControl = new FormControl();
@@ -57,42 +61,25 @@ export class PlsModelingComponent implements OnInit {
   $filter = new BehaviorSubject<Filter>(Filter.ALL);
   $flat = new BehaviorSubject<boolean>(false);
 
-  // colors
-  primaryColor;
-  primaryColorContrast;
-  accentColor;
-  accentColorContrast;
-
   // schema
   schema: CombinedModel;
-  initial: boolean = false;
   loading: boolean = true;
 
   // dialogs
   addConceptDialogRef;
+  contextMenuSubscription;
 
   get isFullscreen(): boolean {
     return !!this.main?.fullScreenIsActive;
   }
 
-  hasColors(): boolean {
-    return this.primaryColor && this.primaryColorContrast && this.accentColor && this.accentColorContrast;
-  }
-
-  constructor(private modelingService: DataModelingControllerService, private contextMenu: ContextMenuService, public dialog: MatDialog,
-              private kgsService: UniversalKnowledgeGraphControllerService, private kgsModelService: LocalKnowledgeControllerService, private viewContainerRef: ViewContainerRef) {
+  constructor(private modelingService: DataModelingControllerService, private contextMenu: ContextMenuService, private kgsService: UniversalKnowledgeGraphControllerService,
+              private kgsModelService: LocalKnowledgeControllerService, private modal: NzModalService) {
   }
 
   ngOnInit(): void {
     // query schema
     this.getSchema();
-    // get angular material primary color
-    setTimeout(() => {
-      this.primaryColor = getComputedStyle(this.primary._elementRef.nativeElement).backgroundColor;
-      this.primaryColorContrast = getComputedStyle(this.primary._elementRef.nativeElement).color;
-      this.accentColor = getComputedStyle(this.accent._elementRef.nativeElement).backgroundColor;
-      this.accentColorContrast = getComputedStyle(this.accent._elementRef.nativeElement).color;
-    });
     // subscribe to search
     this.searchControl.valueChanges.pipe(
       distinctUntilChanged(),
@@ -100,7 +87,7 @@ export class PlsModelingComponent implements OnInit {
     ).subscribe((value) => {
       // TODO
     });
-    this.contextMenu.onClosed.subscribe((event: ContextMenuEvent) => {
+    this.contextMenuSubscription = this.contextMenu.onClosed.subscribe((event: ContextMenuEvent) => {
       if (event) {
         if (event.type === ContextMenuEventType.removeEntity) {
           this.modelingService.removeEntityType(this.dataSource, (event.target as EntityType).uuid).subscribe((res: CombinedModel) => this.schema = res);
@@ -109,14 +96,18 @@ export class PlsModelingComponent implements OnInit {
           this.modelingService.removeRelation(this.dataSource, (event.target as Relation).uuid).subscribe((res: CombinedModel) => this.schema = res);
         }
         if (event.type === ContextMenuEventType.performOperation) {
-          const dialogRef = this.dialog.open(PlsOperationsDialogComponent, {
-            data: {
-              operation: event.operation
+          const operation = event.operation;
+          const config: ModalOptions = {
+            nzTitle: operation.label,
+            nzContent: PlsOperationsDialogComponent,
+            nzComponentParams: {
+              operation
             }
-          });
-          dialogRef.afterClosed().subscribe(context => {
+          };
+          const dialogRef = this.modal.create(Object.assign(config, ModalBaseConfig));
+          dialogRef.afterClose.subscribe(context => {
             if (context) {
-              this.modelingService.modifySchema(this.dataSource, context.operation).subscribe((res: CombinedModel) => this.schema = res);
+              this.modelingService.modifySchema(this.dataSource, context).subscribe((res: CombinedModel) => this.schema = res);
             }
           });
         }
@@ -124,13 +115,21 @@ export class PlsModelingComponent implements OnInit {
     });
   }
 
+  ngOnDestroy(): void {
+    this.modal.closeAll();
+    this.contextMenuSubscription.unsubscribe();
+    this.addConceptDialogRef?.close();
+  }
+
   getSchema(): void {
     this.modelingService.getCombinedModel(this.dataSource).subscribe((schema: CombinedModel) => {
         this.schema = schema;
+        if (this.readonly) {
+          this.$filter.next(Filter.SEMANTIC);
+        }
         this.loading = false;
       },
       () => this.modelingService.initDataSourceSchema(this.dataSource).subscribe(() => {
-        this.initial = true;
         this.loading = false;
         this.getSchema();
       }));
@@ -147,25 +146,24 @@ export class PlsModelingComponent implements OnInit {
   }
 
   addConcepts(): void {
-    const parentHeight = getComputedStyle(this.main._el.nativeElement).height.replace('px', '');
     if (this.addConceptDialogRef) {
       this.addConceptDialogRef.close();
-      return;
     }
-    this.addConceptDialogRef = this.dialog.open(PlsConceptDialogComponent, {
-      autoFocus: false,
-      hasBackdrop: false,
-      data: {
-        dataSource: this.dataSource,
-        node: null,
-        relativeTo: this.modelingArea
-      },
-      maxHeight: `${(+parentHeight - 70)}px`,
-      maxWidth: '440px',
-      closeOnNavigation: true,
-      viewContainerRef: this.viewContainerRef
-    });
-    this.addConceptDialogRef.afterClosed().subscribe(() => this.addConceptDialogRef = undefined);
+    const rect: DOMRect = this.modelingArea.nativeElement.getBoundingClientRect();
+    const config: ModalOptions = {
+      nzStyle: {position: 'absolute', top: `${rect.top + 15}px`, left: `15px`, 'max-width': '30%', bottom: '15px'},
+      nzClassName: 'pls-concept-dialog',
+      nzTitle: '',
+      nzContent: PlsConceptDialogComponent,
+      nzComponentParams: {
+        dataSource: this.dataSource
+      }
+    };
+    this.addConceptDialogRef = this.modal.create(Object.assign(config, ModalMouseEnabledConfig));
+  }
+
+  onNodeClicked(event: string): void {
+    this.clickedNode.emit(event);
   }
 
   onRelationConceptLinked(event: Relation): void {
@@ -214,24 +212,19 @@ export class PlsModelingComponent implements OnInit {
     this.isSearchExpanded = !this.isSearchExpanded;
   }
 
-  onFilterChange(event: Filter): void {
+  onFilterChange(event): void {
     this.$filter.next(event);
   }
 
-  onImport(): void {
-    this.dialog.open(PlsImportDialogComponent);
-  }
-
-  onExportKnowledgeGraph(): void {
-    this.kgsService.convertGraphToRdf('turtle', true).subscribe((res) => Util.download('ontology.rdf', res));
-  }
-
-  onExportOntology(): void {
-    this.kgsService.getUpperOntology('turtle').subscribe((res) => Util.download('upperOntology.rdf', res));
-  }
-
   finalizeModel(): void {
-    this.modelingService.finishModeling(this.dataSource).subscribe((res) => this.schema = res);
+    // close all dialogs
+    this.modal.closeAll();
+    this.readonly = true;
+    this.modelingService.finishModeling(this.dataSource).subscribe(() => {
+      this.finished.emit();
+    }, () => {
+      this.readonly = false;
+    });
   }
 
   exportModel(): void {

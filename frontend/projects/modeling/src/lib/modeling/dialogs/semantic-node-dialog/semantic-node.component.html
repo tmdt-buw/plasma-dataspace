@@ -1,27 +1,23 @@
-<div mat-dialog-title fxLayout="row" fxLayoutAlign="space-between center" fxLayoutGap="15px" class="dialog-header">
-  <strong>{{ data.node.concept.label }}</strong>
-  <mat-icon class="close-icon" [mat-dialog-close]="true">close</mat-icon>
-</div>
-<i *ngIf="data.node.originalLabel" class="dialog-subtitle"
-   [matTooltip]="'Concept URI as defined by the knowledge source'">({{ data.node.concept.sourceURI }})</i>
-<mat-dialog-content fxLayout="column" fxLayoutGap="15px">
-  <p [matTooltip]="'Concept description as defined by the knowledge source'">{{ data.node.concept.description }}</p>
-  <mat-divider></mat-divider>
-  <div fxLayout="row" fxLayoutAlign="start center">
-    <pls-inline-edit [(ngModel)]="data.node.label" [matTooltip]="'Chosen name for this entity'"
-                     [$edit]="$edit"></pls-inline-edit>
-    <button mat-icon-button *ngIf="!editing" (click)="startEdit()">
-      <mat-icon>edit</mat-icon>
+<p nz-tooltip
+   [nzTooltipTitle]="'Concept description as defined by the knowledge source'">{{ data.node.concept.description }}</p>
+<nz-divider></nz-divider>
+<div fxLayout="row" fxLayoutAlign="space-between center">
+  <pls-inline-edit [(ngModel)]="data.node.label" nz-tooltip [nzTooltipTitle]="'Chosen name for this entity'"
+                   [$edit]="$edit"></pls-inline-edit>
+  <div>
+    <button nz-button nzType="text" nzShape="circle" *ngIf="!editing" (click)="startEdit()"><i nz-icon
+                                                                                               nzType="edit"></i>
     </button>
-    <button mat-icon-button *ngIf="editing" (click)="acceptEdit()">
-      <mat-icon>check</mat-icon>
+    <button nz-button nzType="text" nzShape="circle" *ngIf="editing" (click)="acceptEdit()"><i nz-icon
+                                                                                               nzType="check"></i>
     </button>
-    <button mat-icon-button *ngIf="editing" (click)="cancelEdit()">
-      <mat-icon>close</mat-icon>
+    <button nz-button nzType="text" nzShape="circle" *ngIf="editing" (click)="cancelEdit()"><i nz-icon
+                                                                                               nzType="close"></i>
     </button>
   </div>
-  <i class="dialog-subtitle" [matTooltip]="'Original label of the connected syntax node'">({{ data.node.originalLabel }}
-    )</i>
-  <pls-inline-edit [type]="'textarea'" [(ngModel)]="data.node.description" [$edit]="$edit"
-                   [empty]="'No description'"></pls-inline-edit>
-</mat-dialog-content>
+</div>
+<i nz-typography nzType="secondary" nz-tooltip
+   [nzTooltipTitle]="'Original label of the connected syntax node'">({{ data.node.originalLabel }})</i>
+<pls-inline-edit [type]="'textarea'" [(ngModel)]="data.node.description" [$edit]="$edit"
+                 [empty]="'No description'"></pls-inline-edit>
+

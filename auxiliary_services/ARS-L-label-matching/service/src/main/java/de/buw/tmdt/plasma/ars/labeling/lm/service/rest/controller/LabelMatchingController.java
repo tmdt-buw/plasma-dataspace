@@ -6,9 +6,11 @@ import de.buw.tmdt.plasma.datamodel.CombinedModel;
 import io.swagger.v3.oas.annotations.Operation;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController("Label Matching Controller")
+@RequestMapping(value = "/api/plasma-ars-l-lm")
 public class LabelMatchingController implements LabelMatchingAPI {
 
 	private final LabelMatchingHandler labelMatchingHandler;
@@ -21,10 +23,10 @@ public class LabelMatchingController implements LabelMatchingAPI {
 		this.labelMatchingHandler = labelMatchingHandler;
 	}
 
-    @NotNull
-    @Override
-    @Operation(description = "performs a semantic labeling on the given combined model")
-    public CombinedModel performLabeling(@NotNull String uuid, @NotNull CombinedModel combined) {
-        return labelMatchingHandler.performLabeling(uuid, combined);
-    }
+	@NotNull
+	@Override
+	@Operation(description = "performs a semantic labeling on the given combined model")
+	public CombinedModel performLabeling(@NotNull String uuid, String configId, String configToken, @NotNull CombinedModel combined) {
+		return labelMatchingHandler.performLabeling(uuid, configId, configToken, combined);
+	}
 }

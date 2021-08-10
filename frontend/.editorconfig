@@ -11,6 +11,7 @@ max_line_length = off
 
 [*.ts]
 quote_type = single
+ij_typescript_spaces_within_imports = true
 
 [*.md]
 trim_trailing_whitespace = false

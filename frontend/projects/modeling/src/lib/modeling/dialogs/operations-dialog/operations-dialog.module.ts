@@ -1,12 +1,11 @@
 import { NgModule } from '@angular/core';
+import { NzAlertModule } from 'ng-zorro-antd/alert';
+import { NzButtonModule } from 'ng-zorro-antd/button';
+import { NzDividerModule } from 'ng-zorro-antd/divider';
 import { PlsOperationsDialogComponent } from './operations-dialog/operations-dialog.component';
 import { PlsSchemaFormModule } from './schema-form/schema-form.module';
 import { CommonModule } from '@angular/common';
-import { MatDialogModule } from '@angular/material/dialog';
-import { MatIconModule } from '@angular/material/icon';
 import { FlexLayoutModule } from '@angular/flex-layout';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatButtonModule } from '@angular/material/button';
 
 @NgModule({
   declarations: [PlsOperationsDialogComponent],
@@ -16,10 +15,9 @@ import { MatButtonModule } from '@angular/material/button';
     // Angular
     CommonModule,
     FlexLayoutModule,
-    MatButtonModule,
-    MatDialogModule,
-    MatIconModule,
-    MatFormFieldModule,
+    NzDividerModule,
+    NzAlertModule,
+    NzButtonModule
   ],
   exports: [PlsOperationsDialogComponent]
 })

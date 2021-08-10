@@ -9,13 +9,16 @@ import de.buw.tmdt.plasma.datamodel.syntaxmodel.Edge;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.PrimitiveNode;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.SchemaNode;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.SyntaxModel;
+import de.buw.tmdt.plasma.services.config.ConfigServiceClient;
 import de.buw.tmdt.plasma.services.kgs.shared.api.UniversalKnowledgeApi;
 import de.buw.tmdt.plasma.services.kgs.shared.dto.knowledgegraph.EntityConceptDTO;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -26,11 +29,18 @@ public class LabelMatchingHandler {
 
     final UniversalKnowledgeApi universalKnowledgeApi;
 
-    public LabelMatchingHandler(UniversalKnowledgeApi universalKnowledgeApi) {
+    private ConfigServiceClient configClient;
+
+    public LabelMatchingHandler(UniversalKnowledgeApi universalKnowledgeApi,
+                                @NotNull ConfigServiceClient configService) {
         this.universalKnowledgeApi = universalKnowledgeApi;
+        this.configClient = configService;
     }
 
-    public CombinedModel performLabeling(String dataSourceUUID, CombinedModel combined) {
+    public CombinedModel performLabeling(String dataSourceUUID, String configId, String configToken, CombinedModel combined) {
+        Map<String, String> config = configClient.getConfig(configId, configToken);
+        log.info("Received config: {}", config);
+
         SyntaxModel syntaxModelDTO = combined.getSyntaxModel();
         for (SchemaNode node : syntaxModelDTO.getNodes()) {
             if (!(node instanceof PrimitiveNode)) {

@@ -20,8 +20,7 @@ public class StandardMatchingController implements StandardMatchingAPI {
 
     @Autowired
     public StandardMatchingController(
-            StandardMatchingHandler standardMatchingHandler
-    ) {
+            StandardMatchingHandler standardMatchingHandler) {
         this.standardMatchingHandler = standardMatchingHandler;
     }
 
@@ -38,16 +37,16 @@ public class StandardMatchingController implements StandardMatchingAPI {
     }
 
     @Override
-    @Operation(description = "performs semantic modeling using the defined standard on the given combined model")
-    public String modelWithStandard(@NotNull CombinedModel combinedModel, String standardId, String analysisId) {
-        return standardMatchingHandler.modelWithStandard(combinedModel, standardId, analysisId);
+    @Operation(description = "returns the semantic model for the given id")
+    public CombinedModel fetchResult(String dataSourceId) {
+        return standardMatchingHandler.fetchModel(dataSourceId);
     }
 
     @Override
-    @Operation(description = "returns the semantic model for the given id")
-    public CombinedModel fetchResult(String analysisId) {
-        return standardMatchingHandler.fetchModel(analysisId);
+    @Operation(description = "performs semantic modeling using the standard defined by the config on the given combined model")
+    public @NotNull CombinedModel performModeling(@NotNull String dataSourceUuid, String configId, String configToken, @NotNull CombinedModel model) {
+
+        standardMatchingHandler.modelWithStandard(model, configId, configToken, dataSourceUuid);
+        return model;
     }
-
-
 }

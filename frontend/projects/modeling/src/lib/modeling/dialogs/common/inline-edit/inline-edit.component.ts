@@ -24,8 +24,6 @@ export class InlineInputEditComponent implements ControlValueAccessor, OnInit {
   @Input() required = false;
   // Input control is disabled
   @Input() disabled = false;
-  // Prefix the value
-  @Input() prefix: any;
   // color of the confirm button
   @Input() confirmColor = 'primary';
   // color of the cancel button

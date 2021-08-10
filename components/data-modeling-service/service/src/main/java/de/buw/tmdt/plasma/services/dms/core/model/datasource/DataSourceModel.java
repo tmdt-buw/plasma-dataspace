@@ -90,6 +90,9 @@ public class DataSourceModel {
         if (versionPointer == 0) {
             throw new UnsupportedOperationException("No model available.");
         }
+        if (versionPointer == 1) {
+            throw new UnsupportedOperationException("Already on first version.");
+        }
         --this.versionPointer;
     }
 

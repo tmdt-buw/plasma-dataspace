@@ -10,6 +10,7 @@ import de.buw.tmdt.plasma.datamodel.semanticmodel.*;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.PrimitiveNode;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.SchemaNode;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.SyntaxModel;
+import de.buw.tmdt.plasma.services.config.ConfigServiceClient;
 import de.buw.tmdt.plasma.services.dms.core.converter.KnowledgeGraphServiceDTO2CombinedModelConverter;
 import de.buw.tmdt.plasma.services.dms.core.converter.SchemaOperationDTOConverter;
 import de.buw.tmdt.plasma.services.dms.core.model.datasource.DataSourceModel;
@@ -36,6 +37,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.io.Serializable;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -54,6 +56,7 @@ public class DataModelingHandler {
     private final SchemaOperationDTOConverter schemaOperationDTOConverter;
     private final OperationLookUp operationLookUp;
     private HashMap<SchemaNode, Set<Operation.Handle>> parameterDefinitionLookup;
+    private final ConfigServiceClient configServiceClient;
 
     @Autowired
     public DataModelingHandler(
@@ -68,7 +71,7 @@ public class DataModelingHandler {
             @SuppressWarnings({"SpringJavaInjectionPointsAutowiringInspection"})
             @NotNull SemanticRecommendationApiClient semanticRecommendationApiClient,
             @NotNull SchemaOperationDTOConverter schemaOperationDTOConverter,
-            @NotNull OperationLookUp operationLookUp) {
+            @NotNull OperationLookUp operationLookUp, ConfigServiceClient configServiceClient) {
         this.localKnowledgeApiClient = localKnowledgeApiClient;
         this.universalKnowledgeApiClient = universalKnowledgeApiClient;
         this.kgs2CMConverter = kgs2CMConverter;
@@ -77,6 +80,7 @@ public class DataModelingHandler {
         this.semanticRecommendationApiClient = semanticRecommendationApiClient;
         this.schemaOperationDTOConverter = schemaOperationDTOConverter;
         this.operationLookUp = operationLookUp;
+        this.configServiceClient = configServiceClient;
     }
 
     public void initDataSourceSchema(@NotNull UUID dataSourceUuid, int exampleLimit) {
@@ -137,15 +141,20 @@ public class DataModelingHandler {
         });
 
         try {
+            Map<String, Serializable> parameters = new HashMap<>();
+            parameters.put("testvalue", "the value TODO REMOVE ONCE TESTING FINISHED");
+            String uuid = UUID.randomUUID().toString();
+            String token = configServiceClient.storeConfig(uuid, parameters);
             CombinedModel labeledCombinedModel;
             labeledCombinedModel = semanticRecommendationApiClient.performSemanticLabeling(
-                    dataSourceUuid.toString(), combinedModel);
-
+                    dataSourceUuid.toString(), uuid, token, combinedModel);
             try {
                 CombinedModel modeledCombinedModel;
                 // request semantic modeling
+                uuid = null;
+                token = null;
                 modeledCombinedModel = semanticRecommendationApiClient.performSemanticModeling(
-                        dataSourceUuid.toString(), labeledCombinedModel);
+                        dataSourceUuid.toString(), uuid, token, labeledCombinedModel);
                 return modeledCombinedModel;
             } catch (Exception e) {
                 logger.warn("Semantic modeling did not succeed: ", e);
@@ -553,6 +562,8 @@ public class DataModelingHandler {
             );
         }
 
+        entityConcept.validate();
+
         //load schema - DON'T COPY since caching of transient concepts is not "undoable"
         DataSourceModel dataSourceModel = findDataSourceOrThrow(dataSourceUuid);
         CombinedModel combinedModel = getCombinedModel(dataSourceModel, true);
@@ -588,6 +599,8 @@ public class DataModelingHandler {
                     "New relation concept must not have an entity id."
             );
         }
+
+        relationConcept.validate();
 
         //load schema - DON'T COPY since caching of transient concepts is not "undoable"
         DataSourceModel dataSourceModel = findDataSourceOrThrow(dataSourceUuid);
@@ -883,7 +896,7 @@ public class DataModelingHandler {
     @NotNull
     public CombinedModel requestRecommendations(@NotNull String dataSourceUuid, @NotNull CombinedModel combinedModel) {
         try {
-            return semanticRecommendationApiClient.performSemanticRefinement(dataSourceUuid, combinedModel);
+            return semanticRecommendationApiClient.performSemanticRefinement(dataSourceUuid, null, null, combinedModel);
         } catch (Exception e) {
             logger.warn("Could not reach SRS");
         }
