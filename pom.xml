@@ -6,7 +6,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>de.buw.tmdt.plasma</groupId>
     <artifactId>parent</artifactId>
-    <version>1.2.4</version>
+    <version>1.2.5</version>
     <name>PLASMA Parent</name>
     <packaging>pom</packaging>
 
@@ -39,9 +39,9 @@
         <project.java.target.version>11</project.java.target.version>
 
         <!-- ==================== Spring ==================== -->
-        <org.springframework.boot.version>2.3.7.RELEASE</org.springframework.boot.version>
-        <org.springframework.cloud.version>Hoxton.SR9</org.springframework.cloud.version>
-        <org.springdoc.openapi.ui.version>1.4.3</org.springdoc.openapi.ui.version>
+        <org.springframework.boot.version>2.5.4</org.springframework.boot.version>
+        <org.springframework.cloud.version>2020.0.3</org.springframework.cloud.version>
+        <org.springdoc.openapi.ui.version>1.5.10</org.springdoc.openapi.ui.version>
         <javax.servlet.version>3.1.0</javax.servlet.version>
 
         <!-- Annotations -->
