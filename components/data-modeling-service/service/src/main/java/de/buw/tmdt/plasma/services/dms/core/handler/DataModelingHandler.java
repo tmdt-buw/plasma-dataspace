@@ -18,6 +18,7 @@ import de.buw.tmdt.plasma.services.dms.core.operations.Operation;
 import de.buw.tmdt.plasma.services.dms.core.operations.OperationLookUp;
 import de.buw.tmdt.plasma.services.dms.core.operations.exceptions.ParameterParsingException;
 import de.buw.tmdt.plasma.services.dms.core.repository.DataSourceRepository;
+import de.buw.tmdt.plasma.services.kgs.shared.dto.semanticmodel.EntityTypeDTO;
 import de.buw.tmdt.plasma.services.kgs.shared.dto.semanticmodel.SemanticModelCreationResponse;
 import de.buw.tmdt.plasma.services.kgs.shared.dto.semanticmodel.SemanticModelDTO;
 import de.buw.tmdt.plasma.services.kgs.shared.feignclient.LocalKnowledgeApiClient;
@@ -764,6 +765,15 @@ public class DataModelingHandler {
 
         //create request
         final SemanticModelDTO semanticModelDTO = kgs2CMConverter.convert(semanticModel, dataSourceUuid);
+
+        //Ensure that all entity types have a unique name
+        Map<String, EntityTypeDTO> duplicateCheck = new HashMap<>();
+        for (EntityTypeDTO entityTypeDTO : semanticModelDTO.getNodes()) {
+            if (duplicateCheck.containsKey(entityTypeDTO.getLabel())) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Entity Type names must be unique");
+            }
+            duplicateCheck.put(entityTypeDTO.getLabel(), entityTypeDTO);
+        }
 
         //send request
         final SemanticModelCreationResponse semanticModelCreationResponse;
