@@ -50,7 +50,7 @@ public interface SemanticRecommendationAPI {
      * @return The combined model containing the recommended changes
      */
     @PostMapping(value = "/refinement/{uuid}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    CombinedModel performSemanticRefinement(@NotNull @PathVariable("uuid") String uuid, @RequestParam("configId") String configId, @RequestParam("configToken") String configToken, @NotNull @RequestBody CombinedModel combinedModel);
+    CombinedModel performSemanticRefinement(@NotNull @PathVariable("uuid") String uuid, @RequestParam(value = "configId", required = false) String configId, @RequestParam(value = "configToken", required = false) String configToken, @NotNull @RequestBody CombinedModel combinedModel);
 
 
 }
