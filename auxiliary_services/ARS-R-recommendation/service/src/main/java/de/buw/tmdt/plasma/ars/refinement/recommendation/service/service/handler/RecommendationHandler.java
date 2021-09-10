@@ -51,6 +51,7 @@ public class RecommendationHandler {
     }
 
     public CombinedModel generateRecommendations(CombinedModel combinedModel) {
+        combinedModel.getRecommendations().clear();
         List<String> positives = combinedModel.getSemanticModel().getNodes().stream()
                 .map(EntityType::getEntityConcept)
                 .map(EntityConcept::getSourceURI)
@@ -86,11 +87,15 @@ public class RecommendationHandler {
 
             recommendations.stream().map(
                     rec -> {
+
                         Set<EntityType> entities = new HashSet<>();
                         Set<Relation> relations = new HashSet<>();
 
                         EntityConcept o_ec = new EntityConcept(rec.getO(), "", rec.getO());
                         EntityType o_et = new EntityType(rec.getO(), "", o_ec);
+
+                        o_et.setXCoordinate(et.getXCoordinate() != null ? et.getXCoordinate() : null);
+                        o_et.setYCoordinate(et.getYCoordinate() != null ? et.getYCoordinate() - 150 : null);
 
                         RelationConcept rc = new RelationConcept(rec.getP(), "", rec.getP());
                         Relation r = new Relation(et.getUuid(), o_et.getUuid(), rc);
@@ -104,13 +109,11 @@ public class RecommendationHandler {
                                 new HashSet<>(),
                                 new HashSet<>(),
                                 rec.getC());
-
+                        dm.getAnchors().add(et.getUuid());
                         return dm;
                     }
             ).forEach(dm -> combinedModel.getRecommendations().add(dm));
         }
-
-
         return combinedModel;
     }
 }

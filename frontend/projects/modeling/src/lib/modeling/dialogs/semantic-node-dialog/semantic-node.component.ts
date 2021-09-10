@@ -1,17 +1,18 @@
-import { Component, Input } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
-import { DataModelingControllerService, EntityType } from '../../../api/generated/dms';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { BehaviorSubject, Subject } from 'rxjs';
+import { DataModelingControllerService, DeltaModification, EntityType } from '../../../api/generated/dms';
 import { EditState } from './model/edit-state';
 
 export interface PlsSemanticNodeDetailsData {
   dataSource: string;
   node: EntityType;
+  recommendations: DeltaModification[];
 }
 
 @Component({
   selector: 'pls-semantic-node-details',
   templateUrl: 'semantic-node.component.html',
-  styleUrls: ['../common/dialog.styles.scss']
+  styleUrls: ['../common/dialog.styles.scss', 'semantic-node.component.less']
 })
 export class PlsSemanticNodeDetailsComponent {
 
@@ -20,6 +21,15 @@ export class PlsSemanticNodeDetailsComponent {
   $edit: BehaviorSubject<EditState> = new BehaviorSubject<EditState>(EditState.confirm);
   label: string;
   description: string;
+
+  public output = new Subject<DeltaModification>();
+
+  @Output()
+  public recommendationSelect: EventEmitter<DeltaModification> = new EventEmitter();
+  @Output()
+  public recommendationAccept: EventEmitter<DeltaModification> = new EventEmitter();
+  @Output()
+  public recommendationReject: EventEmitter<DeltaModification> = new EventEmitter();
 
   constructor(private modelingService: DataModelingControllerService) {
 
@@ -45,5 +55,21 @@ export class PlsSemanticNodeDetailsComponent {
 
   get editing(): boolean {
     return this.$edit.getValue() === EditState.start;
+  }
+
+  showRecommendation(recommendation: DeltaModification): void {
+    this.recommendationSelect.emit(recommendation);
+  }
+
+  hideRecommendation(): void {
+    this.recommendationSelect.emit(null);
+  }
+
+  acceptRecommendation(recommendation: DeltaModification): void {
+    this.recommendationAccept.emit(recommendation);
+  }
+
+  rejectRecommendation(recommendation: DeltaModification): void {
+    // nyi
   }
 }

@@ -137,7 +137,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
       if (recommendation) {
         this.showRecommendation(recommendation);
       } else {
-        this.hideRecommendation();
+        this.hideRecommendations();
       }
     });
     // subscribe to external events
@@ -209,11 +209,24 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
           elementView.highlight();
           this.hoveredElement = elementView;
         }
+
+        /*
+        // TODO only show recommendations if hovered for 0,5s
+        const nodeRecommendations = this.filterRecommendationsForAnchor(elementView.model.id as string);
+        console.log('mouseover', elementView.model.id, this.schema.recommendations, nodeRecommendations);
+        this.showRecommendations(nodeRecommendations);
+        console.log('layout elements', this.recommendations.concat(elementView).filter(cell => cell.attributes?.type === Nodes.semanticNodeName));
+        const bbox = elementView.getBBox().clone();
+        console.log('Root element ' + bbox.x + '/' + bbox.y);
+        */
+
       },
       'element:mouseout': () => {
         if (this.entityConcept) {
           this.unhighlightAll();
         }
+        console.log('mouseout');
+        this.hideRecommendations();
         this.hoveredElement = null;
       },
       // handle linking of nodes
@@ -415,12 +428,29 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
   }
 
   /**
+   * Filters the given list of recommendations to those which have the anchorId set as an anchor.
+   * @param anchorId The id to check
+   * @return Sublist of matching recommendations for the given node. Empty if none match
+   */
+  filterRecommendationsForAnchor(anchorId: string): DeltaModification[] {
+    return this.schema.recommendations.filter(rec => rec.anchors.includes(anchorId));
+  }
+
+  /**
+   * Creates nodes and edges for recommendations and adds them to global variable
+   * @param recommendations the recommendations
+   */
+  private showRecommendations(recommendations: DeltaModification[]): void {
+    recommendations.forEach(rec => this.showRecommendation(rec));
+  }
+
+  /**
    * Creates nodes and edges from recommendation and adds it to global variable
    * @param recommendation the recommendation
    */
   private showRecommendation(recommendation: DeltaModification): void {
-    const opacity = 0.6;
-    const color = 'accent';
+    const opacity = 0.8;
+    const color = 'highlight';
     recommendation.entities.forEach(node => {
       let icon = '';
       if (node.syntaxNodeId) {
@@ -434,7 +464,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
   /**
    * Removes recommendations from graph
    */
-  private hideRecommendation(): void {
+  private hideRecommendations(): void {
     this.graph.removeCells(this.recommendations);
     this.recommendations = [];
   }
@@ -450,7 +480,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
    * @param y of node
    * @param opacity of node
    */
-  private addSemanticNode(id: string, concept: string, label: string, icon: string, color: 'primary' | 'accent' = 'primary', x?: number, y?: number, opacity?: number): dia.Element {
+  private addSemanticNode(id: string, concept: string, label: string, icon: string, color: 'primary' | 'accent' | 'highlight' = 'primary', x?: number, y?: number, opacity?: number): dia.Element {
     const conceptDims = this.calcDimensionsForLabel(concept, false);
     const labelDims = this.calcDimensionsForLabel(label, !!icon);
     const dim = [Math.max(conceptDims[0], labelDims[0]), conceptDims[1] + labelDims[1]];
@@ -459,21 +489,6 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
     const node = Nodes.createSemanticNode(id, concept, label, icon, position, dim[0], dim[1], nodeColors, opacity);
     this.graph.addCell(node);
     return node;
-  }
-
-  /**
-   * Add semantic link to graph
-   * @param id of link
-   * @param source of link
-   * @param target of link
-   * @param label of link
-   * @param color of link
-   * @param opacity of link
-   */
-  private addSemanticLink(id: string, source: string, target: string, label: string, color: 'primary' | 'accent' = 'primary', opacity?: number): dia.Link {
-    const link = Links.createSemanticLink(id, source, target, label, this.colorToHex(color), opacity);
-    this.graph.addCell(link);
-    return link;
   }
 
   /**
@@ -615,38 +630,18 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
   }
 
   /**
-   * Show details dialog for node with given id
-   * @param id of details
-   * @param type of node
+   * Add semantic link to graph
+   * @param id of link
+   * @param source of link
+   * @param target of link
+   * @param label of link
+   * @param color of link
+   * @param opacity of link
    */
-  private openDetails(id: string, type: Node): void {
-    this.closeDialog();
-    switch (type) {
-      case Nodes.syntaxNodeName:
-        const syntaxNode = this.findSyntaxNodeById(id);
-        this.nodeDialogRef = this.modal.create(this.createConfig(syntaxNode.label, PlsSyntaxNodeDetailsComponent, syntaxNode));
-        this.nodeDialogRef.afterClose.subscribe((res) => {
-          if (res) {
-            this.nodeDialogRef = null;
-          }
-        });
-        break;
-      case Nodes.semanticNodeName:
-        const semanticNode = this.findSemanticNodeById(id);
-        const title = `${semanticNode.concept.label} (${semanticNode.concept.sourceURI})`;
-        this.nodeDialogRef = this.modal.create(this.createConfig(title, PlsSemanticNodeDetailsComponent, { dataSource: this.dataSource, node: semanticNode }));
-        this.nodeDialogRef.afterClose.subscribe((res) => {
-          if (res) {
-            this.nodeDialogRef = null;
-            const element = this.graph.getElements().find(el => el.attributes.id === id);
-            // TODO update width
-            element.attr('bodyText/text', semanticNode.label);
-          }
-        });
-        break;
-      default:
-        console.error('Unsupported node type');
-    }
+  private addSemanticLink(id: string, source: string, target: string, label: string, color: 'primary' | 'accent' | 'highlight' = 'primary', opacity?: number): dia.Link {
+    const link = Links.createSemanticLink(id, source, target, label, this.colorToHex(color), opacity);
+    this.graph.addCell(link);
+    return link;
   }
 
   private createConfig(title: string, content: any, data: SyntaxNode | PlsSemanticNodeDetailsData): ModalOptions {
@@ -720,24 +715,48 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
   }
 
   /**
-   * Transform primary and accent into hex values
-   * @param color to convert
-   * @param contrast if contrast
+   * Show details dialog for node with given id
+   * @param id of details
+   * @param type of node
    */
-  private colorToHex(color: 'primary' | 'accent', contrast: boolean = false): string {
-    switch (color) {
-      case 'primary':
-        if (contrast) {
-          return '#fff';
-        } else {
-          return '#000';
-        }
-      case 'accent':
-        if (contrast) {
-          return '#fff';
-        } else {
-          return '#111d4f';
-        }
+  private openDetails(id: string, type: Node): void {
+    this.closeDialog();
+    switch (type) {
+      case Nodes.syntaxNodeName:
+        const syntaxNode = this.findSyntaxNodeById(id);
+        this.nodeDialogRef = this.modal.create(this.createConfig(syntaxNode.label, PlsSyntaxNodeDetailsComponent, syntaxNode));
+        this.nodeDialogRef.afterClose.subscribe((res) => {
+          if (res) {
+            this.nodeDialogRef = null;
+          }
+        });
+        break;
+      case Nodes.semanticNodeName:
+        const semanticNode = this.findSemanticNodeById(id);
+        const title = `${semanticNode.concept.label} (${semanticNode.concept.sourceURI})`;
+        this.nodeDialogRef = this.modal.create(this.createConfig(title, PlsSemanticNodeDetailsComponent, {
+          dataSource: this.dataSource,
+          node: semanticNode,
+          recommendations: this.filterRecommendationsForAnchor(semanticNode.uuid)
+        }));
+        const componentInstance: PlsSemanticNodeDetailsComponent = this.nodeDialogRef.componentInstance as PlsSemanticNodeDetailsComponent;
+        componentInstance.recommendationSelect.subscribe(recommendation => {
+          this.hideRecommendations();
+          if (recommendation !== null) {
+            this.showRecommendation(recommendation);
+          }
+        });
+        this.nodeDialogRef.afterClose.subscribe((res) => {
+          if (res) {
+            this.nodeDialogRef = null;
+            const element = this.graph.getElements().find(el => el.attributes.id === id);
+            // TODO update width
+            element.attr('bodyText/text', semanticNode.label);
+          }
+        });
+        break;
+      default:
+        console.error('Unsupported node type');
     }
   }
 
@@ -759,6 +778,34 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
   onResize(): void {
     if (this.$resize) {
       this.$resize.next(this.paper.getComputedSize());
+    }
+  }
+
+  /**
+   * Transform primary and accent into hex values
+   * @param color to convert
+   * @param contrast if contrast
+   */
+  private colorToHex(color: 'primary' | 'accent' | 'highlight', contrast: boolean = false): string {
+    switch (color) {
+      case 'primary':
+        if (contrast) {
+          return '#fff';
+        } else {
+          return '#000';
+        }
+      case 'accent':
+        if (contrast) {
+          return '#fff';
+        } else {
+          return '#111d4f';
+        }
+      case 'highlight':
+        if (contrast) {
+          return '#eb973f';
+        } else {
+          return '#eb973f';
+        }
     }
   }
 
