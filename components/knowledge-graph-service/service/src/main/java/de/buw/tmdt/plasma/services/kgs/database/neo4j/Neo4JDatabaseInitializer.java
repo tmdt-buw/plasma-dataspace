@@ -69,9 +69,7 @@ public class Neo4JDatabaseInitializer implements ApplicationListener<ContextRefr
                 if (!indexAlreadyOnline) {
                     logger.trace("Index on {} is not present in Neo4j, creating.", neo4JEntity.getClassProperty());
                     //noinspection SingleCharacterStringConcatenation: This is Neo4j syntax.
-                    transaction.run("CREATE INDEX ON :`"
-                            + neo4JEntity.getClassProperty()
-                            + "`("
+                    transaction.run("CREATE INDEX IF NOT EXISTS FOR (a:" + neo4JEntity.getClassProperty() + ") ON (a."
                             + neo4JEntity.getIndexProperty()
                             + ")"
                     );
