@@ -21,18 +21,18 @@
 <pls-inline-edit [type]="'textarea'" [(ngModel)]="data.node.description" [$edit]="$edit"
                  [empty]="'No description'"></pls-inline-edit>
 
-<div *ngIf="data.recommendations" fxLayout="column" fxLayoutAlign="space-between start" fxLayoutGap="20px">
+<div *ngIf="data.recommendations" fxLayout="column" fxLayoutAlign="space-between start" fxLayoutGap="10px">
   <nz-divider></nz-divider>
   <p [nzTooltipTitle]="'Recommended model extensions related to this node'" nz-tooltip>Extensions</p>
-  <div (mouseleave)="hideRecommendation()" (mouseover)="showRecommendation(recommendation)"
-       *ngFor="let recommendation of data.recommendations" class="concept-box" fxFill fxLayout="row"
-       fxLayoutAlign="space-between" fxLayoutGap="10px">
-    <span> {{ recommendation.entities[0].concept.sourceURI }}</span>
+  <div (mouseenter)="showRecommendation(recommendation)" (mouseleave)="hideRecommendation()"
+       *ngFor="let recommendation of data.recommendations" class="recommendation-box" fxLayout="row"
+       fxLayoutAlign="space-between" fxLayoutGap="5px">
+    <span nz-typography> {{ recommendation.entities[0].concept.label }}</span>
     <div fxLayout="row" fxLayoutAlign="end" fxLayoutGap="5px">
-      <i (click)="acceptRecommendation(recommendation)" nz-icon
+      <i (click)="acceptRecommendation(recommendation)" nz-icon nz-typography
          nzType="check"></i>
-      <i (click)="rejectRecommendation(recommendation)" nz-icon
-         nzType="close"></i>
+      <!--      <i (click)="rejectRecommendation(recommendation)" nz-typography nz-icon-->
+      <!--         nzType="close"></i>-->
     </div>
   </div>
 </div>

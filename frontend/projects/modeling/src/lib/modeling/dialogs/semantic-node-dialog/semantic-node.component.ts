@@ -58,6 +58,7 @@ export class PlsSemanticNodeDetailsComponent {
   }
 
   showRecommendation(recommendation: DeltaModification): void {
+    console.log('emitting select for recommendation', recommendation);
     this.recommendationSelect.emit(recommendation);
   }
 
