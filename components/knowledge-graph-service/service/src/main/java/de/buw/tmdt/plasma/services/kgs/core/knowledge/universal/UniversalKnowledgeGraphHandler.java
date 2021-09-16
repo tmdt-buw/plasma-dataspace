@@ -3,12 +3,12 @@ package de.buw.tmdt.plasma.services.kgs.core.knowledge.universal;
 import de.buw.tmdt.plasma.services.kgs.core.rdf.KgsToRdfConverter;
 import de.buw.tmdt.plasma.services.kgs.core.rdf.RdfImporter;
 import de.buw.tmdt.plasma.services.kgs.core.rdf.UpperOntologyDefiner;
-import de.buw.tmdt.plasma.services.kgs.shared.converter.ModelDTOConverter;
 import de.buw.tmdt.plasma.services.kgs.database.api.GraphDBDriver;
 import de.buw.tmdt.plasma.services.kgs.database.api.GraphDBDriverFactory;
 import de.buw.tmdt.plasma.services.kgs.database.api.exception.ConceptNameAlreadyExistsException;
 import de.buw.tmdt.plasma.services.kgs.database.api.exception.GraphDBException;
 import de.buw.tmdt.plasma.services.kgs.database.api.exception.NoElementForIDException;
+import de.buw.tmdt.plasma.services.kgs.shared.converter.ModelDTOConverter;
 import de.buw.tmdt.plasma.services.kgs.shared.dto.knowledgegraph.EntityConceptDTO;
 import de.buw.tmdt.plasma.services.kgs.shared.dto.knowledgegraph.EntityConceptRelationDTO;
 import de.buw.tmdt.plasma.services.kgs.shared.dto.knowledgegraph.RelationConceptDTO;
@@ -101,7 +101,12 @@ public class UniversalKnowledgeGraphHandler {
     }
 
     @NotNull
-    public List<EntityConceptDTO> getEntityConcepts(@NotNull String prefix) {
+    public List<EntityConceptDTO> getEntityConcepts(@NotNull String prefix, @NotNull String uri) {
+        if (!uri.isBlank()) {
+            return graphDBDriverFactory.getGraphDBDriver().retrieveEntityConceptsByURI(uri)
+                    .stream()
+                    .map(modelDTOConverter::mapEntityConcept).collect(Collectors.toList());
+        }
         Set<EntityConcept> result = graphDBDriverFactory.getGraphDBDriver().retrieveEntityConceptsByPrefix(prefix);
         return result.stream().map(modelDTOConverter::mapEntityConcept).collect(Collectors.toList());
     }
@@ -159,7 +164,12 @@ public class UniversalKnowledgeGraphHandler {
     }
 
     @NotNull
-    public List<RelationConceptDTO> getRelationConcepts(@NotNull String prefix) {
+    public List<RelationConceptDTO> getRelationConcepts(@NotNull String prefix, String uri) {
+        if (uri != null && !uri.isBlank()) {
+            return graphDBDriverFactory.getGraphDBDriver().retrieveRelationConceptsByURI(uri)
+                    .stream()
+                    .map(modelDTOConverter::mapRelationConcept).collect(Collectors.toList());
+        }
         Set<RelationConcept> result = graphDBDriverFactory.getGraphDBDriver().retrieveRelationConceptsByPrefix(prefix);
         return result.stream().map(modelDTOConverter::mapRelationConcept).collect(Collectors.toList());
     }

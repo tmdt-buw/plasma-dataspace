@@ -3,6 +3,8 @@ package de.buw.tmdt.plasma.services.kgs.shared.api;
 import de.buw.tmdt.plasma.services.kgs.shared.dto.knowledgegraph.EntityConceptDTO;
 import de.buw.tmdt.plasma.services.kgs.shared.dto.knowledgegraph.EntityConceptRelationDTO;
 import de.buw.tmdt.plasma.services.kgs.shared.dto.knowledgegraph.RelationConceptDTO;
+import de.buw.tmdt.plasma.services.kgs.shared.model.knowledgegraph.EntityConcept;
+import de.buw.tmdt.plasma.services.kgs.shared.model.knowledgegraph.RelationConcept;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -17,30 +19,50 @@ public interface UniversalKnowledgeApi {
 
     /* ********************************************** ENTITY CONCEPT **************************************************/
 
-    @PostMapping(value = "/entityconcept", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/entityConcepts", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @NotNull EntityConceptDTO createEntityConcept(@NotNull @RequestBody EntityConceptDTO request);
 
-    @GetMapping(value = "/entityconcept", produces = MediaType.APPLICATION_JSON_VALUE)
-    @NotNull List<EntityConceptDTO> getEntityConcepts(@NotNull @RequestParam(value = "prefix", defaultValue = "", required = false) String prefix);
+    /**
+     * Find {@link de.buw.tmdt.plasma.services.kgs.shared.model.knowledgegraph.EntityConcept}s filtered by a given prefix or uri.
+     * If a URI is specified, this takes precedence over the prefix, thus, only an exact matching concept is returned or an empty list.
+     *
+     * @param prefix The prefix to search for, can be a partial match but is only evaluated at the start of the {@link EntityConcept#getMainLabel()}
+     * @param uri    The uri to match. Has to be an exact match to the specified URI of the concept.
+     * @return A list of matching {@link EntityConcept}s in DTO form
+     */
+    @GetMapping(value = "/entityConcepts", produces = MediaType.APPLICATION_JSON_VALUE)
+    @NotNull List<EntityConceptDTO> getEntityConcepts(
+            @RequestParam(value = "prefix", defaultValue = "", required = false) String prefix,
+            @RequestParam(value = "uri", defaultValue = "", required = false) String uri);
 
-    @DeleteMapping(value = "/deleteEntityConcept/{id}")
+    @DeleteMapping(value = "/entityConcepts/{id}")
     boolean deleteEntityConcept(@NotNull @PathVariable("id") String id);
 
-    @GetMapping(value = "/entityconcept/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/entityConcepts/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     @NotNull EntityConceptDTO getEntityConceptById(@NotNull @PathVariable(value = "id") String id);
 
     /* ********************************************** RELATION CONCEPT **************************************************/
 
-    @PostMapping(value = "/relationconcept", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/relationconcepts", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @NotNull RelationConceptDTO createRelationConcept(@NotNull @RequestBody RelationConceptDTO request);
 
-    @GetMapping(value = "/relationconcept", produces = MediaType.APPLICATION_JSON_VALUE)
-    @NotNull List<RelationConceptDTO> getRelationConcepts(@NotNull @RequestParam(value = "prefix", defaultValue = "", required = false) String prefix);
+    /**
+     * Find {@link RelationConcept}s filtered by a given prefix or uri.
+     * If a URI is specified, this takes precedence over the prefix, thus, only an exact matching concept is returned or an empty list.
+     *
+     * @param prefix The prefix to search for, can be a partial match but is only evaluated at the start of the {@link RelationConcept#getLabel()}
+     * @param uri    The uri to match. Has to be an exact match to the specified URI of the concept
+     * @return A list of matching {@link RelationConcept}s in DTO form
+     */
+    @GetMapping(value = "/relationconcepts", produces = MediaType.APPLICATION_JSON_VALUE)
+    @NotNull List<RelationConceptDTO> getRelationConcepts(
+            @RequestParam(value = "prefix", defaultValue = "", required = false) String prefix,
+            @RequestParam(value = "uri", defaultValue = "", required = false) String uri);
 
-    @DeleteMapping(value = "/deleteRelationConcept/{id}")
+    @DeleteMapping(value = "/relationConcepts/{id}")
     boolean deleteRelationConcept(@NotNull @PathVariable("id") String id);
 
-    @GetMapping(value = "/relationconcept/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/relationConcepts/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     @NotNull RelationConceptDTO getRelationConceptById(@NotNull @PathVariable(value = "id") String id);
 
     /* ********************************************** ENTITY CONCEPT RELATION **************************************************/

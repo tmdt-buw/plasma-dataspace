@@ -48,7 +48,7 @@ public class LabelMatchingHandler {
             }
 
             String label = node.getLabel();
-            Collection<EntityConceptDTO> kgsEntityConcepts = universalKnowledgeApi.getEntityConcepts(label);
+            Collection<EntityConceptDTO> kgsEntityConcepts = universalKnowledgeApi.getEntityConcepts(label, null);
             Collection<EntityConcept> entityConcepts = kgsEntityConcepts.stream()
                     .map(KGS2CMConverter::convert)
                     .collect(Collectors.toList());

@@ -1,7 +1,7 @@
 package de.buw.tmdt.plasma.services.kgs.rest.controller;
 
-import de.buw.tmdt.plasma.services.kgs.shared.api.UniversalKnowledgeApi;
 import de.buw.tmdt.plasma.services.kgs.core.knowledge.universal.UniversalKnowledgeGraphHandler;
+import de.buw.tmdt.plasma.services.kgs.shared.api.UniversalKnowledgeApi;
 import de.buw.tmdt.plasma.services.kgs.shared.dto.knowledgegraph.EntityConceptDTO;
 import de.buw.tmdt.plasma.services.kgs.shared.dto.knowledgegraph.EntityConceptRelationDTO;
 import de.buw.tmdt.plasma.services.kgs.shared.dto.knowledgegraph.RelationConceptDTO;
@@ -39,9 +39,9 @@ public class UniversalKnowledgeGraphController implements UniversalKnowledgeApi 
     }
 
     @Override
-    @Operation(description = "Returns a list of entity concepts matching a prefix. If prefix is omitted, all entity concepts are returned.")
-    public @NotNull List<EntityConceptDTO> getEntityConcepts(@NotNull String prefix) {
-        return universalKnowledgeGraphHandler.getEntityConcepts(prefix);
+    @Operation(description = "Returns a list of entity concepts matching a prefix. If the URI is given, will return the concept that matches this URI or an empty result if none could be found. Otherwise, if prefix is omitted, all entity concepts are returned.")
+    public @NotNull List<EntityConceptDTO> getEntityConcepts(String prefix, String uri) {
+        return universalKnowledgeGraphHandler.getEntityConcepts(prefix, uri);
     }
 
     @Override
@@ -65,9 +65,9 @@ public class UniversalKnowledgeGraphController implements UniversalKnowledgeApi 
     }
 
     @Override
-    @Operation(description = "Returns a list of all relation concepts matching a prefix. If prefix is omitted, all relation concepts are returned.")
-    public @NotNull List<RelationConceptDTO> getRelationConcepts(@NotNull String prefix) {
-        return universalKnowledgeGraphHandler.getRelationConcepts(prefix);
+    @Operation(description = "Returns a list of all relation concepts matching a prefix or URI. If the URI is given, will return the concept that matches this URI or an empty result if none could be found. Otherwise, if prefix is omitted, all relation concepts are returned.")
+    public @NotNull List<RelationConceptDTO> getRelationConcepts(String prefix, String uri) {
+        return universalKnowledgeGraphHandler.getRelationConcepts(prefix, uri);
     }
 
     @Override

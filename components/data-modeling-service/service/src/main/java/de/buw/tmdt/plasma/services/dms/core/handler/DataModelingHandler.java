@@ -188,7 +188,7 @@ public class DataModelingHandler {
         ArrayList<EntityConcept> availableEntityConcepts;
         try {
             availableEntityConcepts = CollectionUtilities.map(
-                    universalKnowledgeApiClient.getEntityConcepts(prefix),
+                    universalKnowledgeApiClient.getEntityConcepts(prefix, null),
                     kgs2CMConverter::convert,
                     ArrayList::new
             );
@@ -217,7 +217,7 @@ public class DataModelingHandler {
         ArrayList<RelationConcept> availableRelationConcepts;
         try {
             availableRelationConcepts = CollectionUtilities.map(
-                    universalKnowledgeApiClient.getRelationConcepts(prefix),
+                    universalKnowledgeApiClient.getRelationConcepts(prefix, null),
                     kgs2CMConverter::convert,
                     ArrayList::new
             );

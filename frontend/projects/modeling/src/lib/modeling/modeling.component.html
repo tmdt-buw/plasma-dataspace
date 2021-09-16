@@ -37,14 +37,16 @@
 
   <nz-spin fxFlex class="modeling-container" nzTip="Loading..." [nzSpinning]="loading">
     <div class="modeling-area" *ngIf="schema" #modelingArea>
-      <pls-modeling-diagram [$filter]="$filter" [$center]="$center" [$layout]="$layout" [$flat]="$flat" [dataSource]="dataSource" [lockDragAndDrop]="lockDragAndDrop"
+      <pls-modeling-diagram [$filter]="$filter" [$center]="$center" [$layout]="$layout" [$flat]="$flat"
+                            [dataSource]="dataSource" [lockDragAndDrop]="lockDragAndDrop"
                             [schema]="schema"
                             (graphLaidOut)="onGraphLaidOut($event)"
                             (entityConceptMapped)="onConceptMapped($event)"
                             (relationConceptLinked)="onRelationConceptLinked($event)"
                             (nodePositionChanged)="onNodePositionChanged($event)"
                             (nodeChanged)="onNodeChanged($event)"
-                            (nodeClicked)="onNodeClicked($event)">
+                            (nodeClicked)="onNodeClicked($event)"
+                            (recommendationAccepted)="onRecommendationAccepted($event)">
       </pls-modeling-diagram>
       <button *ngIf="!schema.finalized && !hideFinalAndExportButton" class="action-button" nz-button nzType="primary" (click)="finalizeModel()"><i nz-icon nzType="play-circle"></i>Finish</button>
       <button *ngIf="schema.finalized && !hideFinalAndExportButton" class="action-button" nz-button nzType="primary" (click)="exportModel()"><i nz-icon nzType="download"></i>Export</button>

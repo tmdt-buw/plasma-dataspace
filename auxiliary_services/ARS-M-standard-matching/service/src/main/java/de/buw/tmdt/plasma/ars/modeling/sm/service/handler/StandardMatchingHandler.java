@@ -263,7 +263,7 @@ public class StandardMatchingHandler {
     }
 
     private EntityConcept getOrGenerateEntityConcept(EntityRule rule) {
-        return universalKnowledgeApiClient.getEntityConcepts(rule.getConceptName()).stream()
+        return universalKnowledgeApiClient.getEntityConcepts(rule.getConceptName(), null).stream()
                 .filter(kgsEntityConcept -> kgsEntityConcept.getSourceURI().equals(rule.getConceptSourceURI()))
                 .map(kgsDTO2CMConverter::convert)
                 .findFirst()
@@ -275,7 +275,7 @@ public class StandardMatchingHandler {
     }
 
     private RelationConcept getOrGenerateRelationConcept(RelationRule rule) {
-        return universalKnowledgeApiClient.getRelationConcepts(rule.getConceptName()).stream()
+        return universalKnowledgeApiClient.getRelationConcepts(rule.getConceptName(), null).stream()
                 .filter(kgsRelationConcept -> kgsRelationConcept.getSourceURI().equals(rule.getConceptSourceURI()))
                 .map(kgsDTO2CMConverter::convert)
                 .findFirst()

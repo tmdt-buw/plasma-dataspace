@@ -4,7 +4,13 @@ import { FormControl } from '@angular/forms';
 import { ModalOptions, NzModalService } from 'ng-zorro-antd/modal';
 import { BehaviorSubject, Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
-import { CombinedModel, DataModelingControllerService, EntityType, Relation } from '../api/generated/dms';
+import {
+  CombinedModel,
+  DataModelingControllerService,
+  DeltaModification,
+  EntityType,
+  Relation
+} from '../api/generated/dms';
 import { LocalKnowledgeControllerService, UniversalKnowledgeGraphControllerService } from '../api/generated/kgs';
 import { ContextMenuService } from './context-menu/context-menu.service';
 import { ModalBaseConfig, ModalMouseEnabledConfig } from './dialogs/common/modal.base-config';
@@ -214,6 +220,11 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
 
   onFilterChange(event): void {
     this.$filter.next(event);
+  }
+
+  onRecommendationAccepted(event: DeltaModification): void {
+    console.log('accepting recommendation', event);
+    this.modelingService.acceptRecommendation(this.dataSource, event).subscribe();
   }
 
   finalizeModel(): void {

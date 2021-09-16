@@ -111,6 +111,8 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
   @Output() nodeChanged = new EventEmitter<NodeChangedEvent>();
   @Output() nodePositionChanged = new EventEmitter<NodeChangedEvent>();
   @Output() nodeClicked = new EventEmitter<string>();
+  @Output() recommendationAccepted = new EventEmitter<DeltaModification>();
+  @Output() recomendationRejected = new EventEmitter<DeltaModification>();
 
   // hidden canvas to calculate label widths
   private _canvas = document.createElement('canvas');
@@ -745,6 +747,10 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
           if (recommendation !== null) {
             this.showRecommendation(recommendation);
           }
+        });
+        componentInstance.recommendationAccept.subscribe(recommendation => {
+          this.hideRecommendations();
+          this.recommendationAccepted.emit(recommendation);
         });
         this.nodeDialogRef.afterClose.subscribe((res) => {
           if (res) {

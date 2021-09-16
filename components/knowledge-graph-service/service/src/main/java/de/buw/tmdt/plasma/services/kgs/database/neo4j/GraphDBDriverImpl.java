@@ -565,6 +565,24 @@ public class GraphDBDriverImpl implements GraphDBDriver {
 
     @NotNull
     @Override
+    public Set<EntityConcept> retrieveEntityConceptsByURI(@NotNull String uri) {
+        final Graph graph = getGraph();
+        try {
+            final GraphTraversal<Vertex, Vertex> traversal = graph.traversal().V()
+                    .hasLabel(Neo4JModel.EntityConcept.CLASS)
+                    .has(Neo4JModel.EntityConcept.PROPERTY_SOURCE_URI, new P<>(StringUtils::equalsIgnoreCase, uri));
+            final Set<Vertex> entityConceptVertices = traversal.toSet();
+            Map<String, Element> cache = new HashMap<>();
+            return entityConceptVertices.stream()
+                    .map(vertex -> marshalEntityConcept(vertex, cache))
+                    .collect(toSet());
+        } finally {
+            closeGraph(graph);
+        }
+    }
+
+    @NotNull
+    @Override
     public Set<EntityConcept> retrieveEntityConceptsContainingString(@NotNull String string) {
         final Graph graph = getGraph();
         try {
@@ -793,6 +811,24 @@ public class GraphDBDriverImpl implements GraphDBDriver {
             final GraphTraversal<Vertex, Vertex> traversal = graph.traversal().V()
                     .hasLabel(Neo4JModel.RelationConcept.CLASS)
                     .has(Neo4JModel.RelationConcept.PROPERTY_LABEL, new P<>(StringUtils::startsWithIgnoreCase, prefix));
+            final Set<Vertex> relationConceptVertices = traversal.toSet();
+            Map<String, Element> cache = new HashMap<>();
+            return relationConceptVertices.stream()
+                    .map(vertex -> marshalRelationConcept(vertex, cache))
+                    .collect(Collectors.toSet());
+        } finally {
+            closeGraph(graph);
+        }
+    }
+
+    @NotNull
+    @Override
+    public Set<RelationConcept> retrieveRelationConceptsByURI(@NotNull String uri) {
+        final Graph graph = getGraph();
+        try {
+            final GraphTraversal<Vertex, Vertex> traversal = graph.traversal().V()
+                    .hasLabel(Neo4JModel.RelationConcept.CLASS)
+                    .has(Neo4JModel.RelationConcept.PROPERTY_SOURCE_URI, new P<>(StringUtils::equalsIgnoreCase, uri));
             final Set<Vertex> relationConceptVertices = traversal.toSet();
             Map<String, Element> cache = new HashMap<>();
             return relationConceptVertices.stream()

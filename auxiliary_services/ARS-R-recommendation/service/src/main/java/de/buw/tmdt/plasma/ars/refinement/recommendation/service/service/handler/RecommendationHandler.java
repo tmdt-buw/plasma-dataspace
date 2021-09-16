@@ -18,10 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -30,7 +27,10 @@ public class RecommendationHandler {
 
     private final UniversalKnowledgeApiClient universalKnowledgeApiClient;
     private final KnowledgeGraphServiceDTO2CombinedModelConverter kgsDTO2CMConverter;
-    private WebClient client;
+    private final WebClient client;
+
+    private final List<EntityConcept> knownConcepts;
+    private final List<RelationConcept> knownRelations;
 
     @Value("${recommendation.service.url}")
     private String recommendationServiceUrl;
@@ -43,6 +43,8 @@ public class RecommendationHandler {
             KnowledgeGraphServiceDTO2CombinedModelConverter kgsDTO2CMConverter) {
         this.kgsDTO2CMConverter = kgsDTO2CMConverter;
         this.universalKnowledgeApiClient = universalKnowledgeApiClient;
+        knownConcepts = new ArrayList<>();
+        knownRelations = new ArrayList<>();
 
         client = WebClient.builder()
                 .baseUrl(recommendationServiceUrl)
@@ -91,13 +93,13 @@ public class RecommendationHandler {
                         Set<EntityType> entities = new HashSet<>();
                         Set<Relation> relations = new HashSet<>();
 
-                        EntityConcept o_ec = new EntityConcept(rec.getO(), "", rec.getO());
+                        EntityConcept o_ec = getEntityConceptForURI(rec.getO());
                         EntityType o_et = new EntityType(rec.getO(), "", o_ec);
 
                         o_et.setXCoordinate(et.getXCoordinate() != null ? et.getXCoordinate() : null);
                         o_et.setYCoordinate(et.getYCoordinate() != null ? et.getYCoordinate() - 150 : null);
 
-                        RelationConcept rc = new RelationConcept(rec.getP(), "", rec.getP());
+                        RelationConcept rc = getRelationConceptForURI(rec.getP());
                         Relation r = new Relation(et.getUuid(), o_et.getUuid(), rc);
 
                         entities.add(o_et);
@@ -115,5 +117,47 @@ public class RecommendationHandler {
             ).forEach(dm -> combinedModel.getRecommendations().add(dm));
         }
         return combinedModel;
+    }
+
+    private EntityConcept getEntityConceptForURI(String uri) {
+        Optional<EntityConcept> entityConcept = knownConcepts.stream()
+                .filter(ec -> ec.getSourceURI().equals(uri))
+                .findFirst();
+
+        if (entityConcept.isPresent()) {
+            return entityConcept.get();
+        }
+
+        // try to find in KGS
+        Optional<EntityConcept> fromKGS = universalKnowledgeApiClient.getEntityConcepts(null, uri).stream()
+                .map(kgsDTO2CMConverter::convert)
+                .findFirst();
+        if (fromKGS.isPresent()) {
+            knownConcepts.add(fromKGS.get());
+            return fromKGS.get();
+        }
+
+        return new EntityConcept(uri, "", uri);
+    }
+
+    private RelationConcept getRelationConceptForURI(String uri) {
+        Optional<RelationConcept> relationConcept = knownRelations.stream()
+                .filter(rc -> rc.getSourceURI().equals(uri))
+                .findFirst();
+
+        if (relationConcept.isPresent()) {
+            return relationConcept.get();
+        }
+
+        // try to find in KGS
+        Optional<RelationConcept> fromKGS = universalKnowledgeApiClient.getRelationConcepts(null, uri).stream()
+                .map(kgsDTO2CMConverter::convert)
+                .findFirst();
+        if (fromKGS.isPresent()) {
+            knownRelations.add(fromKGS.get());
+            return fromKGS.get();
+        }
+
+        return new RelationConcept(uri, "", uri);
     }
 }
