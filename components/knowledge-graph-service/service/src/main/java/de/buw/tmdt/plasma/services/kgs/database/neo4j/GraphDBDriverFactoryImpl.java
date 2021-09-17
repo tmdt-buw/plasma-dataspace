@@ -12,8 +12,6 @@ import org.springframework.stereotype.Service;
 @Service
 public class GraphDBDriverFactoryImpl implements GraphDBDriverFactory {
 
-    private static final long serialVersionUID = -5117991571995417971L;
-
     private final Neo4JProfile neo4jDBProfile;
     private final Driver driver;
 
@@ -31,26 +29,10 @@ public class GraphDBDriverFactoryImpl implements GraphDBDriverFactory {
 
     @NotNull
     public Driver openDriver() {
-        // Create driver instance.
-//        if (this.driver == null) {
-//            Config config = Config.builder()
-//                    .withMaxConnectionPoolSize(neo4jDBProfile.getMaxIdleSessions())
-//                    .withConnectionAcquisitionTimeout(neo4jDBProfile.getTimeoutMs(), TimeUnit.MILLISECONDS)
-//                    .build();
-//            this.driver = GraphDatabase.driver(
-//                    neo4jDBProfile.getUri(),
-//                    AuthTokens.basic(neo4jDBProfile.getUsername(), neo4jDBProfile.getPassword()),
-//                    config
-//            );
-//        }
         return this.driver;
     }
 
     public void closeDriver() {
-        // Create driver instance.
-//        if (this.driver != null) {
-//            this.driver.close();
-//        }
     }
 
     public void executeCypher(@NotNull String query) {
