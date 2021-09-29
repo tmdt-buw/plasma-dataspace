@@ -6,11 +6,9 @@ import de.buw.tmdt.plasma.datamodel.CombinedModel;
 import io.swagger.v3.oas.annotations.Operation;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController("Label Matching Controller")
-@RequestMapping(value = "/api/plasma-ars-l-lm")
 public class LabelMatchingController implements LabelMatchingAPI {
 
 	private final LabelMatchingHandler labelMatchingHandler;
