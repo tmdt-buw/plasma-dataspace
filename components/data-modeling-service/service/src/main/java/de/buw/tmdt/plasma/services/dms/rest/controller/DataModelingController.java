@@ -51,6 +51,7 @@ public class DataModelingController implements DataModelingAPI {
     @Operation(description = "Returns the current schema of the specified data source.")
     public CombinedModel getCombinedModel(@NotNull String dataSourceUuid) {
         CombinedModel combinedModel = dataModelingHandler.getCombinedModel(UUID.fromString(dataSourceUuid));
+        combinedModel = dataModelingHandler.requestRecommendations(dataSourceUuid, combinedModel);
         dataModelingHandler.prepareForFrontend(combinedModel);
         return combinedModel;
     }
@@ -132,7 +133,7 @@ public class DataModelingController implements DataModelingAPI {
             @NotNull EntityType entityType,
             @Nullable String primitiveNodeUuid
     ) {
-        // modify the sementic model
+        // modify the semantic model
         CombinedModel combinedModel = dataModelingHandler.addEntityType(UUID.fromString(dataSourceUuid), entityType, primitiveNodeUuid);
         // request recommendations
         combinedModel = dataModelingHandler.requestRecommendations(dataSourceUuid, combinedModel);

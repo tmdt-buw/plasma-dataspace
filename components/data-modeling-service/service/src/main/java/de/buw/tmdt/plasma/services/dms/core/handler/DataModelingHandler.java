@@ -38,7 +38,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.io.Serializable;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -142,20 +141,14 @@ public class DataModelingHandler {
         });
 
         try {
-            Map<String, Serializable> parameters = new HashMap<>();
-            parameters.put("testvalue", "the value TODO REMOVE ONCE TESTING FINISHED");
-            String uuid = UUID.randomUUID().toString();
-            String token = configServiceClient.storeConfig(uuid, parameters);
             CombinedModel labeledCombinedModel;
             labeledCombinedModel = semanticRecommendationApiClient.performSemanticLabeling(
-                    dataSourceUuid.toString(), uuid, token, combinedModel);
+                    dataSourceUuid.toString(), null, null, combinedModel);
             try {
                 CombinedModel modeledCombinedModel;
                 // request semantic modeling
-                uuid = null;
-                token = null;
                 modeledCombinedModel = semanticRecommendationApiClient.performSemanticModeling(
-                        dataSourceUuid.toString(), uuid, token, labeledCombinedModel);
+                        dataSourceUuid.toString(), null, null, labeledCombinedModel);
                 return modeledCombinedModel;
             } catch (Exception e) {
                 logger.warn("Semantic modeling did not succeed: ", e);
