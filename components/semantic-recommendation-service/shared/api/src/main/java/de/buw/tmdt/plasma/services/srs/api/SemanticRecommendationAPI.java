@@ -22,8 +22,7 @@ public interface SemanticRecommendationAPI {
      * @return A combined model containing a new semantic labeling as a basic semantic model
      */
     @PostMapping(value = "/labeling", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    CombinedModel performSemanticLabeling(@RequestParam("uuid") String uuid, @RequestParam("configId") String configId, @RequestParam("configToken") String configToken, @NotNull @RequestBody CombinedModel combinedModel);
-
+    CombinedModel performSemanticLabeling(@RequestParam("uuid") String uuid, @RequestParam(value = "configId", required = false) String configId, @RequestParam(value = "configToken", required = false) String configToken, @NotNull @RequestBody CombinedModel combinedModel);
 
     /**
      * Requests a semantic modeling for the combined model.
@@ -37,7 +36,7 @@ public interface SemanticRecommendationAPI {
      */
     @NotNull
     @PostMapping(value = "/modeling/{uuid}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    CombinedModel performSemanticModeling(@NotNull @PathVariable("uuid") String uuid, @RequestParam("configId") String configId, @RequestParam("configToken") String configToken, @NotNull @RequestBody CombinedModel combinedModel);
+    CombinedModel performSemanticModeling(@NotNull @PathVariable("uuid") String uuid, @RequestParam(value = "configId", required = false) String configId, @RequestParam(value = "configToken", required = false) String configToken, @NotNull @RequestBody CombinedModel combinedModel);
 
     /**
      * Requests a semantic refinement for the combined model.
