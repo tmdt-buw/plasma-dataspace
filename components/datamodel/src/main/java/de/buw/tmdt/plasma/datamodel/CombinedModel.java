@@ -28,6 +28,7 @@ public class CombinedModel implements Serializable {
     public static final String SEMANTIC_MODEL_PROPERTY = "semanticModel";
     private static final String PRIMITIVE_ENTITY_TYPE_LIST = "primitiveToEntityTypeList";
     private static final String RECOMMENDATION_LIST = "recommendations";
+    private static final String LAST_MODIFICATION = "lastModification";
     private static final String FINALIZED = "finalized";
     private static final String PROVISIONAL_ENTITY_CONCEPTS_PROPERTY = "provisionalEntityConcepts";
     private static final String PROVISIONAL_RELATION_CONCEPTS_PROPERTY = "provisionalRelationConcepts";
@@ -37,6 +38,7 @@ public class CombinedModel implements Serializable {
     private final String dataSourceUuid;
     private final SyntaxModel syntaxModel;
     private final SemanticModel semanticModel;
+
     /**
      * Stores provisional {@link EntityConcept}s that the user created but are not yet in the knowledge base.
      * Only valid for this model.
@@ -66,6 +68,11 @@ public class CombinedModel implements Serializable {
     private ArrayList<DeltaModification> recommendations;
 
     /**
+     * Last applied modification. Might be null if none recorded.
+     */
+    private DeltaModification lastModification;
+
+    /**
      * A finalized model should not be changed any more.
      */
     private boolean finalized;
@@ -86,7 +93,7 @@ public class CombinedModel implements Serializable {
             List<DeltaModification> recommendations,
             boolean finalized
     ) {
-        this(dataSourceUuid, syntaxModel, semanticModel, primitiveEntityTypeMappings, recommendations, finalized, null, null);
+        this(dataSourceUuid, syntaxModel, semanticModel, primitiveEntityTypeMappings, recommendations, null, finalized, null, null);
 
     }
 
@@ -97,6 +104,7 @@ public class CombinedModel implements Serializable {
             @JsonProperty(SEMANTIC_MODEL_PROPERTY) SemanticModel semanticModel,
             @JsonProperty(PRIMITIVE_ENTITY_TYPE_LIST) List<PrimitiveEntityTypeMapping> primitiveEntityTypeMappings,
             @JsonProperty(RECOMMENDATION_LIST) List<DeltaModification> recommendations,
+            @JsonProperty(LAST_MODIFICATION) DeltaModification lastModification,
             @JsonProperty(value = FINALIZED, defaultValue = "false") boolean finalized,
             @JsonProperty(PROVISIONAL_ENTITY_CONCEPTS_PROPERTY) List<EntityConcept> provisionalEntityConcepts,
             @JsonProperty(PROVISIONAL_RELATION_CONCEPTS_PROPERTY) List<RelationConcept> provisionalRelationConcepts
@@ -108,6 +116,7 @@ public class CombinedModel implements Serializable {
         this.primitiveEntityTypeMappings = primitiveEntityTypeMappings == null ? new ArrayList<>() : new ArrayList<>(primitiveEntityTypeMappings);
         this.finalized = finalized;
         this.recommendations = recommendations == null ? new ArrayList<>() : new ArrayList<>(recommendations);
+        this.lastModification = lastModification;
         this.provisionalEntityConcepts = provisionalEntityConcepts == null ? new ArrayList<>() : provisionalEntityConcepts;
         this.provisionalRelationConcepts = provisionalRelationConcepts == null ? new ArrayList<>() : provisionalRelationConcepts;
     }
@@ -141,6 +150,11 @@ public class CombinedModel implements Serializable {
     @JsonProperty(RECOMMENDATION_LIST)
     public ArrayList<DeltaModification> getRecommendations() {
         return recommendations;
+    }
+
+    @JsonProperty(LAST_MODIFICATION)
+    public DeltaModification getLastModification() {
+        return lastModification;
     }
 
     public void finalizeModel() {
@@ -414,6 +428,7 @@ public class CombinedModel implements Serializable {
             // remove mappings that mapped deleted entities to syntax nodes
             getPrimitiveEntityTypeMappings().removeIf(mapping -> deletedTypeIds.contains(mapping.getEntityTypeId()));
         }
+        lastModification = delta;
     }
 
     /**
@@ -459,6 +474,7 @@ public class CombinedModel implements Serializable {
                 CollectionUtilities.map(getRecommendations(),
                         DeltaModification::copy,
                         ArrayList::new),
+                getLastModification(),
                 isFinalized(),
                 CollectionUtilities.map(getProvisionalEntityConcepts(),
                         EntityConcept::copy,
