@@ -62,9 +62,16 @@ public class RecommendationHandler {
 
         ObjectMapper mapper = new ObjectMapper();
 
+        Iterable<EntityType> targets;
 
-        for (EntityType et : combinedModel.getSemanticModel().getNodes()) {
+        if (combinedModel.getLastModification() != null && !combinedModel.getLastModification().isDeletion()) {
+            targets = combinedModel.getLastModification().getEntities();
+        } else {
+            targets = combinedModel.getSemanticModel().getNodes();
+        }
 
+        for (EntityType et : targets) {
+            // TODO make async
             String targetURI = et.getEntityConcept().getSourceURI().replace("plasma:", "http://tmdtkg#");
             Object[] results = client.post()
                     .uri(recommendationServiceUrl, uriBuilder -> uriBuilder
