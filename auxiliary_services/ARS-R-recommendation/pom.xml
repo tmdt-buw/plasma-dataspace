@@ -12,7 +12,7 @@
     </parent>
 
     <groupId>de.buw.tmdt.plasma.ars.refinement.recommendation</groupId>
-    <artifactId>ars-r-rec-parent</artifactId>
+    <artifactId>ars-r-sr-parent</artifactId>
     <name>${project.module.label.prefix} Parent</name>
     <packaging>pom</packaging>
 
@@ -22,9 +22,9 @@
     </modules>
 
     <properties>
-        <project.label>ARS-R Recommendation</project.label>
-        <project.label.short>ars-r-rec</project.label.short>
-        <project.label.abbrv>ARS-R REC</project.label.abbrv>
+        <project.label>ARS-R Semantic Recommendation</project.label>
+        <project.label.short>ars-r-sr</project.label.short>
+        <project.label.abbrv>ARS-R SR</project.label.abbrv>
         <project.module.label.prefix>${platform.name} ${project.label.abbrv}</project.module.label.prefix>
     </properties>
 

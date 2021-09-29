@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @SuppressWarnings("HardcodedFileSeparator")
-@RequestMapping(value = "/api/plasma-ars-r-rec")
+@RequestMapping(value = "/api/plasma-ars-r-sr")
 public interface ARSRRecommendationAPI {
 
 	@PostMapping(path = "/recommend", produces = MediaType.APPLICATION_JSON_VALUE)

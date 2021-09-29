@@ -5,7 +5,7 @@ import org.springframework.cloud.openfeign.FeignClient;
 
 @SuppressWarnings("HardcodedFileSeparator - uris")
 @FeignClient(
-        name = "plasma-ars-r-rec",
+        name = "plasma-ars-r-sr",
         contextId = "plasma-ars-r",
         configuration = RecommendationFeignConfiguration.class
 )
