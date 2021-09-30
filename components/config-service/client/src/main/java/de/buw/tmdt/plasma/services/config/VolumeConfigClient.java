@@ -86,7 +86,7 @@ public class VolumeConfigClient implements ConfigServiceClient {
     @Override
     public String storeConfig(String configId, Map<String, Serializable> config) {
         if (configId == null) {
-            throw new UnsupportedOperationException("A configId needs to be specified");
+            throw new IllegalArgumentException("A configId needs to be specified");
         }
         Map<String, String> serializedConfig;
         if (config == null) {
@@ -97,11 +97,12 @@ public class VolumeConfigClient implements ConfigServiceClient {
         Path filePath = getConfigFilePath(configId);
         try {
             if (Files.exists(filePath)) {
-                throw new UnsupportedOperationException("Cannot write to " + filePath.toString() + ". Config alredy exists");
+                throw new UnsupportedOperationException("Cannot write to " + filePath + ". Config alredy exists");
             }
             mapper.writeValue(filePath.toFile(), serializedConfig);
         } catch (IOException e) {
-            throw new NoSuchElementException("Could not write to requested file " + filePath);
+            log.error("Could not write to requested file " + filePath, e);
+            throw new NoSuchElementException("Could not write to requested file " + filePath + ": " + e.getMessage());
         }
         return "noToken";
     }
@@ -120,7 +121,8 @@ public class VolumeConfigClient implements ConfigServiceClient {
                 Files.delete(filePath);
             }
         } catch (IOException e) {
-            throw new NoSuchElementException("Could not write to requested file " + filePath);
+            log.error("Could not remove requested file " + filePath, e);
+            throw new NoSuchElementException("Could not remove requested file " + filePath + ": " + e.getMessage());
         }
     }
 
