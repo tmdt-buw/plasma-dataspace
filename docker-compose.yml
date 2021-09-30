@@ -223,7 +223,7 @@ services:
       - 8202:8202
 
   ars-r-sr:
-    image: "plasma/ars-m-sm:${PLASMA_VERSION}"
+    image: "plasma/ars-r-sr:${PLASMA_VERSION}"
     hostname: plasma-ars-r-sr
     restart: unless-stopped
     depends_on:
