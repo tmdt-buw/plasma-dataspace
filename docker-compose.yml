@@ -238,7 +238,7 @@ services:
   ########################### External Services ######################################
 
   semantic-recommender:
-    image: plasma/semantic-recommender:${PLASMA_VERSION}
+    image: plasma/recommender:${RECOMMENDER_VERSION}
     hostname: semantic-recommender
     restart: unless-stopped
     ports:

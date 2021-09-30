@@ -70,6 +70,8 @@ public class RecommendationHandler {
             targets = combinedModel.getSemanticModel().getNodes();
         }
 
+        targets = combinedModel.getSemanticModel().getNodes();
+
         for (EntityType et : targets) {
             // TODO make async
             String targetURI = et.getEntityConcept().getSourceURI().replace("plasma:", "http://tmdtkg#");
@@ -100,17 +102,21 @@ public class RecommendationHandler {
                         Set<EntityType> entities = new HashSet<>();
                         Set<Relation> relations = new HashSet<>();
 
-                        EntityConcept objectEntityConcept = getEntityConceptForURI(rec.getO(), combinedModel.getProvisionalEntityConcepts());
+                        String objectURI = rec.getO().replace("http://tmdtkg#", "plasma:"); // KGS speaks a different language
+
+                        EntityConcept objectEntityConcept = getEntityConceptForURI(objectURI, combinedModel.getProvisionalEntityConcepts());
                         if (objectEntityConcept.getEntityId() == null) {
                             // this one is not yet known, add it to the provisional entity concepts
                             combinedModel.getProvisionalEntityConcepts().add(objectEntityConcept);
                         }
-                        EntityType objectEntityType = new EntityType(rec.getO(), "", objectEntityConcept);
+                        EntityType objectEntityType = new EntityType(objectEntityConcept.getLabel(), "", objectEntityConcept);
 
                         objectEntityType.setXCoordinate(et.getXCoordinate() != null ? et.getXCoordinate() : null);
-                        objectEntityType.setYCoordinate(et.getYCoordinate() != null ? et.getYCoordinate() - 150 : null);
+                        objectEntityType.setYCoordinate(et.getYCoordinate() != null ? et.getYCoordinate() + 150 : null);
 
-                        RelationConcept rc = getRelationConceptForURI(rec.getP());
+                        String relationURI = rec.getP().replace("http://tmdtkg#", "plasma:"); // KGS speaks a different language
+
+                        RelationConcept rc = getRelationConceptForURI(relationURI);
                         if (rc.getEntityId() == null) {
                             // this one is not yet known, add it to the provisional relation concepts
                             combinedModel.getProvisionalRelationConcepts().add(rc);
