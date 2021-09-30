@@ -224,7 +224,9 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
 
   onRecommendationAccepted(event: DeltaModification): void {
     console.log('accepting recommendation', event);
-    this.modelingService.acceptRecommendation(this.dataSource, event).subscribe();
+    this.modelingService.acceptRecommendation(this.dataSource, event).subscribe(cm =>
+      this.schema = cm
+    );
   }
 
   finalizeModel(): void {

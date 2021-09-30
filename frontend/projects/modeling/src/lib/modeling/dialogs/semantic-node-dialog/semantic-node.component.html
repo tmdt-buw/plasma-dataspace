@@ -26,11 +26,17 @@
   <p [nzTooltipTitle]="'Recommended model extensions related to this node'" nz-tooltip>Extensions</p>
   <div (mouseenter)="showRecommendation(recommendation)" (mouseleave)="hideRecommendation()"
        *ngFor="let recommendation of data.recommendations" class="recommendation-box" fxLayout="row"
-       fxLayoutAlign="space-between" fxLayoutGap="5px">
-    <span nz-typography> {{ recommendation.entities[0].concept.label }}</span>
+       fxLayoutAlign="space-between center" fxLayoutGap="5px">
+    <span nz-typography> {{data.node.concept.label}}
+      <i nz-icon nz-typography nzType="right"></i>
+      {{recommendation.relations[0].concept.label}}
+      <i nz-icon nz-typography nzType="right"></i>
+      {{ recommendation.entities[0].concept.label }}</span>
     <div fxLayout="row" fxLayoutAlign="end" fxLayoutGap="5px">
-      <i (click)="acceptRecommendation(recommendation)" nz-icon nz-typography
-         nzType="check"></i>
+      <button nz-button nzType="default" (click)="acceptRecommendation(recommendation)">
+        <i nz-icon nz-typography
+           class="green-icon" nzType="check"></i>
+      </button>
       <!--      <i (click)="rejectRecommendation(recommendation)" nz-typography nz-icon-->
       <!--         nzType="close"></i>-->
     </div>
