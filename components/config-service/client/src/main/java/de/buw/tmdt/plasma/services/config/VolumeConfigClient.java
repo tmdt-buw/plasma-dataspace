@@ -78,7 +78,8 @@ public class VolumeConfigClient implements ConfigServiceClient {
             }
             storeConfig(configId, config);
         } catch (IOException e) {
-            throw new NoSuchElementException("Could not write to requested file " + filePath);
+            log.error("Could not write to requested file " + filePath, e);
+            throw new NoSuchElementException("Could not write to requested file " + filePath + ": " + e.getMessage());
         }
     }
 
