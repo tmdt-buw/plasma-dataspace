@@ -28,10 +28,10 @@ class RecommendationHandlerTest {
         RelationConcept rc = new RelationConcept(ref, "", ref);
         Relation r = new Relation(ref, "", rc);
 
-        EntityConcept o_ec = new EntityConcept(ref, "", ref);
-        EntityType o_et = new EntityType(ref, "", o_ec);
+        EntityConcept objectEntityConcept = new EntityConcept(ref, "", ref);
+        EntityType objectEntityType = new EntityType(ref, "", objectEntityConcept);
 
-        entities.add(o_et);
+        entities.add(objectEntityType);
         relations.add(r);
         CombinedModel cm = new CombinedModel("test", new SyntaxModel(), new SemanticModel(null, entities, relations));
         CombinedModel combinedModel = handler.generateRecommendations(cm);

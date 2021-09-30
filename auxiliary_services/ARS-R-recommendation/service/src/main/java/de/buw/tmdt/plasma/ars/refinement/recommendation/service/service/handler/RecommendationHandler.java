@@ -100,24 +100,24 @@ public class RecommendationHandler {
                         Set<EntityType> entities = new HashSet<>();
                         Set<Relation> relations = new HashSet<>();
 
-                        EntityConcept o_ec = getEntityConceptForURI(rec.getO(), combinedModel.getProvisionalEntityConcepts());
-                        if (o_ec.getEntityId() == null) {
+                        EntityConcept objectEntityConcept = getEntityConceptForURI(rec.getO(), combinedModel.getProvisionalEntityConcepts());
+                        if (objectEntityConcept.getEntityId() == null) {
                             // this one is not yet known, add it to the provisional entity concepts
-                            combinedModel.getProvisionalEntityConcepts().add(o_ec);
+                            combinedModel.getProvisionalEntityConcepts().add(objectEntityConcept);
                         }
-                        EntityType o_et = new EntityType(rec.getO(), "", o_ec);
+                        EntityType objectEntityType = new EntityType(rec.getO(), "", objectEntityConcept);
 
-                        o_et.setXCoordinate(et.getXCoordinate() != null ? et.getXCoordinate() : null);
-                        o_et.setYCoordinate(et.getYCoordinate() != null ? et.getYCoordinate() - 150 : null);
+                        objectEntityType.setXCoordinate(et.getXCoordinate() != null ? et.getXCoordinate() : null);
+                        objectEntityType.setYCoordinate(et.getYCoordinate() != null ? et.getYCoordinate() - 150 : null);
 
                         RelationConcept rc = getRelationConceptForURI(rec.getP());
                         if (rc.getEntityId() == null) {
                             // this one is not yet known, add it to the provisional relation concepts
                             combinedModel.getProvisionalRelationConcepts().add(rc);
                         }
-                        Relation r = new Relation(et.getUuid(), o_et.getUuid(), rc);
+                        Relation r = new Relation(et.getUuid(), objectEntityType.getUuid(), rc);
 
-                        entities.add(o_et);
+                        entities.add(objectEntityType);
                         relations.add(r);
 
                         DeltaModification dm = new DeltaModification("test",
