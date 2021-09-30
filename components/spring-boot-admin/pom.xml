@@ -7,7 +7,7 @@
     <parent>
         <artifactId>parent</artifactId>
         <groupId>de.buw.tmdt.plasma</groupId>
-        <version>1.2.7</version>
+        <version>1.2.8</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
