@@ -101,7 +101,8 @@ public class VolumeConfigClient implements ConfigServiceClient {
             }
             mapper.writeValue(filePath.toFile(), serializedConfig);
         } catch (IOException e) {
-            throw new NoSuchElementException("Could not write to requested file " + filePath);
+            log.error("Could not write to requested file " + filePath, e);
+            throw new NoSuchElementException("Could not write to requested file " + filePath + ": " + e.getMessage());
         }
         return "noToken";
     }
@@ -120,7 +121,8 @@ public class VolumeConfigClient implements ConfigServiceClient {
                 Files.delete(filePath);
             }
         } catch (IOException e) {
-            throw new NoSuchElementException("Could not write to requested file " + filePath);
+            log.error("Could not write to requested file " + filePath, e);
+            throw new NoSuchElementException("Could not write to requested file " + filePath + ": " + e.getMessage());
         }
     }
 
