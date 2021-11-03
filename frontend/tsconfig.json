@@ -16,19 +16,19 @@
       "dom"
     ],
     "paths": {
-      "@data-platform/dss": [
+      "@tmdt/dss": [
         "dist/data-sources/data-sources",
         "dist/data-sources"
       ],
-      "@data-platform/dms": [
-        "dist/@data-platform/dms/@data-platform/dms",
-        "dist/@data-platform/dms"
+      "@tmdt/dms": [
+        "dist/@tmdt/dms/@tmdt/dms",
+        "dist/@tmdt/dms"
       ],
-      "@data-platform/sas": [
+      "@tmdt/sas": [
         "dist/schema-analysis/schema-analysis",
         "dist/schema-analysis"
       ],
-      "@data-platform/common": [
+      "@tmdt/common": [
         "dist/common/common",
         "dist/common"
       ]

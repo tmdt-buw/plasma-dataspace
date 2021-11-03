@@ -4,7 +4,7 @@ import { FlexLayoutModule } from '@angular/flex-layout';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterModule } from '@angular/router';
-import * as dss from '@data-platform/dss';
+import * as dss from '@tmdt/dss';
 import { environment } from '../../environments/environment';
 import { DSS_ROUTES } from './data-sources.routes';
 import { DataSourcesComponent } from './data-sources/data-sources.component';

@@ -1,5 +1,5 @@
 import { NgModule } from '@angular/core';
-import * as sas from '@data-platform/sas';
+import * as sas from '@tmdt/sas';
 import { environment } from '../../environments/environment';
 import { CommonModule } from '@angular/common';
 import { FlexLayoutModule } from '@angular/flex-layout';

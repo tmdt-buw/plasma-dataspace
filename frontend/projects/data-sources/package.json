@@ -1,5 +1,5 @@
 {
-  "name": "@data-platform/dss",
+  "name": "@tmdt/dss",
   "version": "0.0.0-PLACEHOLDER",
   "author": "TMDT <tlanger@uni-wuppertal.de>",
   "license": "GPL-3.0",
@@ -10,7 +10,7 @@
     "@angular/flex-layout": "^10.0.0-beta.32 || ^11.0.0-beta.33",
     "@angular/material": ">=10.0.0",
     "@angular/router": ">=10.0.0",
-    "@data-platform/common": "^0.0.1",
+    "@tmdt/common": "^0.0.1",
     "rxjs": "^6.4.0"
   },
   "dependencies": {

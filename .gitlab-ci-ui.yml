@@ -42,7 +42,7 @@ ui-publish-common:
 ui-publish-dms:
   extends: .ui-publish
   variables:
-    LIB_PATH: frontend/dist/@data-platform/dms
+    LIB_PATH: frontend/dist/@tmdt/dms
 
 ui-publish-dss:
   extends: .ui-publish

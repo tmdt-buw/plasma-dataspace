@@ -1,5 +1,5 @@
 import { NgModule } from '@angular/core';
-import * as dms from '@data-platform/dms';
+import * as dms from '@tmdt/dms';
 import { environment } from '../../environments/environment';
 import { CommonModule } from '@angular/common';
 import { FlexLayoutModule } from '@angular/flex-layout';

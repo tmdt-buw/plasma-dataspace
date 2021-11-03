@@ -1,0 +1,268 @@
+version: "3.5"
+
+services:
+  ########################### Infrastructure ######################################
+  neo4j:
+    image: neo4j:4.1.3
+    hostname: neo4j
+    restart: unless-stopped
+    environment:
+      - NEO4J_AUTH=neo4j/plasma
+      - NEO4J_USERNAME=neo4j
+      - NEO4J_PASSWORD=plasma
+      - NEO4J_dbms_allow__upgrade=true
+    volumes:
+      - neo4j_data:/data
+    healthcheck:
+      test: cypher-shell "match (n) return n limit 1;"
+      interval: 10s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+    ports:
+      - 7473:7473
+      - 7474:7474
+      - 7687:7687
+
+  mariadb-dss:
+    image: mariadb:latest
+    hostname: mariadb-dss
+    restart: unless-stopped
+    command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    environment:
+      - MYSQL_DATABASE=plasma-dss
+      - MYSQL_ROOT_PASSWORD=plasma
+    volumes:
+      - mariadb_dss:/var/lib/mysql
+    healthcheck:
+      test: bash -c "mariadb -h 127.0.0.1 -p$$MYSQL_ROOT_PASSWORD  -e \"show databases;\""
+      interval: 10s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+    ports:
+      - 3306:3306
+
+  mariadb-sas:
+    image: mariadb:latest
+    hostname: mariadb-sas
+    restart: unless-stopped
+    command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    environment:
+      - MYSQL_DATABASE=plasma-sas
+      - MYSQL_ROOT_PASSWORD=plasma
+    volumes:
+      - mariadb_sas:/var/lib/mysql
+    healthcheck:
+      test: bash -c "mariadb -h 127.0.0.1 -p$$MYSQL_ROOT_PASSWORD  -e \"show databases;\""
+      interval: 10s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+    ports:
+      - 3307:3306
+
+  mariadb-dms:
+    image: mariadb:latest
+    hostname: mariadb-dms
+    restart: unless-stopped
+    command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    environment:
+      - MYSQL_DATABASE=plasma-dms
+      - MYSQL_ROOT_PASSWORD=plasma
+    volumes:
+      - mariadb_dms:/var/lib/mysql
+    healthcheck:
+      test: bash -c "mariadb -h 127.0.0.1 -p$$MYSQL_ROOT_PASSWORD  -e \"show databases;\""
+      interval: 10s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+    ports:
+      - 3308:3306
+
+  mariadb-ars-m-sm:
+    image: mariadb:latest
+    hostname: mariadb-ars-m-sm
+    restart: unless-stopped
+    command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    environment:
+      - MYSQL_DATABASE=plasma-ars-m-sm
+      - MYSQL_ROOT_PASSWORD=plasma
+    volumes:
+      - mariadb_ars_m_sm:/var/lib/mysql
+    healthcheck:
+      test: bash -c "mariadb -h 127.0.0.1 -p$$MYSQL_ROOT_PASSWORD  -e \"show databases;\""
+      interval: 10s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+    ports:
+      - 3310:3306
+
+  ########################### Service Infrastructure ######################################
+  discovery:
+    image: git.uni-wuppertal.de:4567/tmdt/projects/dataspace/plasma/discovery:${PLASMA_VERSION}
+    hostname: plasma-discovery-service
+    restart: unless-stopped
+    ports:
+      - "8761:8761"
+
+  admin:
+    image: git.uni-wuppertal.de:4567/tmdt/projects/dataspace/plasma/admin:${PLASMA_VERSION}
+    hostname: plasma-admin-service
+    restart: unless-stopped
+    depends_on:
+      - discovery
+    ports:
+      - "8080:8080"
+
+  gateway:
+    image: git.uni-wuppertal.de:4567/tmdt/projects/dataspace/plasma/gateway:${PLASMA_VERSION}
+    hostname: plasma-gateway-service
+    restart: unless-stopped
+    depends_on:
+      - discovery
+    ports:
+      - "8888:8888"
+
+  ########################### Services ######################################
+  sds:
+    image: git.uni-wuppertal.de:4567/tmdt/projects/dataspace/plasma/sds:${PLASMA_VERSION}
+    hostname: plasma-sds
+    restart: unless-stopped
+    depends_on:
+      - discovery
+    ports:
+      - "8182:8182"
+
+  kgs:
+    image: git.uni-wuppertal.de:4567/tmdt/projects/dataspace/plasma/kgs:${PLASMA_VERSION}
+    hostname: plasma-kgs
+    restart: unless-stopped
+    depends_on:
+      - discovery
+      - neo4j
+    ports:
+      - "8181:8181"
+
+  dss:
+    image: git.uni-wuppertal.de:4567/tmdt/projects/dataspace/plasma/dss:${PLASMA_VERSION}
+    hostname: plasma-dss
+    restart: unless-stopped
+    depends_on:
+      - discovery
+      - mariadb-dss
+    ports:
+      - "8185:8185"
+
+  sas:
+    image: git.uni-wuppertal.de:4567/tmdt/projects/dataspace/plasma/sas:${PLASMA_VERSION}
+    hostname: plasma-sas
+    restart: unless-stopped
+    depends_on:
+      - discovery
+      - mariadb-sas
+    ports:
+      - "8189:8189"
+
+  dms:
+    image: git.uni-wuppertal.de:4567/tmdt/projects/dataspace/plasma/dms:${PLASMA_VERSION}
+    hostname: plasma-dms
+    restart: unless-stopped
+    volumes:
+      - configs:/var/plasma/configs
+    depends_on:
+      - discovery
+      - mariadb-dms
+    ports:
+      - "8186:8186"
+
+  srs:
+    image: git.uni-wuppertal.de:4567/tmdt/projects/dataspace/plasma/srs:${PLASMA_VERSION}
+    hostname: plasma-srs
+    restart: unless-stopped
+    depends_on:
+      - discovery
+    ports:
+      - "8190:8190"
+    environment:
+      - plasma.ars.refinement.recommendation.enabled=false
+
+  ui:
+    image: git.uni-wuppertal.de:4567/tmdt/projects/dataspace/plasma/frontend:${PLASMA_VERSION}
+    hostname: plasma-ui
+    restart: unless-stopped
+    ports:
+      - "80:80"
+
+  ########################### Auxiliary Services ######################################
+
+  ars-l-lm:
+    image: git.uni-wuppertal.de:4567/tmdt/projects/dataspace/plasma/ars-l-lm:${PLASMA_VERSION}
+    hostname: plasma-ars-l-lm
+    restart: unless-stopped
+    depends_on:
+      - discovery
+      - kgs
+    volumes:
+      - configs:/var/plasma/configs
+    ports:
+      - "8201:8201"
+
+  ars-m-sm:
+    image: git.uni-wuppertal.de:4567/tmdt/projects/dataspace/plasma/ars-m-sm:${PLASMA_VERSION}
+    hostname: plasma-ars-m-sm
+    restart: unless-stopped
+    depends_on:
+      - discovery
+      - kgs
+      - mariadb-ars-m-sm
+    volumes:
+      - configs:/var/plasma/configs
+    ports:
+      - "8202:8202"
+
+  ars-r-sr:
+    image: git.uni-wuppertal.de:4567/tmdt/projects/dataspace/plasma/ars-r-sr:${PLASMA_VERSION}
+    hostname: plasma-ars-r-sr
+    restart: unless-stopped
+    depends_on:
+      - discovery
+      - semantic-recommender
+      - kgs
+    volumes:
+      - configs:/var/plasma/configs
+    ports:
+      - "8205:8205"
+
+  ars-r-me:
+    image: git.uni-wuppertal.de:4567/tmdt/projects/dataspace/plasma/ars-r-me:${PLASMA_VERSION}
+    hostname: plasma-ars-r-me
+    restart: unless-stopped
+    depends_on:
+      - discovery
+      - semantic-recommender
+      - kgs
+    volumes:
+      - configs:/var/plasma/configs
+    ports:
+      - "8206:8206"
+
+  ########################### External Services ######################################
+
+  semantic-recommender:
+    image: git.uni-wuppertal.de:4567/tmdt/projects/dataspace/semantic-recommender/recommender:${RECOMMENDER_VERSION}
+    hostname: semantic-recommender
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+
+
+volumes:
+  neo4j_data:
+  mariadb_dss:
+  mariadb_sas:
+  mariadb_dms:
+  mariadb_ars_m_sm:
+  configs:
