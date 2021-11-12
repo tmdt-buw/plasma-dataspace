@@ -9,16 +9,19 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.persistence.EntityManager;
 import java.util.UUID;
 
 @Service
 public class AnalysisService {
 
     private final AnalysisRepository analysisRepository;
+    private final EntityManager entityManager;
 
     @Autowired
-    public AnalysisService(AnalysisRepository analysisRepository) {
+    public AnalysisService(AnalysisRepository analysisRepository, EntityManager entityManager) {
         this.analysisRepository = analysisRepository;
+        this.entityManager = entityManager;
     }
 
     @Transactional
@@ -38,13 +41,22 @@ public class AnalysisService {
     @Transactional
     public void calculateResult(UUID uuid) {
         Analysis analysis = analysisRepository.findById(uuid).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Analysis ID not found"));
-        SchemaAnalysisAggregateRecognizedSchema schemaAnalysisAggregateRecognizedSchema = new SchemaAnalysisAggregateRecognizedSchema(1);
+        SchemaAnalysisAggregateRecognizedSchema schemaAnalysisAggregateRecognizedSchema = new SchemaAnalysisAggregateRecognizedSchema(20);
         for (Node n : analysis.getSubAnalyses()) {
             schemaAnalysisAggregateRecognizedSchema.addNode(n);
         }
 
-        analysis.setResult(schemaAnalysisAggregateRecognizedSchema.getMergedRecognizedNode());
-        analysisRepository.save(analysis);
+        UUID newUuid = analysis.getUuid();
+
+        Analysis finalAnalysis = new Analysis(newUuid);
+
+        // Deleting the old analysis as only the result is needed. Otherwise there will be id conflicts
+        analysisRepository.delete(analysis);
+        analysisRepository.flush();
+
+        finalAnalysis.setResult(schemaAnalysisAggregateRecognizedSchema.getMergedRecognizedNode());
+
+        analysisRepository.save(finalAnalysis);
     }
 
 

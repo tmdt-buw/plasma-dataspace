@@ -8,6 +8,7 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController("Analysis Controller")
@@ -30,6 +31,12 @@ public class AnalysisController implements AnalysisApi {
 	public void addDataPoint(String id, SchemaAnalysisDataProvisionDTO schemaAnalysisDataProvisionDTO) {
 		UUID uuid = UUID.fromString(id);
 		schemaAnalysisHandler.addDataPoint(uuid, schemaAnalysisDataProvisionDTO);
+	}
+
+	@Override
+	public void addDataPoints(String id, List<SchemaAnalysisDataProvisionDTO> schemaAnalysisDataProvisionDTOs) {
+		UUID uuid = UUID.fromString(id);
+		schemaAnalysisDataProvisionDTOs.forEach(schemaAnalysisDataProvisionDTO -> schemaAnalysisHandler.addDataPoint(uuid, schemaAnalysisDataProvisionDTO));
 	}
 
 	@Override

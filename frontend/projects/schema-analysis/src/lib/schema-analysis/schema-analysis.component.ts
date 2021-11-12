@@ -55,18 +55,33 @@ export class PlsSchemaAnalysisComponent implements OnInit, OnDestroy {
 
   addLineSample(): void {
     const data = JSON.parse(this.currentDataPoint);
+
     if (Array.isArray(data)) {
-      data.forEach(point => this.addSample(point));
+      console.log('is array');
+      const sendDataDto = [] ;
+      data.forEach( sample => {
+        sendDataDto.push({data: JSON.stringify(sample)});
+      });
+
+      this.schemaService.addDataPoints(this.dataSource, sendDataDto).subscribe( () => {
+        sendDataDto.forEach(x => {
+          this.lastDataPoints.push(x.data);
+        });
+      });
+
     } else {
       this.addSample(data);
     }
   }
 
+
+
   addSample(sample: any): void {
     const sampleString = JSON.stringify(sample);
     const sendDataDto: SchemaAnalysisDataProvisionDTO = {data: sampleString};
-    this.schemaService.addDataPoint(this.dataSource, sendDataDto).subscribe();
-    this.lastDataPoints.push(sampleString);
+    this.schemaService.addDataPoint(this.dataSource, sendDataDto).subscribe(() => {
+      this.lastDataPoints.push(sampleString);
+    });
   }
 
   finish(): void {

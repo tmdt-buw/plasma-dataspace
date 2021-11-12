@@ -12,6 +12,10 @@ import java.util.UUID;
 @Entity
 public class Analysis {
 
+	public UUID getUuid() {
+		return uuid;
+	}
+
 	@Id
 	@Column(nullable = false, unique = true, length = 16)
 	protected UUID uuid;

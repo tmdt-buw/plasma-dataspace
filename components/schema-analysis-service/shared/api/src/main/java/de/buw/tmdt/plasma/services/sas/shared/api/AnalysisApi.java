@@ -6,6 +6,8 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 /**
  * Provides endpoints for schema analysis operations.
  * Expected usage pattern:
@@ -25,6 +27,9 @@ public interface AnalysisApi {
 
 	@PostMapping(path = "/{id}/add", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
 	void addDataPoint(@PathVariable("id") String id, @RequestBody SchemaAnalysisDataProvisionDTO schemaAnalysisDataProvisionDTO);
+
+	@PostMapping(path = "/{id}/add/multiple", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+	void addDataPoints(@PathVariable("id") String id, @RequestBody List<SchemaAnalysisDataProvisionDTO> schemaAnalysisDataProvisionDTOs);
 
 	@GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
 	@NotNull SyntaxModel getResult(@PathVariable("id") String id, @RequestParam(value = "exampleLimit", defaultValue = "100") int exampleLimit);

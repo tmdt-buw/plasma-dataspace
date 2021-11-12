@@ -33,8 +33,8 @@ public abstract class Node implements Traversable {
 
 	}
 
-	protected Node merge(Node node) throws SchemaAnalysisException {
-		return node;
+	public Node merge(Traversable node) throws SchemaAnalysisException {
+		return (Node) node;
 	}
 
 

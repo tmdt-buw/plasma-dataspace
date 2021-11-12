@@ -28,7 +28,7 @@ public class PrimitiveNode extends Node implements RawDataContainer {
     private DataType dataType;
     @Column
     private final String cleansingPattern;
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     private final List<String> examples;
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private final List<EntityConceptSuggestion> entityConceptSuggestions;
