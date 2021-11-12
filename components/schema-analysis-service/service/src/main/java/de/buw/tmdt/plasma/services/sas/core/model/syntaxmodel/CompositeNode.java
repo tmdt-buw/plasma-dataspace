@@ -1,6 +1,5 @@
 package de.buw.tmdt.plasma.services.sas.core.model.syntaxmodel;
 
-import de.buw.tmdt.plasma.services.sas.core.model.exception.SchemaAnalysisException;
 import de.buw.tmdt.plasma.services.sas.core.model.syntaxmodel.members.Splitter;
 import de.buw.tmdt.plasma.services.sas.core.model.Traversable;
 import de.buw.tmdt.plasma.services.sas.core.model.Position;
