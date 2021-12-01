@@ -5,6 +5,7 @@ import de.buw.tmdt.plasma.datamodel.CombinedModelGenerator;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.SemanticModel;
 import de.buw.tmdt.plasma.services.kgs.TestApplication;
 import de.buw.tmdt.plasma.services.kgs.core.SemanticModelHandler;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,7 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@Disabled("Not suited for execution due to mismatch in ontology handling")
 @SpringBootTest(classes = TestApplication.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class SemanticModelHandlerTest {

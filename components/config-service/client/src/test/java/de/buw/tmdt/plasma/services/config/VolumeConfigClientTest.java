@@ -3,12 +3,14 @@ package de.buw.tmdt.plasma.services.config;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
+import org.springframework.util.FileSystemUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,15 +31,21 @@ class VolumeConfigClientTest {
     @Autowired
     VolumeConfigClient client;
     String configId = "testconfigId";
-
+    private static File storageLocationFileRef;
     ObjectMapper mapper;
+
+    @AfterAll
+    static void cleanup() {
+        FileSystemUtils.deleteRecursively(storageLocationFileRef);
+    }
 
     @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_BAD_PRACTICE")
     @BeforeEach
     public void setUp() throws IOException {
         mapper = new ObjectMapper();
+        storageLocationFileRef = new File(storageLocation);
         //noinspection ResultOfMethodCallIgnored
-        new File(storageLocation).mkdir();
+        storageLocationFileRef.mkdir();
         try {
             Files.delete(Path.of(storageLocation, configId + ".cfg"));
         } catch (NoSuchFileException ignore) {

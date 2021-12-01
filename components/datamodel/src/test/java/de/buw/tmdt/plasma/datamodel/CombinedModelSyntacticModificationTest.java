@@ -60,7 +60,6 @@ public class CombinedModelSyntacticModificationTest {
         MappableSemanticModelNode identifierType = model.getSemanticModel().getNodes().stream()
                 .filter(node -> node instanceof MappableSemanticModelNode)
                 .map(node -> (MappableSemanticModelNode) node)
-                .filter(MappableSemanticModelNode::isMapped)
                 .filter(node -> node.getUuid().equals(mappedSemanticNode.getUuid())).findFirst().orElseThrow();
         assertNull(identifierType.getMappedSyntaxNodeUuid());
         assertNull(identifierType.getMappedSyntaxNodeLabel());
