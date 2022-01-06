@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 @Table(name = "set_nodes")
 public class SetNode extends Node {
 
-	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+	@OneToMany(cascade = CascadeType.ALL)
 	private List<Child> children;
 
 	protected SetNode() {
