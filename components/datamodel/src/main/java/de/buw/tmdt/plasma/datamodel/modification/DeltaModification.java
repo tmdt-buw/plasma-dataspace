@@ -1,9 +1,8 @@
 package de.buw.tmdt.plasma.datamodel.modification;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import de.buw.tmdt.plasma.datamodel.semanticmodel.EntityType;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.Relation;
+import de.buw.tmdt.plasma.datamodel.semanticmodel.SemanticModelNode;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.Edge;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.SchemaNode;
 import de.buw.tmdt.plasma.utilities.collections.CollectionUtilities;
@@ -13,20 +12,10 @@ import org.jetbrains.annotations.Nullable;
 import java.io.Serializable;
 import java.util.*;
 
-import static de.buw.tmdt.plasma.datamodel.syntaxmodel.SyntaxModel.EDGES_PROPERTY;
-import static de.buw.tmdt.plasma.datamodel.syntaxmodel.SyntaxModel.NODES_PROPERTY;
-
 /**
  * Defines a Delta recommendation, a partial update of a combined model.
  */
 public class DeltaModification implements Serializable {
-
-    private static final String REFERENCE_PROPERTY = "reference";
-    private static final String DELETION_PROPERTY = "deletion";
-    private static final String ENTITIES_PROPERTY = "entities";
-    private static final String RELATIONS_PROPERTY = "relations";
-    private static final String ANCHORS_PROPERTY = "anchors";
-    private static final String CONFIDENCE_PROPERTY = "confidence";
 
     /**
      * A unique id identifying this recommendation.
@@ -42,12 +31,12 @@ public class DeltaModification implements Serializable {
      * The set of modified semantic entities.
      */
     @NotNull
-    private Set<EntityType> entities;
+    private Set<SemanticModelNode> entities;
     /**
      * The set of modified semantic relations.
      */
     @NotNull
-    private Set<Relation> relations;
+    private Set<Relation> objectProperties;
     /**
      * The set of modified syntactic nodes.
      */
@@ -70,35 +59,35 @@ public class DeltaModification implements Serializable {
     private Double confidence;
 
     public DeltaModification(@NotNull String reference,
-                             @Nullable Set<EntityType> entities,
-                             @Nullable Set<Relation> relations,
+                             @Nullable Set<SemanticModelNode> entities,
+                             @Nullable Set<Relation> objectProperties,
                              @Nullable Set<SchemaNode> nodes,
                              @Nullable Set<Edge> edges) {
-        this(reference, false, entities, relations, nodes, edges, null, 0.0);
+        this(reference, false, entities, objectProperties, nodes, edges, null, 0.0);
     }
 
     public DeltaModification(@NotNull String reference,
-                             @Nullable Set<EntityType> entities,
-                             @Nullable Set<Relation> relations,
+                             @Nullable Set<SemanticModelNode> entities,
+                             @Nullable Set<Relation> objectProperties,
                              @Nullable Set<SchemaNode> nodes,
                              @Nullable Set<Edge> edges,
                              @Nullable Double confidence) {
-        this(reference, false, entities, relations, nodes, edges, null, confidence);
+        this(reference, false, entities, objectProperties, nodes, edges, null, confidence);
     }
 
     @JsonCreator
-    public DeltaModification(@NotNull @JsonProperty(REFERENCE_PROPERTY) String reference,
-                             @JsonProperty(DELETION_PROPERTY) boolean deletion,
-                             @Nullable @JsonProperty(ENTITIES_PROPERTY) Set<EntityType> entities,
-                             @Nullable @JsonProperty(RELATIONS_PROPERTY) Set<Relation> relations,
-                             @Nullable @JsonProperty(NODES_PROPERTY) Set<SchemaNode> nodes,
-                             @Nullable @JsonProperty(EDGES_PROPERTY) Set<Edge> edges,
-                             @Nullable @JsonProperty(ANCHORS_PROPERTY) List<String> anchors,
-                             @Nullable @JsonProperty(CONFIDENCE_PROPERTY) Double confidence) {
+    public DeltaModification(@NotNull String reference,
+                             boolean deletion,
+                             @Nullable Set<SemanticModelNode> entities,
+                             @Nullable Set<Relation> objectProperties,
+                             @Nullable Set<SchemaNode> nodes,
+                             @Nullable Set<Edge> edges,
+                             @Nullable List<String> anchors,
+                             @Nullable Double confidence) {
         this.reference = reference;
         this.deletion = deletion;
         this.entities = entities == null ? new HashSet<>() : entities;
-        this.relations = relations == null ? new HashSet<>() : relations;
+        this.objectProperties = objectProperties == null ? new HashSet<>() : objectProperties;
         this.nodes = nodes == null ? new HashSet<>() : nodes;
         this.edges = edges == null ? new HashSet<>() : edges;
         this.anchors = anchors == null ? new ArrayList<>() : anchors;
@@ -106,48 +95,39 @@ public class DeltaModification implements Serializable {
     }
 
     @NotNull
-    @JsonProperty(REFERENCE_PROPERTY)
     public String getReference() {
         return reference;
     }
 
-    @JsonProperty(DELETION_PROPERTY)
     public boolean isDeletion() {
         return deletion;
     }
 
     @NotNull
-    @JsonProperty(ENTITIES_PROPERTY)
-    public Set<EntityType> getEntities() {
+    public Set<SemanticModelNode> getEntities() {
         return entities;
     }
 
-    @NotNull
-    @JsonProperty(RELATIONS_PROPERTY)
-    public Set<Relation> getRelations() {
-        return relations;
+    public void setEntities(@NotNull Set<SemanticModelNode> entities) {
+        this.entities = entities;
     }
 
     @NotNull
-    @JsonProperty(NODES_PROPERTY)
     public Set<SchemaNode> getNodes() {
         return nodes;
     }
 
     @NotNull
-    @JsonProperty(EDGES_PROPERTY)
     public Set<Edge> getEdges() {
         return edges;
     }
 
     @NotNull
-    @JsonProperty(ANCHORS_PROPERTY)
     public List<String> getAnchors() {
         return anchors;
     }
 
     @Nullable
-    @JsonProperty(CONFIDENCE_PROPERTY)
     public Double getConfidence() {
         return confidence;
     }
@@ -156,12 +136,13 @@ public class DeltaModification implements Serializable {
         this.deletion = deletion;
     }
 
-    public void setEntities(@NotNull Set<EntityType> entities) {
-        this.entities = entities;
+    @NotNull
+    public Set<Relation> getRelations() {
+        return objectProperties;
     }
 
-    public void setRelations(@NotNull Set<Relation> relations) {
-        this.relations = relations;
+    public void setRelations(@NotNull Set<Relation> objectProperties) {
+        this.objectProperties = objectProperties;
     }
 
     public void setNodes(@NotNull Set<SchemaNode> nodes) {
@@ -193,14 +174,14 @@ public class DeltaModification implements Serializable {
     /**
      * Creates a deep clone of the current entity.
      *
-     * @return The cloned entity with also the {@link EntityType}s, {@link Relation}s, {@link SchemaNode}s and {@link Edge}s cloned
+     * @return The cloned entity with also the {@link SemanticModelNode}s, {@link Relation}s, {@link SchemaNode}s and {@link Edge}s cloned
      */
     public DeltaModification copy() {
         return new DeltaModification(
                 getReference(),
                 isDeletion(),
                 CollectionUtilities.map(getEntities(),
-                        EntityType::copy,
+                        SemanticModelNode::copy,
                         HashSet::new),
                 CollectionUtilities.map(getRelations(),
                         Relation::copy,
@@ -224,7 +205,7 @@ public class DeltaModification implements Serializable {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        DeltaModification that = (DeltaModification) o;
+        de.buw.tmdt.plasma.datamodel.modification.DeltaModification that = (de.buw.tmdt.plasma.datamodel.modification.DeltaModification) o;
         return Objects.equals(getReference(), that.getReference());
     }
 

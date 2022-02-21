@@ -3,9 +3,6 @@ package de.buw.tmdt.plasma.ars.modeling.sm.service.basic;
 
 import de.buw.tmdt.plasma.ars.modeling.sm.service.model.exception.SchemaAnalysisException;
 import de.buw.tmdt.plasma.datamodel.CombinedModel;
-import de.buw.tmdt.plasma.datamodel.semanticmodel.EntityConcept;
-import de.buw.tmdt.plasma.datamodel.semanticmodel.EntityType;
-import de.buw.tmdt.plasma.datamodel.semanticmodel.SemanticModel;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.*;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;

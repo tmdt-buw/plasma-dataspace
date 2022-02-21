@@ -2,23 +2,25 @@ package de.buw.tmdt.plasma.datamodel.semanticmodel;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import de.buw.tmdt.plasma.datamodel.CombinedModelElement;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.Serializable;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
-public class Relation extends CombinedModelElement implements Serializable {
-    public static final String ENTITY_ID_PROPERTY = "entityId";
-    public static final String FROM_ID_PROPERTY = "from";
-    public static final String TO_ID_PROPERTY = "to";
-    public static final String CONCEPT_PROPERTY = "concept";
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "@class")
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = ObjectProperty.class, name = "ObjectProperty"),
+        @JsonSubTypes.Type(value = DataProperty.class, name = "DataProperty")
+})
+public abstract class Relation extends CombinedModelElement implements Serializable {
     private static final long serialVersionUID = -2964347710102077197L;
-    /**
-     * Knowledge base ID, set once sent to the KGS.
-     */
-    private String entityId;
 
     /**
      * The uuid of the origin element, identified by CombinedModelElement#uuid.
@@ -31,56 +33,59 @@ public class Relation extends CombinedModelElement implements Serializable {
      */
     @NotNull
     private String toId;
+
+
     @NotNull
-    private RelationConcept concept;
+    private final String sourceURI;
+    private String description;
+    private Set<String> properties;
 
     public Relation(
             @NotNull String fromId,
             @NotNull String toId,
-            @NotNull RelationConcept concept
+            @NotNull String sourceURI
     ) {
-        this(null, fromId, toId, concept);
+        this(null, fromId, toId, sourceURI, null, null, null);
     }
 
     public Relation(
-            @Nullable String entityId,
             @NotNull String fromId,
             @NotNull String toId,
-            @NotNull RelationConcept concept
+            @NotNull String sourceURI,
+            @NotNull String label
     ) {
-        super("");
-        this.entityId = entityId;
-        this.fromId = fromId;
-        this.toId = toId;
-        this.concept = concept;
+        this(null, fromId, toId, sourceURI, label, null, null);
+    }
+
+    public Relation(
+            @NotNull String fromId,
+            @NotNull String toId,
+            @NotNull String sourceURI,
+            @NotNull String label,
+            @NotNull String description
+    ) {
+        this(null, fromId, toId, sourceURI, label, description, null);
     }
 
     @JsonCreator
     public Relation(
             @Nullable @JsonProperty(UUID_PROPERTY) String uuid,
-            @Nullable @JsonProperty(ENTITY_ID_PROPERTY) String entityId,
-            @NotNull @JsonProperty(FROM_ID_PROPERTY) String fromId,
-            @NotNull @JsonProperty(TO_ID_PROPERTY) String toId,
-            @NotNull @JsonProperty(CONCEPT_PROPERTY) RelationConcept concept
+            @NotNull @JsonProperty String fromId,
+            @NotNull @JsonProperty String toId,
+            @NotNull @JsonProperty String sourceURI,
+            @Nullable @JsonProperty String label,
+            @Nullable @JsonProperty String description,
+            @Nullable @JsonProperty Set<String> properties
     ) {
-        super(uuid, "");
-        this.entityId = entityId;
+        super(uuid, label == null ? "" : label);
         this.fromId = fromId;
         this.toId = toId;
-        this.concept = concept;
+        this.description = description;
+        this.sourceURI = sourceURI;
+        this.properties = properties == null ? new HashSet<>() : new HashSet<>(properties);
     }
 
-    @JsonProperty(ENTITY_ID_PROPERTY)
-    @Nullable
-    public String getEntityId() {
-        return entityId;
-    }
-
-    public void setEntityId(@NotNull String entityId) {
-        this.entityId = entityId;
-    }
-
-    @JsonProperty(FROM_ID_PROPERTY)
+    @JsonProperty
     @NotNull
     public String getFromId() {
         return fromId;
@@ -90,7 +95,7 @@ public class Relation extends CombinedModelElement implements Serializable {
         this.fromId = fromId;
     }
 
-    @JsonProperty(TO_ID_PROPERTY)
+    @JsonProperty
     @NotNull
     public String getToId() {
         return toId;
@@ -100,33 +105,24 @@ public class Relation extends CombinedModelElement implements Serializable {
         this.toId = toId;
     }
 
-    @JsonProperty(CONCEPT_PROPERTY)
-    @NotNull
-    public RelationConcept getConcept() {
-        return concept;
+    @JsonProperty
+    public String getDescription() {
+        return description;
     }
 
-    public void setConcept(@NotNull RelationConcept concept) {
-        this.concept = concept;
+    @JsonProperty
+    public String getSourceURI() {
+        return sourceURI;
     }
 
-    /**
-     * Creates a deep clone of the current entity.
-     *
-     * @return The cloned entity with also the RelationConcept cloned
-     */
-    public Relation copy() {
-        return new Relation(getUuid(),
-                getEntityId(),
-                getFromId(),
-                getToId(),
-                getConcept().copy()
-        );
+    @JsonProperty
+    public Set<String> getProperties() {
+        return Collections.unmodifiableSet(this.properties);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(fromId, toId, concept);
+        return Objects.hash(fromId, toId, sourceURI);
     }
 
     @Override
@@ -144,10 +140,12 @@ public class Relation extends CombinedModelElement implements Serializable {
     @Override
     @SuppressWarnings("MagicCharacter")
     public String toString() {
-        return "{\"@class\":\"Relation\""
+        return "{\"@class\":\"ObjectProperty\""
                 + ", \"fromId\":\"" + fromId + '"'
                 + ", \"toId\":\"" + toId + '"'
-                + ", \"concept\":" + concept
+                + ", \"sourceURI\":" + sourceURI
                 + '}';
     }
+
+    public abstract Relation copy();
 }

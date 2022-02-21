@@ -4,9 +4,6 @@ import de.buw.tmdt.plasma.datamodel.CombinedModel;
 import de.buw.tmdt.plasma.datamodel.PrimitiveEntityTypeMapping;
 import de.buw.tmdt.plasma.datamodel.modification.operation.ParameterDefinition;
 import de.buw.tmdt.plasma.datamodel.modification.operation.Type;
-import de.buw.tmdt.plasma.datamodel.semanticmodel.EntityConcept;
-import de.buw.tmdt.plasma.datamodel.semanticmodel.EntityType;
-import de.buw.tmdt.plasma.datamodel.semanticmodel.SemanticModel;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.ObjectNode;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.PrimitiveNode;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.SyntaxModel;
@@ -24,7 +21,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.*;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)

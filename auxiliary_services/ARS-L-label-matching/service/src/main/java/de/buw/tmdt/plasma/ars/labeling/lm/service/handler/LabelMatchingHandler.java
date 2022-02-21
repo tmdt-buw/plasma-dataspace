@@ -3,8 +3,6 @@ package de.buw.tmdt.plasma.ars.labeling.lm.service.handler;
 import de.buw.tmdt.plasma.ars.labeling.lm.service.converter.KGS2CMConverter;
 import de.buw.tmdt.plasma.datamodel.CombinedModel;
 import de.buw.tmdt.plasma.datamodel.PrimitiveEntityTypeMapping;
-import de.buw.tmdt.plasma.datamodel.semanticmodel.EntityConcept;
-import de.buw.tmdt.plasma.datamodel.semanticmodel.EntityType;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.Edge;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.PrimitiveNode;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.SchemaNode;

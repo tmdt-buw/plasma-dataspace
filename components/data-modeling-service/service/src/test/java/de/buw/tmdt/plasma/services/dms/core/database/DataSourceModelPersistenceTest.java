@@ -1,7 +1,6 @@
 package de.buw.tmdt.plasma.services.dms.core.database;
 
 import de.buw.tmdt.plasma.datamodel.CombinedModel;
-import de.buw.tmdt.plasma.datamodel.semanticmodel.EntityConcept;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.ObjectNode;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.SchemaNode;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.SyntaxModel;

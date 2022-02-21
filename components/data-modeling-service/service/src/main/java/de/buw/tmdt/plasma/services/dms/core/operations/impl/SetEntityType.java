@@ -6,7 +6,6 @@ import de.buw.tmdt.plasma.datamodel.modification.operation.DataType;
 import de.buw.tmdt.plasma.datamodel.modification.operation.ParameterDefinition;
 import de.buw.tmdt.plasma.datamodel.modification.operation.Type;
 import de.buw.tmdt.plasma.datamodel.modification.operation.TypeDefinitionDTO;
-import de.buw.tmdt.plasma.datamodel.semanticmodel.EntityType;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.PrimitiveNode;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.SchemaNode;
 import de.buw.tmdt.plasma.services.dms.core.operations.Operation;
