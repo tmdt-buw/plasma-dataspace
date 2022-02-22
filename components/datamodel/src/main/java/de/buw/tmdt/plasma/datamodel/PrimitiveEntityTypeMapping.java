@@ -12,16 +12,13 @@ import java.io.Serializable;
  */
 public class PrimitiveEntityTypeMapping implements Serializable {
 
-    private static final String PARENT_UUID = "from";
-    private static final String ENTITY_TYPE_ID = "to";
-    private static final String PRIMITIVE_UUID = "mappedPrimitive";
     private static final long serialVersionUID = -6888269571341658964L;
 
     @NotNull
     private String primitiveUUID;
 
     @NotNull
-    private String entityTypeId;
+    private String instanceId;
 
     /**
      * The parent syntax node of the node identified by primitiveUUID.
@@ -32,18 +29,18 @@ public class PrimitiveEntityTypeMapping implements Serializable {
 
     @JsonCreator
     public PrimitiveEntityTypeMapping(
-            @JsonProperty(PRIMITIVE_UUID) @NotNull String primitiveUUID,
-            @JsonProperty(ENTITY_TYPE_ID) @NotNull String entityTypeId,
-            @JsonProperty(PARENT_UUID) @NotNull String parentUUID
+            @JsonProperty @NotNull String primitiveUUID,
+            @JsonProperty @NotNull String instanceId,
+            @JsonProperty @NotNull String parentUUID
 
     ) {
         this.parentUUID = parentUUID;
-        this.entityTypeId = entityTypeId;
+        this.instanceId = instanceId;
         this.primitiveUUID = primitiveUUID;
     }
 
     @NotNull
-    @JsonProperty(PARENT_UUID)
+    @JsonProperty
     public String getParentUUID() {
         return parentUUID;
     }
@@ -53,7 +50,7 @@ public class PrimitiveEntityTypeMapping implements Serializable {
     }
 
     @NotNull
-    @JsonProperty(PRIMITIVE_UUID)
+    @JsonProperty
     public String getPrimitiveUUID() {
         return primitiveUUID;
     }
@@ -63,13 +60,13 @@ public class PrimitiveEntityTypeMapping implements Serializable {
     }
 
     @NotNull
-    @JsonProperty(ENTITY_TYPE_ID)
-    public String getEntityTypeId() {
-        return this.entityTypeId;
+    @JsonProperty
+    public String getInstanceId() {
+        return this.instanceId;
     }
 
-    public void setEntityTypeId(@NotNull String entityTypeId) {
-        this.entityTypeId = entityTypeId;
+    public void setInstanceId(@NotNull String instanceId) {
+        this.instanceId = instanceId;
     }
 
     /**
@@ -78,14 +75,14 @@ public class PrimitiveEntityTypeMapping implements Serializable {
      * @return The cloned entity
      */
     public PrimitiveEntityTypeMapping copy() {
-        return new PrimitiveEntityTypeMapping(getPrimitiveUUID(), getEntityTypeId(), getParentUUID());
+        return new PrimitiveEntityTypeMapping(getPrimitiveUUID(), getInstanceId(), getParentUUID());
     }
 
     @Override
     public String toString() {
         return "PrimitiveEntityTypeMapping{" +
                 "parentUUID=" + parentUUID +
-                ", entityTypeId=" + entityTypeId +
+                ", entityTypeId=" + instanceId +
                 ", primitiveUUID=" + primitiveUUID +
                 '}';
     }

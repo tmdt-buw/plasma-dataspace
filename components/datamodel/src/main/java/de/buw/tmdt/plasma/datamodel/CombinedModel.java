@@ -367,7 +367,7 @@ public class CombinedModel implements Serializable {
     }
 
     @JsonProperty
-    public List<PrimitiveEntityTypeMapping> generatePrimitiveEntityTypeMappings() {
+    public List<PrimitiveEntityTypeMapping> generatePrimitiveInstanceMappings() {
         return getSemanticModel().getNodes().stream()
                 .filter(smn -> smn instanceof Instance)
                 .map(smn -> (Instance) smn)
@@ -388,7 +388,7 @@ public class CombinedModel implements Serializable {
             throw new UnsupportedOperationException("Syntax Model cannot be null if a modification is applied");
         }
 
-        generatePrimitiveEntityTypeMappings().removeIf(mapping -> mapping.getEntityTypeId().equals(entity.getUuid()));
+        generatePrimitiveInstanceMappings().removeIf(mapping -> mapping.getInstanceId().equals(entity.getUuid()));
         SchemaNode syntaxNode = syntaxModel.getNodes().stream()
                 .filter(schemaNode -> schemaNode.getUuid().equals(entity.getSyntaxNodeUuid()))
                 .findFirst().orElseThrow();
