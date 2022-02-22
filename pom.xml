@@ -55,7 +55,7 @@
         <log4j2.version>2.15.0</log4j2.version>
 
         <!-- RDF -->
-        <org.apache.jena.apache-jena-libs.version>3.16.0</org.apache.jena.apache-jena-libs.version>
+        <org.apache.jena.version>4.4.0</org.apache.jena.version>
 
         <!-- MariaDB -->
         <org.mariadb.version>2.5.2</org.mariadb.version>

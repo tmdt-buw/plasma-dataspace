@@ -1,25 +1,29 @@
 package de.buw.tmdt.plasma.services.kgs.shared.api;
 
-import de.buw.tmdt.plasma.services.kgs.shared.dto.semanticmodel.EntityTypeDTO;
-import de.buw.tmdt.plasma.services.kgs.shared.dto.semanticmodel.SemanticModelCreationResponse;
-import de.buw.tmdt.plasma.services.kgs.shared.dto.semanticmodel.SemanticModelDTO;
+import de.buw.tmdt.plasma.datamodel.semanticmodel.SemanticModel;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.MalformedURLException;
-import java.util.List;
+import java.util.Set;
 
 @SuppressWarnings("HardcodedFileSeparator - API URLs are OK")
-@RequestMapping("/api/plasma-kgs/localknowledge")
-public interface LocalKnowledgeApi {
+@RequestMapping("/api/plasma-kgs/semanticModels")
+public interface SemanticModelApi {
 
     @PostMapping(value = "", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @NotNull SemanticModelCreationResponse createSemanticModel(@NotNull @RequestBody SemanticModelDTO request);
+    @NotNull SemanticModel createSemanticModel(@NotNull @RequestBody SemanticModel request);
 
+    /**
+     * Utility function to find a semantic model by its id.
+     *
+     * @param id The id to look for
+     * @return An existing model. Will throw 404 if non found.
+     */
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    @NotNull SemanticModelDTO getSemanticModel(@NotNull @PathVariable("id") String id);
+    @NotNull SemanticModel getSemanticModel(@NotNull @PathVariable("id") String id);
 
     @DeleteMapping(value = "/{id}")
     void deleteSemanticModel(@NotNull @PathVariable("id") String id);
@@ -40,15 +44,15 @@ public interface LocalKnowledgeApi {
             @RequestParam(defaultValue = "false", name = "flat") boolean flat
     ) throws MalformedURLException;
 
-    @GetMapping(value = "/entityType", produces = MediaType.APPLICATION_JSON_VALUE)
-    List<EntityTypeDTO> getEntityTypes(@NotNull @RequestParam("ids") List<String> ids);
+    /* ################################ PREDEFINED QUERY FUNCTIONS ############################### */
 
-    /**
-     * Utility function to find a semantic model by its data source id.
-     *
-     * @param dataSourceId The data source id to look for
-     * @return An existing model. Will throw 404 if non found.
-     */
-    @GetMapping(value = "/search", produces = MediaType.APPLICATION_JSON_VALUE)
-    SemanticModelDTO findSemanticModelByDataSourceId(@NotNull @RequestParam("dataSourceId") String dataSourceId);
+    @GetMapping(value = "/byElement", produces = MediaType.APPLICATION_JSON_VALUE)
+    @NotNull Set<SemanticModel> searchByElementLabel(@NotNull @RequestParam(value = "searchTerm", defaultValue = "", required = false) String searchTerm);
+
+    @GetMapping(value = "/bySynonym", produces = MediaType.APPLICATION_JSON_VALUE)
+    @NotNull Set<SemanticModel> searchBySynonym(@NotNull @RequestParam(value = "searchTerm", defaultValue = "", required = false) String searchTerm);
+
+    @GetMapping(value = "/allByLabel", produces = MediaType.APPLICATION_JSON_VALUE)
+    @NotNull Set<SemanticModel> searchAllByLabel(@NotNull @RequestParam(value = "searchTerm", defaultValue = "", required = false) String searchTerm);
+
 }
