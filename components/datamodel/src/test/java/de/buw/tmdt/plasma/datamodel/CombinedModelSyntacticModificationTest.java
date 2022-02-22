@@ -1,6 +1,7 @@
 package de.buw.tmdt.plasma.datamodel;
 
 import de.buw.tmdt.plasma.datamodel.modification.DeltaModification;
+import de.buw.tmdt.plasma.datamodel.semanticmodel.Instance;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.*;
 import de.buw.tmdt.plasma.utilities.misc.Pair;
 import org.junit.jupiter.api.Test;
@@ -50,12 +51,15 @@ public class CombinedModelSyntacticModificationTest {
 
 
         // assert that the originally assigned ET is disconnected now, as the node is no longer a PrimitiveNode
-        EntityType identifierType = model.getSemanticModel().getNodes().stream().filter(entityType -> entityType.getEntityConcept().getSourceURI().equals("plasma:identifier")).findFirst().orElseThrow();
+        Instance identifierType = model.getSemanticModel().getNodes().stream()
+                .filter(node -> node instanceof Instance)
+                .map(node -> (Instance) node)
+                .filter(entityType -> entityType.getSemanticClass().getURI().equals("plasma:identifier")).findFirst().orElseThrow();
         assertNull(identifierType.getOriginalLabel());
         assertNull(identifierType.getSyntaxNodeUuid());
 
         // also assure that the explicit mapping has been removed
-        assertTrue(model.getPrimitiveEntityTypeMappings().stream().noneMatch(primitiveEntityTypeMapping -> primitiveEntityTypeMapping.getPrimitiveUUID().equals(identNode.getUuid())), "Explicit mapping to old node has not been removed");
+        assertTrue(model.generatePrimitiveInstanceMappings().stream().noneMatch(primitiveEntityTypeMapping -> primitiveEntityTypeMapping.getPrimitiveUUID().equals(identNode.getUuid())), "Explicit mapping to old node has not been removed");
 
         // get outgoing edges
         List<Edge> newEdges = model.getSyntaxModel().getEdges().stream().filter(edge -> edge.getFromId().equals(compositeNode.getUuid())).collect(Collectors.toList());

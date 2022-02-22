@@ -138,7 +138,7 @@ public class CombinedModel implements Serializable {
      */
     @NotNull
     @JsonProperty
-    public List<SemanticClass> getProvisionalEntityConcepts() {
+    public List<SemanticClass> getProvisionalSemanticClasses() {
         return provisionalSemanticClasses;
     }
 
@@ -417,7 +417,7 @@ public class CombinedModel implements Serializable {
                         ArrayList::new),
                 getLastModification(),
                 isFinalized(),
-                CollectionUtilities.map(getProvisionalEntityConcepts(),
+                CollectionUtilities.map(getProvisionalSemanticClasses(),
                         SemanticClass::copy,
                         ArrayList::new)
         );

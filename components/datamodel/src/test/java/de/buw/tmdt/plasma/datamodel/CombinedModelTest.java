@@ -5,6 +5,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.buw.tmdt.plasma.datamodel.modification.DeltaModification;
+import de.buw.tmdt.plasma.datamodel.semanticmodel.ObjectProperty;
+import de.buw.tmdt.plasma.datamodel.semanticmodel.Relation;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.Edge;
 import org.junit.jupiter.api.Test;
 
@@ -35,8 +37,8 @@ class CombinedModelTest {
         assertEquals(model.getSemanticModel().getEdges(), deserializedModel.getSemanticModel().getEdges());
         assertEquals(model.getSemanticModel().getEdges(), deserializedModel.getSemanticModel().getEdges());
         assertEquals(model.getRecommendations(), deserializedModel.getRecommendations());
-        assertEquals(model.getProvisionalEntityConcepts(), deserializedModel.getProvisionalEntityConcepts());
-        assertEquals(model.getProvisionalRelationConcepts(), deserializedModel.getProvisionalRelationConcepts());
+        assertEquals(model.getProvisionalSemanticClasses(), deserializedModel.getProvisionalSemanticClasses());
+        // assertEquals(model.getProvisionalRelationConcepts(), deserializedModel.getProvisionalRelationConcepts());
     }
 
     @Test
@@ -49,16 +51,16 @@ class CombinedModelTest {
         assertEquals(model.getSyntaxModel().getNodes().size(), cloned.getSyntaxModel().getNodes().size());
         assertEquals(model.getSyntaxModel().getEdges().size(), cloned.getSyntaxModel().getEdges().size());
 
-        assertEquals(model.getSemanticModel().getEntityId(), cloned.getSemanticModel().getEntityId());
+        assertEquals(model.getSemanticModel().getId(), cloned.getSemanticModel().getId());
         assertEquals(model.getSemanticModel().getNodes().size(), cloned.getSemanticModel().getNodes().size());
         assertEquals(model.getSemanticModel().getEdges().size(), cloned.getSemanticModel().getEdges().size());
 
         assertEquals(model.getRecommendations().size(), cloned.getRecommendations().size());
 
-        assertEquals(model.getPrimitiveEntityTypeMappings().size(), cloned.getPrimitiveEntityTypeMappings().size());
+        assertEquals(model.generatePrimitiveInstanceMappings().size(), cloned.generatePrimitiveInstanceMappings().size());
 
-        assertEquals(model.getProvisionalEntityConcepts().size(), cloned.getProvisionalEntityConcepts().size());
-        assertEquals(model.getProvisionalRelationConcepts().size(), cloned.getProvisionalRelationConcepts().size());
+        assertEquals(model.getProvisionalSemanticClasses().size(), cloned.getProvisionalSemanticClasses().size());
+        //assertEquals(model.getProvisionalRelationConcepts().size(), cloned.getProvisionalRelationConcepts().size());
 
         // TODO deep testing
     }
@@ -109,9 +111,9 @@ class CombinedModelTest {
         // test rogue relation in recommendation
         model = getCombinedModel();
         DeltaModification mod = new DeltaModification("test", null, null, null, null);
-        Relation r = new Relation(model.getSyntaxModel().getNodes().get(0).getUuid(),
+        Relation r = new ObjectProperty(model.getSyntaxModel().getNodes().get(0).getUuid(),
                 model.getSemanticModel().getNodes().get(0).getUuid(),
-                model.getSemanticModel().getEdges().get(0).getConcept());
+                model.getSemanticModel().getEdges().get(0).getURI());
         mod.getRelations().add(r);
         model.getRecommendations().add(mod);
 
@@ -120,9 +122,9 @@ class CombinedModelTest {
         // test rogue relation in recommendation
         model = getCombinedModel();
         mod = new DeltaModification("test", null, null, null, null);
-        r = new Relation(model.getSemanticModel().getNodes().get(0).getUuid(),
+        r = new ObjectProperty(model.getSemanticModel().getNodes().get(0).getUuid(),
                 UUID.randomUUID().toString(),
-                model.getSemanticModel().getEdges().get(0).getConcept());
+                model.getSemanticModel().getEdges().get(0).getURI());
         mod.getRelations().add(r);
         model.getRecommendations().add(mod);
 
