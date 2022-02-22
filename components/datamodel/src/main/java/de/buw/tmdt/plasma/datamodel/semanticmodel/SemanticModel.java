@@ -104,6 +104,11 @@ public class SemanticModel implements Serializable {
             }
         }
         for (Relation edge : getEdges()) {
+            try {
+                edge.validate();
+            } catch (CombinedModelIntegrityException cmie) {
+                errors.add(cmie.getMessage());
+            }
             long fromCount = getNodes().stream().filter(entityType -> Objects.equals(entityType.getUuid(), edge.getFromId())).count();
             if (fromCount != 1) {
                 errors.add("Relation " + edge.getUuid() + " fromId matches " + fromCount + " EntityTypes (must be 1)");

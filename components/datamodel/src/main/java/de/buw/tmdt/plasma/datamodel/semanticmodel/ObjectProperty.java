@@ -8,20 +8,30 @@ import java.util.Set;
 
 @JsonTypeName("ObjectProperty")
 public class ObjectProperty extends Relation {
-    public ObjectProperty(@NotNull String fromId, @NotNull String toId, @NotNull String sourceURI) {
-        super(fromId, toId, sourceURI);
+    public ObjectProperty(@NotNull String fromId, @NotNull String toId, @NotNull String uri) {
+        super(fromId, toId, uri);
     }
 
-    public ObjectProperty(@NotNull String fromId, @NotNull String toId, @NotNull String sourceURI, @NotNull String label) {
-        super(fromId, toId, sourceURI, label);
+    public ObjectProperty(@NotNull String fromId, @NotNull String toId, @NotNull String uri, @NotNull String label) {
+        super(fromId, toId, uri, label);
     }
 
-    public ObjectProperty(@NotNull String fromId, @NotNull String toId, @NotNull String sourceURI, @NotNull String label, @NotNull String description) {
-        super(fromId, toId, sourceURI, label, description);
+    public ObjectProperty(@NotNull String fromId, @NotNull String toId, @NotNull String uri, @NotNull String label, @NotNull String description) {
+        super(fromId, toId, uri, label, description);
     }
 
-    public ObjectProperty(@Nullable String uuid, @NotNull String fromId, @NotNull String toId, @NotNull String sourceURI, @Nullable String label, @Nullable String description, @Nullable Set<String> properties) {
-        super(uuid, fromId, toId, sourceURI, label, description, properties);
+    public ObjectProperty(@Nullable String uuid, @NotNull String fromId, @NotNull String toId, @NotNull String uri, @Nullable String label, @Nullable String description, @Nullable Set<String> properties) {
+        super(uuid, fromId, toId, uri, label, description, properties);
+    }
+
+    @Override
+    @SuppressWarnings("MagicCharacter")
+    public String toString() {
+        return "{\"@class\":\"ObjectProperty\""
+                + ", \"fromId\":\"" + getFromId() + '"'
+                + ", \"toId\":\"" + getToId() + '"'
+                + ", \"URI\":" + getURI()
+                + '}';
     }
 
     /**
@@ -33,10 +43,15 @@ public class ObjectProperty extends Relation {
         return new ObjectProperty(getUuid(),
                 getFromId(),
                 getToId(),
-                getSourceURI(),
+                getURI(),
                 getLabel(),
                 getDescription(),
                 getProperties()
         );
+    }
+
+    @Override
+    public ObjectProperty build(String fromId, String toId) {
+        return new ObjectProperty(fromId, toId, getURI(), getLabel(), getDescription());
     }
 }

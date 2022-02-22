@@ -17,7 +17,7 @@ import org.jetbrains.annotations.Nullable;
 })
 public abstract class SemanticModelNode extends PositionedCombinedModelElement {
 
-    private String uri;
+    private final String uri;
 
     public SemanticModelNode(@Nullable String uri, @NotNull String label) {
         this(null, uri, label, null, null);
@@ -38,6 +38,13 @@ public abstract class SemanticModelNode extends PositionedCombinedModelElement {
     }
 
     public abstract SemanticModelNode copy();
+
+    /**
+     * Utility function to generate a new {@link SemanticModelNode} (or one of its subtypes) from another node.
+     *
+     * @return A new instance of the same type, with all values except 'uuid' copied. A new 'uuid' is generated for the new element.
+     */
+    public abstract SemanticModelNode build();
 
     public abstract void validate() throws CombinedModelIntegrityException;
 }

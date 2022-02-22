@@ -14,9 +14,10 @@ import de.buw.tmdt.plasma.ars.modeling.sm.shared.dto.StandardDTO;
 import de.buw.tmdt.plasma.ars.modeling.sm.shared.dto.StandardProvisionDTO;
 import de.buw.tmdt.plasma.datamodel.CombinedModel;
 import de.buw.tmdt.plasma.datamodel.modification.DeltaModification;
-import de.buw.tmdt.plasma.datamodel.semanticmodel.*;
+import de.buw.tmdt.plasma.datamodel.semanticmodel.Relation;
+import de.buw.tmdt.plasma.datamodel.semanticmodel.SemanticModel;
 import de.buw.tmdt.plasma.services.config.ConfigServiceClient;
-import de.buw.tmdt.plasma.services.kgs.shared.feignclient.UniversalKnowledgeApiClient;
+import de.buw.tmdt.plasma.services.kgs.shared.feignclient.OntologyApiClient;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +34,7 @@ public class StandardMatchingHandler {
     private static final Logger log = LoggerFactory.getLogger(StandardMatchingHandler.class);
 
     private final RuleDTOConverter ruleDTOConverter;
-    private final UniversalKnowledgeApiClient universalKnowledgeApiClient;
+    private final OntologyApiClient universalKnowledgeApiClient;
     private final AnalysisRepository analysisRepository;
     private final StandardRepository standardRepository;
     private final KnowledgeGraphServiceDTO2CombinedModelConverter kgsDTO2CMConverter;
@@ -41,7 +42,7 @@ public class StandardMatchingHandler {
 
     public StandardMatchingHandler(RuleDTOConverter ruleDTOConverter,
                                    @SuppressWarnings({"SpringJavaInjectionPointsAutowiringInspection"})
-                                           UniversalKnowledgeApiClient universalKnowledgeApiClient,
+                                           OntologyApiClient universalKnowledgeApiClient,
                                    AnalysisRepository analysisRepository,
                                    StandardRepository standardRepository,
                                    KnowledgeGraphServiceDTO2CombinedModelConverter kgsDTO2CMConverter, ConfigServiceClient configServiceClient) {

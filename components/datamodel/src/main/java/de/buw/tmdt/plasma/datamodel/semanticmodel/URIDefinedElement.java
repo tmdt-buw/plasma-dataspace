@@ -1,10 +1,13 @@
 package de.buw.tmdt.plasma.datamodel.semanticmodel;
 
-public interface URIDefinedElement {
+import de.buw.tmdt.plasma.datamodel.AsTemplate;
+
+public interface URIDefinedElement extends AsTemplate {
 
     String getURI();
 
     String getLabel();
 
     String getDescription();
+
 }

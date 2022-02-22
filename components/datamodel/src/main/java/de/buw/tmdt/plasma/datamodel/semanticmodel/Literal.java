@@ -1,6 +1,8 @@
 package de.buw.tmdt.plasma.datamodel.semanticmodel;
 
 import de.buw.tmdt.plasma.datamodel.CombinedModelIntegrityException;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class Literal extends SemanticModelNode {
 
@@ -11,9 +13,18 @@ public class Literal extends SemanticModelNode {
         this.value = value;
     }
 
+    public Literal(@Nullable String uuid, @NotNull String label, @Nullable Double xCoordinate, @Nullable Double yCoordinate) {
+        super(uuid, null, label, xCoordinate, yCoordinate);
+    }
+
     @Override
     public Literal copy() {
-        return new Literal(getValue());
+        return new Literal(getUuid(), getValue(), getXCoordinate(), getYCoordinate());
+    }
+
+    @Override
+    public Literal build() {
+        return new Literal(null, getValue(), getXCoordinate(), getYCoordinate());
     }
 
     public String getValue() {

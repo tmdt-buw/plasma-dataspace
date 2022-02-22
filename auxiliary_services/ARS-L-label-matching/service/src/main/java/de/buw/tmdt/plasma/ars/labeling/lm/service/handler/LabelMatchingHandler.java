@@ -1,21 +1,21 @@
 package de.buw.tmdt.plasma.ars.labeling.lm.service.handler;
 
-import de.buw.tmdt.plasma.ars.labeling.lm.service.converter.KGS2CMConverter;
 import de.buw.tmdt.plasma.datamodel.CombinedModel;
-import de.buw.tmdt.plasma.datamodel.PrimitiveEntityTypeMapping;
-import de.buw.tmdt.plasma.datamodel.syntaxmodel.Edge;
+import de.buw.tmdt.plasma.datamodel.semanticmodel.Instance;
+import de.buw.tmdt.plasma.datamodel.semanticmodel.SemanticClass;
+import de.buw.tmdt.plasma.datamodel.semanticmodel.URIDefinedElement;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.PrimitiveNode;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.SchemaNode;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.SyntaxModel;
 import de.buw.tmdt.plasma.services.config.ConfigServiceClient;
-import de.buw.tmdt.plasma.services.kgs.shared.api.UniversalKnowledgeApi;
-import de.buw.tmdt.plasma.services.kgs.shared.dto.knowledgegraph.EntityConceptDTO;
+import de.buw.tmdt.plasma.services.kgs.shared.api.OntologyApi;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -24,13 +24,13 @@ public class LabelMatchingHandler {
 
     private static final Logger log = LoggerFactory.getLogger(LabelMatchingHandler.class);
 
-    final UniversalKnowledgeApi universalKnowledgeApi;
+    final OntologyApi ontologyApi;
 
     private ConfigServiceClient configClient;
 
-    public LabelMatchingHandler(UniversalKnowledgeApi universalKnowledgeApi,
+    public LabelMatchingHandler(OntologyApi ontologyApi,
                                 @NotNull ConfigServiceClient configService) {
-        this.universalKnowledgeApi = universalKnowledgeApi;
+        this.ontologyApi = ontologyApi;
         this.configClient = configService;
     }
 
@@ -43,42 +43,23 @@ public class LabelMatchingHandler {
             }
 
             String label = node.getLabel();
-            Collection<EntityConceptDTO> kgsEntityConcepts = universalKnowledgeApi.getEntityConcepts(label, null);
-            Collection<EntityConcept> entityConcepts = kgsEntityConcepts.stream()
-                    .map(KGS2CMConverter::convert)
+            Collection<URIDefinedElement> candidates = ontologyApi.getElements(label, null, null);
+            List<SemanticClass> classes = candidates.stream()
+                    .filter(c -> c instanceof SemanticClass)
+                    .map(c -> (SemanticClass) c)
                     .collect(Collectors.toList());
 
-            Optional<EntityConcept> matching = entityConcepts.stream().filter(entityConceptDTO -> entityConceptDTO.getLabel().equals(label)).findFirst();
+
+            Optional<SemanticClass> matching = classes.stream().filter(entityConceptDTO -> entityConceptDTO.getLabel().equals(label)).findFirst();
             if (matching.isPresent()) {  // we only match on exact equality
                 // we found one
                 // create an EntityType
-                EntityType et = new EntityType(node.getLabel(),
+                Instance instance = new Instance(node.getLabel(),
                         "",
                         matching.get());
-                et.setOriginalLabel(node.getLabel());
-                et.setSyntaxNodeUuid(node.getUuid());
-                combined.getSemanticModel().getNodes().add(et);
-                // add a mapping from ET to node
-                Optional<Edge> firstEdge = syntaxModelDTO.getEdges().stream().filter(edgeDTO -> edgeDTO.getToId().equals(node.getUuid())).findFirst();
-                if (firstEdge.isPresent()) {
-                    // we got an edge, find where it comes from
-                    Edge edge = firstEdge.get();
-                    Optional<SchemaNode> parentNode = syntaxModelDTO.getNodes().stream().filter(schemaNodeDTO -> schemaNodeDTO.getUuid().equals(edge.getFromId())).findFirst();
-                    if (parentNode.isPresent()) {
-                        PrimitiveEntityTypeMapping mapping = new PrimitiveEntityTypeMapping(
-                                node.getUuid(),
-                                et.getUuid(),
-                                parentNode.get().getUuid());
-
-                        combined.getPrimitiveEntityTypeMappings().add(mapping);
-                        log.info("Assigned EC '{}' to node '{}'", matching.get().getLabel(), node.getLabel());
-                    } else {
-                        log.info("Could not assign EC '{}' to node '{}'. No parent found", matching.get().getLabel(), node.getLabel());
-                    }
-                } else {
-                    log.info("Could not assign EC '{}' to node '{}'. No incoming edge found", matching.get().getLabel(), node.getLabel());
-                }
-
+                instance.setOriginalLabel(node.getLabel());
+                instance.setSyntaxNodeUuid(node.getUuid());
+                combined.getSemanticModel().getNodes().add(instance);
             }
         }
         return combined;

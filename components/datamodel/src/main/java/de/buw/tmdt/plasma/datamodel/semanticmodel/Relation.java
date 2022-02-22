@@ -4,7 +4,9 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import de.buw.tmdt.plasma.datamodel.AsTemplate;
 import de.buw.tmdt.plasma.datamodel.CombinedModelElement;
+import de.buw.tmdt.plasma.datamodel.CombinedModelIntegrityException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -19,7 +21,7 @@ import java.util.Set;
         @JsonSubTypes.Type(value = ObjectProperty.class, name = "ObjectProperty"),
         @JsonSubTypes.Type(value = DataProperty.class, name = "DataProperty")
 })
-public abstract class Relation extends CombinedModelElement implements Serializable {
+public abstract class Relation extends CombinedModelElement implements Serializable, AsTemplate {
     private static final long serialVersionUID = -2964347710102077197L;
 
     /**
@@ -36,35 +38,35 @@ public abstract class Relation extends CombinedModelElement implements Serializa
 
 
     @NotNull
-    private final String sourceURI;
+    private final String uri;
     private String description;
     private Set<String> properties;
 
     public Relation(
             @NotNull String fromId,
             @NotNull String toId,
-            @NotNull String sourceURI
+            @NotNull String uri
     ) {
-        this(null, fromId, toId, sourceURI, null, null, null);
+        this(null, fromId, toId, uri, null, null, null);
     }
 
     public Relation(
             @NotNull String fromId,
             @NotNull String toId,
-            @NotNull String sourceURI,
+            @NotNull String uri,
             @NotNull String label
     ) {
-        this(null, fromId, toId, sourceURI, label, null, null);
+        this(null, fromId, toId, uri, label, null, null);
     }
 
     public Relation(
             @NotNull String fromId,
             @NotNull String toId,
-            @NotNull String sourceURI,
+            @NotNull String uri,
             @NotNull String label,
             @NotNull String description
     ) {
-        this(null, fromId, toId, sourceURI, label, description, null);
+        this(null, fromId, toId, uri, label, description, null);
     }
 
     @JsonCreator
@@ -72,7 +74,7 @@ public abstract class Relation extends CombinedModelElement implements Serializa
             @Nullable @JsonProperty(UUID_PROPERTY) String uuid,
             @NotNull @JsonProperty String fromId,
             @NotNull @JsonProperty String toId,
-            @NotNull @JsonProperty String sourceURI,
+            @NotNull @JsonProperty String uri,
             @Nullable @JsonProperty String label,
             @Nullable @JsonProperty String description,
             @Nullable @JsonProperty Set<String> properties
@@ -81,12 +83,11 @@ public abstract class Relation extends CombinedModelElement implements Serializa
         this.fromId = fromId;
         this.toId = toId;
         this.description = description;
-        this.sourceURI = sourceURI;
+        this.uri = uri;
         this.properties = properties == null ? new HashSet<>() : new HashSet<>(properties);
     }
 
     @JsonProperty
-    @NotNull
     public String getFromId() {
         return fromId;
     }
@@ -96,7 +97,6 @@ public abstract class Relation extends CombinedModelElement implements Serializa
     }
 
     @JsonProperty
-    @NotNull
     public String getToId() {
         return toId;
     }
@@ -111,8 +111,8 @@ public abstract class Relation extends CombinedModelElement implements Serializa
     }
 
     @JsonProperty
-    public String getSourceURI() {
-        return sourceURI;
+    public String getURI() {
+        return uri;
     }
 
     @JsonProperty
@@ -122,7 +122,7 @@ public abstract class Relation extends CombinedModelElement implements Serializa
 
     @Override
     public int hashCode() {
-        return Objects.hash(fromId, toId, sourceURI);
+        return Objects.hash(fromId, toId, uri);
     }
 
     @Override
@@ -140,12 +140,44 @@ public abstract class Relation extends CombinedModelElement implements Serializa
     @Override
     @SuppressWarnings("MagicCharacter")
     public String toString() {
-        return "{\"@class\":\"ObjectProperty\""
+        return "{\"@class\":\"Relation\""
                 + ", \"fromId\":\"" + fromId + '"'
                 + ", \"toId\":\"" + toId + '"'
-                + ", \"sourceURI\":" + sourceURI
+                + ", \"URI\":" + uri
                 + '}';
     }
 
     public abstract Relation copy();
+
+    /**
+     * Utility function to generate a new {@link Relation} (or one of its subtypes) from another relation.
+     *
+     * @param fromId The new from id to set
+     * @param toId   The new to id to set
+     * @return A new instance of the same type, with all values except 'fromId' and 'toId' copied
+     */
+    public abstract Relation build(String fromId, String toId);
+
+    /**
+     * Removes all ids from this relation.
+     * Used ONLY when used as a template, e.g. in serialization to frontend.
+     * For usage within a Java environment, use {@link #build(String, String)} to create a new entity with set ids
+     */
+    @SuppressWarnings("ConstantConditions") // this is only to be invoked before serialization
+    public void convertToTemplate() {
+        this.fromId = null;
+        this.toId = null;
+    }
+
+    public void validate() {
+        if (getFromId() == null || getFromId().isBlank()) {
+            throw new CombinedModelIntegrityException("Relation " + getUuid() + " has no proper fromId");
+        }
+        if (getToId() == null || getToId().isBlank()) {
+            throw new CombinedModelIntegrityException("Relation " + getUuid() + " has no proper toId");
+        }
+        if (getURI() == null || getURI().isBlank()) {
+            throw new CombinedModelIntegrityException("Relation " + getUuid() + " has no proper URL assigned");
+        }
+    }
 }

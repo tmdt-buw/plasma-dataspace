@@ -4,7 +4,10 @@ import de.buw.tmdt.plasma.datamodel.modification.operation.DataType;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.*;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.*;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.UUID;
 
 public class CombinedModelGenerator {
 
@@ -38,49 +41,49 @@ public class CombinedModelGenerator {
 
         // generate semantic model
 
-        EntityConcept flightConcept = new EntityConcept("flight", "A scheduled flight of an airplane", "plasma:flight");
-        EntityType flightType = new EntityType(flightConcept.getLabel(), "", flightConcept);
+        SemanticClass flightClass = new SemanticClass("plasma:flight", "flight", "A scheduled flight of an airplane");
+        Instance flightInstance = new Instance(flightClass.getLabel(), "", flightClass);
 
-        EntityConcept identifierConcept = new EntityConcept("identifier", "Identifies a certain object", "plasma:identifier");
-        EntityType identifierType = new EntityType(identifierConcept.getLabel(), "", identifierConcept);
-        identifierType.setOriginalLabel(identifierNode.getLabel());
-        identifierType.setSyntaxNodeUuid(identifierNode.getUuid());
+        Literal flightType = new Literal("domestic");
 
-        EntityConcept airlineConcept = new EntityConcept("airline", "A company that provides air travel services", "plasma:airline");
-        EntityType airlineType = new EntityType(airlineConcept.getLabel(), "", airlineConcept);
+        SemanticClass identifierClass = new SemanticClass("plasma:identifier", "identifier", "Identifies a certain object");
+        Instance identifierInstance = new Instance(identifierClass.getLabel(), "", identifierClass);
+        identifierInstance.setOriginalLabel(identifierNode.getLabel());
+        identifierInstance.setSyntaxNodeUuid(identifierNode.getUuid());
 
-        EntityConcept nameConcept = new EntityConcept("name", "A commonly known but not unique identifier of something", "plasma:name");
-        EntityType nameType = new EntityType(nameConcept.getLabel(), "", nameConcept);
-        nameType.setOriginalLabel(nameNode.getLabel());
-        nameType.setSyntaxNodeUuid(nameNode.getUuid());
+        SemanticClass airlineClass = new SemanticClass("plasma:airline", "airline", "A company that provides air travel services");
+        Instance airlineInstance = new Instance(airlineClass.getLabel(), "", airlineClass);
 
-        EntityConcept iataCodeConcept = new EntityConcept("IATA code", "A unique identifier issued by the IATA", "plasma:iata_code");
-        EntityType iataCodeType = new EntityType(iataCodeConcept.getLabel(), "", iataCodeConcept);
-        iataCodeType.setOriginalLabel(codeNode.getLabel());
-        iataCodeType.setSyntaxNodeUuid(codeNode.getUuid());
+        SemanticClass nameClass = new SemanticClass("plasma:name", "name", "A commonly known but not unique identifier of something");
+        Instance nameInstance = new Instance(nameClass.getLabel(), "", nameClass);
+        nameInstance.setOriginalLabel(nameNode.getLabel());
+        nameInstance.setSyntaxNodeUuid(nameNode.getUuid());
 
-        List<EntityType> entities = Arrays.asList(flightType, identifierType, airlineType, nameType, iataCodeType);
+        SemanticClass iataCodeClass = new SemanticClass("plasma:iata_code", "IATA code", "A unique identifier issued by the IATA");
+        Instance iataCodeInstance = new Instance(iataCodeClass.getLabel(), "", iataCodeClass);
+        iataCodeInstance.setOriginalLabel(codeNode.getLabel());
+        iataCodeInstance.setSyntaxNodeUuid(codeNode.getUuid());
 
-        RelationConcept hasRelationConcept = new RelationConcept("has", "Indicates that something is in possession of something or has something associated or assigned to it", null, "plasma:has", new HashSet<>());
-        Relation flightIdentifierRelation = new Relation(flightType.getUuid(), identifierType.getUuid(), hasRelationConcept);
-        Relation airlineNameRelation = new Relation(airlineType.getUuid(), nameType.getUuid(), hasRelationConcept);
-        Relation airlineIATACodeRelation = new Relation(airlineType.getUuid(), iataCodeType.getUuid(), hasRelationConcept);
+        NamedEntity iataClass = new NamedEntity("plasma:IATA", "IATA", "The International Air Transport Association");
 
-        RelationConcept operatesRelationConcept = new RelationConcept("operates", "Indicates that something is managed by something else", null, "plasma:operates", new HashSet<>());
-        Relation flightAirlineRelation = new Relation(flightType.getUuid(), airlineType.getUuid(), operatesRelationConcept);
+        List<SemanticModelNode> elements = Arrays.asList(flightInstance, identifierInstance, airlineInstance, nameInstance, iataCodeInstance, flightType, iataClass);
 
-        List<Relation> relations = Arrays.asList(flightIdentifierRelation, flightAirlineRelation, airlineNameRelation, airlineIATACodeRelation);
+        Relation flightIdentifierRelation = new ObjectProperty(flightInstance.getUuid(), identifierInstance.getUuid(), "plasma:has");
+        Relation airlineNameRelation = new ObjectProperty(airlineInstance.getUuid(), nameInstance.getUuid(), "plasma:has");
+        Relation airlineIATACodeRelation = new ObjectProperty(airlineInstance.getUuid(), iataCodeInstance.getUuid(), "plasma:has");
+        Relation iataCodeIATARelation = new ObjectProperty(iataCodeInstance.getUuid(), iataClass.getUuid(), "plasma:issuedBy");
+        Relation flightTypeRelation = new DataProperty(flightInstance.getUuid(), flightType.getUuid(), "plasma:flightType");
 
-        SemanticModel semanticModel = new SemanticModel(null, entities, relations);
+        Relation flightAirlineRelation = new ObjectProperty(flightInstance.getUuid(), airlineInstance.getUuid(), "plasma:operates");
 
-        PrimitiveEntityTypeMapping identifierMapping = new PrimitiveEntityTypeMapping(identifierNode.getUuid(), identifierType.getUuid(), root.getUuid());
-        PrimitiveEntityTypeMapping nameMapping = new PrimitiveEntityTypeMapping(nameNode.getUuid(), nameType.getUuid(), companyNode.getUuid());
-        PrimitiveEntityTypeMapping codeMapping = new PrimitiveEntityTypeMapping(codeNode.getUuid(), iataCodeType.getUuid(), codesNode.getUuid());
+        List<Relation> objectProperties = Arrays.asList(flightIdentifierRelation, flightAirlineRelation, airlineNameRelation, airlineIATACodeRelation, iataCodeIATARelation, flightTypeRelation);
 
-        List<PrimitiveEntityTypeMapping> mappings = Arrays.asList(identifierMapping, nameMapping, codeMapping);
+        SemanticModel semanticModel = new SemanticModel(null, elements, objectProperties);
 
-        CombinedModel combinedModel = new CombinedModel(UUID.randomUUID().toString(), syntaxModel, semanticModel, mappings, new ArrayList<>(), false);
+
+        CombinedModel combinedModel = new CombinedModel(UUID.randomUUID().toString(), syntaxModel, semanticModel, new ArrayList<>(), false);
 
         return combinedModel;
     }
 }
+

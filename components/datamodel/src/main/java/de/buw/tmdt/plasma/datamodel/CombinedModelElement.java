@@ -23,7 +23,7 @@ public abstract class CombinedModelElement implements Serializable {
      * Available from the creation of the element. Never changes.
      */
     @NotNull
-    private final String uuid;
+    private String uuid;
 
     /**
      * The label which is a readable form.
@@ -64,6 +64,11 @@ public abstract class CombinedModelElement implements Serializable {
 
 
     public abstract CombinedModelElement copy();
+
+    @SuppressWarnings("ConstantConditions") // this is only to be invoked before serialization
+    public void convertToTemplate() {
+        this.uuid = null;
+    }
 
     @Override
     public boolean equals(Object o) {

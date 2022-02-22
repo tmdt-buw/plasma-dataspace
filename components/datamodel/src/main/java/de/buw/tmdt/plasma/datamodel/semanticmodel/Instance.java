@@ -212,8 +212,22 @@ public class Instance extends SemanticModelNode implements Serializable {
      *
      * @return The cloned entity with also the EntityConcept cloned
      */
+    @Override
     public Instance copy() {
         return new Instance(getUuid(),
+                getURI(),
+                getLabel(),
+                getSyntaxNodeUuid(),
+                getOriginalLabel(),
+                getDescription(),
+                getSemanticClass().copy(),
+                getXCoordinate(),
+                getYCoordinate());
+    }
+
+    @Override
+    public Instance build() {
+        return new Instance(null,
                 getURI(),
                 getLabel(),
                 getSyntaxNodeUuid(),

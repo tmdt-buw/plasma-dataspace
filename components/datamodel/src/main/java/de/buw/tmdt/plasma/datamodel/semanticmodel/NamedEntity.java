@@ -39,6 +39,11 @@ public class NamedEntity extends SemanticModelNode implements URIDefinedElement 
 
     @Override
     public NamedEntity copy() {
+        return new NamedEntity(getUuid(), getURI(), getLabel(), getDescription(), getXCoordinate(), getYCoordinate());
+    }
+
+    @Override
+    public NamedEntity build() {
         return new NamedEntity(getURI(), getLabel(), getDescription(), getXCoordinate(), getYCoordinate());
     }
 

@@ -5,7 +5,7 @@ import de.buw.tmdt.plasma.ars.refinement.recommendation.service.service.basic.Py
 import de.buw.tmdt.plasma.ars.refinement.recommendation.service.service.converter.KnowledgeGraphServiceDTO2CombinedModelConverter;
 import de.buw.tmdt.plasma.datamodel.CombinedModel;
 import de.buw.tmdt.plasma.datamodel.modification.DeltaModification;
-import de.buw.tmdt.plasma.services.kgs.shared.feignclient.UniversalKnowledgeApiClient;
+import de.buw.tmdt.plasma.services.kgs.shared.feignclient.OntologyApiClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class RecommendationHandler {
 
-    private final UniversalKnowledgeApiClient universalKnowledgeApiClient;
+    private final OntologyApiClient universalKnowledgeApiClient;
     private final KnowledgeGraphServiceDTO2CombinedModelConverter kgsDTO2CMConverter;
     private final WebClient client;
 
@@ -35,7 +35,7 @@ public class RecommendationHandler {
     private String recommendationServiceEndpoint;
 
     public RecommendationHandler(
-            UniversalKnowledgeApiClient universalKnowledgeApiClient,
+            OntologyApiClient universalKnowledgeApiClient,
             KnowledgeGraphServiceDTO2CombinedModelConverter kgsDTO2CMConverter) {
         this.kgsDTO2CMConverter = kgsDTO2CMConverter;
         this.universalKnowledgeApiClient = universalKnowledgeApiClient;
