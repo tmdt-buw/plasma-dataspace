@@ -89,7 +89,7 @@ public class SemanticModel implements Serializable {
     /**
      * Validates the internal integrity of the {@link SemanticModel}
      * Checks that:
-     * 1. All {@link Instance}s have an {@link SemanticClass} assigned
+     * 1. All {@link Instance}s have an {@link Class} assigned
      * 2. All Relations have valid (existing and unique) 'from' and 'to' ids matching existing EntityType ids
      *
      * @throws CombinedModelIntegrityException If one or more errors occur

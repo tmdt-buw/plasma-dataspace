@@ -1,10 +1,10 @@
 package de.buw.tmdt.plasma.datamodel;
 
 import de.buw.tmdt.plasma.datamodel.modification.DeltaModification;
+import de.buw.tmdt.plasma.datamodel.semanticmodel.Class;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.Instance;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.ObjectProperty;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.Relation;
-import de.buw.tmdt.plasma.datamodel.semanticmodel.SemanticClass;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.PrimitiveNode;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.SchemaNode;
 import org.junit.jupiter.api.Test;
@@ -23,7 +23,7 @@ public class CombinedModelSemanticModificationTest {
         CombinedModel model = getCombinedModel();
         model.finalizeModel();
 
-        SemanticClass companyConcept = new SemanticClass("plasma:company", "company", "A company");
+        Class companyConcept = new Class("plasma:company", "company", "A company");
         Instance companyType = new Instance(companyConcept.getLabel(), "", companyConcept);
 
         DeltaModification modification = new DeltaModification("mod_testApplyAddOneEntity", Collections.singleton(companyType), null, null, null, 0.0);
@@ -35,7 +35,7 @@ public class CombinedModelSemanticModificationTest {
     public void testApplyAddOneEntity() {
         CombinedModel model = getCombinedModel();
 
-        SemanticClass companyConcept = new SemanticClass("plasma:company", "company", "A company");
+        Class companyConcept = new Class("plasma:company", "company", "A company");
         Instance companyType = new Instance(companyConcept.getLabel(), "", companyConcept);
 
         DeltaModification modification = new DeltaModification("mod_testApplyAddOneEntity", Collections.singleton(companyType), null, null, null, 0.0);
@@ -55,7 +55,7 @@ public class CombinedModelSemanticModificationTest {
                 .map(node -> (Instance) node)
                 .filter(instance -> instance.getSemanticClass().getURI().equals("plasma:airline")).findFirst().orElseThrow();
 
-        SemanticClass companyConcept = new SemanticClass("plasma:company", "company", "A company");
+        Class companyConcept = new Class("plasma:company", "company", "A company");
         Instance companyType = new Instance(companyConcept.getLabel(), "", companyConcept);
 
         Relation airlineCompanyRelation = new ObjectProperty(airlineType.getUuid(), companyType.getUuid(), "plasma:isA");
@@ -79,7 +79,7 @@ public class CombinedModelSemanticModificationTest {
                 .map(node -> (Instance) node)
                 .filter(instance -> instance.getSemanticClass().getURI().equals("plasma:iata_code")).findFirst().orElseThrow();
 
-        SemanticClass codeConcept = new SemanticClass("plasma:code", "code", "A sort of identifier or short version of text");
+        Class codeConcept = new Class("plasma:code", "code", "A sort of identifier or short version of text");
         Instance codeType = new Instance(iataCodeType.getUuid(),
                 iataCodeType.getURI(),
                 "code",
@@ -130,7 +130,7 @@ public class CombinedModelSemanticModificationTest {
                 .noneMatch(node -> Objects.equals(node.getSyntaxNodeUuid(), timeNode.getUuid())));
 
         // create the new type and concept
-        SemanticClass timeConcept = new SemanticClass("plasma:time", "time", "A time");
+        Class timeConcept = new Class("plasma:time", "time", "A time");
         Instance timeType = new Instance(timeConcept.getLabel(), "", timeConcept);
         timeType.setSyntaxNodeUuid(timeNode.getUuid());
 
@@ -171,7 +171,7 @@ public class CombinedModelSemanticModificationTest {
                 .noneMatch(node -> Objects.equals(node.getSyntaxNodeUuid(), schemaNode.getUuid())));
 
         // create the new type and concept
-        SemanticClass timeConcept = new SemanticClass("plasma:time", "time", "A time");
+        Class timeConcept = new Class("plasma:time", "time", "A time");
         Instance timeType = new Instance(timeConcept.getLabel(), "", timeConcept);
         timeType.setSyntaxNodeUuid(schemaNode.getUuid());
 

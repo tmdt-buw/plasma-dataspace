@@ -27,13 +27,11 @@ public abstract class Relation extends CombinedModelElement implements Serializa
     /**
      * The uuid of the origin element, identified by CombinedModelElement#uuid.
      */
-    @NotNull
     private String fromId;
 
     /**
      * The uuid of the destination element, identified by CombinedModelElement#uuid.
      */
-    @NotNull
     private String toId;
 
 

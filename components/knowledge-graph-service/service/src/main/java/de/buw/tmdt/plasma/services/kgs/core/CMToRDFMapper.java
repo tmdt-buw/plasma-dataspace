@@ -1,6 +1,7 @@
 package de.buw.tmdt.plasma.services.kgs.core;
 
 import de.buw.tmdt.plasma.datamodel.CombinedModelIntegrityException;
+import de.buw.tmdt.plasma.datamodel.semanticmodel.Class;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.Literal;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.*;
 import org.apache.jena.rdf.model.*;
@@ -36,7 +37,7 @@ public class CMToRDFMapper {
             RDFNode rdfNode = null;
             if (node instanceof Instance) {
                 Instance i = (Instance) node;
-                SemanticClass clazz = i.getSemanticClass();
+                Class clazz = i.getSemanticClass();
                 Resource resource = m.createResource(SM_Prefix + semanticModelId + "-" + convertToInstanceId(i.getLabel())); // will reuse if already existent
                 resource.addProperty(RDF.type, m.createResource(m.expandPrefix(clazz.getURI())));
                 resource.addProperty(PLCM.label, m.createLiteral(i.getLabel()));
@@ -188,7 +189,7 @@ public class CMToRDFMapper {
     private static Instance createInstance(Resource res) {
         String classUri = res.getRequiredProperty(RDF.type).getObject().asResource().getURI();
         // add only a placeholder class here, needs to be extended later on
-        SemanticClass sClass = new SemanticClass(null, classUri, classUri, null);
+        Class sClass = new Class(null, classUri, classUri, null);
         String uuid = res.getRequiredProperty(PLCM.cmUuid).getString();
         String uri = res.getURI();
         String label = res.getRequiredProperty(PLCM.label).getString();
@@ -219,7 +220,7 @@ public class CMToRDFMapper {
                         String label = resource.getRequiredProperty(RDFS.label).getString();
                         String description = getPropertyOrNull(resource, RDFS.comment);
                         if (resource.hasProperty(RDF.type, OWL.Class)) {
-                            return new SemanticClass(
+                            return new Class(
                                     resource.getURI(),
                                     label,
                                     description);

@@ -6,7 +6,7 @@ import de.buw.tmdt.plasma.datamodel.PositionedCombinedModelElement;
 import de.buw.tmdt.plasma.datamodel.modification.DeltaModification;
 import de.buw.tmdt.plasma.datamodel.modification.operation.SyntacticOperationDTO;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.Relation;
-import de.buw.tmdt.plasma.datamodel.semanticmodel.URIDefinedElement;
+import de.buw.tmdt.plasma.datamodel.semanticmodel.SemanticModelNode;
 import de.buw.tmdt.plasma.services.dms.core.handler.DataModelingHandler;
 import de.buw.tmdt.plasma.services.dms.core.operations.OperationLookUp;
 import de.buw.tmdt.plasma.services.dms.shared.api.DataModelingAPI;
@@ -61,7 +61,7 @@ public class DataModelingController implements DataModelingAPI {
     @NotNull
     @Override
     @Operation(description = "Returns all elements either persistent in the knowledge base or cached for the referenced model sorted alphabetically.")
-    public List<URIDefinedElement> getElements(@NotNull String modelId, @NotNull String prefix) {
+    public List<SemanticModelNode> getElements(@NotNull String modelId, @NotNull String prefix) {
         return dataModelingHandler.getElements(modelId, prefix);
     }
 
@@ -85,8 +85,8 @@ public class DataModelingController implements DataModelingAPI {
     @Override
     @Operation(description = "Adds a new provisional element or relation to the cache of the model.")
     public CombinedModelElement cacheElementOrRelation(@NotNull String modelId, @NotNull CombinedModelElement element) {
-        if (element instanceof URIDefinedElement) {
-            return dataModelingHandler.cacheElement(modelId, (URIDefinedElement) element);
+        if (element instanceof SemanticModelNode) {
+            return dataModelingHandler.cacheElement(modelId, (SemanticModelNode) element);
         }
         if (element instanceof Relation) {
             return dataModelingHandler.cacheRelation(modelId, (Relation) element);

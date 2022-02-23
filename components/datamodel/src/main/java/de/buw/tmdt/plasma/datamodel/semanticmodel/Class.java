@@ -2,7 +2,6 @@ package de.buw.tmdt.plasma.datamodel.semanticmodel;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import de.buw.tmdt.plasma.datamodel.CombinedModelElement;
 import de.buw.tmdt.plasma.datamodel.CombinedModelIntegrityException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -10,34 +9,44 @@ import org.jetbrains.annotations.Nullable;
 import java.io.Serializable;
 import java.util.Objects;
 
-public class SemanticClass extends CombinedModelElement implements Serializable, URIDefinedElement {
+public class Class extends SemanticModelNode implements Serializable, URIDefinedElement {
     private static final long serialVersionUID = 2351939502355153654L;
+
     private final String description;
-    @NotNull
-    private final String uri;
+
+    /**
+     * The customized {@link Instance} for this class.
+     * Can be null if no modifications have been made.
+     */
+    @Nullable
+    private Instance instance;
+
     /**
      * Entity ID, set once sent to the KGS.
      */
     private String entityId;
 
-    public SemanticClass(
+    public Class(
             @NotNull @JsonProperty String uri,
             @NotNull @JsonProperty String label,
             @Nullable @JsonProperty String description
     ) {
-        this(null, uri, label, description);
+        this(null, uri, label, description, null, null, null);
     }
 
     @JsonCreator
-    public SemanticClass(
+    public Class(
             @Nullable @JsonProperty(UUID_PROPERTY) String uuid,
             @NotNull @JsonProperty String uri,
             @NotNull @JsonProperty String label,
-            @Nullable @JsonProperty String description
+            @Nullable @JsonProperty String description,
+            @Nullable @JsonProperty Double xCoordinate,
+            @Nullable @JsonProperty Double yCoordinate,
+            @Nullable @JsonProperty Instance instance
     ) {
-        super(uuid, label);
+        super(uuid, uri, label, xCoordinate, yCoordinate);
         this.description = description;
-        this.uri = uri;
+        this.instance = instance;
     }
 
 
@@ -52,24 +61,38 @@ public class SemanticClass extends CombinedModelElement implements Serializable,
     }
 
     @JsonProperty
-    @NotNull
-    public String getURI() {
-        return uri;
-    }
-
-    @JsonProperty
     public String getDescription() {
         return description;
     }
 
+    @JsonProperty
+    public Instance getInstance() {
+        return instance;
+    }
+
+    public void setInstance(@Nullable Instance instance) {
+        this.instance = instance;
+    }
+
     /**
-     * Clones this {@link SemanticClass}.
+     * Clones this {@link Class}.
      *
      * @return the cloned concept
      */
     @Override
-    public SemanticClass copy() {
-        return new SemanticClass(getUuid(), getURI(), getLabel(), getDescription());
+    public Class copy() {
+        return new Class(getUuid(), getURI(), getLabel(), getDescription(), getXCoordinate(), getYCoordinate(), getInstance());
+    }
+
+    @Override
+    public Class build() {
+        return new Class(null,
+                getURI(),
+                getLabel(),
+                getDescription(),
+                getXCoordinate(),
+                getYCoordinate(),
+                null);
     }
 
     public int hashCode() {
@@ -80,7 +103,7 @@ public class SemanticClass extends CombinedModelElement implements Serializable,
         if (this == o) {
             return true;
         } else if (o != null && this.getClass().equals(o.getClass())) {
-            SemanticClass that = (SemanticClass) o;
+            Class that = (Class) o;
             return Objects.equals(this.getUuid(), that.getUuid());
         } else {
             return false;
@@ -90,10 +113,12 @@ public class SemanticClass extends CombinedModelElement implements Serializable,
 
     @Override
     public String toString() {
-        return "SemanticClass{" +
-                "entityId='" + entityId + '\'' +
+        return "Class{" +
+                "uri='" + getURI() + '\'' +
+                ", label='" + getLabel() + '\'' +
                 ", description='" + description + '\'' +
-                ", sourceURI='" + uri + '\'' +
+                ", instance=" + instance +
+                ", entityId='" + entityId + '\'' +
                 '}';
     }
 
@@ -104,5 +129,17 @@ public class SemanticClass extends CombinedModelElement implements Serializable,
         if (getURI().trim().length() < 3) {
             throw new CombinedModelIntegrityException("SourceURI of EntityConcept '" + getLabel() + "' must not be shorter than 3 characters.");
         }
+        if (instance != null) {
+            instance.validate();
+        }
+    }
+
+    /**
+     * Creates a default {@link Instance} for this {@link Class}.
+     * The default instance uses the label from this {@link Class}.
+     * Will do nothing if an {@link Instance} is already defined.
+     */
+    public void createInstance() {
+
     }
 }

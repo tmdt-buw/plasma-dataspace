@@ -6,7 +6,7 @@ import de.buw.tmdt.plasma.datamodel.PositionedCombinedModelElement;
 import de.buw.tmdt.plasma.datamodel.modification.DeltaModification;
 import de.buw.tmdt.plasma.datamodel.modification.operation.SyntacticOperationDTO;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.Relation;
-import de.buw.tmdt.plasma.datamodel.semanticmodel.URIDefinedElement;
+import de.buw.tmdt.plasma.datamodel.semanticmodel.SemanticModelNode;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -34,7 +34,7 @@ public interface DataModelingAPI {
 
 	@NotNull
 	@GetMapping(value = "/{modelId}/elements", produces = MediaType.APPLICATION_JSON_VALUE)
-	List<URIDefinedElement> getElements(@NotNull @PathVariable("modelId") String modelId, @NotNull @RequestParam("prefix") String prefix);
+	List<SemanticModelNode> getElements(@NotNull @PathVariable("modelId") String modelId, @NotNull @RequestParam("prefix") String prefix);
 
 	@NotNull
 	@GetMapping(value = "/{modelId}/relations", produces = MediaType.APPLICATION_JSON_VALUE)

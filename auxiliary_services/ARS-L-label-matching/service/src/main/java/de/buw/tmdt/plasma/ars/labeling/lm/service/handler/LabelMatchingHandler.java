@@ -1,8 +1,8 @@
 package de.buw.tmdt.plasma.ars.labeling.lm.service.handler;
 
 import de.buw.tmdt.plasma.datamodel.CombinedModel;
+import de.buw.tmdt.plasma.datamodel.semanticmodel.Class;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.Instance;
-import de.buw.tmdt.plasma.datamodel.semanticmodel.SemanticClass;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.URIDefinedElement;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.PrimitiveNode;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.SchemaNode;
@@ -44,13 +44,13 @@ public class LabelMatchingHandler {
 
             String label = node.getLabel();
             Collection<URIDefinedElement> candidates = ontologyApi.getElements(label, null, null);
-            List<SemanticClass> classes = candidates.stream()
-                    .filter(c -> c instanceof SemanticClass)
-                    .map(c -> (SemanticClass) c)
+            List<Class> classes = candidates.stream()
+                    .filter(c -> c instanceof Class)
+                    .map(c -> (Class) c)
                     .collect(Collectors.toList());
 
 
-            Optional<SemanticClass> matching = classes.stream().filter(entityConceptDTO -> entityConceptDTO.getLabel().equals(label)).findFirst();
+            Optional<Class> matching = classes.stream().filter(entityConceptDTO -> entityConceptDTO.getLabel().equals(label)).findFirst();
             if (matching.isPresent()) {  // we only match on exact equality
                 // we found one
                 // create an EntityType

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import de.buw.tmdt.plasma.datamodel.modification.DeltaModification;
 import de.buw.tmdt.plasma.datamodel.modification.operation.DataType;
+import de.buw.tmdt.plasma.datamodel.semanticmodel.Class;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.*;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.*;
 import de.buw.tmdt.plasma.utilities.collections.CollectionUtilities;
@@ -30,11 +31,11 @@ public class CombinedModel implements Serializable {
     private final SemanticModel semanticModel;
 
     /**
-     * Stores provisional {@link URIDefinedElement}s that the user created but are not yet in the knowledge base.
+     * Stores provisional {@link SemanticModelNode}s that the user created but are not yet in the knowledge base.
      * Only valid for this model.
      */
     @NotNull
-    private final List<URIDefinedElement> provisionalElements;
+    private final List<SemanticModelNode> provisionalElements;
 
     /**
      * Stores provisional {@link Relation}s that the user created but are not yet in the knowledge base.
@@ -86,7 +87,7 @@ public class CombinedModel implements Serializable {
             @JsonProperty @Nullable List<DeltaModification> recommendations,
             @JsonProperty DeltaModification lastModification,
             @JsonProperty(defaultValue = "false") boolean finalized,
-            @JsonProperty @Nullable List<URIDefinedElement> provisionalElements,
+            @JsonProperty @Nullable List<SemanticModelNode> provisionalElements,
             @JsonProperty @Nullable List<Relation> provisionalRelations
 
     ) {
@@ -141,13 +142,13 @@ public class CombinedModel implements Serializable {
     }
 
     /**
-     * Returns all provisional {@link SemanticClass}es in this model.
+     * Returns all provisional {@link Class}es in this model.
      *
-     * @return A list of provisional {@link SemanticClass}es in the model
+     * @return A list of provisional {@link Class}es in the model
      */
     @NotNull
     @JsonProperty
-    public List<URIDefinedElement> getProvisionalElements() {
+    public List<SemanticModelNode> getProvisionalElements() {
         return provisionalElements;
     }
 
@@ -438,7 +439,7 @@ public class CombinedModel implements Serializable {
                 getLastModification(),
                 isFinalized(),
                 CollectionUtilities.map(getProvisionalElements(),
-                        URIDefinedElement::copy,
+                        SemanticModelNode::copy,
                         ArrayList::new),
                 CollectionUtilities.map(getProvisionalRelations(),
                         Relation::copy,

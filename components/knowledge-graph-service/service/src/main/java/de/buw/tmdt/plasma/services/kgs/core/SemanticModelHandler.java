@@ -1,5 +1,6 @@
 package de.buw.tmdt.plasma.services.kgs.core;
 
+import de.buw.tmdt.plasma.datamodel.semanticmodel.Class;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.*;
 import de.buw.tmdt.plasma.services.kgs.core.rdf.ModelToRdfConverter;
 import org.apache.jena.rdf.model.Model;
@@ -92,13 +93,13 @@ public class SemanticModelHandler {
         semanticModel.getNodes().forEach(smn -> {
             if (smn instanceof Instance) {
                 Instance i = (Instance) smn;
-                SemanticClass semanticClass = i.getSemanticClass();
+                Class semanticClass = i.getSemanticClass();
                 URIDefinedElement entity = onto.findElementsByURI(semanticClass.getURI());
-                if (!(entity instanceof SemanticClass)) {
+                if (!(entity instanceof Class)) {
                     log.error(smn.getURI() + " is not a SemanticClass but is declared as one.");
                     return;
                 }
-                i.setSemanticClass((SemanticClass) entity);
+                i.setSemanticClass((Class) entity);
             } else if (smn instanceof NamedEntity) {
                 URIDefinedElement entity = onto.findElementsByURI(smn.getURI());
                 NamedEntity ne = (NamedEntity) smn;

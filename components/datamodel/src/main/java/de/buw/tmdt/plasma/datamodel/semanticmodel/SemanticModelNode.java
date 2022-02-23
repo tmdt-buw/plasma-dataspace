@@ -8,11 +8,13 @@ import de.buw.tmdt.plasma.datamodel.PositionedCombinedModelElement;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Objects;
+
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "@class")
 @JsonSubTypes({
         @JsonSubTypes.Type(value = Instance.class, name = "Instance"),
         @JsonSubTypes.Type(value = Literal.class, name = "Literal"),
-        @JsonSubTypes.Type(value = SemanticClass.class, name = "SemanticClass"),
+        @JsonSubTypes.Type(value = Class.class, name = "SemanticClass"),
         @JsonSubTypes.Type(value = NamedEntity.class, name = "NamedEntity")
 })
 public abstract class SemanticModelNode extends PositionedCombinedModelElement {
@@ -30,6 +32,18 @@ public abstract class SemanticModelNode extends PositionedCombinedModelElement {
     public SemanticModelNode(@Nullable String uuid, @Nullable String uri, @NotNull String label, @Nullable Double xCoordinate, @Nullable Double yCoordinate) {
         super(uuid, label, xCoordinate, yCoordinate);
         this.uri = uri;
+    }
+
+    /**
+     * Identifies if two {@link SemanticModelNode}s represent the same entity.
+     * Needed as there might exist multiple {@link SemanticModelNode} instances that actually represent the same concept
+     * or class but have different uuids.
+     *
+     * @param ec The {@link SemanticModelNode} to check
+     * @return true of the {@code uri}s of both instances match
+     */
+    public boolean sameAs(SemanticModelNode ec) {
+        return Objects.equals(getURI(), ec.getURI());
     }
 
     @JsonProperty

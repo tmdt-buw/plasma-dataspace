@@ -2,6 +2,7 @@ package de.buw.tmdt.plasma.datamodel.semanticmodel;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import de.buw.tmdt.plasma.datamodel.CombinedModelElement;
 import de.buw.tmdt.plasma.datamodel.CombinedModelIntegrityException;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.PrimitiveNode;
 import org.jetbrains.annotations.NotNull;
@@ -13,7 +14,7 @@ import java.util.Objects;
 /**
  * An instantiation resembles the use of a concept inside a semantic model in a combined model.
  */
-public class Instance extends SemanticModelNode implements Serializable {
+public class Instance extends CombinedModelElement implements Serializable {
 
     private static final long serialVersionUID = 4109691502825894813L;
 
@@ -30,109 +31,38 @@ public class Instance extends SemanticModelNode implements Serializable {
 
     private String description;
 
-    /**
-     * The assigned {@link SemanticClass} that defines this {@link Instance}.
-     */
-    private SemanticClass semanticClass;
+    private String uri;
 
     /**
-     * Constructor to use for a new unmapped instantiation.
+     * Constructor to use for a new instantiation.
      *
-     * @param label         The label to show
-     * @param description   A description for this object, optional
-     * @param SemanticClass The concept to represent
+     * @param label       The label to show
+     * @param description A description for this object, optional
      */
     public Instance(@NotNull String label,
-                    String description,
-                    SemanticClass SemanticClass) {
+                    String description) {
         super(null, label);
         this.description = description;
-        this.semanticClass = SemanticClass;
     }
 
-    /**
-     * Constructor to use for a new unmapped instantiation.
-     * This constructor also accepts a URI if there exists a representation of this element somewhere.
-     *
-     * @param label         The label to show
-     * @param uri           An uri to represent this instance
-     * @param description   A description for this object, optional
-     * @param SemanticClass The concept to represent
-     */
-    public Instance(@NotNull String uri,
-                    @NotNull String label,
-                    String description,
-                    SemanticClass SemanticClass) {
-        super(uri, label);
-        this.description = description;
-        this.semanticClass = SemanticClass;
-    }
 
     /**
-     * Constructor to use for a new unmapped instantiation at a specific place.
-     *
-     * @param label         The label to show
-     * @param xCoordinate   X coordinate
-     * @param yCoordinate   Y coordinate
-     * @param description   A description for this object, optional
-     * @param SemanticClass The concept to represent
-     */
-    public Instance(@NotNull String label,
-                    @NotNull Double xCoordinate,
-                    @NotNull Double yCoordinate,
-                    @Nullable String description,
-                    @NotNull SemanticClass SemanticClass) {
-        super(null, label, xCoordinate, yCoordinate);
-        this.description = description;
-        this.semanticClass = SemanticClass;
-    }
-
-    /**
-     * Constructor to use for a new unmapped instantiation at a specific place.
-     *
-     * @param uri           An existing entity id of this element
-     * @param label         The label to show
-     * @param xCoordinate   X coordinate
-     * @param yCoordinate   Y coordinate
-     * @param description   A description for this object, optional
-     * @param SemanticClass The concept to represent
-     */
-    public Instance(@NotNull String uri,
-                    @NotNull String label,
-
-                    @NotNull Double xCoordinate,
-                    @NotNull Double yCoordinate,
-                    @Nullable String description,
-                    @NotNull SemanticClass SemanticClass) {
-        super(uri, label, xCoordinate, yCoordinate);
-        this.description = description;
-        this.semanticClass = SemanticClass;
-    }
-
-    /**
-     * Constructor to use for a new mapped instantiation at a specific place.
+     * Constructor to use for a new mapped instantiation.
      *
      * @param label          The label to show
-     * @param xCoordinate    X coordinate
-     * @param yCoordinate    Y coordinate
      * @param syntaxNodeUuid The syntax node id to be mapped to.
      *                       Should be equal to a {@link PrimitiveNode#getUuid()}
      * @param originalLabel  The original attributes label
      * @param description    A description for this object, optional
-     * @param SemanticClass  The concept to represent
      */
     public Instance(@NotNull String label,
-                    @Nullable Double xCoordinate,
-                    @Nullable Double yCoordinate,
                     @NotNull String syntaxNodeUuid,
                     @NotNull String originalLabel,
-                    @Nullable String description,
-                    @NotNull SemanticClass SemanticClass) {
-        super(null, label, xCoordinate, yCoordinate);
+                    @Nullable String description) {
+        super(null, label);
         this.syntaxNodeUuid = syntaxNodeUuid;
         this.originalLabel = originalLabel;
         this.description = description;
-        this.semanticClass = SemanticClass;
     }
 
     /**
@@ -141,13 +71,10 @@ public class Instance extends SemanticModelNode implements Serializable {
      * @param uuid           The object uuid
      * @param uri            The instance URI, only set if this has been submitted to the knowledge base
      * @param label          The label to show
-     * @param xCoordinate    X coordinate
-     * @param yCoordinate    Y coordinate
      * @param syntaxNodeUuid The syntax node id to be mapped to.
      *                       Should be equal to a {@link PrimitiveNode#getUuid()}
      * @param originalLabel  The original attributes label
      * @param description    A description for this object, optional
-     * @param SemanticClass  The concept to represent
      */
     @JsonCreator
     public Instance(
@@ -156,16 +83,13 @@ public class Instance extends SemanticModelNode implements Serializable {
             @NotNull @JsonProperty String label,
             @Nullable @JsonProperty String syntaxNodeUuid,
             @Nullable @JsonProperty String originalLabel,
-            @Nullable @JsonProperty String description,
-            @NotNull @JsonProperty SemanticClass SemanticClass,
-            @Nullable @JsonProperty Double xCoordinate,
-            @Nullable @JsonProperty Double yCoordinate
+            @Nullable @JsonProperty String description
     ) {
-        super(uuid, uri, label, xCoordinate, yCoordinate);
+        super(uuid, label);
+        this.uri = uri;
         this.syntaxNodeUuid = syntaxNodeUuid;
         this.originalLabel = originalLabel;
         this.description = description;
-        this.semanticClass = SemanticClass;
     }
 
     /* Getter */
@@ -185,8 +109,8 @@ public class Instance extends SemanticModelNode implements Serializable {
     }
 
     @JsonProperty
-    public SemanticClass getSemanticClass() {
-        return semanticClass;
+    public String getURI() {
+        return uri;
     }
 
     /* Setter */
@@ -203,8 +127,8 @@ public class Instance extends SemanticModelNode implements Serializable {
         this.description = description;
     }
 
-    public void setSemanticClass(SemanticClass semanticClass) {
-        this.semanticClass = semanticClass;
+    public void setURI(String uri) {
+        this.uri = uri;
     }
 
     /**
@@ -219,28 +143,12 @@ public class Instance extends SemanticModelNode implements Serializable {
                 getLabel(),
                 getSyntaxNodeUuid(),
                 getOriginalLabel(),
-                getDescription(),
-                getSemanticClass().copy(),
-                getXCoordinate(),
-                getYCoordinate());
-    }
-
-    @Override
-    public Instance build() {
-        return new Instance(null,
-                getURI(),
-                getLabel(),
-                getSyntaxNodeUuid(),
-                getOriginalLabel(),
-                getDescription(),
-                getSemanticClass().copy(),
-                getXCoordinate(),
-                getYCoordinate());
+                getDescription());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getUuid(), originalLabel, description, semanticClass);
+        return Objects.hash(getUuid(), getURI(), originalLabel, description);
     }
 
     @Override
@@ -272,9 +180,6 @@ public class Instance extends SemanticModelNode implements Serializable {
         //if (getLabel().length() < 3) {
         //throw new CombinedModelIntegrityException("Label of EntityType '" + getUuid() + "' must not be shorter than 3 characters.");
         //}
-        if (getSemanticClass() == null) {
-            throw new CombinedModelIntegrityException("Instance " + getUuid() + " has no SemanticConcept assigned");
-        }
-        getSemanticClass().validate();
     }
+
 }
