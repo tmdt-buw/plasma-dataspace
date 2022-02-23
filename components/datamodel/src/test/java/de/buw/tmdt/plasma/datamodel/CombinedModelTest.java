@@ -37,7 +37,7 @@ class CombinedModelTest {
         assertEquals(model.getSemanticModel().getEdges(), deserializedModel.getSemanticModel().getEdges());
         assertEquals(model.getSemanticModel().getEdges(), deserializedModel.getSemanticModel().getEdges());
         assertEquals(model.getRecommendations(), deserializedModel.getRecommendations());
-        assertEquals(model.getProvisionalSemanticClasses(), deserializedModel.getProvisionalSemanticClasses());
+        assertEquals(model.getProvisionalElements(), deserializedModel.getProvisionalElements());
         // assertEquals(model.getProvisionalRelationConcepts(), deserializedModel.getProvisionalRelationConcepts());
     }
 
@@ -59,7 +59,7 @@ class CombinedModelTest {
 
         assertEquals(model.generatePrimitiveInstanceMappings().size(), cloned.generatePrimitiveInstanceMappings().size());
 
-        assertEquals(model.getProvisionalSemanticClasses().size(), cloned.getProvisionalSemanticClasses().size());
+        assertEquals(model.getProvisionalElements().size(), cloned.getProvisionalElements().size());
         //assertEquals(model.getProvisionalRelationConcepts().size(), cloned.getProvisionalRelationConcepts().size());
 
         // TODO deep testing

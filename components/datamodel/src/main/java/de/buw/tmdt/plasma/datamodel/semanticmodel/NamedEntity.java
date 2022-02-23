@@ -62,6 +62,7 @@ public class NamedEntity extends SemanticModelNode implements URIDefinedElement 
 
     }
 
+
     @Override
     public String toString() {
         return "NamedEntity{" +

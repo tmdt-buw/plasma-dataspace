@@ -180,4 +180,18 @@ public abstract class Relation extends CombinedModelElement implements Serializa
             throw new CombinedModelIntegrityException("Relation " + getUuid() + " has no proper URL assigned");
         }
     }
+
+    /**
+     * Identifies if two {@link Relation}s represent the same entity.
+     * Needed as there might exist multiple {@link Relation}s instances that actually represent the same relation
+     * or class but have different uuids.
+     *
+     * @param relation The {@link Relation} to check
+     * @return true of the {@code uri}s of both instances match
+     */
+    public boolean sameAs(Relation relation) {
+        return Objects.equals(getURI(), relation.getURI());
+    }
+
+    ;
 }

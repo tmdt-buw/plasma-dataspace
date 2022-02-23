@@ -27,21 +27,25 @@ public class DeltaModification implements Serializable {
      * Indicates if this modification removes elements.
      */
     private boolean deletion = false;
+
     /**
      * The set of modified semantic entities.
      */
     @NotNull
     private Set<SemanticModelNode> entities;
+
     /**
      * The set of modified semantic relations.
      */
     @NotNull
-    private Set<Relation> objectProperties;
+    private Set<Relation> relations;
+
     /**
      * The set of modified syntactic nodes.
      */
     @NotNull
     private Set<SchemaNode> nodes;
+
     /**
      * The set of modified syntactic edges.
      */
@@ -60,26 +64,26 @@ public class DeltaModification implements Serializable {
 
     public DeltaModification(@NotNull String reference,
                              @Nullable Set<SemanticModelNode> entities,
-                             @Nullable Set<Relation> objectProperties,
+                             @Nullable Set<Relation> relations,
                              @Nullable Set<SchemaNode> nodes,
                              @Nullable Set<Edge> edges) {
-        this(reference, false, entities, objectProperties, nodes, edges, null, 0.0);
+        this(reference, false, entities, relations, nodes, edges, null, 0.0);
     }
 
     public DeltaModification(@NotNull String reference,
                              @Nullable Set<SemanticModelNode> entities,
-                             @Nullable Set<Relation> objectProperties,
+                             @Nullable Set<Relation> relations,
                              @Nullable Set<SchemaNode> nodes,
                              @Nullable Set<Edge> edges,
                              @Nullable Double confidence) {
-        this(reference, false, entities, objectProperties, nodes, edges, null, confidence);
+        this(reference, false, entities, relations, nodes, edges, null, confidence);
     }
 
     @JsonCreator
     public DeltaModification(@NotNull String reference,
                              boolean deletion,
                              @Nullable Set<SemanticModelNode> entities,
-                             @Nullable Set<Relation> objectProperties,
+                             @Nullable Set<Relation> relations,
                              @Nullable Set<SchemaNode> nodes,
                              @Nullable Set<Edge> edges,
                              @Nullable List<String> anchors,
@@ -87,7 +91,7 @@ public class DeltaModification implements Serializable {
         this.reference = reference;
         this.deletion = deletion;
         this.entities = entities == null ? new HashSet<>() : entities;
-        this.objectProperties = objectProperties == null ? new HashSet<>() : objectProperties;
+        this.relations = relations == null ? new HashSet<>() : relations;
         this.nodes = nodes == null ? new HashSet<>() : nodes;
         this.edges = edges == null ? new HashSet<>() : edges;
         this.anchors = anchors == null ? new ArrayList<>() : anchors;
@@ -138,11 +142,11 @@ public class DeltaModification implements Serializable {
 
     @NotNull
     public Set<Relation> getRelations() {
-        return objectProperties;
+        return relations;
     }
 
     public void setRelations(@NotNull Set<Relation> objectProperties) {
-        this.objectProperties = objectProperties;
+        this.relations = objectProperties;
     }
 
     public void setNodes(@NotNull Set<SchemaNode> nodes) {

@@ -25,16 +25,23 @@ public class CombinedModel implements Serializable {
 
     private static final long serialVersionUID = 1069167546126071914L;
 
-    private final String dataSourceUuid;
+    private final String id;
     private final SyntaxModel syntaxModel;
     private final SemanticModel semanticModel;
 
     /**
-     * Stores provisional {@link SemanticClass}es that the user created but are not yet in the knowledge base.
+     * Stores provisional {@link URIDefinedElement}s that the user created but are not yet in the knowledge base.
      * Only valid for this model.
      */
     @NotNull
-    private final List<SemanticClass> provisionalSemanticClasses;
+    private final List<URIDefinedElement> provisionalElements;
+
+    /**
+     * Stores provisional {@link Relation}s that the user created but are not yet in the knowledge base.
+     * Only valid for this model.
+     */
+    @NotNull
+    private final List<Relation> provisionalRelations;
 
     /**
      * Recommendations represent suggested modifications for the current state of models.
@@ -53,47 +60,49 @@ public class CombinedModel implements Serializable {
     private boolean finalized;
 
     public CombinedModel(
-            @NotNull String dataSourceUuid,
+            @NotNull String id,
             @Nullable SyntaxModel syntaxModel,
             @Nullable SemanticModel semanticModel
     ) {
-        this(dataSourceUuid, syntaxModel, semanticModel, null, false);
+        this(id, syntaxModel, semanticModel, null, false);
     }
 
     public CombinedModel(
-            @NotNull String dataSourceUuid,
+            @NotNull String id,
             @Nullable SyntaxModel syntaxModel,
             SemanticModel semanticModel,
-            List<DeltaModification> recommendations,
+            @Nullable List<DeltaModification> recommendations,
             boolean finalized
     ) {
-        this(dataSourceUuid, syntaxModel, semanticModel, recommendations, null, finalized, null);
+        this(id, syntaxModel, semanticModel, recommendations, null, finalized, null, null);
 
     }
 
     @JsonCreator
     public CombinedModel(
-            @JsonProperty @NotNull String dataSourceUuid,
+            @JsonProperty @NotNull String id,
             @JsonProperty @Nullable SyntaxModel syntaxModel,
             @JsonProperty SemanticModel semanticModel,
-            @JsonProperty List<DeltaModification> recommendations,
+            @JsonProperty @Nullable List<DeltaModification> recommendations,
             @JsonProperty DeltaModification lastModification,
             @JsonProperty(defaultValue = "false") boolean finalized,
-            @JsonProperty List<SemanticClass> provisionalSemanticClasses
+            @JsonProperty @Nullable List<URIDefinedElement> provisionalElements,
+            @JsonProperty @Nullable List<Relation> provisionalRelations
 
     ) {
-        this.dataSourceUuid = dataSourceUuid;
+        this.id = id;
         this.syntaxModel = syntaxModel == null ? new SyntaxModel() : syntaxModel;
         this.semanticModel = semanticModel == null ? new SemanticModel() : semanticModel;
         this.finalized = finalized;
         this.recommendations = recommendations == null ? new ArrayList<>() : new ArrayList<>(recommendations);
         this.lastModification = lastModification;
-        this.provisionalSemanticClasses = provisionalSemanticClasses == null ? new ArrayList<>() : provisionalSemanticClasses;
+        this.provisionalElements = provisionalElements == null ? new ArrayList<>() : provisionalElements;
+        this.provisionalRelations = provisionalRelations == null ? new ArrayList<>() : provisionalRelations;
     }
 
     @JsonProperty
-    public String getDataSourceUuid() {
-        return dataSourceUuid;
+    public String getId() {
+        return id;
     }
 
     @JsonProperty
@@ -138,8 +147,19 @@ public class CombinedModel implements Serializable {
      */
     @NotNull
     @JsonProperty
-    public List<SemanticClass> getProvisionalSemanticClasses() {
-        return provisionalSemanticClasses;
+    public List<URIDefinedElement> getProvisionalElements() {
+        return provisionalElements;
+    }
+
+    /**
+     * Returns all provisional {@link Relation}s in this model.
+     *
+     * @return A list of provisional {@link Relation}s in the model
+     */
+    @NotNull
+    @JsonProperty
+    public List<Relation> getProvisionalRelations() {
+        return provisionalRelations;
     }
 
     /**
@@ -409,7 +429,7 @@ public class CombinedModel implements Serializable {
      */
     public CombinedModel copy() {
         return new CombinedModel(
-                getDataSourceUuid(),
+                getId(),
                 getSyntaxModel().copy(),
                 getSemanticModel().copy(),
                 CollectionUtilities.map(getRecommendations(),
@@ -417,8 +437,11 @@ public class CombinedModel implements Serializable {
                         ArrayList::new),
                 getLastModification(),
                 isFinalized(),
-                CollectionUtilities.map(getProvisionalSemanticClasses(),
-                        SemanticClass::copy,
+                CollectionUtilities.map(getProvisionalElements(),
+                        URIDefinedElement::copy,
+                        ArrayList::new),
+                CollectionUtilities.map(getProvisionalRelations(),
+                        Relation::copy,
                         ArrayList::new)
         );
     }

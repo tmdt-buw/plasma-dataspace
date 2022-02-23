@@ -66,12 +66,12 @@ class DataSourceModelTest {
             count++;
             assertEquals(count, dataSourceModel.getAllCombinedModels().size());
         }
-        assertEquals("model-" + count, dataSourceModel.getCurrentModel().getDataSourceUuid());
+        assertEquals("model-" + count, dataSourceModel.getCurrentModel().getId());
         for (int i = 0; i < 3; i++) {
             dataSourceModel.popCombinedModel();
             count--;
         }
-        assertEquals("model-" + count, dataSourceModel.getCurrentModel().getDataSourceUuid());
+        assertEquals("model-" + count, dataSourceModel.getCurrentModel().getId());
     }
 
     @Test
@@ -98,12 +98,12 @@ class DataSourceModelTest {
             count++;
             assertEquals(count, dataSourceModel.getAllCombinedModels().size());
         }
-        assertEquals("model-" + count, dataSourceModel.getCurrentModel().getDataSourceUuid());
+        assertEquals("model-" + count, dataSourceModel.getCurrentModel().getId());
         for (int i = 0; i < 3; i++) {
             dataSourceModel.popCombinedModel();
             count--;
         }
-        assertEquals("model-" + count, dataSourceModel.getCurrentModel().getDataSourceUuid());
+        assertEquals("model-" + count, dataSourceModel.getCurrentModel().getId());
         CombinedModel intermediateModel = getCombinedModel();
 
         dataSourceModel.pushCombinedModel(intermediateModel);
@@ -128,17 +128,17 @@ class DataSourceModelTest {
             count++;
             assertEquals(count, dataSourceModel.getAllCombinedModels().size());
         }
-        assertEquals("model-" + count, dataSourceModel.getCurrentModel().getDataSourceUuid());
+        assertEquals("model-" + count, dataSourceModel.getCurrentModel().getId());
         for (int i = 0; i < 3; i++) {
             dataSourceModel.popCombinedModel();
             count--;
         }
-        assertEquals("model-" + count, dataSourceModel.getCurrentModel().getDataSourceUuid());
+        assertEquals("model-" + count, dataSourceModel.getCurrentModel().getId());
         for (int i = 0; i < 3; i++) {
             dataSourceModel.restoreCombinedModel();
             count++;
         }
-        assertEquals("model-" + count, dataSourceModel.getCurrentModel().getDataSourceUuid());
+        assertEquals("model-" + count, dataSourceModel.getCurrentModel().getId());
     }
 
     @Test

@@ -87,17 +87,6 @@ public class SemanticClass extends CombinedModelElement implements Serializable,
         }
     }
 
-    /**
-     * Identifies if two {@link SemanticClass}s represent the same concept.
-     * Needed as there might exist multiple {@link SemanticClass} instances that actually represent the same concept
-     * but have different uuids.
-     *
-     * @param ec The {@link SemanticClass} to check
-     * @return true of the {@link #uri}s of both instances match
-     */
-    public boolean sameAs(SemanticClass ec) {
-        return Objects.equals(getURI(), ec.getURI());
-    }
 
     @Override
     public String toString() {
