@@ -17,9 +17,9 @@ public class CollisionSchema extends SchemaNode {
     private static final long serialVersionUID = 5329441916665293203L;
 
     public CollisionSchema(
-            @JsonProperty(LABEL_PROPERTY) @NotNull String label,
-            @JsonProperty(OPERATIONS_PROPERTY) @Nullable List<SyntacticOperationDTO> operations,
-            @JsonProperty(IS_VALID_PROPERTY) boolean isValid
+            @NotNull String label,
+            @Nullable List<SyntacticOperationDTO> operations,
+            boolean isValid
     ) {
         super(label, operations, isValid);
     }
@@ -27,12 +27,12 @@ public class CollisionSchema extends SchemaNode {
 	@JsonCreator
 	public CollisionSchema(
 
-            @JsonProperty(UUID_PROPERTY) @NotNull String uuid,
-            @JsonProperty(LABEL_PROPERTY) @NotNull String label,
-            @Nullable @JsonProperty(X_COORDINATE_PROPERTY) Double xCoordinate,
-            @Nullable @JsonProperty(Y_COORDINATE_PROPERTY) Double yCoordinate,
-            @JsonProperty(OPERATIONS_PROPERTY) @NotNull List<SyntacticOperationDTO> operations,
-            @JsonProperty(IS_VALID_PROPERTY) boolean isValid
+            @JsonProperty @NotNull String uuid,
+            @JsonProperty @NotNull String label,
+            @Nullable @JsonProperty Double xCoordinate,
+            @Nullable @JsonProperty Double yCoordinate,
+            @JsonProperty @NotNull List<SyntacticOperationDTO> operations,
+            @JsonProperty boolean isValid
     ) {
         super(uuid, label, xCoordinate, yCoordinate, operations, isValid);
     }

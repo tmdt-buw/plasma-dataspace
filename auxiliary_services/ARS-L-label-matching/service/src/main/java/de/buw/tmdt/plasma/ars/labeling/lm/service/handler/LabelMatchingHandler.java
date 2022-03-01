@@ -2,8 +2,7 @@ package de.buw.tmdt.plasma.ars.labeling.lm.service.handler;
 
 import de.buw.tmdt.plasma.datamodel.CombinedModel;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.Class;
-import de.buw.tmdt.plasma.datamodel.semanticmodel.Instance;
-import de.buw.tmdt.plasma.datamodel.semanticmodel.URIDefinedElement;
+import de.buw.tmdt.plasma.datamodel.semanticmodel.SemanticModelNode;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.PrimitiveNode;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.SchemaNode;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.SyntaxModel;
@@ -19,6 +18,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
 @Service
 public class LabelMatchingHandler {
 
@@ -43,7 +43,7 @@ public class LabelMatchingHandler {
             }
 
             String label = node.getLabel();
-            Collection<URIDefinedElement> candidates = ontologyApi.getElements(label, null, null);
+            Collection<SemanticModelNode> candidates = ontologyApi.getElements(label, null, null);
             List<Class> classes = candidates.stream()
                     .filter(c -> c instanceof Class)
                     .map(c -> (Class) c)
@@ -53,13 +53,15 @@ public class LabelMatchingHandler {
             Optional<Class> matching = classes.stream().filter(entityConceptDTO -> entityConceptDTO.getLabel().equals(label)).findFirst();
             if (matching.isPresent()) {  // we only match on exact equality
                 // we found one
-                // create an EntityType
-                Instance instance = new Instance(node.getLabel(),
-                        "",
-                        matching.get());
-                instance.setOriginalLabel(node.getLabel());
-                instance.setSyntaxNodeUuid(node.getUuid());
-                combined.getSemanticModel().getNodes().add(instance);
+                // create an Instance
+                Class clazz = matching.get();
+                clazz.createInstance();
+                if (clazz.getInstance() != null) {
+                    clazz.getInstance().setOriginalLabel(node.getLabel());
+                    clazz.getInstance().setSyntaxNodeUuid(node.getUuid());
+                }
+
+                combined.getSemanticModel().getNodes().add(clazz);
             }
         }
         return combined;

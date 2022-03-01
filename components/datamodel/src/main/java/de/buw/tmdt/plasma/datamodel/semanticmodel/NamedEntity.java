@@ -7,8 +7,11 @@ import de.buw.tmdt.plasma.datamodel.CombinedModelIntegrityException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.Serializable;
+import java.util.Objects;
+
 @JsonTypeName("NamedEntity")
-public class NamedEntity extends SemanticModelNode implements URIDefinedElement {
+public class NamedEntity extends SemanticModelNode implements Serializable, NodeTemplate {
 
     private String description;
 
@@ -43,8 +46,24 @@ public class NamedEntity extends SemanticModelNode implements URIDefinedElement 
     }
 
     @Override
-    public NamedEntity build() {
-        return new NamedEntity(getURI(), getLabel(), getDescription(), getXCoordinate(), getYCoordinate());
+    public NamedEntity instanciate() {
+        return new NamedEntity(getURI(), getLabel(), getDescription());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        } else if (o != null && this.getClass().equals(o.getClass())) {
+            NamedEntity that = (NamedEntity) o;
+            return Objects.equals(this.getURI(), that.getURI()) &&
+                    Objects.equals(this.getLabel(), that.getLabel()) &&
+                    Objects.equals(this.getDescription(), that.getDescription()) &&
+                    Objects.equals(this.getXCoordinate(), that.getXCoordinate()) &&
+                    Objects.equals(this.getYCoordinate(), that.getYCoordinate());
+        } else {
+            return false;
+        }
     }
 
     @Override
@@ -61,7 +80,6 @@ public class NamedEntity extends SemanticModelNode implements URIDefinedElement 
         }
 
     }
-
 
     @Override
     public String toString() {

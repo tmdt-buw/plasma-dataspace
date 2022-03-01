@@ -9,10 +9,10 @@ import org.jetbrains.annotations.Nullable;
 import java.io.Serializable;
 import java.util.Objects;
 
-public class Class extends SemanticModelNode implements Serializable, URIDefinedElement {
+public class Class extends SemanticModelNode implements Serializable {
     private static final long serialVersionUID = 2351939502355153654L;
 
-    private final String description;
+    private String description;
 
     /**
      * The customized {@link Instance} for this class.
@@ -20,11 +20,6 @@ public class Class extends SemanticModelNode implements Serializable, URIDefined
      */
     @Nullable
     private Instance instance;
-
-    /**
-     * Entity ID, set once sent to the KGS.
-     */
-    private String entityId;
 
     public Class(
             @NotNull @JsonProperty String uri,
@@ -34,9 +29,13 @@ public class Class extends SemanticModelNode implements Serializable, URIDefined
         this(null, uri, label, description, null, null, null);
     }
 
+    public Class(String uuid, String uri, String label, String description, Double xCoordinate, Double yCoordinate) {
+        this(uuid, uri, label, description, xCoordinate, yCoordinate, null);
+    }
+
     @JsonCreator
     public Class(
-            @Nullable @JsonProperty(UUID_PROPERTY) String uuid,
+            @Nullable @JsonProperty String uuid,
             @NotNull @JsonProperty String uri,
             @NotNull @JsonProperty String label,
             @Nullable @JsonProperty String description,
@@ -51,18 +50,12 @@ public class Class extends SemanticModelNode implements Serializable, URIDefined
 
 
     @JsonProperty
-    @Nullable
-    public String getEntityId() {
-        return entityId;
-    }
-
-    public void setEntityId(String entityId) {
-        this.entityId = entityId;
-    }
-
-    @JsonProperty
     public String getDescription() {
         return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     @JsonProperty
@@ -85,14 +78,12 @@ public class Class extends SemanticModelNode implements Serializable, URIDefined
     }
 
     @Override
-    public Class build() {
-        return new Class(null,
-                getURI(),
-                getLabel(),
-                getDescription(),
-                getXCoordinate(),
-                getYCoordinate(),
-                null);
+    public SemanticModelNode instanciate() {
+        Class newClass = copy();
+        newClass.setInstance(null);
+        newClass.setXCoordinate(null);
+        newClass.setYCoordinate(null);
+        return newClass;
     }
 
     public int hashCode() {
@@ -104,7 +95,12 @@ public class Class extends SemanticModelNode implements Serializable, URIDefined
             return true;
         } else if (o != null && this.getClass().equals(o.getClass())) {
             Class that = (Class) o;
-            return Objects.equals(this.getUuid(), that.getUuid());
+            return Objects.equals(this.getURI(), that.getURI()) &&
+                    Objects.equals(this.getLabel(), that.getLabel()) &&
+                    Objects.equals(this.getDescription(), that.getDescription()) &&
+                    Objects.equals(this.getXCoordinate(), that.getXCoordinate()) &&
+                    Objects.equals(this.getYCoordinate(), that.getYCoordinate()) &&
+                    Objects.equals(this.getInstance(), that.getInstance());
         } else {
             return false;
         }
@@ -118,7 +114,6 @@ public class Class extends SemanticModelNode implements Serializable, URIDefined
                 ", label='" + getLabel() + '\'' +
                 ", description='" + description + '\'' +
                 ", instance=" + instance +
-                ", entityId='" + entityId + '\'' +
                 '}';
     }
 
@@ -140,6 +135,6 @@ public class Class extends SemanticModelNode implements Serializable, URIDefined
      * Will do nothing if an {@link Instance} is already defined.
      */
     public void createInstance() {
-
+        instance = new Instance(getLabel(), "");
     }
 }

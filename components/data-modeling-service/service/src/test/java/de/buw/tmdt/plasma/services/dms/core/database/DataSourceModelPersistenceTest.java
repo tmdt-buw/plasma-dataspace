@@ -1,6 +1,7 @@
 package de.buw.tmdt.plasma.services.dms.core.database;
 
 import de.buw.tmdt.plasma.datamodel.CombinedModel;
+import de.buw.tmdt.plasma.datamodel.semanticmodel.Class;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.ObjectNode;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.SchemaNode;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.SyntaxModel;
@@ -38,8 +39,8 @@ public class DataSourceModelPersistenceTest {
         int numModels = 1000;
         for (int i = 0; i < numModels; i++) {
             combinedModel = combinedModel.copy();
-            EntityConcept ec = new EntityConcept("blub" + i, "", "plasma:ec" + i);
-            combinedModel.getProvisionalEntityConcepts().add(ec);
+            Class ec = new Class("blub" + i, "", "plasma:concept" + i);
+            combinedModel.getProvisionalElements().add(ec);
             dsm.pushCombinedModel(combinedModel);
         }
 

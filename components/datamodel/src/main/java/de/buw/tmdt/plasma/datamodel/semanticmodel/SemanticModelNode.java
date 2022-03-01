@@ -17,7 +17,7 @@ import java.util.Objects;
         @JsonSubTypes.Type(value = Class.class, name = "SemanticClass"),
         @JsonSubTypes.Type(value = NamedEntity.class, name = "NamedEntity")
 })
-public abstract class SemanticModelNode extends PositionedCombinedModelElement {
+public abstract class SemanticModelNode extends PositionedCombinedModelElement implements NodeTemplate {
 
     private final String uri;
 
@@ -53,12 +53,20 @@ public abstract class SemanticModelNode extends PositionedCombinedModelElement {
 
     public abstract SemanticModelNode copy();
 
-    /**
-     * Utility function to generate a new {@link SemanticModelNode} (or one of its subtypes) from another node.
-     *
-     * @return A new instance of the same type, with all values except 'uuid' copied. A new 'uuid' is generated for the new element.
-     */
-    public abstract SemanticModelNode build();
+    public abstract SemanticModelNode instanciate();
 
     public abstract void validate() throws CombinedModelIntegrityException;
+
+    @Override
+    public SemanticModelNode convertToTemplate() {
+        removeUuid();
+        return this;
+    }
+
+    @Override
+    public boolean isTemplate() {
+        return getUuid() == null;
+    }
+
+    public abstract boolean equals(Object smn);
 }

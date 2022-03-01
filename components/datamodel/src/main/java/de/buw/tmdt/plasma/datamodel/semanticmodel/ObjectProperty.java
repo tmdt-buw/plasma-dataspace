@@ -51,7 +51,8 @@ public class ObjectProperty extends Relation {
     }
 
     @Override
-    public ObjectProperty build(String fromId, String toId) {
+    public ObjectProperty instanciate(String fromId, String toId) {
         return new ObjectProperty(fromId, toId, getURI(), getLabel(), getDescription());
     }
+
 }

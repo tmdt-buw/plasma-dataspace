@@ -1,6 +1,7 @@
 package de.buw.tmdt.plasma.datamodel;
 
 import de.buw.tmdt.plasma.datamodel.modification.DeltaModification;
+import de.buw.tmdt.plasma.datamodel.semanticmodel.Class;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.Instance;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.*;
 import de.buw.tmdt.plasma.utilities.misc.Pair;
@@ -50,11 +51,13 @@ public class CombinedModelSyntacticModificationTest {
         assertEquals(getCombinedModel().getSyntaxModel().getEdges().size() + expectedNewEdgesCount, model.getSyntaxModel().getEdges().size(), "Number of expected edges does not match");
 
 
-        // assert that the originally assigned ET is disconnected now, as the node is no longer a PrimitiveNode
+        // assert that the originally assigned instance is disconnected now, as the node is no longer a PrimitiveNode
         Instance identifierType = model.getSemanticModel().getNodes().stream()
-                .filter(node -> node instanceof Instance)
-                .map(node -> (Instance) node)
-                .filter(entityType -> entityType.getSemanticClass().getURI().equals("plasma:identifier")).findFirst().orElseThrow();
+                .filter(node -> node instanceof Class)
+                .map(node -> (Class) node)
+                .map(Class::getInstance)
+                .filter(Objects::nonNull)
+                .filter(instance -> instance.getURI().equals("plasma:identifier")).findFirst().orElseThrow();
         assertNull(identifierType.getOriginalLabel());
         assertNull(identifierType.getSyntaxNodeUuid());
 

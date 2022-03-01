@@ -25,8 +25,6 @@ import java.util.Objects;
 })
 public abstract class SchemaNode extends PositionedCombinedModelElement {
 
-    protected static final String IS_VALID_PROPERTY = "isValid";
-    protected static final String OPERATIONS_PROPERTY = "operations";
     private static final long serialVersionUID = 8398288916936841021L;
 
     private final boolean isValid;
@@ -53,12 +51,12 @@ public abstract class SchemaNode extends PositionedCombinedModelElement {
 
     @JsonCreator
     public SchemaNode(
-            @NotNull @JsonProperty(UUID_PROPERTY) String uuid,
-            @NotNull @JsonProperty(LABEL_PROPERTY) String label,
-            @Nullable @JsonProperty(X_COORDINATE_PROPERTY) Double xCoordinate,
-            @Nullable @JsonProperty(Y_COORDINATE_PROPERTY) Double yCoordinate,
-            @NotNull @JsonProperty(OPERATIONS_PROPERTY) List<SyntacticOperationDTO> operations,
-            @JsonProperty(IS_VALID_PROPERTY) boolean isValid
+            @NotNull @JsonProperty String uuid,
+            @NotNull @JsonProperty String label,
+            @Nullable @JsonProperty Double xCoordinate,
+            @Nullable @JsonProperty Double yCoordinate,
+            @NotNull @JsonProperty List<SyntacticOperationDTO> operations,
+            @JsonProperty boolean isValid
     ) {
         super(uuid, label, xCoordinate, yCoordinate);
         this.isValid = isValid;
@@ -68,12 +66,12 @@ public abstract class SchemaNode extends PositionedCombinedModelElement {
         this.operations = new ArrayList<>(operations);
     }
 
-    @JsonProperty(IS_VALID_PROPERTY)
+    @JsonProperty
     public boolean isValid() {
         return isValid;
     }
 
-    @JsonProperty(OPERATIONS_PROPERTY)
+    @JsonProperty
     public List<SyntacticOperationDTO> getOperations() {
         return operations;
     }

@@ -146,23 +146,30 @@ public class SyntaxModel implements Serializable {
 	public boolean equals(Object o) {
 		if (this == o) {
             return true;
-		}
-		if (o == null || !getClass().equals(o.getClass())) {
-			return false;
-		}
-		SyntaxModel that = (SyntaxModel) o;
-		return Objects.equals(nodes, that.nodes) &&
-		       Objects.equals(edges, that.edges) &&
-		       Objects.equals(root, that.root);
-	}
+        }
+        if (o == null || !getClass().equals(o.getClass())) {
+            return false;
+        }
+        SyntaxModel that = (SyntaxModel) o;
+        return Objects.equals(nodes, that.nodes) &&
+                Objects.equals(edges, that.edges) &&
+                Objects.equals(root, that.root);
+    }
 
-	@Override
-	@SuppressWarnings("MagicCharacter")
-	public String toString() {
-		return "{\"@class\":\"" + this.getClass().getSimpleName() + "\""
-				+ ", \"root\":" + root
-				+ ", \"nodes\":" + StringUtilities.listToJson(nodes)
-				+ ", \"edges\":" + StringUtilities.listToJson(edges)
-				+ '}';
-	}
+    @Override
+    @SuppressWarnings("MagicCharacter")
+    public String toString() {
+        return "{\"@class\":\"" + this.getClass().getSimpleName() + "\""
+                + ", \"root\":" + root
+                + ", \"nodes\":" + StringUtilities.listToJson(nodes)
+                + ", \"edges\":" + StringUtilities.listToJson(edges)
+                + '}';
+    }
+
+    public SchemaNode findNode(String nodeUuid) {
+        return getNodes().stream()
+                .filter(schemaNode -> schemaNode.getUuid().equals(nodeUuid))
+                .findFirst()
+                .orElse(null);
+    }
 }

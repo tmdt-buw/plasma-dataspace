@@ -28,45 +28,45 @@ public class EntityRule {
 	private String requiredPredecessor;
 
 	@Column
-	private String conceptSourceURI;
+    private String conceptURI;
 
 	protected EntityRule() {
 	}
 
-	public EntityRule(@Nullable String originalAttribute,
-	                  @NotNull String conceptName,
-	                  @NotNull String conceptDescription,
-	                  @NotNull String conceptSourceURI,
-	                  @Nullable String requiredPredecessor) {
-		this.conceptSourceURI = conceptSourceURI;
-		this.uuid = UUID.randomUUID();
-		this.originalAttribute = originalAttribute;
-		this.conceptName = conceptName;
-		this.conceptDescription = conceptDescription;
-		this.requiredPredecessor = requiredPredecessor;
-	}
+    public EntityRule(@Nullable String originalAttribute,
+                      @NotNull String conceptName,
+                      @NotNull String conceptDescription,
+                      @NotNull String conceptURI,
+                      @Nullable String requiredPredecessor) {
+        this.conceptURI = conceptURI;
+        this.uuid = UUID.randomUUID();
+        this.originalAttribute = originalAttribute;
+        this.conceptName = conceptName;
+        this.conceptDescription = conceptDescription;
+        this.requiredPredecessor = requiredPredecessor;
+    }
 
 	public UUID getUuid() {
 		return uuid;
-	}
+    }
 
-	public String getOriginalAttribute() {
-		return originalAttribute;
-	}
+    public String getOriginalAttribute() {
+        return originalAttribute;
+    }
 
-	public String getConceptName() {
-		return conceptName;
-	}
+    public String getConceptName() {
+        return conceptName;
+    }
 
-	public String getConceptDescription() {
-		return conceptDescription;
-	}
+    public String getConceptDescription() {
+        return conceptDescription;
+    }
 
-	public String getRequiredPredecessor() {
-		return requiredPredecessor;
-	}
+    public String getRequiredPredecessor() {
+        return requiredPredecessor;
+    }
 
-	public String getConceptSourceURI() {
-		return conceptSourceURI;
-	}
+    public String getConceptURI() {
+        return conceptURI;
+    }
 }

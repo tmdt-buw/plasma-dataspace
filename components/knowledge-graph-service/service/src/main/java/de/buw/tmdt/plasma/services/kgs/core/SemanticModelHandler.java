@@ -2,10 +2,7 @@ package de.buw.tmdt.plasma.services.kgs.core;
 
 import de.buw.tmdt.plasma.datamodel.semanticmodel.Class;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.*;
-import de.buw.tmdt.plasma.services.kgs.core.rdf.ModelToRdfConverter;
 import org.apache.jena.rdf.model.Model;
-import org.apache.jena.riot.Lang;
-import org.apache.jena.riot.RDFDataMgr;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,10 +11,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.io.ByteArrayOutputStream;
 import java.io.StringWriter;
 import java.net.MalformedURLException;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -29,17 +24,14 @@ public class SemanticModelHandler {
 
     private static final String XML_VARIABLE = "xml";
     private static final String TURTLE_VARIABLE = "turtle";
-    private final ModelToRdfConverter modelToRdfConverter;
 
     private final SemanticModelManagement ops;
     private final OntologyManagement onto;
 
     @Autowired
     public SemanticModelHandler(
-            @NotNull ModelToRdfConverter modelToRdfConverter,
             @NotNull SemanticModelManagement ops,
             @NotNull OntologyManagement onto) {
-        this.modelToRdfConverter = modelToRdfConverter;
         this.ops = ops;
         this.onto = onto;
     }
@@ -53,15 +45,8 @@ public class SemanticModelHandler {
 
         ops.persistModel(cmModel);
 
-        List<URIDefinedElement> resources = semanticModel.getNodes().stream()
-                .filter(smn -> smn instanceof NamedEntity || smn instanceof Instance)
-                .map(smn -> {
-                    if (smn instanceof NamedEntity) {
-                        return (NamedEntity) smn;
-                    } else {
-                        return ((Instance) smn).getSemanticClass();
-                    }
-                })
+        List<SemanticModelNode> resources = semanticModel.getNodes().stream()
+                .filter(smn -> smn instanceof NamedEntity || smn instanceof Class)
                 .collect(Collectors.toList());
         onto.addResourcesToOntology(resources);
 
@@ -78,9 +63,9 @@ public class SemanticModelHandler {
         Model retrievedModel = ops.queryModel(id);
         log.info(asTurtle(retrievedModel));
 
-        SemanticModel restoredSM = CMToRDFMapper.convertToSemanticModel(retrievedModel);
+        SemanticModel restoredSM = CMToRDFMapper.convertToSemanticModel(retrievedModel, onto);
 
-        enhanceEntities(restoredSM);
+        //enhanceEntities(restoredSM);
         return restoredSM;
     }
 
@@ -91,17 +76,17 @@ public class SemanticModelHandler {
     public void enhanceEntities(SemanticModel semanticModel) {
 
         semanticModel.getNodes().forEach(smn -> {
-            if (smn instanceof Instance) {
-                Instance i = (Instance) smn;
-                Class semanticClass = i.getSemanticClass();
-                URIDefinedElement entity = onto.findElementsByURI(semanticClass.getURI());
-                if (!(entity instanceof Class)) {
-                    log.error(smn.getURI() + " is not a SemanticClass but is declared as one.");
-                    return;
+            if (smn instanceof Class) {
+                Class semanticClass = (Class) smn;
+                SemanticModelNode entity = onto.findElementsByURI(semanticClass.getURI());
+                if (entity instanceof Class) {
+                    semanticClass.setLabel(entity.getLabel());
+                    semanticClass.setDescription(((Class) entity).getDescription());
+                } else {
+                    log.error(smn.getURI() + " is not a Class but is declared as one.");
                 }
-                i.setSemanticClass((Class) entity);
             } else if (smn instanceof NamedEntity) {
-                URIDefinedElement entity = onto.findElementsByURI(smn.getURI());
+                SemanticModelNode entity = onto.findElementsByURI(smn.getURI());
                 NamedEntity ne = (NamedEntity) smn;
                 if (entity instanceof NamedEntity) {
                     NamedEntity enhanced = (NamedEntity) entity;
@@ -122,18 +107,20 @@ public class SemanticModelHandler {
 
 
     public @NotNull ResponseEntity<String> convertSemanticModel(@NotNull String id, @NotNull String format, boolean flat) throws MalformedURLException {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        Model model = modelToRdfConverter.convertSemanticModelToRdf(id, flat);
-        if (format.equals(XML_VARIABLE)) {
-            RDFDataMgr.write(baos, model, Lang.RDFXML);
-        } else if (format.equals(TURTLE_VARIABLE)) {
-            RDFDataMgr.write(baos, model, Lang.TURTLE);
-        } else {
-            throw new MalformedURLException("Path variable \"format\" must either specify \"xml\" or \"format\" but states " + format);
-        }
-        String modelString = baos.toString(StandardCharsets.UTF_8);
+        /**
+         ByteArrayOutputStream baos = new ByteArrayOutputStream();
+         Model model = modelToRdfConverter.convertSemanticModelToRdf(id, flat);
+         if (format.equals(XML_VARIABLE)) {
+         RDFDataMgr.write(baos, model, Lang.RDFXML);
+         } else if (format.equals(TURTLE_VARIABLE)) {
+         RDFDataMgr.write(baos, model, Lang.TURTLE);
+         } else {
+         throw new MalformedURLException("Path variable \"format\" must either specify \"xml\" or \"format\" but states " + format);
+         }
+         String modelString = baos.toString(StandardCharsets.UTF_8);
 
-        return new ResponseEntity<>(modelString, HttpStatus.OK);
+         */
+        return new ResponseEntity<>("", HttpStatus.OK);
     }
 
 

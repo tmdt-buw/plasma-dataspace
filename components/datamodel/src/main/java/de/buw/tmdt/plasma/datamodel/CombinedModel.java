@@ -316,7 +316,9 @@ public class CombinedModel implements Serializable {
                         newComponents.get(newComponents.size() - 1).getRight().getExamples().add(leftOver);
                     }
 
-                    List<PrimitiveNode> newNodes = newComponents.stream().map(Pair::getRight).collect(Collectors.toList());
+                    List<PrimitiveNode> newNodes = newComponents.stream()
+                            .map(Pair::getRight)
+                            .collect(Collectors.toList());
                     // add newNodes (restoring some or all of the old components to the model)
                     syntaxModel.getNodes().addAll(newNodes);
 
@@ -339,7 +341,10 @@ public class CombinedModel implements Serializable {
                     // check if entity is valid
                     entity.validate();
                     // get node that is to be overwritten (i.e. uuids match)
-                    SemanticModelNode replacedNode = semanticModel.getNodes().stream().filter(entityType -> entityType.getUuid().equals(entity.getUuid())).findFirst().orElse(null);
+                    SemanticModelNode replacedNode = semanticModel.getNodes().stream()
+                            .filter(entityType -> entityType.getUuid().equals(entity.getUuid()))
+                            .findFirst()
+                            .orElse(null);
 
                     modifiedEntities.add(entity);
                     // remove replaced node
@@ -350,19 +355,21 @@ public class CombinedModel implements Serializable {
         }
 
         // check that possible changes to the syntax model (e.g. splits) are properly reflected in the entities
-        if (!delta.isDeletion() && CollectionUtilities.hasElements(delta.getNodes()) && delta.getNodes().stream().anyMatch(schemaNode -> schemaNode instanceof CompositeNode)) {
+        if (!delta.isDeletion() && CollectionUtilities.hasElements(delta.getNodes())
+                && delta.getNodes().stream().anyMatch(schemaNode -> schemaNode instanceof CompositeNode)) {
 
             semanticModel.getNodes().stream()
-                    .filter(node -> node instanceof Instance)
-                    .map(node -> (Instance) node)
-                    .filter(entityType -> entityType.getSyntaxNodeUuid() != null)
-                    .forEach(entityType -> {
+                    .filter(node -> node instanceof Class)
+                    .map(node -> ((Class) node).getInstance())
+                    .filter(Objects::nonNull)
+                    .filter(instance -> instance.getSyntaxNodeUuid() != null)
+                    .forEach(instance -> {
                         // search for the corresponding syntax node and check if it is still a primary node
-                        Optional<SchemaNode> match = delta.getNodes().stream().filter(schemaNode -> schemaNode.getUuid().equals(entityType.getSyntaxNodeUuid())).findFirst();
+                        Optional<SchemaNode> match = delta.getNodes().stream().filter(schemaNode -> schemaNode.getUuid().equals(instance.getSyntaxNodeUuid())).findFirst();
                         if (match.isPresent() && !(match.get() instanceof PrimitiveNode)) {
                             // not a primitive node any more, remove the link
-                            entityType.setSyntaxNodeUuid(null);
-                            entityType.setOriginalLabel(null);
+                            instance.setSyntaxNodeUuid(null);
+                            instance.setOriginalLabel(null);
                         }
                     });
         }
@@ -384,43 +391,46 @@ public class CombinedModel implements Serializable {
             // remove dangling edges
             semanticModel.getEdges().removeIf(relation -> deletedTypeIds.contains(relation.getFromId()) || deletedTypeIds.contains(relation.getToId()));
         }
+        // now validate the model state
+        validate();
         lastModification = delta;
     }
 
     @JsonProperty
     public List<PrimitiveEntityTypeMapping> generatePrimitiveInstanceMappings() {
         return getSemanticModel().getNodes().stream()
-                .filter(smn -> smn instanceof Instance)
-                .map(smn -> (Instance) smn)
+                .filter(node -> node instanceof Class)
+                .map(node -> ((Class) node).getInstance())
+                .filter(Objects::nonNull)
+                .filter(instance -> instance.getSyntaxNodeUuid() != null)
                 .map(this::createExplicitMapping)
                 .collect(Collectors.toList());
     }
 
     /**
-     * Creates an explicit {@link PrimitiveEntityTypeMapping} for the given {@link Instance} and a syntax node.
+     * Creates an explicit {@link PrimitiveEntityTypeMapping} for the given {@link Instance} and a {@link SchemaNode}.
      * The syntax node is identified by {@link Instance#getSyntaxNodeUuid()}.
-     * If a mapping already exists for the given entity, this one is deleted first.
      *
-     * @param entity The entity to map
+     * @param instance The instance to map
      * @return The new mapping
      */
-    private PrimitiveEntityTypeMapping createExplicitMapping(Instance entity) {
+    private PrimitiveEntityTypeMapping createExplicitMapping(Instance instance) {
         if (syntaxModel == null) {
             throw new UnsupportedOperationException("Syntax Model cannot be null if a modification is applied");
         }
 
-        generatePrimitiveInstanceMappings().removeIf(mapping -> mapping.getInstanceId().equals(entity.getUuid()));
         SchemaNode syntaxNode = syntaxModel.getNodes().stream()
-                .filter(schemaNode -> schemaNode.getUuid().equals(entity.getSyntaxNodeUuid()))
-                .findFirst().orElseThrow();
+                .filter(schemaNode -> schemaNode.getUuid().equals(instance.getSyntaxNodeUuid()))
+                .findFirst()
+                .orElseThrow();
         if (!(syntaxNode instanceof PrimitiveNode)) {
-            throw new UnsupportedOperationException("Cannot map to syntax node " + syntaxNode.getUuid() + ". Not a primitive node");
+            throw new UnsupportedOperationException("Cannot map to syntax node " + syntaxNode.getUuid() + ". Not a primitive node.");
         }
-        entity.setOriginalLabel(syntaxNode.getLabel());
+        instance.setOriginalLabel(syntaxNode.getLabel());
         // now get parent
         SchemaNode parentNode = syntaxModel.getParentNodeFor(syntaxNode.getUuid());
         // create new explicit mapping
-        return new PrimitiveEntityTypeMapping(syntaxNode.getUuid(), entity.getUuid(), parentNode.getUuid());
+        return new PrimitiveEntityTypeMapping(syntaxNode.getUuid(), instance.getUuid(), parentNode.getUuid());
     }
 
     /**
@@ -467,18 +477,21 @@ public class CombinedModel implements Serializable {
 
         // Validate links between the models
         getSemanticModel().getNodes().stream()
-                .filter(node -> node instanceof Instance)
-                .map(node -> (Instance) node)
+                .filter(node -> node instanceof Class)
+                .map(node -> ((Class) node).getInstance())
+                .filter(Objects::nonNull)
                 .filter(node -> node.getSyntaxNodeUuid() != null)
                 .forEach(node -> {
-                    if (getSyntaxModel().getNodes().stream().noneMatch(schemaNode -> schemaNode.getUuid().equals(node.getSyntaxNodeUuid()))) {
-                        errors.add("EntityType " + node.getUuid() + " references non-existing syntax node " + node.getSyntaxNodeUuid());
+                    SchemaNode targetNode = getSyntaxModel().findNode(node.getSyntaxNodeUuid());
+                    if (targetNode == null) {
+                        errors.add("Instance " + node.getUuid() + " references non-existing syntax node " + node.getSyntaxNodeUuid());
+                    } else if (!(targetNode instanceof PrimitiveNode)) {
+                        errors.add("Instance " + node.getUuid() + " references non-primitive syntax node " + node.getSyntaxNodeUuid());
                     }
+
                 });
         // Validate recommendations
         validateRecommendations();
-        // Validate generated frontend links
-        // TODO
 
         if (!errors.isEmpty()) {
             String errorMessage = String.join("\n", errors);
@@ -561,8 +574,9 @@ public class CombinedModel implements Serializable {
             }
             // Validate links between the models
             recommendation.getEntities().stream()
-                    .filter(node -> node instanceof Instance)
-                    .map(node -> (Instance) node)
+                    .filter(node -> node instanceof Class)
+                    .map(node -> ((Class) node).getInstance())
+                    .filter(Objects::nonNull)
                     .filter(node -> node.getSyntaxNodeUuid() != null)
                     .forEach(node -> {
                         if (Stream.concat(modelSyntaxUuids.stream(), recommendationSyntaxUuids.stream())

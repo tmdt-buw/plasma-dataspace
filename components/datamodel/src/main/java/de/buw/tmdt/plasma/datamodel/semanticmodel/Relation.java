@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import de.buw.tmdt.plasma.datamodel.AsTemplate;
 import de.buw.tmdt.plasma.datamodel.CombinedModelElement;
 import de.buw.tmdt.plasma.datamodel.CombinedModelIntegrityException;
 import org.jetbrains.annotations.NotNull;
@@ -21,7 +20,7 @@ import java.util.Set;
         @JsonSubTypes.Type(value = ObjectProperty.class, name = "ObjectProperty"),
         @JsonSubTypes.Type(value = DataProperty.class, name = "DataProperty")
 })
-public abstract class Relation extends CombinedModelElement implements Serializable, AsTemplate {
+public abstract class Relation extends CombinedModelElement implements Serializable, RelationTemplate {
     private static final long serialVersionUID = -2964347710102077197L;
 
     /**
@@ -69,7 +68,7 @@ public abstract class Relation extends CombinedModelElement implements Serializa
 
     @JsonCreator
     public Relation(
-            @Nullable @JsonProperty(UUID_PROPERTY) String uuid,
+            @Nullable @JsonProperty String uuid,
             @NotNull @JsonProperty String fromId,
             @NotNull @JsonProperty String toId,
             @NotNull @JsonProperty String uri,
@@ -132,7 +131,11 @@ public abstract class Relation extends CombinedModelElement implements Serializa
             return false;
         }
         Relation that = (Relation) o;
-        return Objects.equals(getUuid(), that.getUuid());
+        return Objects.equals(this.getURI(), that.getURI()) &&
+                // we cannot verify this at the moment
+                //Objects.equals(this.getFromId(), that.getFromId()) &&
+                //Objects.equals(this.getToId(), that.getToId()) &&
+                Objects.equals(this.getLabel(), that.getLabel());
     }
 
     @Override
@@ -147,24 +150,23 @@ public abstract class Relation extends CombinedModelElement implements Serializa
 
     public abstract Relation copy();
 
-    /**
-     * Utility function to generate a new {@link Relation} (or one of its subtypes) from another relation.
-     *
-     * @param fromId The new from id to set
-     * @param toId   The new to id to set
-     * @return A new instance of the same type, with all values except 'fromId' and 'toId' copied
-     */
-    public abstract Relation build(String fromId, String toId);
+    public abstract Relation instanciate(String fromId, String toId);
 
     /**
      * Removes all ids from this relation.
      * Used ONLY when used as a template, e.g. in serialization to frontend.
-     * For usage within a Java environment, use {@link #build(String, String)} to create a new entity with set ids
+     * For usage within a Java environment, use {@link #instanciate(String, String)} to create a new entity with set ids
      */
     @SuppressWarnings("ConstantConditions") // this is only to be invoked before serialization
-    public void convertToTemplate() {
+    public Relation convertToTemplate() {
         this.fromId = null;
         this.toId = null;
+        return this;
+    }
+
+    @Override
+    public boolean isTemplate() {
+        return getUuid() == null;
     }
 
     public void validate() {
@@ -191,5 +193,5 @@ public abstract class Relation extends CombinedModelElement implements Serializa
         return Objects.equals(getURI(), relation.getURI());
     }
 
-    ;
+
 }

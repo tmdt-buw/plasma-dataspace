@@ -4,6 +4,8 @@ import de.buw.tmdt.plasma.datamodel.CombinedModelIntegrityException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Objects;
+
 public class Literal extends SemanticModelNode {
 
     private String value;
@@ -23,7 +25,7 @@ public class Literal extends SemanticModelNode {
     }
 
     @Override
-    public Literal build() {
+    public Literal instanciate() {
         return new Literal(null, getValue(), getXCoordinate(), getYCoordinate());
     }
 
@@ -34,6 +36,21 @@ public class Literal extends SemanticModelNode {
     public void validate() throws CombinedModelIntegrityException {
         if (getValue() == null || getValue().isBlank()) {
             throw new CombinedModelIntegrityException("Literal " + getUuid() + " has no has no proper value");
+        }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        } else if (o != null && this.getClass().equals(o.getClass())) {
+            Literal that = (Literal) o;
+            return Objects.equals(this.getURI(), that.getURI()) &&
+                    Objects.equals(this.getLabel(), that.getLabel()) &&
+                    Objects.equals(this.getXCoordinate(), that.getXCoordinate()) &&
+                    Objects.equals(this.getYCoordinate(), that.getYCoordinate());
+        } else {
+            return false;
         }
     }
 

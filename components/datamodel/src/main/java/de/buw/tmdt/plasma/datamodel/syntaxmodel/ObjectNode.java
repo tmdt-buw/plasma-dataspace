@@ -41,12 +41,12 @@ public class ObjectNode extends SchemaNode {
 
     @JsonCreator
     public ObjectNode(
-            @NotNull @JsonProperty(UUID_PROPERTY) String uuid,
-            @NotNull @JsonProperty(LABEL_PROPERTY) String label,
-            @Nullable @JsonProperty(X_COORDINATE_PROPERTY) Double xCoordinate,
-            @Nullable @JsonProperty(Y_COORDINATE_PROPERTY) Double yCoordinate,
-            @JsonProperty(OPERATIONS_PROPERTY) @NotNull List<SyntacticOperationDTO> operations,
-            @JsonProperty(IS_VALID_PROPERTY) boolean isValid
+            @NotNull @JsonProperty String uuid,
+            @NotNull @JsonProperty String label,
+            @Nullable @JsonProperty Double xCoordinate,
+            @Nullable @JsonProperty Double yCoordinate,
+            @JsonProperty @NotNull List<SyntacticOperationDTO> operations,
+            @JsonProperty boolean isValid
     ) {
         super(uuid, label, xCoordinate, yCoordinate, operations, isValid);
     }

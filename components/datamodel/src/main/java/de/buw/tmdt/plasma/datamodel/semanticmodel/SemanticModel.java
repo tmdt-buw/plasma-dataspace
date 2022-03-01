@@ -3,7 +3,6 @@ package de.buw.tmdt.plasma.datamodel.semanticmodel;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import de.buw.tmdt.plasma.datamodel.CombinedModelElement;
 import de.buw.tmdt.plasma.datamodel.CombinedModelIntegrityException;
 import de.buw.tmdt.plasma.utilities.collections.CollectionUtilities;
 import de.buw.tmdt.plasma.utilities.misc.StringUtilities;
@@ -61,7 +60,7 @@ public class SemanticModel implements Serializable {
     }
 
     /**
-     * Retrieves a {@link CombinedModelElement} from the model.
+     * Retrieves a {@link SemanticModelNode} from the model.
      *
      * @param elementUuid The element's uuid
      * @return a matching element or null if not found
@@ -69,7 +68,7 @@ public class SemanticModel implements Serializable {
     @JsonIgnore
     public SemanticModelNode getNode(@NotNull String elementUuid) {
         return getNodes().stream()
-                .filter(schemaNode -> elementUuid.equals(schemaNode.getUuid()))
+                .filter(node -> elementUuid.equals(node.getUuid()))
                 .findFirst().orElseThrow();
     }
 
@@ -83,6 +82,22 @@ public class SemanticModel implements Serializable {
     public Relation getRelation(@NotNull String relationUuid) {
         return getEdges().stream()
                 .filter(edge -> relationUuid.equals(edge.getUuid()))
+                .findFirst().orElseThrow();
+    }
+
+    /**
+     * Retrieves an {@link Instance} from the model.
+     *
+     * @param instanceUuid The instance's uuid
+     * @return a matching {@link Instance} or null if not found
+     */
+    @JsonIgnore
+    public Instance getInstance(@NotNull String instanceUuid) {
+        return getNodes().stream()
+                .filter(node -> node instanceof Class)
+                .map(node -> ((Class) node).getInstance())
+                .filter(Objects::nonNull)
+                .filter(instance -> instanceUuid.equals(instance.getUuid()))
                 .findFirst().orElseThrow();
     }
 
@@ -109,13 +124,13 @@ public class SemanticModel implements Serializable {
             } catch (CombinedModelIntegrityException cmie) {
                 errors.add(cmie.getMessage());
             }
-            long fromCount = getNodes().stream().filter(entityType -> Objects.equals(entityType.getUuid(), edge.getFromId())).count();
+            long fromCount = getNodes().stream().filter(node -> Objects.equals(node.getUuid(), edge.getFromId())).count();
             if (fromCount != 1) {
-                errors.add("Relation " + edge.getUuid() + " fromId matches " + fromCount + " EntityTypes (must be 1)");
+                errors.add("Relation " + edge.getUuid() + " fromId matches " + fromCount + " nodes (must be 1)");
             }
-            long toCount = getNodes().stream().filter(entityType -> Objects.equals(entityType.getUuid(), edge.getToId())).count();
+            long toCount = getNodes().stream().filter(node -> Objects.equals(node.getUuid(), edge.getToId())).count();
             if (toCount != 1) {
-                errors.add("Relation " + edge.getUuid() + " toId matches " + toCount + " EntityTypes (must be 1)");
+                errors.add("Relation " + edge.getUuid() + " toId matches " + toCount + " nodes (must be 1)");
             }
         }
         if (!errors.isEmpty()) {
@@ -155,8 +170,32 @@ public class SemanticModel implements Serializable {
             return false;
         }
         SemanticModel that = (SemanticModel) o;
-        return Objects.equals(nodes, that.nodes) &&
-                Objects.equals(edges, that.edges);
+
+        if (!Objects.equals(getId(), that.getId())) {
+            return false;
+        }
+
+        if (!Objects.equals(getNodes().size(), that.getNodes().size())) {
+            return false;
+        }
+
+        if (getNodes().stream()
+                .anyMatch(node -> that.getNodes().stream()
+                        .noneMatch(thatnode -> Objects.equals(node, thatnode)))) {
+            return false;
+        }
+
+        if (!Objects.equals(getEdges().size(), that.getEdges().size())) {
+            return false;
+        }
+        //noinspection RedundantIfStatement
+        if (getEdges().stream()
+                .anyMatch(edge -> that.getEdges().stream()
+                        .noneMatch(thatedge -> Objects.equals(edge, thatedge)))) {
+            return false;
+        }
+
+        return true;
     }
 
     @Override

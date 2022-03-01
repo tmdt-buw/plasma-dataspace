@@ -51,7 +51,7 @@ public class DataProperty extends Relation {
     }
 
     @Override
-    public DataProperty build(String fromId, String toId) {
+    public DataProperty instanciate(String fromId, String toId) {
         return new DataProperty(fromId, toId, getURI(), getLabel(), getDescription());
     }
 }

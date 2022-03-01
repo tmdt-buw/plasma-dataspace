@@ -3,6 +3,9 @@ package de.buw.tmdt.plasma.ars.modeling.sm.service.basic;
 
 import de.buw.tmdt.plasma.ars.modeling.sm.service.model.exception.SchemaAnalysisException;
 import de.buw.tmdt.plasma.datamodel.CombinedModel;
+import de.buw.tmdt.plasma.datamodel.semanticmodel.Class;
+import de.buw.tmdt.plasma.datamodel.semanticmodel.Instance;
+import de.buw.tmdt.plasma.datamodel.semanticmodel.SemanticModel;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.*;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -17,10 +20,10 @@ public class SchemaAnalysisSemanticLabeling {
     // storage entity to hold all newly created entities and concepts
     private SemanticModel semanticModel;
     private SyntaxModel syntaxModel;
-    private Map<String, EntityConcept> fixedRulebasedMappings = new HashMap<>();
+    private Map<String, Class> fixedRulebasedMappings = new HashMap<>();
     private Map<String, String> requiredPredecessors;
 
-    public void setFixedRulebasedMappings(Map<String, EntityConcept> fixedRulebasedMappings) {
+    public void setFixedRulebasedMappings(Map<String, Class> fixedRulebasedMappings) {
         this.fixedRulebasedMappings = fixedRulebasedMappings;
     }
 
@@ -38,18 +41,18 @@ public class SchemaAnalysisSemanticLabeling {
 
         // get root node and start depth first assignment
         SchemaNode root = syntaxModel.getNode(syntaxModel.getRoot());
-        addEntityConcepts(root, new ArrayList<>());
+        addClasses(root, new ArrayList<>());
     }
 
-    private void addEntityConcepts(SchemaNode node, List<String> path) throws SchemaAnalysisException {
+    private void addClasses(SchemaNode node, List<String> path) throws SchemaAnalysisException {
         if (node instanceof SetNode) {
-            addEntityConcepts((SetNode) node, path);
+            addClasses((SetNode) node, path);
         } else if (node instanceof ObjectNode) {
-            addEntityConcepts((ObjectNode) node, path);
+            addClasses((ObjectNode) node, path);
         } else if (node instanceof PrimitiveNode) {
-            addEntityConcepts((PrimitiveNode) node, path);
+            addClasses((PrimitiveNode) node, path);
         } else if (node instanceof CollisionSchema) {
-            addEntityConcepts((CollisionSchema) node, path);
+            addClasses((CollisionSchema) node, path);
         } else if (null == node) {
             logger.debug("NullSchema is not going to get a suggested EntityConcept.");
         } else {
@@ -57,7 +60,7 @@ public class SchemaAnalysisSemanticLabeling {
         }
     }
 
-    private void addEntityConcepts(@NotNull CollisionSchema collisionNode, List<String> parentPath) throws SchemaAnalysisException {
+    private void addClasses(@NotNull CollisionSchema collisionNode, List<String> parentPath) throws SchemaAnalysisException {
 
         List<String> actualPath = new ArrayList<>(parentPath);
         actualPath.add("*");
@@ -65,33 +68,33 @@ public class SchemaAnalysisSemanticLabeling {
 
         List<SchemaNode> childNodes = syntaxModel.getChildNodesForNode(collisionNode.getUuid());
         for (SchemaNode child : childNodes) {
-            addEntityConcepts(child, actualPath);
+            addClasses(child, actualPath);
         }
     }
 
-    private void addEntityConcepts(@NotNull ObjectNode objectNode, List<String> parentPath) throws SchemaAnalysisException {
+    private void addClasses(@NotNull ObjectNode objectNode, List<String> parentPath) throws SchemaAnalysisException {
         List<String> actualPath = new ArrayList<>(parentPath);
         actualPath.add(objectNode.getLabel());
         this.nodePaths.put(objectNode.getUuid(), actualPath);
 
         List<SchemaNode> childNodes = syntaxModel.getChildNodesForNode(objectNode.getUuid());
         for (SchemaNode child : childNodes) {
-            addEntityConcepts(child, actualPath);
+            addClasses(child, actualPath);
         }
     }
 
-    private void addEntityConcepts(@NotNull SetNode setNode, List<String> parentPath) throws SchemaAnalysisException {
+    private void addClasses(@NotNull SetNode setNode, List<String> parentPath) throws SchemaAnalysisException {
         List<String> actualPath = new ArrayList<>(parentPath);
         actualPath.add(setNode.getLabel());
         this.nodePaths.put(setNode.getUuid(), actualPath);
 
         List<SchemaNode> childNodes = syntaxModel.getChildNodesForNode(setNode.getUuid());
         for (SchemaNode child : childNodes) {
-            addEntityConcepts(child, actualPath);
+            addClasses(child, actualPath);
         }
     }
 
-    private void addEntityConcepts(@NotNull PrimitiveNode primitiveNode, List<String> parentPath) {
+    private void addClasses(@NotNull PrimitiveNode primitiveNode, List<String> parentPath) {
 
         List<String> actualPath = new ArrayList<>(parentPath);
         actualPath.add(primitiveNode.getLabel());
@@ -99,19 +102,19 @@ public class SchemaAnalysisSemanticLabeling {
         String label = primitiveNode.getLabel();
 
         if (fixedRulebasedMappings.containsKey(label)) {
-            EntityConcept concept = fixedRulebasedMappings.get(label);
-            String requiredPredecessor = requiredPredecessors.get(concept.getLabel());
+            Class clazz = fixedRulebasedMappings.get(label);
+            String requiredPredecessor = requiredPredecessors.get(clazz.getLabel());
             if (requiredPredecessor == null ||
                     requiredPredecessor.equals(parentPath.get(parentPath.size() - 1))) {
-                EntityType entityType = new EntityType(
+
+                Instance instance = new Instance(null,
+                        null,
                         primitiveNode.getLabel(),
-                        primitiveNode.getXCoordinate(),
-                        primitiveNode.getYCoordinate(),
                         primitiveNode.getUuid(),
                         primitiveNode.getLabel(),
-                        null,
-                        concept);
-                semanticModel.getNodes().add(entityType);
+                        ""
+                );
+                clazz.setInstance(instance);
             }
         }
 

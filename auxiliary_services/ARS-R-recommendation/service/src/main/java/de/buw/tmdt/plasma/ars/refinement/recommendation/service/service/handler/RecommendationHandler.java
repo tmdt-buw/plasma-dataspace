@@ -2,9 +2,10 @@ package de.buw.tmdt.plasma.ars.refinement.recommendation.service.service.handler
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.buw.tmdt.plasma.ars.refinement.recommendation.service.service.basic.PythonRecommendation;
-import de.buw.tmdt.plasma.ars.refinement.recommendation.service.service.converter.KnowledgeGraphServiceDTO2CombinedModelConverter;
 import de.buw.tmdt.plasma.datamodel.CombinedModel;
 import de.buw.tmdt.plasma.datamodel.modification.DeltaModification;
+import de.buw.tmdt.plasma.datamodel.semanticmodel.Class;
+import de.buw.tmdt.plasma.datamodel.semanticmodel.*;
 import de.buw.tmdt.plasma.services.kgs.shared.feignclient.OntologyApiClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,12 +22,11 @@ import java.util.stream.Collectors;
 @Slf4j
 public class RecommendationHandler {
 
-    private final OntologyApiClient universalKnowledgeApiClient;
-    private final KnowledgeGraphServiceDTO2CombinedModelConverter kgsDTO2CMConverter;
+    private final OntologyApiClient ontologyApiClient;
     private final WebClient client;
 
-    private final List<EntityConcept> knownConcepts;
-    private final List<RelationConcept> knownRelations;
+    private final List<SemanticModelNode> knownNodes;
+    private final List<Relation> knownRelations;
 
     @Value("${recommendation.service.url}")
     private String recommendationServiceUrl;
@@ -34,12 +34,11 @@ public class RecommendationHandler {
     @Value("${recommendation.service.endpoint}")
     private String recommendationServiceEndpoint;
 
+    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     public RecommendationHandler(
-            OntologyApiClient universalKnowledgeApiClient,
-            KnowledgeGraphServiceDTO2CombinedModelConverter kgsDTO2CMConverter) {
-        this.kgsDTO2CMConverter = kgsDTO2CMConverter;
-        this.universalKnowledgeApiClient = universalKnowledgeApiClient;
-        knownConcepts = new ArrayList<>();
+            OntologyApiClient ontologyApiClient) {
+        this.ontologyApiClient = ontologyApiClient;
+        knownNodes = new ArrayList<>();
         knownRelations = new ArrayList<>();
 
         client = WebClient.builder()
@@ -51,14 +50,15 @@ public class RecommendationHandler {
     public CombinedModel generateRecommendations(CombinedModel combinedModel) {
         combinedModel.getRecommendations().clear();
         List<String> positives = combinedModel.getSemanticModel().getNodes().stream()
-                .map(EntityType::getEntityConcept)
-                .map(EntityConcept::getSourceURI)
+                .filter(node -> node instanceof Class)
+                .map(node -> (Class) node)
+                .map(Class::getURI)
                 .map(name -> name.replace("plasma:", "http://tmdtkg#"))
                 .collect(Collectors.toList());
 
         ObjectMapper mapper = new ObjectMapper();
 
-        Iterable<EntityType> targets;
+        Iterable<SemanticModelNode> targets;
 
         if (combinedModel.getLastModification() != null && !combinedModel.getLastModification().isDeletion()) {
             targets = combinedModel.getLastModification().getEntities();
@@ -68,9 +68,13 @@ public class RecommendationHandler {
 
         targets = combinedModel.getSemanticModel().getNodes();
 
-        for (EntityType et : targets) {
+        for (SemanticModelNode node : targets) {
             // TODO make async
-            String targetURI = et.getEntityConcept().getSourceURI().replace("plasma:", "http://tmdtkg#");
+            if (!(node instanceof Class)) {
+                // only do for classes, not literals or named entities
+                continue;
+            }
+            String targetURI = node.getURI().replace("plasma:", "http://tmdtkg#");
             Object[] results = client.post()
                     .uri(recommendationServiceUrl, uriBuilder -> uriBuilder
                             .path(recommendationServiceEndpoint)
@@ -92,94 +96,111 @@ public class RecommendationHandler {
                     .map(object -> mapper.convertValue(object, PythonRecommendation.class))
                     .collect(Collectors.toList());
 
-            recommendations.stream().map(
-                    rec -> {
+            recommendations.stream()
+                    .map(
+                            rec -> {
 
-                        Set<EntityType> entities = new HashSet<>();
-                        Set<Relation> relations = new HashSet<>();
+                                Set<SemanticModelNode> entities = new HashSet<>();
+                                Set<Relation> relations = new HashSet<>();
 
-                        String objectURI = rec.getO().replace("http://tmdtkg#", "plasma:"); // KGS speaks a different language
+                                String objectURI = rec.getO().replace("http://tmdtkg#", "plasma:"); // KGS speaks a different language
 
-                        EntityConcept objectEntityConcept = getEntityConceptForURI(objectURI, combinedModel.getProvisionalEntityConcepts());
-                        if (objectEntityConcept.getEntityId() == null) {
-                            // this one is not yet known, add it to the provisional entity concepts
-                            combinedModel.getProvisionalEntityConcepts().add(objectEntityConcept);
-                        }
-                        EntityType objectEntityType = new EntityType(objectEntityConcept.getLabel(), "", objectEntityConcept);
+                                NodeTemplate template = getNodeTemplateForURI(objectURI, combinedModel.getProvisionalElements());
+                                if (!(template instanceof SemanticModelNode)) {
+                                    return null;
+                                }
 
-                        objectEntityType.setXCoordinate(et.getXCoordinate() != null ? et.getXCoordinate() : null);
-                        objectEntityType.setYCoordinate(et.getYCoordinate() != null ? et.getYCoordinate() + 150 : null);
+                                SemanticModelNode objectNode = ((SemanticModelNode) template).instanciate();
+                                objectNode.setXCoordinate(node.getXCoordinate() != null ? node.getXCoordinate() : null);
+                                objectNode.setYCoordinate(node.getYCoordinate() != null ? node.getYCoordinate() + 150 : null);
 
-                        String relationURI = rec.getP().replace("http://tmdtkg#", "plasma:"); // KGS speaks a different language
+                                String relationURI = rec.getP().replace("http://tmdtkg#", "plasma:"); // KGS speaks a different language
 
-                        RelationConcept rc = getRelationConceptForURI(relationURI);
-                        if (rc.getEntityId() == null) {
-                            // this one is not yet known, add it to the provisional relation concepts
-                            combinedModel.getProvisionalRelationConcepts().add(rc);
-                        }
-                        Relation r = new Relation(et.getUuid(), objectEntityType.getUuid(), rc);
+                                RelationTemplate relationTemplate = getRelationTemplateForURI(relationURI);
 
-                        entities.add(objectEntityType);
-                        relations.add(r);
+                                if (!(relationTemplate instanceof Relation)) {
+                                    return null;
+                                }
 
-                        DeltaModification dm = new DeltaModification("test",
-                                entities,
-                                relations,
-                                new HashSet<>(),
-                                new HashSet<>(),
-                                rec.getC());
-                        dm.getAnchors().add(et.getUuid());
-                        return dm;
-                    }
-            ).forEach(dm -> combinedModel.getRecommendations().add(dm));
+                                Relation r = ((Relation) relationTemplate).instanciate(node.getUuid(), objectNode.getUuid());
+                                entities.add(objectNode);
+                                relations.add(r);
+
+                                DeltaModification dm = new DeltaModification("test",
+                                        entities,
+                                        relations,
+                                        new HashSet<>(),
+                                        new HashSet<>(),
+                                        rec.getC());
+                                dm.getAnchors().add(node.getUuid());
+                                return dm;
+                            }
+                    )
+                    .filter(Objects::nonNull)
+                    .forEach(dm -> combinedModel.getRecommendations().add(dm));
         }
         return combinedModel;
     }
 
-    private EntityConcept getEntityConceptForURI(String uri, List<EntityConcept> provisionalEntityConcepts) {
-        Optional<EntityConcept> entityConcept = knownConcepts.stream()
-                .filter(ec -> ec.getSourceURI().equals(uri))
+    private NodeTemplate getNodeTemplateForURI(String uri, List<SemanticModelNode> provisionalClasses) {
+        Optional<SemanticModelNode> clazz = knownNodes.stream()
+                .filter(sClass -> sClass.getURI().equals(uri))
                 .findFirst();
 
-        if (entityConcept.isPresent()) {
-            return entityConcept.get();
+        if (clazz.isPresent()) {
+            return clazz.get().convertToTemplate();
+        }
+
+        Optional<SemanticModelNode> existingProvisional = provisionalClasses.stream()
+                .filter(pec -> pec.getURI().equals(uri))
+                .findFirst();
+
+        if (existingProvisional.isPresent()) {
+            return existingProvisional.get().convertToTemplate();
         }
 
         // try to find in KGS
-        Optional<EntityConcept> fromKGS = universalKnowledgeApiClient.getEntityConcepts(null, uri).stream()
-                .map(kgsDTO2CMConverter::convert)
+        Optional<Class> fromKGS = ontologyApiClient.getElements(null, null, uri).stream()
+                .filter(element -> element instanceof Class) // TODO add NamedEntities
+                .map(element -> (Class) element)
                 .findFirst();
         if (fromKGS.isPresent()) {
-            knownConcepts.add(fromKGS.get());
-            return fromKGS.get();
+            Class c = fromKGS.get();
+            c.convertToTemplate();
+            knownNodes.add(c);
+            provisionalClasses.add(c);
+            return c;
         }
 
-        Optional<EntityConcept> existingProvisional = provisionalEntityConcepts.stream().filter(pec -> pec.getSourceURI().equals(uri)).findFirst();
-        if (existingProvisional.isPresent()) {
-            return existingProvisional.get();
-        }
         // create a new one
-        return new EntityConcept(uri, "", uri);
+        SemanticModelNode newOne = new Class(uri, uri, "").convertToTemplate();
+        knownNodes.add(newOne);
+        provisionalClasses.add(newOne);
+        return newOne;
     }
 
-    private RelationConcept getRelationConceptForURI(String uri) {
-        Optional<RelationConcept> relationConcept = knownRelations.stream()
-                .filter(rc -> rc.getSourceURI().equals(uri))
+    private RelationTemplate getRelationTemplateForURI(String uri) {
+        Optional<Relation> relationTemplate = knownRelations.stream()
+                .filter(rel -> rel.getURI().equals(uri))
                 .findFirst();
 
-        if (relationConcept.isPresent()) {
-            return relationConcept.get();
+        if (relationTemplate.isPresent()) {
+            return relationTemplate.get();
         }
 
         // try to find in KGS
-        Optional<RelationConcept> fromKGS = universalKnowledgeApiClient.getRelationConcepts(null, uri).stream()
-                .map(kgsDTO2CMConverter::convert)
+        Optional<Relation> fromKGS = ontologyApiClient.getRelations(null, null, uri).stream()
                 .findFirst();
         if (fromKGS.isPresent()) {
-            knownRelations.add(fromKGS.get());
-            return fromKGS.get();
+            Relation r = fromKGS.get();
+            r.convertToTemplate();
+            knownRelations.add(r);
+            return r;
         }
 
-        return new RelationConcept(uri, "", uri);
+        // TODO handle dataproperties
+        ObjectProperty objectProperty = new ObjectProperty("", "", uri);
+
+        return objectProperty.convertToTemplate();
     }
 }

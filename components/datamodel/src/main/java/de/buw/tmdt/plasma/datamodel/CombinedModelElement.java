@@ -14,15 +14,13 @@ import java.util.UUID;
  */
 public abstract class CombinedModelElement implements Serializable {
 
-    public static final String UUID_PROPERTY = "uuid";
-    public static final String LABEL_PROPERTY = "label";
     private static final long serialVersionUID = -3619721225687115309L;
 
     /**
      * Fixed UUID that identifies this object.
-     * Available from the creation of the element. Never changes.
+     * Available from the creation of the element.
+     * Might be empty if element is used as a template.
      */
-    @NotNull
     private String uuid;
 
     /**
@@ -32,27 +30,30 @@ public abstract class CombinedModelElement implements Serializable {
     private String label;
 
     public CombinedModelElement(
-            @NotNull @JsonProperty(LABEL_PROPERTY) String label
+            @NotNull @JsonProperty String label
     ) {
         this(UUID.randomUUID().toString(), label);
     }
 
     @JsonCreator
     public CombinedModelElement(
-            @Nullable @JsonProperty(UUID_PROPERTY) String uuid,
-            @NotNull @JsonProperty(LABEL_PROPERTY) String label
+            @Nullable @JsonProperty String uuid,
+            @NotNull @JsonProperty String label
     ) {
         this.uuid = uuid == null ? UUID.randomUUID().toString() : uuid;
         this.label = label;
     }
 
-    @JsonProperty(UUID_PROPERTY)
-    @NotNull
+    @JsonProperty
     public String getUuid() {
         return uuid;
     }
 
-    @JsonProperty(LABEL_PROPERTY)
+    protected void removeUuid() {
+        this.uuid = null;
+    }
+
+    @JsonProperty
     @NotNull
     public String getLabel() {
         return label;
@@ -64,11 +65,6 @@ public abstract class CombinedModelElement implements Serializable {
 
 
     public abstract CombinedModelElement copy();
-
-    @SuppressWarnings("ConstantConditions") // this is only to be invoked before serialization
-    public void convertToTemplate() {
-        this.uuid = null;
-    }
 
     @Override
     public boolean equals(Object o) {

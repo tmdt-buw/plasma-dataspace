@@ -49,7 +49,7 @@ public class RelationRule {
         return fromConceptSourceURI;
     }
 
-    public String getToConceptSourceURI() {
+    public String getToConceptURI() {
         return toConceptSourceURI;
     }
 
@@ -61,7 +61,7 @@ public class RelationRule {
         return conceptDescription;
     }
 
-    public String getConceptSourceURI() {
+    public String getRelationURI() {
         return conceptSourceURI;
     }
 }

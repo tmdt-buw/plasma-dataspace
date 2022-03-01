@@ -2,6 +2,8 @@ package de.buw.tmdt.plasma.services.dms.core.model.datasource;
 
 import de.buw.tmdt.plasma.datamodel.CombinedModel;
 import de.buw.tmdt.plasma.datamodel.modification.operation.DataType;
+import de.buw.tmdt.plasma.datamodel.semanticmodel.Class;
+import de.buw.tmdt.plasma.datamodel.semanticmodel.SemanticModel;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -166,12 +168,11 @@ class DataSourceModelTest {
         Edge edge = new Edge(root.getUuid(), node.getUuid());
         SyntaxModel syntaxModel = new SyntaxModel(root.getUuid(), new ArrayList<>(Arrays.asList(root, node)), new ArrayList<>(Collections.singletonList(edge)));
 
-        EntityType entityType = new EntityType(
-                "type-" + counter,
-                "description",
-                new EntityConcept("ECName", "ECDescription", "plasma:concept" + counter++)
+        Class sClass = new Class("plasma:concept" + counter++,
+                "class-" + counter,
+                "description"
         );
-        SemanticModel semanticModel = new SemanticModel(null, new ArrayList<>(Collections.singletonList(entityType)), new ArrayList<>());
+        SemanticModel semanticModel = new SemanticModel(null, new ArrayList<>(Collections.singletonList(sClass)), new ArrayList<>());
 
         return new CombinedModel("model-" + modelcounter++, syntaxModel, semanticModel);
     }

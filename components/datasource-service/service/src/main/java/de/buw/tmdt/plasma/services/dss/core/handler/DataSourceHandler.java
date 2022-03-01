@@ -1,12 +1,12 @@
 package de.buw.tmdt.plasma.services.dss.core.handler;
 
+import de.buw.tmdt.plasma.datamodel.semanticmodel.SemanticModel;
 import de.buw.tmdt.plasma.services.dms.shared.feignclient.DataModelingApiClient;
 import de.buw.tmdt.plasma.services.dss.core.model.DataSourceModel;
 import de.buw.tmdt.plasma.services.dss.core.repository.DataSourceRepository;
 import de.buw.tmdt.plasma.services.dss.shared.dto.CreateDataSourceDTO;
 import de.buw.tmdt.plasma.services.dss.shared.dto.DataSourceDTO;
-import de.buw.tmdt.plasma.services.kgs.shared.dto.semanticmodel.SemanticModelDTO;
-import de.buw.tmdt.plasma.services.kgs.shared.feignclient.LocalKnowledgeApiClient;
+import de.buw.tmdt.plasma.services.kgs.shared.feignclient.SemanticModelApiClient;
 import de.buw.tmdt.plasma.services.sas.shared.feignclient.SchemaAnalysisApiClient;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import feign.FeignException;
@@ -28,18 +28,19 @@ public class DataSourceHandler {
 	private static final Logger logger = LoggerFactory.getLogger(DataSourceHandler.class);
 
 	private final DataSourceRepository dataSourceRepository;
-	private final LocalKnowledgeApiClient localKnowledgeApiClient;
+	private final SemanticModelApiClient semanticModelApiClient;
 	private final DataModelingApiClient dataModelingAPI;
 	private final SchemaAnalysisApiClient analysisApi;
 
+	@SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
 	public DataSourceHandler(
 			@NotNull DataSourceRepository dataSourceRepository,
-			@NotNull LocalKnowledgeApiClient localKnowledgeApiClient,
+			@NotNull SemanticModelApiClient semanticModelApiClient,
 			@NotNull DataModelingApiClient dataModelingAPI,
 			@NotNull SchemaAnalysisApiClient analysisApi
 	) {
 		this.dataSourceRepository = dataSourceRepository;
-		this.localKnowledgeApiClient = localKnowledgeApiClient;
+		this.semanticModelApiClient = semanticModelApiClient;
 		this.dataModelingAPI = dataModelingAPI;
 		this.analysisApi = analysisApi;
 	}
@@ -78,8 +79,8 @@ public class DataSourceHandler {
 	public void deleteDataSource(@NotNull String uuid) {
 		//Delete the Semantic Model
 		try {
-			SemanticModelDTO dto = localKnowledgeApiClient.findSemanticModelByDataSourceId(uuid);
-			localKnowledgeApiClient.deleteSemanticModel(dto.getId());
+			SemanticModel semanticModel = semanticModelApiClient.getSemanticModel(uuid);
+			semanticModelApiClient.deleteSemanticModel(semanticModel.getId());
 		} catch (FeignException e) {
 			logger.warn("Could not delete semantic model - it might have not exist");
 		}

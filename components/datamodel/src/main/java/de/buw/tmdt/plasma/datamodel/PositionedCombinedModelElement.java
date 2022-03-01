@@ -12,15 +12,13 @@ import java.io.Serializable;
  */
 public class PositionedCombinedModelElement extends CombinedModelElement implements Serializable {
 
-    public static final String X_COORDINATE_PROPERTY = "x";
-    public static final String Y_COORDINATE_PROPERTY = "y";
     private static final long serialVersionUID = -3619721225687115309L;
 
     private Double xCoordinate;
     private Double yCoordinate;
 
     public PositionedCombinedModelElement(
-            @NotNull @JsonProperty(LABEL_PROPERTY) String label
+            @NotNull String label
     ) {
         super(label);
         this.xCoordinate = null;
@@ -28,9 +26,9 @@ public class PositionedCombinedModelElement extends CombinedModelElement impleme
     }
 
     public PositionedCombinedModelElement(
-            @NotNull @JsonProperty(LABEL_PROPERTY) String label,
-            @Nullable @JsonProperty(X_COORDINATE_PROPERTY) Double xCoordinate,
-            @Nullable @JsonProperty(Y_COORDINATE_PROPERTY) Double yCoordinate
+            @NotNull String label,
+            @Nullable Double xCoordinate,
+            @Nullable Double yCoordinate
     ) {
         super(label);
         this.xCoordinate = xCoordinate;
@@ -39,10 +37,10 @@ public class PositionedCombinedModelElement extends CombinedModelElement impleme
 
     @JsonCreator
     public PositionedCombinedModelElement(
-            @Nullable @JsonProperty(UUID_PROPERTY) String uuid,
-            @NotNull @JsonProperty(LABEL_PROPERTY) String label,
-            @Nullable @JsonProperty(X_COORDINATE_PROPERTY) Double xCoordinate,
-            @Nullable @JsonProperty(Y_COORDINATE_PROPERTY) Double yCoordinate
+            @Nullable @JsonProperty String uuid,
+            @NotNull @JsonProperty String label,
+            @Nullable @JsonProperty Double xCoordinate,
+            @Nullable @JsonProperty Double yCoordinate
     ) {
         super(uuid, label);
         this.xCoordinate = xCoordinate;
@@ -50,7 +48,7 @@ public class PositionedCombinedModelElement extends CombinedModelElement impleme
     }
 
     @Nullable
-    @JsonProperty(X_COORDINATE_PROPERTY)
+    @JsonProperty
     public Double getXCoordinate() {
         return xCoordinate;
     }
@@ -60,7 +58,7 @@ public class PositionedCombinedModelElement extends CombinedModelElement impleme
     }
 
     @Nullable
-    @JsonProperty(Y_COORDINATE_PROPERTY)
+    @JsonProperty
     public Double getYCoordinate() {
         return yCoordinate;
     }

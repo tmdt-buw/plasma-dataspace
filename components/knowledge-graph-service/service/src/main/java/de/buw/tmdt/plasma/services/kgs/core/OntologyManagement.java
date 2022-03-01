@@ -1,8 +1,9 @@
 package de.buw.tmdt.plasma.services.kgs.core;
 
+import de.buw.tmdt.plasma.datamodel.semanticmodel.Class;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.NamedEntity;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.Relation;
-import de.buw.tmdt.plasma.datamodel.semanticmodel.URIDefinedElement;
+import de.buw.tmdt.plasma.datamodel.semanticmodel.SemanticModelNode;
 import org.apache.jena.arq.querybuilder.DescribeBuilder;
 import org.apache.jena.arq.querybuilder.UpdateBuilder;
 import org.apache.jena.query.QueryExecution;
@@ -35,10 +36,10 @@ public class OntologyManagement {
                 .destination(ontologyServerAddress);
     }
 
-    public void addResourcesToOntology(List<URIDefinedElement> resources) {
+    public void addResourcesToOntology(List<SemanticModelNode> resources) {
         Model m = ModelFactory.createDefaultModel();
         m.setNsPrefixes(PREFIXES);
-        for (URIDefinedElement resource : resources) {
+        for (SemanticModelNode resource : resources) {
             /* Enable this to only store plasma resources
             if(!clazz.getSourceURI().startsWith("plasma") && !clazz.getSourceURI().startsWith(PREFIXES.getNsPrefixURI("plasma"))){
                 // this is not a prefix that belongs here
@@ -46,15 +47,24 @@ public class OntologyManagement {
             }
              */
             Resource r = m.createResource(m.expandPrefix(resource.getURI()));
-            Resource type = resource instanceof NamedEntity ? PLCM.NamedEntity : OWL.Class;
-            m.add(new StatementImpl(r, RDF.type, type));
-            if (!resource.getLabel().isBlank()) {
-                m.add(new StatementImpl(r, RDFS.label, m.createLiteral(resource.getLabel())));
+            if (resource instanceof NamedEntity) {
+                NamedEntity ne = (NamedEntity) resource;
+                m.add(new StatementImpl(r, RDF.type, PLCM.NamedEntity));
+                if (!resource.getLabel().isBlank()) {
+                    m.add(new StatementImpl(r, RDFS.label, m.createLiteral(resource.getLabel())));
+                }
+                if (ne.getDescription() != null && !ne.getDescription().isBlank()) {
+                    m.add(new StatementImpl(r, RDFS.comment, m.createLiteral(ne.getDescription())));
+                }
+            } else if (resource instanceof Class) {
+                Class sClass = (Class) resource;
+                if (!resource.getLabel().isBlank()) {
+                    m.add(new StatementImpl(r, RDFS.label, m.createLiteral(resource.getLabel())));
+                }
+                if (sClass.getDescription() != null && !sClass.getDescription().isBlank()) {
+                    m.add(new StatementImpl(r, RDFS.comment, m.createLiteral(sClass.getDescription())));
+                }
             }
-            if (resource.getDescription() != null && !resource.getDescription().isBlank()) {
-                m.add(new StatementImpl(r, RDFS.comment, m.createLiteral(resource.getDescription())));
-            }
-
         }
         putModel(m);
     }
@@ -83,26 +93,26 @@ public class OntologyManagement {
     }
 
 
-    public URIDefinedElement findElementsByURI(String uri) {
+    public SemanticModelNode findElementsByURI(String uri) {
         try (RDFConnectionFuseki conn = (RDFConnectionFuseki) builder.build()) {
             DescribeBuilder describeBuilder = new DescribeBuilder();
             describeBuilder.addPrefixes(PREFIXES)
                     .addVar("?class")
                     .addWhere("?class", RDF.type, "?type")
                     .addFilter(describeBuilder.getExprFactory().in("?type", OWL.Class, PLCM.NamedEntity))
-                    .addFilter(describeBuilder.getExprFactory().eq("?class", ResourceFactory.createResource(uri)))
+                    .addFilter(describeBuilder.getExprFactory().eq("?class", ResourceFactory.createResource(PREFIXES.expandPrefix(uri))))
             //.addFilter(describeBuilder.getExprFactory().eq("?class", uri))
             ;
 
             QueryExecution query = conn.query(describeBuilder.build());
             Model model1 = query.execDescribe();
-            List<URIDefinedElement> elements = CMToRDFMapper.convertToURIDefinedElements(model1.listSubjects().toList());
+            List<SemanticModelNode> elements = CMToRDFMapper.convertToSemanticModelNodes(model1.listSubjects().toList());
             return elements.stream().findFirst().orElse(null);
         }
     }
 
 
-    public List<URIDefinedElement> findElementsByLabelPrefix(String prefix) {
+    public List<SemanticModelNode> findElementsByLabelPrefix(String prefix) {
         try (RDFConnectionFuseki conn = (RDFConnectionFuseki) builder.build()) {
             DescribeBuilder describeBuilder = new DescribeBuilder();
             describeBuilder.addPrefixes(PREFIXES)
@@ -113,12 +123,12 @@ public class OntologyManagement {
 
             QueryExecution query = conn.query(describeBuilder.build());
             Model model1 = query.execDescribe();
-            List<URIDefinedElement> elements = CMToRDFMapper.convertToURIDefinedElements(model1.listSubjects().toList());
+            List<SemanticModelNode> elements = CMToRDFMapper.convertToSemanticModelNodes(model1.listSubjects().toList());
             return elements;
         }
     }
 
-    public List<URIDefinedElement> findElementsByLabelInfix(String infix) {
+    public List<SemanticModelNode> findElementsByLabelInfix(String infix) {
         try (RDFConnectionFuseki conn = (RDFConnectionFuseki) builder.build()) {
             DescribeBuilder describeBuilder = new DescribeBuilder();
             describeBuilder.addPrefixes(PREFIXES)
@@ -129,12 +139,12 @@ public class OntologyManagement {
 
             QueryExecution query = conn.query(describeBuilder.build());
             Model model1 = query.execDescribe();
-            List<URIDefinedElement> elements = CMToRDFMapper.convertToURIDefinedElements(model1.listSubjects().toList());
+            List<SemanticModelNode> elements = CMToRDFMapper.convertToSemanticModelNodes(model1.listSubjects().toList());
             return elements;
         }
     }
 
-    public List<URIDefinedElement> findElementsByNamespace(String namespace) {
+    public List<SemanticModelNode> findElementsByNamespace(String namespace) {
         try (RDFConnectionFuseki conn = (RDFConnectionFuseki) builder.build()) {
             DescribeBuilder describeBuilder = new DescribeBuilder();
             describeBuilder.addPrefixes(PREFIXES)
@@ -144,7 +154,7 @@ public class OntologyManagement {
 
             QueryExecution query = conn.query(describeBuilder.build());
             Model model1 = query.execDescribe();
-            List<URIDefinedElement> elements = CMToRDFMapper.convertToURIDefinedElements(model1.listSubjects().toList());
+            List<SemanticModelNode> elements = CMToRDFMapper.convertToSemanticModelNodes(model1.listSubjects().toList());
             return elements;
         }
     }

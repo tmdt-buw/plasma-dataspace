@@ -40,7 +40,7 @@ public class Instance extends CombinedModelElement implements Serializable {
      * @param description A description for this object, optional
      */
     public Instance(@NotNull String label,
-                    String description) {
+                    @Nullable String description) {
         super(null, label);
         this.description = description;
     }
@@ -78,7 +78,7 @@ public class Instance extends CombinedModelElement implements Serializable {
      */
     @JsonCreator
     public Instance(
-            @Nullable @JsonProperty(UUID_PROPERTY) String uuid,
+            @Nullable @JsonProperty String uuid,
             @Nullable @JsonProperty String uri,
             @NotNull @JsonProperty String label,
             @Nullable @JsonProperty String syntaxNodeUuid,
@@ -160,7 +160,10 @@ public class Instance extends CombinedModelElement implements Serializable {
             return false;
         }
         Instance that = (Instance) o;
-        return Objects.equals(getUuid(), that.getUuid());
+        return Objects.equals(this.getLabel(), that.getLabel()) &&
+                Objects.equals(this.getDescription(), that.getDescription()) &&
+                Objects.equals(this.getOriginalLabel(), that.getOriginalLabel()) &&
+                Objects.equals(this.getSyntaxNodeUuid(), that.getSyntaxNodeUuid());
     }
 
     @Override

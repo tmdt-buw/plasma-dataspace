@@ -6,140 +6,140 @@
       "originalAttribute": "latitude",
       "conceptName": "Geographische Breite",
       "conceptDescription": "Die geographische Breite, auch geodätische Breite oder Breitengrad genannt, ist die im Winkelmaß in der Maßeinheit Grad angegebene nördliche oder südliche Entfernung eines Punktes der Erdoberfläche vom Äquator",
-      "conceptSourceURI": "plasma:latitude"
+      "conceptSourceURI": "http://plasma.uni-wuppertal.de/ontology#latitude"
     },
     {
       "originalAttribute": "longitude",
       "conceptName": "Geographische Länge",
       "conceptDescription": "Die geographische Länge beschreibt eine der beiden Koordinaten eines Ortes auf der Erdoberfläche, und zwar seine Position östlich oder westlich einer definierten Nord-Süd-Linie, des Nullmeridians.",
-      "conceptSourceURI": "plasma:longitude"
+      "conceptSourceURI": "http://plasma.uni-wuppertal.de/ontology#longitude"
     },
     {
       "originalAttribute": "altitude",
       "conceptName": "Höhe",
       "conceptDescription": "Höhen über dem Meeresspiegel (auch See- oder Meereshöhe) dienen der Höhenangabe von geografischen und technischen Objekten, insbesondere von Höhen der Erdoberfläche (Gelände, Berggipfel), von Ortschaften und Verkehrswegen.",
-      "conceptSourceURI": "plasma:altitude"
+      "conceptSourceURI": "http://plasma.uni-wuppertal.de/ontology#altitude"
     },
     {
       "originalAttribute": "",
       "conceptName": "Punkt",
       "conceptDescription": "Eine einzelne Position",
-      "conceptSourceURI": "plasma:point",
+      "conceptSourceURI": "http://plasma.uni-wuppertal.de/ontology#point",
       "requiredPredecessor": "latitude"
     },
     {
       "originalAttribute": "",
       "conceptName": "Linie",
       "conceptDescription": "Eine Menge von mehreren verbundenen Positionen",
-      "conceptSourceURI": "plasma:line",
+      "conceptSourceURI": "http://plasma.uni-wuppertal.de/ontology#line",
       "requiredPredecessor": "line"
     },
     {
       "originalAttribute": "",
       "conceptName": "Polygon",
       "conceptDescription": "Eine zu einem Polygon verbundene Menge von Positionen",
-      "conceptSourceURI": "plasma:polygon",
+      "conceptSourceURI": "http://plasma.uni-wuppertal.de/ontology#polygon",
       "requiredPredecessor": "outerPolygon"
     },
     {
       "originalAttribute": "type",
       "conceptName": "Geotyp",
       "conceptDescription": "Gibt an um welche Art von GeoJson Typ es sich bei dem darunter liegenden Objekt handelt.",
-      "conceptSourceURI": "plasma:geotype",
+      "conceptSourceURI": "http://plasma.uni-wuppertal.de/ontology#geotype",
       "requiredPredecessor": "geometry"
     },
     {
       "originalAttribute": "",
       "conceptName": "Geometrie",
       "conceptDescription": "Stellt ein Geometrisches Objekt dar.",
-      "conceptSourceURI": "plasma:geometry",
+      "conceptSourceURI": "http://plasma.uni-wuppertal.de/ontology#geometry",
       "requiredPredecessor": "latitude"
     },
     {
       "originalAttribute": "",
       "conceptName": "MultiPunkt",
       "conceptDescription": "Eine Menge von einzelnen Positionen",
-      "conceptSourceURI": "plasma:multipoint",
+      "conceptSourceURI": "http://plasma.uni-wuppertal.de/ontology#multipoint",
       "requiredPredecessor": "points"
     }
   ],
   "relationRules": [
     {
       "conceptName": "hat",
-      "fromConcept": "plasma:point",
-      "toConcept": "plasma:latitude",
+      "fromConcept": "http://plasma.uni-wuppertal.de/ontology#point",
+      "toConcept": "http://plasma.uni-wuppertal.de/ontology#latitude",
       "conceptDescription": "hat",
-      "conceptSourceURI": "plasma:has"
+      "conceptSourceURI": "http://plasma.uni-wuppertal.de/ontology#has"
     },
     {
       "conceptName": "hat",
-      "fromConcept": "plasma:point",
-      "toConcept": "plasma:longitude",
+      "fromConcept": "http://plasma.uni-wuppertal.de/ontology#point",
+      "toConcept": "http://plasma.uni-wuppertal.de/ontology#longitude",
       "conceptDescription": "hat",
-      "conceptSourceURI": "plasma:has"
+      "conceptSourceURI": "http://plasma.uni-wuppertal.de/ontology#has"
     },
     {
       "conceptName": "hat",
-      "fromConcept": "plasma:point",
-      "toConcept": "plasma:altitude",
+      "fromConcept": "http://plasma.uni-wuppertal.de/ontology#point",
+      "toConcept": "http://plasma.uni-wuppertal.de/ontology#altitude",
       "conceptDescription": "hat",
-      "conceptSourceURI": "plasma:has"
+      "conceptSourceURI": "http://plasma.uni-wuppertal.de/ontology#has"
     },
     {
       "conceptName": "besteht aus",
-      "fromConcept": "plasma:line",
-      "toConcept": "plasma:point",
+      "fromConcept": "http://plasma.uni-wuppertal.de/ontology#line",
+      "toConcept": "http://plasma.uni-wuppertal.de/ontology#point",
       "conceptDescription": "ist ein Teil eines Ganzen",
-      "conceptSourceURI": "plasma:consistsOf"
+      "conceptSourceURI": "http://plasma.uni-wuppertal.de/ontology#consistsOf"
     },
     {
       "conceptName": "besteht aus",
-      "fromConcept": "plasma:polygon",
-      "toConcept": "plasma:point",
+      "fromConcept": "http://plasma.uni-wuppertal.de/ontology#polygon",
+      "toConcept": "http://plasma.uni-wuppertal.de/ontology#point",
       "conceptDescription": "ist ein Teil eines Ganzen",
-      "conceptSourceURI": "plasma:consistsOf"
+      "conceptSourceURI": "http://plasma.uni-wuppertal.de/ontology#consistsOf"
     },
     {
       "conceptName": "hat",
-      "fromConcept": "plasma:geometry",
-      "toConcept": "plasma:geotype",
+      "fromConcept": "http://plasma.uni-wuppertal.de/ontology#geometry",
+      "toConcept": "http://plasma.uni-wuppertal.de/ontology#geotype",
       "conceptDescription": "hat",
-      "conceptSourceURI": "plasma:has"
+      "conceptSourceURI": "http://plasma.uni-wuppertal.de/ontology#has"
     },
     {
       "conceptName": "realisiert als",
-      "fromConcept": "plasma:geometry",
-      "toConcept": "plasma:line",
+      "fromConcept": "http://plasma.uni-wuppertal.de/ontology#geometry",
+      "toConcept": "http://plasma.uni-wuppertal.de/ontology#line",
       "conceptDescription": "realisiert als",
-      "conceptSourceURI": "plasma:realizedAs"
+      "conceptSourceURI": "http://plasma.uni-wuppertal.de/ontology#realizedAs"
     },
     {
       "conceptName": "realisiert als",
-      "fromConcept": "plasma:geometry",
-      "toConcept": "plasma:polygon",
+      "fromConcept": "http://plasma.uni-wuppertal.de/ontology#geometry",
+      "toConcept": "http://plasma.uni-wuppertal.de/ontology#polygon",
       "conceptDescription": "realisiert als",
-      "conceptSourceURI": "plasma:realizedAs"
+      "conceptSourceURI": "http://plasma.uni-wuppertal.de/ontology#realizedAs"
     },
     {
       "conceptName": "realisiert als",
-      "fromConcept": "plasma:geometry",
-      "toConcept": "plasma:point",
+      "fromConcept": "http://plasma.uni-wuppertal.de/ontology#geometry",
+      "toConcept": "http://plasma.uni-wuppertal.de/ontology#point",
       "conceptDescription": "realisiert als",
-      "conceptSourceURI": "plasma:realizedAs"
+      "conceptSourceURI": "http://plasma.uni-wuppertal.de/ontology#realizedAs"
     },
     {
       "conceptName": "realisiert als",
-      "fromConcept": "plasma:geometry",
-      "toConcept": "plasma:multipoint",
+      "fromConcept": "http://plasma.uni-wuppertal.de/ontology#geometry",
+      "toConcept": "http://plasma.uni-wuppertal.de/ontology#multipoint",
       "conceptDescription": "realisiert als",
-      "conceptSourceURI": "plasma:realizedAs"
+      "conceptSourceURI": "http://plasma.uni-wuppertal.de/ontology#realizedAs"
     },
     {
       "conceptName": "besteht aus",
-      "fromConcept": "plasma:multipoint",
-      "toConcept": "plasma:point",
+      "fromConcept": "http://plasma.uni-wuppertal.de/ontology#multipoint",
+      "toConcept": "http://plasma.uni-wuppertal.de/ontology#point",
       "conceptDescription": "ist ein Teil eines Ganzen",
-      "conceptSourceURI": "plasma:consistsOf"
+      "conceptSourceURI": "http://plasma.uni-wuppertal.de/ontology#consistsOf"
     }
   ]
 }
