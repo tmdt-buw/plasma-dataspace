@@ -38,8 +38,9 @@ public class DataModelingController implements DataModelingAPI {
 
     @Override
     @Operation(description = "Initializes the current schema of the specified model.")
-    public void initSchema(@NotNull String modelId, @NotNull Integer exampleLimit) {
-        dataModelingHandler.initModelSchema(modelId, exampleLimit);
+    public CombinedModel initSchema(@NotNull String modelId, @NotNull Integer exampleLimit) {
+        dataModelingHandler.initModel(modelId, exampleLimit);
+        return getCombinedModel(modelId);
     }
 
     @NotNull
@@ -83,20 +84,32 @@ public class DataModelingController implements DataModelingAPI {
 
     @NotNull
     @Override
-    @Operation(description = "Adds a new provisional element or relation to the cache of the model.")
-    public CombinedModelElement cacheElementOrRelation(@NotNull String modelId, @NotNull CombinedModelElement element) {
-        if (element instanceof SemanticModelNode) {
-            return dataModelingHandler.cacheElement(modelId, (SemanticModelNode) element);
-        }
-        if (element instanceof Relation) {
-            return dataModelingHandler.cacheRelation(modelId, (Relation) element);
-        }
-        throw new IllegalArgumentException("Unknown object type to cache " + element);
+    @Operation(description = "Adds a new provisional node to the cache of the model.")
+    public CombinedModelElement cacheElement(@NotNull String modelId, @NotNull SemanticModelNode node) {
+            return dataModelingHandler.cacheNode(modelId, node);
+    }
+
+    @NotNull
+    @Override
+    @Operation(description = "Adds a new provisional relation to the cache of the model.")
+    public CombinedModelElement cacheRelation(@NotNull String modelId, @NotNull Relation relation) {
+        return dataModelingHandler.cacheRelation(modelId, relation);
     }
 
     @NotNull
     @Operation(description = "Accepts a recommendation and adds the contents to the semantic model.")
     public CombinedModel acceptRecommendation(@NotNull String modelId, @NotNull DeltaModification recommendation) {
+        @NotNull CombinedModel model = dataModelingHandler.applyModification(modelId, recommendation);
+
+        // request new recommendations
+        model = dataModelingHandler.requestRecommendations(modelId, model);
+        dataModelingHandler.prepareForFrontend(model);
+        return model;
+    }
+
+    @NotNull
+    @Operation(description = "Performs a modification of the CombinedModel.")
+    public CombinedModel modifyModel(@NotNull String modelId, @NotNull DeltaModification recommendation) {
         @NotNull CombinedModel model = dataModelingHandler.applyModification(modelId, recommendation);
 
         // request new recommendations

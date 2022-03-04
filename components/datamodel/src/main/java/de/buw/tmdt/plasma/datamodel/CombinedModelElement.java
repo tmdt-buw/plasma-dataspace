@@ -2,6 +2,11 @@ package de.buw.tmdt.plasma.datamodel;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import de.buw.tmdt.plasma.datamodel.semanticmodel.Instance;
+import de.buw.tmdt.plasma.datamodel.semanticmodel.SemanticModelNode;
+import de.buw.tmdt.plasma.datamodel.syntaxmodel.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -15,6 +20,9 @@ import java.util.UUID;
 public abstract class CombinedModelElement implements Serializable {
 
     private static final long serialVersionUID = -3619721225687115309L;
+
+    public static final String UUID_PROPERTY = "uuid";
+    public static final String LABEL_PROPERTY = "label";
 
     /**
      * Fixed UUID that identifies this object.
@@ -30,21 +38,21 @@ public abstract class CombinedModelElement implements Serializable {
     private String label;
 
     public CombinedModelElement(
-            @NotNull @JsonProperty String label
+            @NotNull String label
     ) {
         this(UUID.randomUUID().toString(), label);
     }
 
     @JsonCreator
     public CombinedModelElement(
-            @Nullable @JsonProperty String uuid,
-            @NotNull @JsonProperty String label
+            @Nullable @JsonProperty(UUID_PROPERTY) String uuid,
+            @NotNull @JsonProperty(LABEL_PROPERTY) String label
     ) {
         this.uuid = uuid == null ? UUID.randomUUID().toString() : uuid;
         this.label = label;
     }
 
-    @JsonProperty
+    @JsonProperty(UUID_PROPERTY)
     public String getUuid() {
         return uuid;
     }
@@ -53,7 +61,7 @@ public abstract class CombinedModelElement implements Serializable {
         this.uuid = null;
     }
 
-    @JsonProperty
+    @JsonProperty(LABEL_PROPERTY)
     @NotNull
     public String getLabel() {
         return label;

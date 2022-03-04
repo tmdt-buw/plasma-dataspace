@@ -1,5 +1,5 @@
 import { dia } from 'jointjs';
-import { RelationConcept } from '../../../api/generated/dms';
+import { Relation } from '../../../api/generated/dms';
 import { Links } from './link';
 
 /**
@@ -13,17 +13,17 @@ export abstract class Papers {
    * @param relationConcept function
    * @param primary color function
    */
-  static createPaper(graph: dia.Graph, relationConcept: () => RelationConcept, primary: () => string, lockDragAndDrop: boolean): dia.Paper {
+  static createPaper(graph: dia.Graph, relationConcept: () => Relation, primary: () => string, lockDragAndDrop: boolean): dia.Paper {
     const interactive = () => {
       if (!lockDragAndDrop) {
-      if (relationConcept()) {
-        return {
-          labelMove: true,
-          addLinkFromMagnet: true,
-          elementMove: false
-        };
-      } else {
-        return {
+        if (relationConcept()) {
+          return {
+            labelMove: true,
+            addLinkFromMagnet: true,
+            elementMove: false
+          };
+        } else {
+          return {
           labelMove: true,
           addLinkFromMagnet: false,
           elementMove: true

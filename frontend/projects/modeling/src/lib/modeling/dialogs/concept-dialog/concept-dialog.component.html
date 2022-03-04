@@ -18,10 +18,10 @@
 
       <div cdkDropList
            id="entityList" [cdkDropListConnectedTo]="['canvasContainer']"
-           [cdkDropListData]="entityConcepts"
+           [cdkDropListData]="semanticModelNodes"
            class="concept-list scroll-list"
            cdkDropListSortingDisabled>
-        <div class="concept-box" *ngFor="let entityConcept of entityConcepts" cdkDrag nz-tooltip
+        <div *ngFor="let entityConcept of semanticModelNodes" cdkDrag class="concept-box" nz-tooltip
              nzTooltipTitle="{{entityConcept.description}}" [cdkDragData]="entityConcept">
           {{ entityConcept.label }}
           <div *cdkDragPreview class="concept-preview"
@@ -52,7 +52,7 @@
       </div>
 
       <ul nz-menu class="concept-list">
-        <li nz-menu-item  *ngFor="let relationConcept of relationConcepts; let i = index"
+        <li *ngFor="let relationConcept of relations; let i = index" nz-menu-item
             [value]="relationConcept"
             (click)="toggleRelation(i, relationConcept)"
             [ngStyle]="{

@@ -10,14 +10,15 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "@class")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "_class")
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = Instance.class, name = "Instance"),
         @JsonSubTypes.Type(value = Literal.class, name = "Literal"),
-        @JsonSubTypes.Type(value = Class.class, name = "SemanticClass"),
+        @JsonSubTypes.Type(value = Class.class, name = "Class"),
         @JsonSubTypes.Type(value = NamedEntity.class, name = "NamedEntity")
 })
 public abstract class SemanticModelNode extends PositionedCombinedModelElement implements NodeTemplate {
+
+    public static final String URI_PROPERTY = "uri";
 
     private final String uri;
 
@@ -46,7 +47,7 @@ public abstract class SemanticModelNode extends PositionedCombinedModelElement i
         return Objects.equals(getURI(), ec.getURI());
     }
 
-    @JsonProperty
+    @JsonProperty(URI_PROPERTY)
     public String getURI() {
         return uri;
     }

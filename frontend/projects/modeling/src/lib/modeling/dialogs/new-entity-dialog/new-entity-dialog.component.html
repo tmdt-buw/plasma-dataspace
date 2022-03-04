@@ -17,9 +17,9 @@
   </nz-form-item>
 
   <nz-form-item>
-    <nz-form-label nzFor="sourceURI">Source URI</nz-form-label>
+    <nz-form-label nzFor="uri">URI</nz-form-label>
     <nz-form-control nzExtra="URI of the concept from an ontology.">
-      <input nz-input formControlName="sourceURI" placeholder="{{generateSourceURI()}}"/>
+      <input formControlName="uri" nz-input placeholder="{{generateURI()}}"/>
     </nz-form-control>
   </nz-form-item>
 
@@ -29,7 +29,10 @@
   <nz-alert nzType="error" *ngIf="error">{{ error }}</nz-alert>
   <div fxLayout="row" fxLayoutGap="5px" fxLayoutAlign="end">
     <button nz-button (click)="cancel()">Cancel</button>
-    <button nz-button nzType="primary" (click)="submit()" [disabled]="!form.valid || form.get('sourceURI').value.length === 1 || form.get('sourceURI').value.length === 2">Save</button>
+    <button (click)="submit()"
+            [disabled]="!form.valid || form.get('uri').value.length === 1 || form.get('uri').value.length === 2"
+            nz-button nzType="primary">Save
+    </button>
   </div>
 </div>
 

@@ -13,6 +13,8 @@ import java.util.Objects;
 @JsonTypeName("NamedEntity")
 public class NamedEntity extends SemanticModelNode implements Serializable, NodeTemplate {
 
+    public static final String DESCRIPTION_PROPERTY = "description";
+
     private String description;
 
     public NamedEntity(@NotNull String uri, @NotNull String label, @NotNull String description) {
@@ -26,12 +28,18 @@ public class NamedEntity extends SemanticModelNode implements Serializable, Node
     }
 
     @JsonCreator
-    public NamedEntity(@Nullable String uuid, @NotNull String uri, @NotNull String label, @NotNull String description, @Nullable Double xCoordinate, @Nullable Double yCoordinate) {
+    public NamedEntity(@Nullable @JsonProperty(UUID_PROPERTY) String uuid,
+                       @NotNull @JsonProperty(URI_PROPERTY) String uri,
+                       @NotNull @JsonProperty(LABEL_PROPERTY) String label,
+                       @NotNull @JsonProperty(DESCRIPTION_PROPERTY) String description,
+                       @Nullable @JsonProperty(XCOORDINATE_PROPERTY) Double xCoordinate,
+                       @Nullable @JsonProperty(YCOORDINATE_PROPERTY) Double yCoordinate
+                      ) {
         super(uuid, uri, label, xCoordinate, yCoordinate);
         this.description = description;
     }
 
-    @JsonProperty
+    @JsonProperty(DESCRIPTION_PROPERTY)
     public String getDescription() {
         return description;
     }

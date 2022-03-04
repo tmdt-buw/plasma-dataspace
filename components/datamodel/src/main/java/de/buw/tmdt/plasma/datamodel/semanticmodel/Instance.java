@@ -18,6 +18,11 @@ public class Instance extends CombinedModelElement implements Serializable {
 
     private static final long serialVersionUID = 4109691502825894813L;
 
+    public static final String SYNTAX_NODE_PROPERTY = "syntaxNodeUuid";
+    public static final String ORIGINAL_LABEL_PROPERTY = "originalLabel";
+    public static final String URI_PROPERTY = "uri";
+    public static final String DESCRIPTION_PROPERTY = "description";
+
     /**
      * The id of the syntax {@link PrimitiveNode} this object is mapped to.
      * Will be null if not mapped.
@@ -78,12 +83,12 @@ public class Instance extends CombinedModelElement implements Serializable {
      */
     @JsonCreator
     public Instance(
-            @Nullable @JsonProperty String uuid,
-            @Nullable @JsonProperty String uri,
-            @NotNull @JsonProperty String label,
-            @Nullable @JsonProperty String syntaxNodeUuid,
-            @Nullable @JsonProperty String originalLabel,
-            @Nullable @JsonProperty String description
+            @Nullable @JsonProperty(UUID_PROPERTY) String uuid,
+            @Nullable @JsonProperty(URI_PROPERTY) String uri,
+            @NotNull @JsonProperty(LABEL_PROPERTY) String label,
+            @Nullable @JsonProperty(SYNTAX_NODE_PROPERTY) String syntaxNodeUuid,
+            @Nullable @JsonProperty(ORIGINAL_LABEL_PROPERTY) String originalLabel,
+            @Nullable @JsonProperty(DESCRIPTION_PROPERTY) String description
     ) {
         super(uuid, label);
         this.uri = uri;
@@ -93,22 +98,22 @@ public class Instance extends CombinedModelElement implements Serializable {
     }
 
     /* Getter */
-    @JsonProperty
+    @JsonProperty(SYNTAX_NODE_PROPERTY)
     public String getSyntaxNodeUuid() {
         return syntaxNodeUuid;
     }
 
-    @JsonProperty
+    @JsonProperty(ORIGINAL_LABEL_PROPERTY)
     public String getOriginalLabel() {
         return originalLabel;
     }
 
-    @JsonProperty
+    @JsonProperty(DESCRIPTION_PROPERTY)
     public String getDescription() {
         return description;
     }
 
-    @JsonProperty
+    @JsonProperty(URI_PROPERTY)
     public String getURI() {
         return uri;
     }

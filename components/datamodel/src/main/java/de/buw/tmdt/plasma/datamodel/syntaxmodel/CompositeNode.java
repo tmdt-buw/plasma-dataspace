@@ -20,6 +20,11 @@ public class CompositeNode extends SchemaNode {
 
     private static final long serialVersionUID = 5858068735685107958L;
 
+    public static final String SPLITTINGS_PROPERTY = "splitter";
+    public static final String CLEANSING_PATTERN_PROPERTY = "pattern";
+    public static final String DATATYPE_PROPERTY = "datatype";
+    public static final String EXAMPLES_PROPERTY = "examples";
+
     @NotNull
     private List<Splitting> splitter;
     private List<String> examples;
@@ -39,15 +44,15 @@ public class CompositeNode extends SchemaNode {
 
     @JsonCreator
     public CompositeNode(
-            @NotNull @JsonProperty String uuid,
-            @JsonProperty @NotNull String label,
-            @Nullable @JsonProperty Double xCoordinate,
-            @Nullable @JsonProperty Double yCoordinate,
-            @NotNull @JsonProperty List<SyntacticOperationDTO> operations,
-            @JsonProperty boolean isValid,
-            @JsonProperty List<String> examples,
-            @JsonProperty String cleansingPattern,
-            @NotNull @JsonProperty List<Splitting> splitter
+            @NotNull @JsonProperty(UUID_PROPERTY) String uuid,
+            @JsonProperty(LABEL_PROPERTY) @NotNull String label,
+            @Nullable @JsonProperty(XCOORDINATE_PROPERTY) Double xCoordinate,
+            @Nullable @JsonProperty(YCOORDINATE_PROPERTY) Double yCoordinate,
+            @NotNull @JsonProperty(OPERATIONS_PROPERTY) List<SyntacticOperationDTO> operations,
+            @JsonProperty(VALID_PROPERTY) boolean isValid,
+            @JsonProperty(EXAMPLES_PROPERTY) List<String> examples,
+            @JsonProperty(CLEANSING_PATTERN_PROPERTY) String cleansingPattern,
+            @NotNull @JsonProperty(SPLITTINGS_PROPERTY) List<Splitting> splitter
     ) {
         super(uuid, label, xCoordinate, yCoordinate, operations, isValid);
         this.examples = examples;
@@ -55,7 +60,7 @@ public class CompositeNode extends SchemaNode {
         this.splitter = splitter;
     }
 
-    @JsonProperty
+    @JsonProperty(CLEANSING_PATTERN_PROPERTY)
     public String getCleansingPattern() {
         return cleansingPattern;
     }
@@ -65,12 +70,12 @@ public class CompositeNode extends SchemaNode {
     }
 
     @NotNull
-    @JsonProperty
+    @JsonProperty(SPLITTINGS_PROPERTY)
     public List<Splitting> getSplitter() {
         return splitter;
     }
 
-    @JsonProperty
+    @JsonProperty(EXAMPLES_PROPERTY)
     public List<String> getExamples() {
         return examples;
     }

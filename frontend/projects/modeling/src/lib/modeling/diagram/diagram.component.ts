@@ -21,13 +21,17 @@ import { BehaviorSubject, Subject } from 'rxjs';
 import { auditTime, distinctUntilChanged, pairwise, skip } from 'rxjs/operators';
 import * as svgPanZoom from 'svg-pan-zoom';
 import {
+  Class,
   CombinedModel,
   DeltaModification,
-  EntityConcept,
+  Instance,
+  Literal,
+  NamedEntity,
+  ObjectProperty,
   PrimitiveNode,
   Relation,
-  RelationConcept,
   SemanticModel,
+  SemanticModelNode,
   SyntaxModel
 } from '../../api/generated/dms';
 import { ContextMenuService } from '../context-menu/context-menu.service';
@@ -45,7 +49,6 @@ import { Icons } from '../model/configuration/icons';
 import { Links } from '../model/configuration/link';
 import { Node, Nodes, SemanticNode, SyntaxNode } from '../model/configuration/node';
 import { Papers } from '../model/configuration/paper';
-import { EntityDroppedEvent } from '../model/events/entity-dropped-event';
 import { NodeChangedEvent } from '../model/events/node-changed-event';
 import { ModelingService } from '../modeling.service';
 
@@ -98,16 +101,16 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
   private nodeDialogRef: NzModalRef<any>;
 
   // modeling
-  entityConcept;
-  relationConcept: RelationConcept;
+  modelNode: SemanticModelNode; // currently selected node template
+  relation: Relation; // currently selected relation template
   hoveredElement;
   mousePosition;
   recommendations = [];
 
   // events
   @Output() graphLaidOut = new EventEmitter<CombinedModel>();
-  @Output() entityConceptMapped = new EventEmitter<EntityDroppedEvent>();
-  @Output() relationConceptLinked = new EventEmitter<Relation>();
+  @Output() semanticNodeAdded = new EventEmitter<SemanticModelNode>();
+  @Output() relationAdded = new EventEmitter<Relation>();
   @Output() nodeChanged = new EventEmitter<NodeChangedEvent>();
   @Output() nodePositionChanged = new EventEmitter<NodeChangedEvent>();
   @Output() nodeClicked = new EventEmitter<string>();
@@ -127,12 +130,12 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
     // init joint.js graph
     this.graph = Graphs.createGraph();
     // init joint.js paper
-    this.paper = Papers.createPaper(this.graph, () => this.relationConcept, () => this.colorToHex('primary'), this.lockDragAndDrop);
+    this.paper = Papers.createPaper(this.graph, () => this.relation, () => this.colorToHex('primary'), this.lockDragAndDrop);
     // create nodes and links
     this.createGraph();
     // subscribe to relation tool
-    this.modelingService.relationConcept.subscribe((relationSelection) => {
-      this.relationConcept = relationSelection;
+    this.modelingService.relation.subscribe((relationSelection) => {
+      this.relation = relationSelection;
     });
     // show / hide recommendations
     this.modelingService.recommendation.subscribe((recommendation) => {
@@ -207,7 +210,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
       },
       // Highlights for modeling
       'element:mouseover': (elementView: dia.ElementView) => {
-        if (this.entityConcept && this.getIfLeafNode(elementView)) {
+        if (this.modelNode && this.getIfLeafNode(elementView)) {
           elementView.highlight();
           this.hoveredElement = elementView;
         }
@@ -224,10 +227,9 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
 
       },
       'element:mouseout': () => {
-        if (this.entityConcept) {
+        if (this.modelNode) {
           this.unhighlightAll();
         }
-        console.log('mouseout');
         this.hideRecommendations();
         this.hoveredElement = null;
       },
@@ -236,17 +238,19 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
         const model = linkView.model.attributes;
         const from = model.source.id;
         const to = model.target.id;
-        const relation: Relation = {
+        // TODO Object properties vs Data Properties
+        const relation: ObjectProperty = {
+          _class: 'ObjectProperty',
           from,
           to,
-          concept: this.relationConcept
+          uri: this.relation.uri
         };
-        this.relationConceptLinked.emit(relation);
+        this.relationAdded.emit(relation);
       },
       // remove highlight and close dialog if clicked in blank zone
       'blank:pointerclick': () => {
         this.unhighlightAll();
-        this.modelingService.relationConcept.next(null);
+        this.modelingService.relation.next(null);
       },
       // Enable pan when mouse button down in blank zone
       'blank:pointerdown': () => {
@@ -271,7 +275,8 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
           cellView.highlight();
           this.contextMenu.open(cellView.el, PlsEntityConceptMenuComponent, this.viewContainerRef, {
             entity: node,
-            syntaxNode: node.syntaxNodeId ? node.syntaxNodeId : null
+            syntaxNode: node._class === 'Class' && (node as Class).instance &&
+            (node as Class).instance.syntaxNodeUuid ? (node as Class).instance.syntaxNodeUuid : null
           });
         }
         if (Nodes.isSyntaxNode(cellView)) {
@@ -327,94 +332,104 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
   entityDropped(event): void {
     // test if valid target
     const node = this.hoveredElement ? this.getIfLeafNode(this.hoveredElement) : null;
-    // create entity type
+    // create new semantic model node
     if (node) {
       const position = this.hoveredElement.model.attributes.position;
-      const entityType: SemanticNode = {
-        concept: this.entityConcept,
-        originalLabel: node.label,
-        label: node.label,
-        description: this.entityConcept.description,
-        x: position.x,
-        y: position.y
-      };
-      this.entityConceptMapped.emit(new EntityDroppedEvent(entityType, node.uuid));
+      let semanticNode;
+      switch (this.modelNode._class) {
+        case 'Class':
+          const instance: Instance = {
+            label: node.label,
+            originalLabel: node.label,
+            syntaxNodeUuid: node.uuid
+          };
+          semanticNode = {
+            _class: this.modelNode._class,
+            uri: this.modelNode.uri,
+            label: this.modelNode.label,
+            description: (this.modelNode as Class).description,
+            xcoordinate: position.x,
+            ycoordinate: position.y,
+            instance
+          };
+          break;
+        case 'NamedEntity':
+          semanticNode = {
+            _class: this.modelNode._class,
+            uri: this.modelNode.uri,
+            label: this.modelNode.label,
+            description: (this.modelNode as Class).description,
+            xcoordinate: position.x + 10,
+            ycoordinate: position.y + 10
+          };
+          break;
+        case 'Literal':
+          semanticNode = {
+            _class: this.modelNode._class,
+            value: 'unknown', // TODO
+            xcoordinate: position.x + 10,
+            ycoordinate: position.y + 10
+          };
+          break;
+      }
+      this.semanticNodeAdded.emit(semanticNode);
       // dropped in blank area
     } else if (event.isPointerOverContainer) {
       const localPosition = this.paper.clientToLocalPoint(this.mousePosition.x, this.mousePosition.y);
-      const entityType: SemanticNode = {
-        concept: this.entityConcept,
-        label: this.entityConcept.label,
-        description: this.entityConcept.description,
-        x: localPosition.x,
-        y: localPosition.y
-      };
-      this.entityConceptMapped.emit(new EntityDroppedEvent(entityType));
+      let semanticNode;
+      switch (this.modelNode._class) {
+        case 'Class':
+          semanticNode = {
+            _class: this.modelNode._class,
+            uri: this.modelNode.uri,
+            label: this.modelNode.label,
+            description: (this.modelNode as Class).description,
+            x: localPosition.x,
+            y: localPosition.y
+          };
+          break;
+        case 'NamedEntity':
+          semanticNode = {
+            _class: this.modelNode._class,
+            uri: this.modelNode.uri,
+            label: this.modelNode.label,
+            description: (this.modelNode as Class).description,
+            x: localPosition.x,
+            y: localPosition.y
+          };
+          break;
+        case 'Literal':
+          semanticNode = {
+            _class: this.modelNode._class,
+            value: 'unknown', // TODO
+            x: localPosition.x,
+            y: localPosition.y
+          };
+          break;
+      }
+      this.semanticNodeAdded.emit(semanticNode);
     }
     // clear all even if dropped out of container
-    this.entityConcept = null;
+    this.modelNode = null;
     this.unhighlightAll();
   }
 
   /**
-   * Fill graph object with current schema data
-   * @param flat mode
+   * Setter for entity node
+   * @param node - the new node
    */
-  private createGraph(flat: boolean = false): void {
-    // remove old content
-    this.paper.freeze();
-    this.graph.clear();
-    this.paper.updateViews();
-    // create graph based on filter selection
-    switch (this.$filter.getValue()) {
-      case Filter.ALL:
-        // show semantic nodes and links
-        this.createSemanticGraph(this.schema.semanticModel, flat);
-        // filter syntax nodes
-        const map = this.schema.primitiveToEntityTypeList;
-        const mappedSyntaxNodes = this.schema.semanticModel.nodes.map(entityType => entityType.syntaxNodeId);
-        const filteredSyntaxNodes = this.schema.syntaxModel.nodes.filter(node => !mappedSyntaxNodes.includes(node.uuid));
-        const filteredSyntaxNodesIds = filteredSyntaxNodes.map(node => node.uuid);
-        const filteredSyntaxModel = {
-          root: this.schema.syntaxModel.root,
-          nodes: filteredSyntaxNodes,
-          edges: map.concat(this.schema.syntaxModel.edges.filter(edge => filteredSyntaxNodesIds.includes(edge.from) && filteredSyntaxNodesIds.includes(edge.to)))
-        };
-        this.createSyntaxGraph(filteredSyntaxModel);
-        break;
-      case Filter.SYNTAX:
-        // show syntax nodes and links
-        this.createSyntaxGraph(this.schema.syntaxModel);
-        break;
-      case Filter.SEMANTIC:
-        // show semantic nodes and links
-        this.createSemanticGraph(this.schema.semanticModel, flat);
-        break;
-      default:
-        console.error('Unsupported Filter');
-    }
-    this.paper.unfreeze();
-    // layout links
-    this.graph.getLinks().forEach(el => Links.adjustVertices(this.graph, el));
+  setSelectedModelNode(node: SemanticModelNode): void {
+    this.modelNode = node;
   }
 
   /**
-   * Creates nodes and edges from semantic model
-   * @param semanticModel the semantic model
-   * @param flat maps names to url
+   * Track mouse position during entity modeling to find target nodes
+   * @param event mouse event
    */
-  private createSemanticGraph(semanticModel: SemanticModel, flat: boolean): void {
-    const color = 'primary';
-    if (semanticModel.nodes.length > 0) {
-      semanticModel.nodes.forEach(node => {
-        let icon = '';
-        if (node.syntaxNodeId) {
-          // get icon from syntax node
-          icon = Icons.getIcon(this.findSyntaxNodeById(node.syntaxNodeId));
-        }
-        this.addSemanticNode(node.uuid, flat ? node.concept.sourceURI : node.concept.label, node.label, icon, color, node.x, node.y);
-      });
-      semanticModel.edges.forEach(edge => this.addSemanticLink(edge.uuid, edge.from, edge.to, flat ? edge.concept.sourceURI : edge.concept.label), color);
+  @HostListener('mousemove', ['$event'])
+  onMousemove(event: MouseEvent): void {
+    if (this.modelNode) {
+      this.mousePosition = {x: event.clientX, y: event.clientY};
     }
   }
 
@@ -447,20 +462,62 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
   }
 
   /**
-   * Creates nodes and edges from recommendation and adds it to global variable
-   * @param recommendation the recommendation
+   * Fill graph object with current schema data
+   * @param flat mode
    */
-  private showRecommendation(recommendation: DeltaModification): void {
-    const opacity = 0.8;
-    const color = 'highlight';
-    recommendation.entities.forEach(node => {
-      let icon = '';
-      if (node.syntaxNodeId) {
-        icon = Icons.getIcon(this.findSyntaxNodeById(node.syntaxNodeId));
-      }
-      this.recommendations.push(this.addSemanticNode(node.uuid, node.concept.label, node.label, icon, color, node.x, node.y, opacity));
-    });
-    recommendation.relations.forEach(edge => this.recommendations.push(this.addSemanticLink(edge.uuid, edge.from, edge.to, edge.concept.label, color, opacity)));
+  private createGraph(flat: boolean = false): void {
+    // remove old content
+    this.paper.freeze();
+    this.graph.clear();
+    this.paper.updateViews();
+    // create graph based on filter selection
+    switch (this.$filter.getValue()) {
+      case Filter.ALL:
+        // show semantic nodes and links
+        this.createSemanticGraph(this.schema.semanticModel, flat);
+
+        // filter syntax nodes
+        const map = this.schema.modelMappings;
+        const mappedSyntaxNodes = this.schema.syntaxModel.nodes
+          .filter(node => this.schema.modelMappings
+            .some(mapping => mapping.schemaUuid === node.uuid)
+          );
+        const hiddenSyntaxNodesIds = mappedSyntaxNodes.map(node => node.uuid);
+        const reducedSyntaxModel = {
+          root: this.schema.syntaxModel.root,
+          nodes: this.schema.syntaxModel.nodes.filter(node => !mappedSyntaxNodes.includes(node)),
+          edges: map.map(mapping => {
+            return {
+              from: mapping.parentUuid,
+              to: mapping.classUuid
+            };
+          }).concat(
+            this.schema.syntaxModel.edges
+              .filter(edge => !hiddenSyntaxNodesIds.includes(edge.from) && !hiddenSyntaxNodesIds.includes(edge.to))
+              .map(edge => {
+                return {
+                  from: edge.from,
+                  to: edge.to
+                };
+              })
+          )
+        };
+        this.createSyntaxGraph(reducedSyntaxModel);
+        break;
+      case Filter.SYNTAX:
+        // show syntax nodes and links
+        this.createSyntaxGraph(this.schema.syntaxModel);
+        break;
+      case Filter.SEMANTIC:
+        // show semantic nodes and links
+        this.createSemanticGraph(this.schema.semanticModel, flat);
+        break;
+      default:
+        console.error('Unsupported Filter');
+    }
+    this.paper.unfreeze();
+    // layout links
+    this.graph.getLinks().forEach(el => Links.adjustVertices(this.graph, el));
   }
 
   /**
@@ -472,25 +529,23 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
   }
 
   /**
-   * Adds a semantic node to the graph
-   * @param id of node
-   * @param concept of node
-   * @param label of node
-   * @param icon of node
-   * @param color of node
-   * @param x of node
-   * @param y of node
-   * @param opacity of node
+   * Creates nodes and edges from semantic model
+   * @param semanticModel the semantic model
+   * @param flat maps names to url
    */
-  private addSemanticNode(id: string, concept: string, label: string, icon: string, color: 'primary' | 'accent' | 'highlight' = 'primary', x?: number, y?: number, opacity?: number): dia.Element {
-    const conceptDims = this.calcDimensionsForLabel(concept, false);
-    const labelDims = this.calcDimensionsForLabel(label, !!icon);
-    const dim = [Math.max(conceptDims[0], labelDims[0]), conceptDims[1] + labelDims[1]];
-    const position = {x, y};
-    const nodeColors = {color: this.colorToHex(color), contrast: this.colorToHex(color, true)};
-    const node = Nodes.createSemanticNode(id, concept, label, icon, position, dim[0], dim[1], nodeColors, opacity);
-    this.graph.addCell(node);
-    return node;
+  private createSemanticGraph(semanticModel: SemanticModel, flat: boolean): void {
+    const color = 'primary';
+    if (semanticModel.nodes.length > 0) {
+      semanticModel.nodes.forEach(node => {
+        let icon = '';
+        if (node._class === 'class') {
+          // get icon from syntax node
+          icon = Icons.getIcon(this.findSyntaxNodeById((node as Class).instance?.syntaxNodeUuid));
+        }
+        this.addSemanticNode(node.uuid, flat ? node.uri : node.label, node.label, icon, color, node.x, node.y);
+      });
+      semanticModel.edges.forEach(edge => this.addSemanticLink(edge.uuid, edge.from, edge.to, flat ? edge.uri : edge.label), color);
+    }
   }
 
   /**
@@ -585,50 +640,20 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
   }
 
   /**
-   * Update positions in data model of element and emit event
-   * @param element changed element
-   * @param emitEvent - true if emit should be emitted
+   * Creates nodes and edges from recommendation and adds it to global variable
+   * @param recommendation the recommendation
    */
-  private updatePosition(element: dia.Element, emitEvent: boolean): void {
-    const model = element.attributes;
-    if (Nodes.isSyntaxNode(element)) {
-      // update positions in data model
-      const node = this.findSyntaxNodeById(model.id);
-      const position = model.position;
-      if (node && (node.x !== position.x || node.y !== position.y)) {
-        node.x = position.x;
-        node.y = position.y;
-        // emit event
-        if (emitEvent) {
-          const nodeChanges = new NodeChangedEvent(Nodes.syntaxNodeName, node);
-          this.nodePositionChanged.emit(nodeChanges);
-        }
+  private showRecommendation(recommendation: DeltaModification): void {
+    const opacity = 0.8;
+    const color = 'highlight';
+    recommendation.entities.forEach(node => {
+      let icon = '';
+      if (node._class === 'Class' && (node as Class).instance && (node as Class).instance.syntaxNodeUuid) {
+        icon = Icons.getIcon(this.findSyntaxNodeById((node as Class).instance.syntaxNodeUuid));
       }
-    }
-    if (Nodes.isSemanticNode(element)) {
-      // update positions in data model
-      const node = this.findSemanticNodeById(model.id);
-      const position = model.position;
-      if (node && (node.x !== position.x || node.y !== position.y)) {
-        node.x = position.x;
-        node.y = position.y;
-        // emit event
-        if (emitEvent) {
-          const nodeChanges = new NodeChangedEvent(Nodes.semanticNodeName, node);
-          this.nodePositionChanged.emit(nodeChanges);
-        }
-        // update mapped syntax node position
-        if (node.syntaxNodeId) {
-          const mappedNode = this.findSyntaxNodeById(node.syntaxNodeId);
-          mappedNode.x = position.x;
-          mappedNode.y = position.y;
-          if (emitEvent) {
-            const nodeChanges = new NodeChangedEvent(Nodes.syntaxNodeName, mappedNode);
-            this.nodePositionChanged.emit(nodeChanges);
-          }
-        }
-      }
-    }
+      this.recommendations.push(this.addSemanticNode(node.uuid, node.uri, node.label, icon, color, node.x, node.y, opacity));
+    });
+    recommendation.relations.forEach(edge => this.recommendations.push(this.addSemanticLink(edge.uuid, edge.from, edge.to, edge.label, color, opacity)));
   }
 
   /**
@@ -679,17 +704,25 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
   }
 
   /**
-   * Searches a syntax node for gi
-   * @param elementView search element
+   * Adds a semantic node to the graph
+   * @param id of node
+   * @param uri of node
+   * @param label of node
+   * @param icon of node
+   * @param color of node
+   * @param x of node
+   * @param y of node
+   * @param opacity of node
    */
-  private getIfLeafNode(elementView: dia.ElementView): PrimitiveNode {
-    if (Nodes.isSyntaxNode(elementView)) {
-      const node = this.findSyntaxNodeById(elementView.model.id.toString());
-      if (node['@class'] === 'PrimitiveNode') {
-        return node;
-      }
-    }
-    return null;
+  private addSemanticNode(id: string, uri: string, label: string, icon: string, color: 'primary' | 'accent' | 'highlight' = 'primary', x?: number, y?: number, opacity?: number): dia.Element {
+    const classDims = this.calcDimensionsForLabel(uri, false);
+    const labelDims = this.calcDimensionsForLabel(label, !!icon);
+    const dim = [Math.max(classDims[0], labelDims[0]), classDims[1] + labelDims[1]];
+    const position = {x, y};
+    const nodeColors = {color: this.colorToHex(color), contrast: this.colorToHex(color, true)};
+    const node = Nodes.createSemanticNode(id, uri, label, icon, position, dim[0], dim[1], nodeColors, opacity);
+    this.graph.addCell(node);
+    return node;
   }
 
   /**
@@ -709,11 +742,65 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
   }
 
   /**
-   * Setter for entity concept
-   * @param concept - the new concept
+   * Update positions in data model of element and emit event
+   * @param element changed element
+   * @param emitEvent - true if emit should be emitted
    */
-  setEntityConcept(concept: EntityConcept): void {
-    this.entityConcept = concept;
+  private updatePosition(element: dia.Element, emitEvent: boolean): void {
+    const model = element.attributes;
+    if (Nodes.isSyntaxNode(element)) {
+      // update positions in data model
+      const node = this.findSyntaxNodeById(model.id);
+      const position = model.position;
+      if (node && (node.x !== position.x || node.y !== position.y)) {
+        node.x = position.x;
+        node.y = position.y;
+        // emit event
+        if (emitEvent) {
+          const nodeChanges = new NodeChangedEvent(Nodes.syntaxNodeName, node);
+          this.nodePositionChanged.emit(nodeChanges);
+        }
+      }
+    }
+    if (Nodes.isSemanticNode(element)) {
+      // update positions in data model
+      const node = this.findSemanticNodeById(model.id);
+      const position = model.position;
+      if (node && (node.x !== position.x || node.y !== position.y)) {
+        node.x = position.x;
+        node.y = position.y;
+        // emit event
+        if (emitEvent) {
+          const nodeChanges = new NodeChangedEvent(Nodes.semanticClassName, node);
+          this.nodePositionChanged.emit(nodeChanges);
+        }
+        // update mapped syntax node position
+        if (node._class === 'Class' && (node as Class).instance?.syntaxNodeUuid) {
+          // TODO this could be done by the backend
+          const mappedNode = this.findSyntaxNodeById((node as Class).instance?.syntaxNodeUuid);
+          mappedNode.x = position.x;
+          mappedNode.y = position.y;
+          if (emitEvent) {
+            const nodeChanges = new NodeChangedEvent(Nodes.syntaxNodeName, mappedNode);
+            this.nodePositionChanged.emit(nodeChanges);
+          }
+        }
+      }
+    }
+  }
+
+  /**
+   * Searches a syntax node for gi
+   * @param elementView search element
+   */
+  private getIfLeafNode(elementView: dia.ElementView): PrimitiveNode {
+    if (Nodes.isSyntaxNode(elementView)) {
+      const node = this.findSyntaxNodeById(elementView.model.id.toString());
+      if (node._class === 'PrimitiveNode') {
+        return node;
+      }
+    }
+    return null;
   }
 
   /**
@@ -733,11 +820,11 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
           }
         });
         break;
-      case Nodes.semanticNodeName:
+      case Nodes.semanticClassName:
         const semanticNode = this.findSemanticNodeById(id);
-        const title = `${semanticNode.concept.label} (${semanticNode.concept.sourceURI})`;
+        const title = `${semanticNode.label} (${semanticNode.uri})`;
         this.nodeDialogRef = this.modal.create(this.createConfig(title, PlsSemanticNodeDetailsComponent, {
-          dataSource: this.dataSource,
+          modelId: this.dataSource,
           node: semanticNode,
           recommendations: this.filterRecommendationsForAnchor(semanticNode.uuid)
         }));
@@ -763,17 +850,6 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
         break;
       default:
         console.error('Unsupported node type');
-    }
-  }
-
-  /**
-   * Track mouse position during entity modeling to find target nodes
-   * @param event mouse event
-   */
-  @HostListener('mousemove', ['$event'])
-  onMousemove(event: MouseEvent): void {
-    if (this.entityConcept) {
-      this.mousePosition = {x: event.clientX, y: event.clientY};
     }
   }
 

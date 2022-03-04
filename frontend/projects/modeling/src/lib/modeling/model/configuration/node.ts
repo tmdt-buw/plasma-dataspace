@@ -1,11 +1,11 @@
-import {dia, shapes} from 'jointjs';
+import { dia, shapes } from 'jointjs';
 import {
   CollisionSchema,
   CompositeNode,
-  EntityType,
   ObjectNode,
   PrimitiveNode,
   SchemaNode,
+  SemanticModelNode,
   SetNode
 } from '../../../api/generated/dms';
 
@@ -13,9 +13,9 @@ import {
 /**
  * Node type defs
  */
-export type Node = 'custom.SyntaxNode' | 'custom.SemanticNode';
+export type Node = 'custom.SyntaxNode' | 'custom.SemanticClassNode';
 export type SyntaxNode = SchemaNode | CollisionSchema | CompositeNode | ObjectNode | PrimitiveNode | SetNode;
-export type SemanticNode = EntityType;
+export type SemanticNode = SemanticModelNode;
 
 /**
  * Abstract class that provides configs for nodes
@@ -24,11 +24,11 @@ export abstract class Nodes {
 
   // internal node type names
   static readonly syntaxNodeName: Node = 'custom.SyntaxNode';
-  static readonly semanticNodeName: Node = 'custom.SemanticNode';
+  static readonly semanticClassName: Node = 'custom.SemanticClassNode';
 
   // basic semantic node config
-  private static semanticNode: dia.Cell.Constructor<dia.Element> = shapes.standard.HeaderedRectangle.define(
-    Nodes.semanticNodeName, {
+  private static classNode: dia.Cell.Constructor<dia.Element> = shapes.standard.HeaderedRectangle.define(
+    Nodes.semanticClassName, {
       attrs: {
         body: {
           rx: 5,
@@ -160,11 +160,11 @@ export abstract class Nodes {
    */
   static isSemanticNode(node: dia.CellView | dia.ElementView | dia.Element): boolean {
     const model = node instanceof dia.Element ? node : node.model;
-    return model.attributes?.type === Nodes.semanticNodeName;
+    return model.attributes?.type === Nodes.semanticClassName;
   }
 
   /**
-   * Calls constructor and returns instance of a new semantic node
+   * Calls constructor and returns instance of a new semantic class node
    * @param id of node
    * @param header of node
    * @param label of node
@@ -176,7 +176,7 @@ export abstract class Nodes {
    * @param opacity of node
    */
   static createSemanticNode(id: string, header: string, label: string, icon: string, position: { x: number, y: number }, width: number, height: number, color: { color: string, contrast: string }, opacity?: number): dia.Element {
-    return new Nodes.semanticNode({
+    return new Nodes.classNode({
       id,
       // @ts-ignore not in jointjs model but works this way
       position,

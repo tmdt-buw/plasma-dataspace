@@ -87,7 +87,7 @@ export abstract class Links {
    * @param link to test
    */
   static targetsSemanticNode(link: dia.LinkView): boolean {
-    return link.model?.getTargetElement()?.attributes?.type === Nodes.semanticNodeName;
+    return link.model?.getTargetElement()?.attributes?.type === Nodes.semanticClassName;
   }
 
   /**

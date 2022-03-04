@@ -1,11 +1,11 @@
-import {Injectable} from '@angular/core';
-import {DeltaModification, RelationConcept} from '../api/generated/dms';
-import {BehaviorSubject} from 'rxjs';
+import { Injectable } from '@angular/core';
+import { DeltaModification, Relation } from '../api/generated/dms';
+import { BehaviorSubject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ModelingService {
-  relationConcept = new BehaviorSubject<RelationConcept>(null);
+  relation = new BehaviorSubject<Relation>(null);
   recommendation = new BehaviorSubject<DeltaModification>(null);
 }

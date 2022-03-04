@@ -19,6 +19,10 @@ public class PrimitiveNode extends SchemaNode {
 
     private static final long serialVersionUID = -144653268470507986L;
 
+    public static final String CLEANSING_PATTERN_PROPERTY = "pattern";
+    public static final String DATATYPE_PROPERTY = "datatype";
+    public static final String EXAMPLES_PROPERTY = "examples";
+
     private String cleansingPattern;
     private List<String> examples;
     private DataType dataType;
@@ -54,15 +58,15 @@ public class PrimitiveNode extends SchemaNode {
 
     @JsonCreator
     public PrimitiveNode(
-            @NotNull @JsonProperty String uuid,
-            @JsonProperty @NotNull String label,
-            @JsonProperty Double xCoordinate,
-            @JsonProperty Double yCoordinate,
-            @NotNull @JsonProperty List<SyntacticOperationDTO> operations,
-            @JsonProperty boolean isValid,
-            @NotNull @JsonProperty DataType dataType,
-            @JsonProperty List<String> examples,
-            @JsonProperty String cleansingPattern
+            @NotNull @JsonProperty(UUID_PROPERTY) String uuid,
+            @JsonProperty(LABEL_PROPERTY) @NotNull String label,
+            @JsonProperty(XCOORDINATE_PROPERTY) Double xCoordinate,
+            @JsonProperty(YCOORDINATE_PROPERTY) Double yCoordinate,
+            @NotNull @JsonProperty(OPERATIONS_PROPERTY) List<SyntacticOperationDTO> operations,
+            @JsonProperty(VALID_PROPERTY) boolean isValid,
+            @NotNull @JsonProperty(DATATYPE_PROPERTY) DataType dataType,
+            @JsonProperty(EXAMPLES_PROPERTY) List<String> examples,
+            @JsonProperty(CLEANSING_PATTERN_PROPERTY) String cleansingPattern
     ) {
         super(uuid, label, xCoordinate, yCoordinate, operations, isValid);
         this.dataType = dataType;
@@ -70,7 +74,7 @@ public class PrimitiveNode extends SchemaNode {
         this.cleansingPattern = cleansingPattern;
     }
 
-    @JsonProperty
+    @JsonProperty(CLEANSING_PATTERN_PROPERTY)
     public String getCleansingPattern() {
         return cleansingPattern;
     }
@@ -79,12 +83,12 @@ public class PrimitiveNode extends SchemaNode {
         this.cleansingPattern = cleansingPattern;
     }
 
-    @JsonProperty
+    @JsonProperty(EXAMPLES_PROPERTY)
     public List<String> getExamples() {
         return examples;
     }
 
-    @JsonProperty
+    @JsonProperty(DATATYPE_PROPERTY)
     public DataType getDataType() {
         return dataType;
     }

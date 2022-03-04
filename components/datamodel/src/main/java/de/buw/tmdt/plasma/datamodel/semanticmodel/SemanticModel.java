@@ -16,6 +16,10 @@ import java.util.Objects;
 
 public class SemanticModel implements Serializable {
 
+    public static final String ID_PROPERTY = "id";
+    public static final String NODES_PROPERTY = "nodes";
+    public static final String EDGES_PROPERTY = "edges";
+
     private final List<SemanticModelNode> nodes;
     private final List<Relation> edges;
     /**
@@ -23,16 +27,15 @@ public class SemanticModel implements Serializable {
      */
     private String id;
 
-    @JsonCreator
     public SemanticModel() {
         this(null, null, null);
     }
 
     @JsonCreator
     public SemanticModel(
-            @Nullable @JsonProperty String id,
-            @Nullable @JsonProperty List<SemanticModelNode> nodes,
-            @Nullable @JsonProperty List<Relation> edges
+            @Nullable @JsonProperty(ID_PROPERTY) String id,
+            @Nullable @JsonProperty(NODES_PROPERTY) List<SemanticModelNode> nodes,
+            @Nullable @JsonProperty(EDGES_PROPERTY) List<Relation> edges
     ) {
         this.id = id;
         this.nodes = nodes != null ? new ArrayList<>(nodes) : new ArrayList<>();
@@ -40,7 +43,7 @@ public class SemanticModel implements Serializable {
     }
 
     /* Getter */
-    @JsonProperty
+    @JsonProperty(ID_PROPERTY)
     public String getId() {
         return id;
     }
@@ -49,12 +52,12 @@ public class SemanticModel implements Serializable {
         this.id = id;
     }
 
-    @JsonProperty
+    @JsonProperty(NODES_PROPERTY)
     public List<SemanticModelNode> getNodes() {
         return nodes;
     }
 
-    @JsonProperty
+    @JsonProperty(EDGES_PROPERTY)
     public List<Relation> getEdges() {
         return edges;
     }
@@ -124,11 +127,11 @@ public class SemanticModel implements Serializable {
             } catch (CombinedModelIntegrityException cmie) {
                 errors.add(cmie.getMessage());
             }
-            long fromCount = getNodes().stream().filter(node -> Objects.equals(node.getUuid(), edge.getFromId())).count();
+            long fromCount = getNodes().stream().filter(node -> Objects.equals(node.getUuid(), edge.getFrom())).count();
             if (fromCount != 1) {
                 errors.add("Relation " + edge.getUuid() + " fromId matches " + fromCount + " nodes (must be 1)");
             }
-            long toCount = getNodes().stream().filter(node -> Objects.equals(node.getUuid(), edge.getToId())).count();
+            long toCount = getNodes().stream().filter(node -> Objects.equals(node.getUuid(), edge.getTo())).count();
             if (toCount != 1) {
                 errors.add("Relation " + edge.getUuid() + " toId matches " + toCount + " nodes (must be 1)");
             }

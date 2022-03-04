@@ -1,16 +1,12 @@
-<app-editor *ngIf="dataSource">
+<app-editor *ngIf="modelId">
   <ng-container appEditorContentHeaderText>Semantic Modeling</ng-container>
 
   <ng-container appEditorContentHeaderButtons>
     <!-- placeholder for buttons -->
   </ng-container>
 
-  <ng-container appEditorContentHeaderSubtext>
-    Refine the semantic and structural model of your data source.
-  </ng-container>
-
   <ng-container appEditorContentBody>
-    <pls-modeling [dataSource]="dataSource" [backgroundColor]="'white'"></pls-modeling>
+    <pls-modeling [backgroundColor]="'white'" [modelId]="modelId"></pls-modeling>
   </ng-container>
 
 </app-editor>

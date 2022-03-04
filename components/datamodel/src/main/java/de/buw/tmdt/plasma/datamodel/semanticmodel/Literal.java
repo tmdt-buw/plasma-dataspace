@@ -1,5 +1,7 @@
 package de.buw.tmdt.plasma.datamodel.semanticmodel;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import de.buw.tmdt.plasma.datamodel.CombinedModelIntegrityException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -8,6 +10,8 @@ import java.util.Objects;
 
 public class Literal extends SemanticModelNode {
 
+    public static final String VALUE_PROPERTY = "value";
+
     private String value;
 
     public Literal(String value) {
@@ -15,8 +19,12 @@ public class Literal extends SemanticModelNode {
         this.value = value;
     }
 
-    public Literal(@Nullable String uuid, @NotNull String label, @Nullable Double xCoordinate, @Nullable Double yCoordinate) {
-        super(uuid, null, label, xCoordinate, yCoordinate);
+    @JsonCreator
+    public Literal(@Nullable @JsonProperty(UUID_PROPERTY) String uuid,
+                   @NotNull @JsonProperty(LABEL_PROPERTY) String value,
+                   @Nullable @JsonProperty(XCOORDINATE_PROPERTY) Double xCoordinate,
+                   @Nullable @JsonProperty(YCOORDINATE_PROPERTY) Double yCoordinate) {
+        super(uuid, null, value, xCoordinate, yCoordinate);
     }
 
     @Override
@@ -29,6 +37,7 @@ public class Literal extends SemanticModelNode {
         return new Literal(null, getValue(), getXCoordinate(), getYCoordinate());
     }
 
+    @JsonProperty(VALUE_PROPERTY)
     public String getValue() {
         return value;
     }

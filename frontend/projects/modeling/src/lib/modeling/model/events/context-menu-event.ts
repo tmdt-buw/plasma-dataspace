@@ -1,13 +1,13 @@
-import { EntityConcept, RelationConcept, SyntacticOperationDTO } from '../../../api/generated/dms';
+import { Relation, SemanticModelNode, SyntacticOperationDTO } from '../../../api/generated/dms';
 
 export class ContextMenuEvent {
   type: ContextMenuEventType;
-  target: EntityConcept | RelationConcept;
+  target: SemanticModelNode | Relation;
   operation?: SyntacticOperationDTO;
 
-  constructor(type: ContextMenuEventType, concept: EntityConcept | RelationConcept, operation?: SyntacticOperationDTO) {
+  constructor(type: ContextMenuEventType, template: SemanticModelNode | Relation, operation?: SyntacticOperationDTO) {
     this.type = type;
-    this.target = concept;
+    this.target = template;
     this.operation = operation;
   }
 }

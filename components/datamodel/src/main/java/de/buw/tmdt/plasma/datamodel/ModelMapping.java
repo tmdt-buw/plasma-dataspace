@@ -10,15 +10,19 @@ import java.io.Serializable;
  * Contains mappings needed to render supplementary edges in the frontend.
  * Only used for frontend issues, can be ignored everywhere else
  */
-public class PrimitiveEntityTypeMapping implements Serializable {
+public class ModelMapping implements Serializable {
 
     private static final long serialVersionUID = -6888269571341658964L;
+
+    public static final String PRIMITIVE_PROPERTY = "schemaUuid";
+    public static final String CLASS_PROPERTY = "classUuid";
+    public static final String PARENT_PROPERTY = "parentUuid";
 
     @NotNull
     private String primitiveUUID;
 
     @NotNull
-    private String instanceId;
+    private String classUUID;
 
     /**
      * The parent syntax node of the node identified by primitiveUUID.
@@ -28,19 +32,19 @@ public class PrimitiveEntityTypeMapping implements Serializable {
     private String parentUUID;
 
     @JsonCreator
-    public PrimitiveEntityTypeMapping(
-            @JsonProperty @NotNull String primitiveUUID,
-            @JsonProperty @NotNull String instanceId,
-            @JsonProperty @NotNull String parentUUID
+    public ModelMapping(
+            @JsonProperty(PRIMITIVE_PROPERTY) @NotNull String primitiveUUID,
+            @JsonProperty(CLASS_PROPERTY) @NotNull String classUUID,
+            @JsonProperty(PARENT_PROPERTY) @NotNull String parentUUID
 
     ) {
         this.parentUUID = parentUUID;
-        this.instanceId = instanceId;
+        this.classUUID = classUUID;
         this.primitiveUUID = primitiveUUID;
     }
 
     @NotNull
-    @JsonProperty
+    @JsonProperty(PARENT_PROPERTY)
     public String getParentUUID() {
         return parentUUID;
     }
@@ -50,7 +54,7 @@ public class PrimitiveEntityTypeMapping implements Serializable {
     }
 
     @NotNull
-    @JsonProperty
+    @JsonProperty(PRIMITIVE_PROPERTY)
     public String getPrimitiveUUID() {
         return primitiveUUID;
     }
@@ -60,13 +64,13 @@ public class PrimitiveEntityTypeMapping implements Serializable {
     }
 
     @NotNull
-    @JsonProperty
-    public String getInstanceId() {
-        return this.instanceId;
+    @JsonProperty(CLASS_PROPERTY)
+    public String getClassUUID() {
+        return this.classUUID;
     }
 
-    public void setInstanceId(@NotNull String instanceId) {
-        this.instanceId = instanceId;
+    public void setClassUUID(@NotNull String classUUID) {
+        this.classUUID = classUUID;
     }
 
     /**
@@ -74,15 +78,15 @@ public class PrimitiveEntityTypeMapping implements Serializable {
      *
      * @return The cloned entity
      */
-    public PrimitiveEntityTypeMapping copy() {
-        return new PrimitiveEntityTypeMapping(getPrimitiveUUID(), getInstanceId(), getParentUUID());
+    public ModelMapping copy() {
+        return new ModelMapping(getPrimitiveUUID(), getClassUUID(), getParentUUID());
     }
 
     @Override
     public String toString() {
         return "PrimitiveEntityTypeMapping{" +
                 "parentUUID=" + parentUUID +
-                ", entityTypeId=" + instanceId +
+                ", entityTypeId=" + classUUID +
                 ", primitiveUUID=" + primitiveUUID +
                 '}';
     }

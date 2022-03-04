@@ -8,12 +8,12 @@ import { ActivatedRoute } from '@angular/router';
 })
 export class ModelingComponent implements OnInit {
 
-  dataSource: string;
+  modelId: string;
 
   constructor(private route: ActivatedRoute) { }
 
   ngOnInit(): void {
-    this.dataSource = this.route.snapshot.paramMap.get('id');
+    this.modelId = this.route.snapshot.paramMap.get('id');
   }
 
 }

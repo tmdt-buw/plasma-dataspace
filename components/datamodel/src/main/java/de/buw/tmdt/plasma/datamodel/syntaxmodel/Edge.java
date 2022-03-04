@@ -17,6 +17,10 @@ public class Edge extends CombinedModelElement {
 
     private static final long serialVersionUID = 40733795713697672L;
 
+    public static final String FROM_PROPERTY = "from";
+    public static final String TO_PROPERTY = "to";
+    public static final String ANNOTATIONS_PROPERTY = "annotations";
+
     /**
      * An identifier of the origin node, references to a {@link SchemaNode#getUuid()}.
      */
@@ -37,34 +41,34 @@ public class Edge extends CombinedModelElement {
     private String annotation;
 
     @SuppressFBWarnings("NP_METHOD_PARAMETER_TIGHTENS_ANNOTATION") // does not intent to override
-    public Edge(@NotNull String fromUuid, @NotNull String toUuid) {
-        this(UUID.randomUUID().toString(), "", fromUuid, toUuid, null);
+    public Edge(@NotNull String fromId, @NotNull String toId) {
+        this(UUID.randomUUID().toString(), "", fromId, toId, null);
     }
 
     public Edge(
             @NotNull String uuid,
             @NotNull String label,
-            @NotNull String fromUuid,
-            @NotNull String toUuid
+            @NotNull String fromId,
+            @NotNull String toId
     ) {
-        this(uuid, label, fromUuid, toUuid, null);
+        this(uuid, label, fromId, toId, null);
     }
 
     @JsonCreator
     public Edge(
-            @NotNull String uuid,
-            @NotNull String label,
-            @NotNull String fromUuid,
-            @NotNull String toUuid,
-            @Nullable String annotation
+            @NotNull @JsonProperty(UUID_PROPERTY) String uuid,
+            @NotNull @JsonProperty(LABEL_PROPERTY) String label,
+            @NotNull @JsonProperty(FROM_PROPERTY) String fromId,
+            @NotNull @JsonProperty(TO_PROPERTY) String toId,
+            @Nullable @JsonProperty(ANNOTATIONS_PROPERTY) String annotation
     ) {
         super(uuid, label);
-        this.fromId = fromUuid;
-        this.toId = toUuid;
+        this.fromId = fromId;
+        this.toId = toId;
         this.annotation = annotation;
     }
 
-    @JsonProperty
+    @JsonProperty(FROM_PROPERTY)
     @NotNull
     public String getFromId() {
         return fromId;
@@ -74,7 +78,7 @@ public class Edge extends CombinedModelElement {
         this.fromId = fromId;
     }
 
-    @JsonProperty
+    @JsonProperty(TO_PROPERTY)
     @NotNull
     public String getToId() {
         return toId;
@@ -85,7 +89,7 @@ public class Edge extends CombinedModelElement {
     }
 
     @Nullable
-    @JsonProperty
+    @JsonProperty(ANNOTATIONS_PROPERTY)
     public String getAnnotation() {
         return annotation;
     }

@@ -57,7 +57,7 @@ class CombinedModelTest {
 
         assertEquals(model.getRecommendations().size(), cloned.getRecommendations().size());
 
-        assertEquals(model.generatePrimitiveInstanceMappings().size(), cloned.generatePrimitiveInstanceMappings().size());
+        assertEquals(model.generateModelMappings().size(), cloned.generateModelMappings().size());
 
         assertEquals(model.getProvisionalElements().size(), cloned.getProvisionalElements().size());
         //assertEquals(model.getProvisionalRelationConcepts().size(), cloned.getProvisionalRelationConcepts().size());
@@ -90,21 +90,21 @@ class CombinedModelTest {
         // test relation to not matching
         model = getCombinedModel();
         Relation relation = model.getSemanticModel().getEdges().get(rnd.nextInt(model.getSemanticModel().getEdges().size()));
-        relation.setToId(UUID.randomUUID().toString());
+        relation.setTo(UUID.randomUUID().toString());
 
         assertThrows(CombinedModelIntegrityException.class, model::validate);
 
         // test relation from not matching
         model = getCombinedModel();
         relation = model.getSemanticModel().getEdges().get(rnd.nextInt(model.getSemanticModel().getEdges().size()));
-        relation.setFromId(UUID.randomUUID().toString());
+        relation.setFrom(UUID.randomUUID().toString());
 
         assertThrows(CombinedModelIntegrityException.class, model::validate);
 
         // test relation from not accepting syntax node ids
         model = getCombinedModel();
         relation = model.getSemanticModel().getEdges().get(rnd.nextInt(model.getSemanticModel().getEdges().size()));
-        relation.setFromId(model.getSyntaxModel().getNodes().get(0).getUuid());
+        relation.setFrom(model.getSyntaxModel().getNodes().get(0).getUuid());
 
         assertThrows(CombinedModelIntegrityException.class, model::validate);
 

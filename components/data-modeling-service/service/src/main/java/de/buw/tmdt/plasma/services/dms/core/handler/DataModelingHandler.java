@@ -39,7 +39,7 @@ import java.util.stream.Collectors;
 @Service
 public class DataModelingHandler {
 
-    private static final Logger logger = LoggerFactory.getLogger(DataModelingHandler.class);
+    private static final Logger log = LoggerFactory.getLogger(DataModelingHandler.class);
 
     private final SemanticModelApiClient semanticModelApiClient;
     private final OntologyApiClient ontologyApiClient;
@@ -74,82 +74,79 @@ public class DataModelingHandler {
         this.configServiceClient = configServiceClient;
     }
 
-    public void initModelSchema(@NotNull String modelId, int exampleLimit) {
-        DataSourceModel dataSourceModel = dataSourceRepository.findById(UUID.fromString(modelId)).orElse(null);
-        if (dataSourceModel != null) {
-            logger.info("Received init request for already existing data source, skipping...");
-            return;
-        }
+    public void initModel(@NotNull String modelId, int exampleLimit) {
         Optional<DataSourceModel> dataSourceResult = dataSourceRepository.findById(UUID.fromString(modelId));
-
+        DataSourceModel dataSourceModel;
         if (dataSourceResult.isPresent()) {
-            logger.info("Data source already exists - the current schema is replaced with the last existing one in the SAS");
-            dataSourceModel = dataSourceResult.get();
+            log.info("Data source already exists");
+            return;
             //dataSourceModel.setDataSourceSchemaStack(Collections.emptyList());
         } else {
-            logger.info("Data source does not exist");
-            DataSourceModel dsm = new DataSourceModel(UUID.fromString(modelId));
-            dataSourceModel = dataSourceRepository.save(dsm);
-            logger.info("Created a new data source");
-        }
-        dataSourceModel.pushCombinedModel(createInitialSchema(modelId, exampleLimit, dataSourceModel));
+            SyntaxModel syntaxModel;
+            try {
+                syntaxModel = schemaAnalysisApiClient.getResult(modelId, exampleLimit);
+            } catch (FeignException e) {
+                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+                        "Could not reach SchemaAnalysisService", e);
+            }
 
+            CombinedModel syntaxCombinedModel = new CombinedModel(
+                    modelId,
+                    syntaxModel,
+                   null,
+                    null,
+                    false
+            );
+            dataSourceModel = new DataSourceModel(UUID.fromString(modelId) );
+
+            dataSourceModel.pushCombinedModel(syntaxCombinedModel);
+
+            try {
+                CombinedModel labeledCombinedModel;
+                labeledCombinedModel = semanticRecommendationApiClient.performSemanticLabeling(
+                        modelId, null, null, syntaxCombinedModel);
+                dataSourceModel.pushCombinedModel(labeledCombinedModel);
+                try {
+                    CombinedModel modeledCombinedModel;
+                    // request semantic modeling
+                    modeledCombinedModel = semanticRecommendationApiClient.performSemanticModeling(
+                            modelId, null, null, labeledCombinedModel);
+                    dataSourceModel.pushCombinedModel(modeledCombinedModel);
+                } catch (Exception e) {
+                    log.warn("Semantic modeling did not succeed: ", e);
+                    log.warn("Continuing with labeled model...");
+                }
+            } catch (Exception e) {
+                log.warn("Semantic labeling did not succeed: ", e);
+                log.warn("Continuing with raw model...");
+            }
+        }
         //store the schema
         dataSourceRepository.save(dataSourceModel);
     }
 
-    private CombinedModel createInitialSchema(String modelId, int exampleLimit, DataSourceModel dataSourceModel) {
-        @NotNull SyntaxModel syntaxModel;
-        try {
-            syntaxModel = schemaAnalysisApiClient.getResult(modelId.toString(), exampleLimit);
-        } catch (FeignException e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Could not reach SchemaAnalysisService", e);
-        }
-        SemanticModel semanticModel;
-        semanticModel = new SemanticModel(
-                null,
-                new ArrayList<>(),
-                new ArrayList<>()
-        );
-
-        CombinedModel syntaxCombinedModel = new CombinedModel(
-                modelId,
-                syntaxModel,
-                semanticModel,
-                null,
-                false
-        );
-
-        dataSourceModel.pushCombinedModel(syntaxCombinedModel);
-        dataSourceModel = dataSourceRepository.save(dataSourceModel);
-
-        // request semantic labeling
-        CombinedModel combinedModel = dataSourceModel.getCurrentModel();
-        combinedModel.getSyntaxModel().getNodes().forEach(node -> {
-            // no operations when sending to other services
-            node.getOperations().clear();
-        });
-
-        try {
-            CombinedModel labeledCombinedModel;
-            labeledCombinedModel = semanticRecommendationApiClient.performSemanticLabeling(
-                    modelId.toString(), null, null, combinedModel);
+    @SuppressWarnings("SameParameterValue") // this might change
+    @NotNull
+    private CombinedModel getCombinedModel(@NotNull String modelId, boolean modelWillBeModified) {
+        Optional<DataSourceModel> dataSourceModel = dataSourceRepository.findById(UUID.fromString(modelId));
+        if (dataSourceModel.isPresent()) {
             try {
-                CombinedModel modeledCombinedModel;
-                // request semantic modeling
-                modeledCombinedModel = semanticRecommendationApiClient.performSemanticModeling(
-                        modelId.toString(), null, null, labeledCombinedModel);
-                return modeledCombinedModel;
+                return getCombinedModel(dataSourceModel.get(), modelWillBeModified);
             } catch (Exception e) {
-                logger.warn("Semantic modeling did not succeed: ", e);
-                logger.warn("Continuing with labeled model...");
+
             }
-            return labeledCombinedModel;
-        } catch (Exception e) {
-            logger.warn("Semantic labeling did not succeed: ", e);
-            logger.warn("Continuing with raw model...");
         }
-        return dataSourceModel.getCurrentModel();
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Model was not found");
+    }
+
+    @NotNull
+    private CombinedModel getCombinedModel(@NotNull DataSourceModel dataSourceModel, boolean modelWillBeModified) {
+        CombinedModel currentModel = dataSourceModel.getCurrentModel();
+
+        if (modelWillBeModified && currentModel.isFinalized()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Finalized models are not allowed to be modified");
+        }
+        return currentModel;
     }
 
     public @NotNull CombinedModel getCombinedModel(@NotNull String modelId) {
@@ -273,7 +270,7 @@ public class DataModelingHandler {
         try {
             modifiedModel = handle.invoke(combinedModel);
         } catch (ParameterParsingException e) {
-            logger.warn("Failed to execute operation: {}", syntacticOperationDTO, e);
+            log.warn("Failed to execute operation: {}", syntacticOperationDTO, e);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Parametrization for operation " + syntacticOperationDTO.getName() + " was invalid.");
         }
 
@@ -324,7 +321,7 @@ public class DataModelingHandler {
         } catch (Exception e) {
             // something went wrong
             // TODO add more fine grained exceptions
-            logger.warn("Exception during application of modification: " + modification + ":");
+            log.warn("Exception during application of modification: " + modification + ":");
             e.printStackTrace();
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Error during application of modification: " + e.getMessage());
         }
@@ -358,7 +355,7 @@ public class DataModelingHandler {
         for (PositionedCombinedModelElement movedElement : movedElements) {
             PositionedCombinedModelElement current = elementLookup.get(movedElement.getUuid());
             if (current == null) {
-                logger.warn("Could not update position for non-existing element in CombinedModel: {}", movedElement.getUuid());
+                log.warn("Could not update position for non-existing element in CombinedModel: {}", movedElement.getUuid());
                 continue;
             }
             current.setXCoordinate(movedElement.getXCoordinate());
@@ -369,7 +366,7 @@ public class DataModelingHandler {
 
 
     @NotNull
-    public SemanticModelNode cacheElement(@NotNull String modelId, @NotNull SemanticModelNode element) {
+    public SemanticModelNode cacheNode(@NotNull String modelId, @NotNull SemanticModelNode element) {
 
         element.validate();
 
@@ -386,7 +383,7 @@ public class DataModelingHandler {
             persistDataSourceModel(dataSourceModel);
             return usedElement;
         } else {
-            logger.info("Received uncachable type " + element);
+            log.info("Received uncachable type " + element);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "This type cannot be cached");
         }
     }
@@ -578,9 +575,9 @@ public class DataModelingHandler {
         //send request
         final SemanticModel response;
         try {
-            logger.info("Creating Semantic Model");
+            log.info("Creating Semantic Model");
             response = semanticModelApiClient.createSemanticModel(semanticModel);
-            logger.info("Created Semantic Model");
+            log.info("Created Semantic Model");
         } catch (FeignException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error when creating semantic model in the KGS", e);
         }
@@ -596,7 +593,7 @@ public class DataModelingHandler {
         if (possibleSchema.isPresent()) {
             dataSourceRepository.delete(possibleSchema.get());
         } else {
-            logger.warn("Model with id {} was not available", modelId);
+            log.warn("Model with id {} was not available", modelId);
         }
     }
 
@@ -618,40 +615,6 @@ public class DataModelingHandler {
         dataSourceRepository.save(dataSourceModel);
     }
 
-
-    @SuppressWarnings("SameParameterValue") // this might change
-    @NotNull
-    private CombinedModel getCombinedModel(@NotNull String modelId, boolean modelWillBeModified) {
-        Optional<DataSourceModel> dataSourceModel = dataSourceRepository.findById(UUID.fromString(modelId));
-        if (dataSourceModel.isPresent()) {
-            try {
-                return getCombinedModel(dataSourceModel.get(), modelWillBeModified);
-            } catch (Exception e) {
-                logger.warn("Could not get Combined Model in DMS, falling back to KGS:", e);
-            }
-        }
-        //Check if a model is available in the KGS
-        try {
-            SemanticModel model = semanticModelApiClient.getSemanticModel(modelId);
-            CombinedModel combinedModel = new CombinedModel(modelId, null, model);
-            combinedModel.finalizeModel();
-            return combinedModel;
-        } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Semantic Model was not found");
-        }
-    }
-
-    @NotNull
-    private CombinedModel getCombinedModel(@NotNull DataSourceModel dataSourceModel, boolean modelWillBeModified) {
-        CombinedModel currentModel = dataSourceModel.getCurrentModel();
-
-        if (modelWillBeModified && currentModel.isFinalized()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Finalized models are not allowed to be modified");
-        }
-        return currentModel;
-    }
-
-
     @SuppressFBWarnings("NP_NONNULL_RETURN_VIOLATION") // throws Exception if null
     @NotNull
     private DataSourceModel findDataSourceOrThrow(@NotNull String modelId) {
@@ -664,7 +627,7 @@ public class DataModelingHandler {
         try {
             return semanticRecommendationApiClient.performSemanticRefinement(modelId, null, null, combinedModel);
         } catch (Exception e) {
-            logger.warn("Could not reach SRS");
+            //log.warn("Could not reach SRS");
         }
         return combinedModel;
     }

@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { EntityType, SyntacticOperationDTO } from '../../../api/generated/dms';
+import { SemanticModelNode, SyntacticOperationDTO } from '../../../api/generated/dms';
 import { ContextMenuEvent, ContextMenuEventType } from '../../model/events/context-menu-event';
 import { ContextMenuService } from '../context-menu.service';
 import { SyntaxNode } from '../../model/configuration/node';
@@ -11,17 +11,17 @@ import { SyntaxNode } from '../../model/configuration/node';
 })
 export class PlsEntityConceptMenuComponent {
 
-  @Input() entity: EntityType;
+  @Input() semanticNode: SemanticModelNode;
   @Input() syntaxNode: SyntaxNode;
 
   constructor(private contextMenu: ContextMenuService) {
   }
 
   onSelectOperation(operation: SyntacticOperationDTO): void {
-    this.contextMenu.close(new ContextMenuEvent(ContextMenuEventType.performOperation, this.entity, operation));
+    this.contextMenu.close(new ContextMenuEvent(ContextMenuEventType.performOperation, this.semanticNode, operation));
   }
 
   remove(): void {
-    this.contextMenu.close(new ContextMenuEvent(ContextMenuEventType.removeEntity, this.entity));
+    this.contextMenu.close(new ContextMenuEvent(ContextMenuEventType.removeEntity, this.semanticNode));
   }
 }

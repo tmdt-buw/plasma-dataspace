@@ -12,6 +12,9 @@ import java.util.Objects;
 public class Class extends SemanticModelNode implements Serializable {
     private static final long serialVersionUID = 2351939502355153654L;
 
+    public static final String DESCRIPTION_PROPERTY = "description";
+    public static final String INSTANCE_PROPERTY = "instance";
+
     private String description;
 
     /**
@@ -22,9 +25,9 @@ public class Class extends SemanticModelNode implements Serializable {
     private Instance instance;
 
     public Class(
-            @NotNull @JsonProperty String uri,
-            @NotNull @JsonProperty String label,
-            @Nullable @JsonProperty String description
+            @NotNull String uri,
+            @NotNull String label,
+            @Nullable String description
     ) {
         this(null, uri, label, description, null, null, null);
     }
@@ -35,13 +38,13 @@ public class Class extends SemanticModelNode implements Serializable {
 
     @JsonCreator
     public Class(
-            @Nullable @JsonProperty String uuid,
-            @NotNull @JsonProperty String uri,
-            @NotNull @JsonProperty String label,
-            @Nullable @JsonProperty String description,
-            @Nullable @JsonProperty Double xCoordinate,
-            @Nullable @JsonProperty Double yCoordinate,
-            @Nullable @JsonProperty Instance instance
+            @Nullable @JsonProperty(UUID_PROPERTY) String uuid,
+            @NotNull @JsonProperty(URI_PROPERTY) String uri,
+            @NotNull @JsonProperty(LABEL_PROPERTY) String label,
+            @Nullable @JsonProperty(DESCRIPTION_PROPERTY) String description,
+            @Nullable @JsonProperty(XCOORDINATE_PROPERTY) Double xCoordinate,
+            @Nullable @JsonProperty(YCOORDINATE_PROPERTY) Double yCoordinate,
+            @Nullable @JsonProperty(INSTANCE_PROPERTY) Instance instance
     ) {
         super(uuid, uri, label, xCoordinate, yCoordinate);
         this.description = description;
@@ -49,7 +52,7 @@ public class Class extends SemanticModelNode implements Serializable {
     }
 
 
-    @JsonProperty
+    @JsonProperty(DESCRIPTION_PROPERTY)
     public String getDescription() {
         return description;
     }
@@ -58,7 +61,7 @@ public class Class extends SemanticModelNode implements Serializable {
         this.description = description;
     }
 
-    @JsonProperty
+    @JsonProperty(INSTANCE_PROPERTY)
     public Instance getInstance() {
         return instance;
     }
@@ -74,7 +77,13 @@ public class Class extends SemanticModelNode implements Serializable {
      */
     @Override
     public Class copy() {
-        return new Class(getUuid(), getURI(), getLabel(), getDescription(), getXCoordinate(), getYCoordinate(), getInstance());
+        return new Class(getUuid(),
+                getURI(),
+                getLabel(),
+                getDescription(),
+                getXCoordinate(),
+                getYCoordinate(),
+                getInstance());
     }
 
     @Override
@@ -119,14 +128,18 @@ public class Class extends SemanticModelNode implements Serializable {
 
     public void validate() throws CombinedModelIntegrityException {
         if (getLabel().trim().length() < 1) {
-            throw new CombinedModelIntegrityException("Label of EntityConcept '" + getLabel() + "' must not be shorter than 1 characters.");
+            throw new CombinedModelIntegrityException("Label of Class '" + getLabel() + "' must not be shorter than 1 characters.");
         }
         if (getURI().trim().length() < 3) {
-            throw new CombinedModelIntegrityException("SourceURI of EntityConcept '" + getLabel() + "' must not be shorter than 3 characters.");
+            throw new CombinedModelIntegrityException("URI of Class '" + getLabel() + "' must not be shorter than 3 characters.");
         }
         if (instance != null) {
             instance.validate();
         }
+    }
+
+    public boolean isMapped(){
+        return getInstance() != null && getInstance().getSyntaxNodeUuid() != null;
     }
 
     /**

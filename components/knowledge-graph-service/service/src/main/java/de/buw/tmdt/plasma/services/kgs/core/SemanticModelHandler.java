@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.io.StringWriter;
 import java.net.MalformedURLException;
@@ -63,9 +64,10 @@ public class SemanticModelHandler {
         Model retrievedModel = ops.queryModel(id);
         log.info(asTurtle(retrievedModel));
 
+        if(retrievedModel.isEmpty()){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No model available for id "+ id);
+        }
         SemanticModel restoredSM = CMToRDFMapper.convertToSemanticModel(retrievedModel, onto);
-
-        //enhanceEntities(restoredSM);
         return restoredSM;
     }
 

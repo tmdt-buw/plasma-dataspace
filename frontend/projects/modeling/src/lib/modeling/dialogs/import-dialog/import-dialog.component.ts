@@ -1,6 +1,6 @@
 import { Component, ElementRef, ViewChild } from '@angular/core';
 import { NzUploadChangeParam } from 'ng-zorro-antd/upload';
-import { UniversalKnowledgeGraphControllerService } from '../../../api/generated/kgs';
+import { OntologyControllerService } from '../../../api/generated/kgs';
 
 @Component({
   selector: 'pls-import-dialog',
@@ -13,7 +13,7 @@ export class PlsImportDialogComponent {
 
   @ViewChild('fileInput') fileInput: ElementRef;
 
-  constructor(private kgsService: UniversalKnowledgeGraphControllerService) {
+  constructor(private ontologyService: OntologyControllerService) {
   }
 
   /**
@@ -26,7 +26,7 @@ export class PlsImportDialogComponent {
     reader.readAsText(file.originFileObj, 'UTF-8');
     reader.onload = () => {
       if (typeof reader.result === 'string') {
-        this.kgsService.importRdf(reader.result).subscribe();
+        // this.ontologyService.importRdf(reader.result).subscribe();
       }
     };
   }

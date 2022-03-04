@@ -104,8 +104,8 @@ public class CMToRDFMapper {
 
         });
         semanticModel.getEdges().forEach(r -> {
-            SemanticModelNode from = semanticModel.getNode(r.getFromId());
-            SemanticModelNode to = semanticModel.getNode(r.getToId());
+            SemanticModelNode from = semanticModel.getNode(r.getFrom());
+            SemanticModelNode to = semanticModel.getNode(r.getTo());
             RDFNode fromNode = uuidtoResource.get(from.getUuid());
             RDFNode toNode = uuidtoResource.get(to.getUuid());
             fromNode.asResource().addProperty(ResourceFactory.createProperty(r.getURI()), toNode);
@@ -184,7 +184,10 @@ public class CMToRDFMapper {
                 relations.add(r);
             }
         }
-
+        if(modelId == null){
+            // there is no model for that id in the model
+            return null;
+        }
         SemanticModel semanticModel = new SemanticModel(modelId, nodes, relations);
         return semanticModel;
 

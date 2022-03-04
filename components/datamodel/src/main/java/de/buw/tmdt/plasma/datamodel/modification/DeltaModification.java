@@ -1,6 +1,7 @@
 package de.buw.tmdt.plasma.datamodel.modification;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.Relation;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.SemanticModelNode;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.Edge;
@@ -17,10 +18,18 @@ import java.util.*;
  */
 public class DeltaModification implements Serializable {
 
+    public static final String REFERENCE_PROPERTY = "reference";
+    public static final String DELETION_PROPERTY = "deletion";
+    public static final String ENTITIES_PROPERTY = "entities";
+    public static final String RELATIONS_PROPERTY = "relations";
+    public static final String NODES_PROPERTY = "nodes";
+    public static final String EDGES_PROPERTY = "edges";
+    public static final String ANCHORS_PROPERTY = "anchors";
+    public static final String CONFIDENCE_PROPERTY = "confidence";
+
     /**
      * A unique id identifying this recommendation.
      */
-    @NotNull
     private final String reference;
 
     /**
@@ -80,14 +89,14 @@ public class DeltaModification implements Serializable {
     }
 
     @JsonCreator
-    public DeltaModification(@NotNull String reference,
-                             boolean deletion,
-                             @Nullable Set<SemanticModelNode> entities,
-                             @Nullable Set<Relation> relations,
-                             @Nullable Set<SchemaNode> nodes,
-                             @Nullable Set<Edge> edges,
-                             @Nullable List<String> anchors,
-                             @Nullable Double confidence) {
+    public DeltaModification(@JsonProperty(REFERENCE_PROPERTY) String reference,
+                             @JsonProperty(value = DELETION_PROPERTY, defaultValue = "false") boolean deletion,
+                             @JsonProperty(ENTITIES_PROPERTY) @Nullable Set<SemanticModelNode> entities,
+                             @JsonProperty(RELATIONS_PROPERTY) @Nullable Set<Relation> relations,
+                             @JsonProperty(NODES_PROPERTY) @Nullable Set<SchemaNode> nodes,
+                             @JsonProperty(EDGES_PROPERTY) @Nullable Set<Edge> edges,
+                             @JsonProperty(ANCHORS_PROPERTY) @Nullable List<String> anchors,
+                             @JsonProperty(CONFIDENCE_PROPERTY) @Nullable Double confidence) {
         this.reference = reference;
         this.deletion = deletion;
         this.entities = entities == null ? new HashSet<>() : entities;
@@ -98,16 +107,18 @@ public class DeltaModification implements Serializable {
         this.confidence = confidence;
     }
 
-    @NotNull
+    @JsonProperty(REFERENCE_PROPERTY)
     public String getReference() {
         return reference;
     }
 
+    @JsonProperty(value = DELETION_PROPERTY)
     public boolean isDeletion() {
         return deletion;
     }
 
     @NotNull
+    @JsonProperty(ENTITIES_PROPERTY)
     public Set<SemanticModelNode> getEntities() {
         return entities;
     }
@@ -117,21 +128,25 @@ public class DeltaModification implements Serializable {
     }
 
     @NotNull
+    @JsonProperty(NODES_PROPERTY)
     public Set<SchemaNode> getNodes() {
         return nodes;
     }
 
     @NotNull
+    @JsonProperty(EDGES_PROPERTY)
     public Set<Edge> getEdges() {
         return edges;
     }
 
     @NotNull
+    @JsonProperty(ANCHORS_PROPERTY)
     public List<String> getAnchors() {
         return anchors;
     }
 
     @Nullable
+    @JsonProperty(CONFIDENCE_PROPERTY)
     public Double getConfidence() {
         return confidence;
     }
@@ -141,6 +156,7 @@ public class DeltaModification implements Serializable {
     }
 
     @NotNull
+    @JsonProperty(RELATIONS_PROPERTY)
     public Set<Relation> getRelations() {
         return relations;
     }

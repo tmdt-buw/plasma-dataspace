@@ -20,7 +20,7 @@ public interface DataModelingAPI {
 	//############################################### Schema Definition ###############################################
 
 	@PostMapping(value = "/init")
-	void initSchema(
+	CombinedModel initSchema(
 			@NotNull @RequestParam("modelId") String modelId,
 			@NotNull @RequestParam(value = "exampleLimit", defaultValue = "100") Integer exampleLimit
 	);
@@ -29,7 +29,7 @@ public interface DataModelingAPI {
 	@GetMapping(value = "/{modelId}", produces = MediaType.APPLICATION_JSON_VALUE)
 	CombinedModel getCombinedModel(@NotNull @PathVariable("modelId") String modelId);
 
-	@PatchMapping(value = "/{modelId}", consumes = MediaType.APPLICATION_JSON_VALUE)
+	@PatchMapping(value = "/{modelId}/positions", consumes = MediaType.APPLICATION_JSON_VALUE)
 	void updatePositions(@NotNull @PathVariable("modelId") String modelId, @NotNull @RequestBody List<PositionedCombinedModelElement> elements);
 
 	@NotNull
@@ -47,9 +47,18 @@ public interface DataModelingAPI {
 	/* Cache operations */
 
 	@NotNull
-	@PostMapping(value = "/{modelId}/cache", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	CombinedModelElement cacheElementOrRelation(@NotNull @PathVariable("modelId") String modelId, @NotNull @RequestBody CombinedModelElement semanticClass);
+	@PostMapping(value = "/{modelId}/cache/nodes", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	CombinedModelElement cacheElement(@NotNull @PathVariable("modelId") String modelId, @NotNull @RequestBody SemanticModelNode node);
 
+	@NotNull
+	@PostMapping(value = "/{modelId}/cache/relations", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	CombinedModelElement cacheRelation(@NotNull @PathVariable("modelId") String modelId, @NotNull @RequestBody Relation relation);
+
+
+
+	@NotNull
+	@PatchMapping(value = "/{modelId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	CombinedModel modifyModel(@NotNull @PathVariable("modelId") String modelId, @NotNull @RequestBody DeltaModification delta);
 
 	/*
 

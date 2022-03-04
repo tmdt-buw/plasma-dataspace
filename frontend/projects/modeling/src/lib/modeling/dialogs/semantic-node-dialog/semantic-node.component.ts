@@ -1,11 +1,18 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { BehaviorSubject, Subject } from 'rxjs';
-import { DataModelingControllerService, DeltaModification, EntityType } from '../../../api/generated/dms';
+import {
+  Class,
+  DataModelingControllerService,
+  DeltaModification,
+  Instance,
+  NamedEntity,
+  SemanticModelNode
+} from '../../../api/generated/dms';
 import { EditState } from './model/edit-state';
 
 export interface PlsSemanticNodeDetailsData {
-  dataSource: string;
-  node: EntityType;
+  modelId: string;
+  node: SemanticModelNode;
   recommendations: DeltaModification[];
 }
 
@@ -38,14 +45,34 @@ export class PlsSemanticNodeDetailsComponent {
   startEdit(): void {
     this.$edit.next(EditState.start);
     this.label = this.data.node.label;
-    this.description = this.data.node.description;
+    switch (this.data.node._class) {
+      case 'Class':
+        this.description = (this.data.node as Class).description;
+        break;
+      case 'NamedEntity':
+        this.description = (this.data.node as NamedEntity).description;
+        break;
+      case 'Literal':
+        break;
+    }
   }
 
   acceptEdit(): void {
     this.$edit.next(EditState.confirm);
-    this.modelingService.updateEntityType(this.data.dataSource, this.data.node.uuid, this.data.node).subscribe(() => null, () => {
+    const delta: DeltaModification = {
+      entities: [this.data.node]
+    };
+
+    this.modelingService.modifyModel(this.data.modelId, delta).subscribe(() => null, () => {
       this.data.node.label = this.label;
-      this.data.node.description = this.description;
+      switch (this.data.node._class) {
+        case 'Class':
+          (this.data.node as Class).description = this.description;
+          break;
+        case 'NamedEntity':
+          (this.data.node as NamedEntity).description = this.description;
+          break;
+      }
     });
   }
 
@@ -72,5 +99,66 @@ export class PlsSemanticNodeDetailsComponent {
 
   rejectRecommendation(recommendation: DeltaModification): void {
     // nyi
+  }
+
+  getDescription(): string {
+    switch (this.data.node._class) {
+      case 'Class':
+        return (this.data.node as Class).description;
+      case 'NamedEntity':
+        return (this.data.node as NamedEntity).description;
+    }
+    return 'No description available';
+  }
+
+  isNamedEntity(): boolean {
+    return this.data.node._class === 'NamedEntity';
+  }
+
+  isClass(): boolean {
+    return this.data.node._class === 'Class';
+  }
+
+  isMappedClass(): boolean {
+    if (this.data.node._class !== 'Class') {
+      return false;
+    }
+    const clazz = this.data.node as Class;
+    if (!clazz.instance) {
+      return false;
+    }
+    return clazz.instance.syntaxNodeUuid !== undefined;
+  }
+
+  isLiteral(): boolean {
+    return this.data.node._class === 'Literal';
+  }
+
+  getInstance(): Instance {
+    if (this.data.node._class !== 'Class') {
+      return;
+    }
+    const clazz = this.data.node as Class;
+    if (!clazz.instance) {
+      return;
+    }
+    return clazz.instance;
+  }
+
+  getClassOrNamedEntity(): Class | NamedEntity {
+    if (this.isClass()) {
+      return this.data.node as Class;
+    }
+    if (this.isNamedEntity()) {
+      return this.data.node as NamedEntity;
+    }
+  }
+
+  customize(): void {
+    console.log('start customization');
+  }
+
+  hasRecommendations(): boolean {
+    return this.isClass() && this.data.recommendations && this.data.recommendations.length > 0;
   }
 }

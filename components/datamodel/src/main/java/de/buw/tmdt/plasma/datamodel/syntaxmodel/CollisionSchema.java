@@ -27,12 +27,12 @@ public class CollisionSchema extends SchemaNode {
 	@JsonCreator
 	public CollisionSchema(
 
-            @JsonProperty @NotNull String uuid,
-            @JsonProperty @NotNull String label,
-            @Nullable @JsonProperty Double xCoordinate,
-            @Nullable @JsonProperty Double yCoordinate,
-            @JsonProperty @NotNull List<SyntacticOperationDTO> operations,
-            @JsonProperty boolean isValid
+            @JsonProperty(UUID_PROPERTY) @NotNull String uuid,
+            @JsonProperty(LABEL_PROPERTY) @NotNull String label,
+            @Nullable @JsonProperty(XCOORDINATE_PROPERTY) Double xCoordinate,
+            @Nullable @JsonProperty(YCOORDINATE_PROPERTY) Double yCoordinate,
+            @JsonProperty(OPERATIONS_PROPERTY) @NotNull List<SyntacticOperationDTO> operations,
+            @JsonProperty(VALID_PROPERTY) boolean isValid
     ) {
         super(uuid, label, xCoordinate, yCoordinate, operations, isValid);
     }

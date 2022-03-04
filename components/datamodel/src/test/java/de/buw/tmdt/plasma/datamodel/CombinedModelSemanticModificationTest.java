@@ -135,7 +135,7 @@ public class CombinedModelSemanticModificationTest {
 
         // check that the node is not already mapped for some reason
         assertTrue(timeNode instanceof PrimitiveNode);
-        assertTrue(model.generatePrimitiveInstanceMappings().stream().noneMatch(mapping -> mapping.getPrimitiveUUID().equals(timeNode.getUuid())));
+        assertTrue(model.generateModelMappings().stream().noneMatch(mapping -> mapping.getPrimitiveUUID().equals(timeNode.getUuid())));
         assertTrue(model.getSemanticModel().getNodes().stream()
                 .filter(node -> node instanceof Class)
                 .map(node -> (Class) node)
@@ -170,7 +170,7 @@ public class CombinedModelSemanticModificationTest {
         assertEquals(timeNode.getUuid(), addedTimeInstance.getSyntaxNodeUuid(), "New instance's mapping uuid is not set properly");
 
         // ensure that the explicit mapping from class and instance to syntax has been created
-        assertTrue(model.generatePrimitiveInstanceMappings().stream().anyMatch(mapping -> mapping.getInstanceId().equals(addedTimeInstance.getUuid())));
+        assertTrue(model.generateModelMappings().stream().anyMatch(mapping -> mapping.getClassUUID().equals(addedTimeInstance.getUuid())));
     }
 
     @Test
@@ -185,7 +185,7 @@ public class CombinedModelSemanticModificationTest {
 
         // check that the node is a valid candidate
         assertFalse(schemaNode instanceof PrimitiveNode);
-        assertTrue(model.generatePrimitiveInstanceMappings().stream().noneMatch(mapping -> mapping.getPrimitiveUUID().equals(schemaNode.getUuid())));
+        assertTrue(model.generateModelMappings().stream().noneMatch(mapping -> mapping.getPrimitiveUUID().equals(schemaNode.getUuid())));
         assertTrue(model.getSemanticModel().getNodes().stream()
                 .filter(node -> node instanceof Class)
                 .map(node -> (Class) node)
@@ -240,8 +240,8 @@ public class CombinedModelSemanticModificationTest {
         assertEquals(getCombinedModel().getSemanticModel().getEdges().size(), model.getSemanticModel().getEdges().size(), "Number of expected relations does not match");
 
         // ensure that the explicit mapping from entity to syntax node does not get generated
-        assertTrue(model.generatePrimitiveInstanceMappings().stream()
-                .noneMatch(mapping -> mapping.getInstanceId().equals(i.getUuid())));
+        assertTrue(model.generateModelMappings().stream()
+                .noneMatch(mapping -> mapping.getClassUUID().equals(i.getUuid())));
     }
 
     @Test
@@ -263,8 +263,8 @@ public class CombinedModelSemanticModificationTest {
                 .orElseThrow();
 
         Relation airlineNameRelation = model.getSemanticModel().getEdges().stream()
-                .filter(relation -> relation.getFromId().equals(airlineClass.getUuid())
-                        && relation.getToId().equals(nameClass.getUuid()))
+                .filter(relation -> relation.getFrom().equals(airlineClass.getUuid())
+                        && relation.getTo().equals(nameClass.getUuid()))
                 .findFirst()
                 .orElseThrow();
 
@@ -285,7 +285,7 @@ public class CombinedModelSemanticModificationTest {
         assertEquals(getCombinedModel().getSemanticModel().getEdges().size() - 3, model.getSemanticModel().getEdges().size(), "Number of expected relations does not match");
 
         // ensure that the mapping from name to syntax has been deleted
-        assertTrue(model.generatePrimitiveInstanceMappings().stream().noneMatch(mapping -> mapping.getInstanceId().equals(nameClass.getUuid())));
+        assertTrue(model.generateModelMappings().stream().noneMatch(mapping -> mapping.getClassUUID().equals(nameClass.getUuid())));
     }
 
 

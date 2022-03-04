@@ -62,7 +62,7 @@ public class CombinedModelSyntacticModificationTest {
         assertNull(identifierType.getSyntaxNodeUuid());
 
         // also assure that the explicit mapping has been removed
-        assertTrue(model.generatePrimitiveInstanceMappings().stream().noneMatch(primitiveEntityTypeMapping -> primitiveEntityTypeMapping.getPrimitiveUUID().equals(identNode.getUuid())), "Explicit mapping to old node has not been removed");
+        assertTrue(model.generateModelMappings().stream().noneMatch(primitiveEntityTypeMapping -> primitiveEntityTypeMapping.getPrimitiveUUID().equals(identNode.getUuid())), "Explicit mapping to old node has not been removed");
 
         // get outgoing edges
         List<Edge> newEdges = model.getSyntaxModel().getEdges().stream().filter(edge -> edge.getFromId().equals(compositeNode.getUuid())).collect(Collectors.toList());

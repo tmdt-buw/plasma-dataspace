@@ -50,7 +50,7 @@
     "@angular-devkit/build-angular": "^0.1100.5",
     "@angular/cli": "^11.0.5",
     "@angular/compiler-cli": "^11.0.5",
-    "@openapitools/openapi-generator-cli": "^2.1.16",
+    "@openapitools/openapi-generator-cli": "^2.4.26",
     "@types/backbone": "^1.4.5",
     "@types/dagre": "^0.7.44",
     "@types/jasmine": "~3.5.0",

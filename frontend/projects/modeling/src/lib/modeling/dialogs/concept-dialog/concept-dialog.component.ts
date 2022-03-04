@@ -6,8 +6,8 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import {
   DataModelingControllerService,
   DeltaModification,
-  EntityConcept,
-  RelationConcept
+  Relation,
+  SemanticModelNode
 } from '../../../api/generated/dms';
 import { ModelingService } from '../../modeling.service';
 import { ModalBaseConfig } from '../common/modal.base-config';
@@ -32,8 +32,8 @@ export class PlsConceptDialogComponent implements OnInit, OnDestroy {
   loadingEntityConcepts = true;
   loadingRelationConcepts = true;
 
-  entityConcepts: EntityConcept[] = [];
-  relationConcepts: RelationConcept[] = [];
+  semanticModelNodes: SemanticModelNode[] = [];
+  relations: Relation[] = [];
 
   // TODO find useful recommendation view
   constructor(private modeling: ModelingService, private modelingService: DataModelingControllerService, private modal: NzModalService) {
@@ -44,53 +44,53 @@ export class PlsConceptDialogComponent implements OnInit, OnDestroy {
     this.entitySearchControl.valueChanges.pipe(
       debounceTime(500),
       distinctUntilChanged()
-    ).subscribe(() => this.getEntityConcepts());
+    ).subscribe(() => this.getSemanticNodeTemplates());
     this.relationSearchControl.valueChanges.pipe(
       debounceTime(500),
       distinctUntilChanged()
-    ).subscribe(() => this.getRelationConcepts());
-    this.getEntityConcepts();
-    this.getRelationConcepts();
+    ).subscribe(() => this.getRelationTemplates());
+    this.getSemanticNodeTemplates();
+    this.getRelationTemplates();
   }
 
   ngOnDestroy(): void {
     // remove any selected relation concept
-    this.modeling.relationConcept.next(null);
+    this.modeling.relation.next(null);
   }
 
-  getEntityConcepts(): void {
+  getSemanticNodeTemplates(): void {
     this.loadingEntityConcepts = true;
-    this.modelingService.getEntityConcepts(this.dataSource, this.entitySearchControl.value).subscribe((res) => {
-      this.entityConcepts = res;
+    this.modelingService.getElements(this.dataSource, this.entitySearchControl.value).subscribe((res) => {
+      this.semanticModelNodes = res;
       this.loadingEntityConcepts = false;
     });
   }
 
-  getRelationConcepts(): void {
+  getRelationTemplates(): void {
     this.loadingRelationConcepts = true;
-    this.modelingService.getRelationConcepts(this.dataSource, this.relationSearchControl.value).subscribe((res) => {
-      this.relationConcepts = res;
+    this.modelingService.getRelations(this.dataSource, this.relationSearchControl.value).subscribe((res) => {
+      this.relations = res;
       this.loadingRelationConcepts = false;
     });
   }
 
   onIndexChange(event: NzTabChangeEvent): void {
     if (event.index !== 1) {
-      this.modeling.relationConcept.next(null);
+      this.modeling.relation.next(null);
     }
   }
 
-  toggleRelation(index: number, relationConcept: RelationConcept): void {
-    if (this.isSelected(relationConcept)) {
-      this.modeling.relationConcept.next(null);
+  toggleRelation(index: number, relation: Relation): void {
+    if (this.isSelected(relation)) {
+      this.modeling.relation.next(null);
     } else {
-      this.modeling.relationConcept.next(relationConcept);
+      this.modeling.relation.next(relation);
     }
   }
 
-  isSelected(relationConcept: RelationConcept): boolean {
-    const current = this.modeling.relationConcept.getValue();
-    return current === relationConcept;
+  isSelected(relation: Relation): boolean {
+    const current = this.modeling.relation.getValue();
+    return current === relation;
   }
 
   newEntityConcept(): void {
@@ -104,7 +104,7 @@ export class PlsConceptDialogComponent implements OnInit, OnDestroy {
     const ref = this.modal.create(Object.assign(config, ModalBaseConfig));
     ref.afterClose.subscribe(res => {
       if (res) {
-        this.getEntityConcepts();
+        this.getSemanticNodeTemplates();
       }
     });
   }
@@ -120,7 +120,7 @@ export class PlsConceptDialogComponent implements OnInit, OnDestroy {
     const ref = this.modal.create(Object.assign(config, ModalBaseConfig));
     ref.afterClose.subscribe(res => {
       if (res) {
-        this.getRelationConcepts();
+        this.getRelationTemplates();
       }
     });
   }

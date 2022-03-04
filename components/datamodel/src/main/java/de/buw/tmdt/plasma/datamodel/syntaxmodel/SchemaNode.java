@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "@class")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "_class")
 @JsonSubTypes({
         @JsonSubTypes.Type(value = PrimitiveNode.class, name = "PrimitiveNode"),
         @JsonSubTypes.Type(value = ObjectNode.class, name = "ObjectNode"),
@@ -26,6 +26,9 @@ import java.util.Objects;
 public abstract class SchemaNode extends PositionedCombinedModelElement {
 
     private static final long serialVersionUID = 8398288916936841021L;
+
+    public static final String OPERATIONS_PROPERTY = "operations";
+    public static final String VALID_PROPERTY = "valid";
 
     private final boolean isValid;
     /**
@@ -51,12 +54,12 @@ public abstract class SchemaNode extends PositionedCombinedModelElement {
 
     @JsonCreator
     public SchemaNode(
-            @NotNull @JsonProperty String uuid,
-            @NotNull @JsonProperty String label,
-            @Nullable @JsonProperty Double xCoordinate,
-            @Nullable @JsonProperty Double yCoordinate,
-            @NotNull @JsonProperty List<SyntacticOperationDTO> operations,
-            @JsonProperty boolean isValid
+            @NotNull @JsonProperty(UUID_PROPERTY) String uuid,
+            @NotNull @JsonProperty(LABEL_PROPERTY) String label,
+            @Nullable @JsonProperty(XCOORDINATE_PROPERTY) Double xCoordinate,
+            @Nullable @JsonProperty(YCOORDINATE_PROPERTY) Double yCoordinate,
+            @NotNull @JsonProperty(OPERATIONS_PROPERTY) List<SyntacticOperationDTO> operations,
+            @JsonProperty(VALID_PROPERTY) boolean isValid
     ) {
         super(uuid, label, xCoordinate, yCoordinate);
         this.isValid = isValid;
@@ -66,12 +69,12 @@ public abstract class SchemaNode extends PositionedCombinedModelElement {
         this.operations = new ArrayList<>(operations);
     }
 
-    @JsonProperty
+    @JsonProperty(VALID_PROPERTY)
     public boolean isValid() {
         return isValid;
     }
 
-    @JsonProperty
+    @JsonProperty(OPERATIONS_PROPERTY)
     public List<SyntacticOperationDTO> getOperations() {
         return operations;
     }

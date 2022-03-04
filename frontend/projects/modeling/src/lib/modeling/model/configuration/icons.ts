@@ -1,5 +1,5 @@
-import {CompositeNode, ObjectNode, PrimitiveNode, SetNode} from '../../../api/generated/dms';
-import {SyntaxNode} from './node';
+import { CompositeNode, ObjectNode, PrimitiveNode, SetNode } from '../../../api/generated/dms';
+import { SyntaxNode } from './node';
 
 /**
  * Abstract class that provides configs for icons
@@ -11,11 +11,11 @@ export abstract class Icons {
    * @param node input
    */
   static getIcon(node: SyntaxNode): string {
-    switch (node['@class']) {
+    switch (node._class) {
       case 'ObjectNode':
         return 'list';
       case 'PrimitiveNode':
-        const value = ((node as PrimitiveNode).dataType);
+        const value = ((node as PrimitiveNode).datatype);
         switch (value) {
           case 'Number':
             return 'looks_one';

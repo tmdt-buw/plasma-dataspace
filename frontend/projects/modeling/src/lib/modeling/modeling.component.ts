@@ -8,19 +8,17 @@ import {
   CombinedModel,
   DataModelingControllerService,
   DeltaModification,
-  EntityType,
-  Relation
+  Relation,
+  SemanticModelNode
 } from '../api/generated/dms';
-import { LocalKnowledgeControllerService, UniversalKnowledgeGraphControllerService } from '../api/generated/kgs';
+import { OntologyControllerService, SemanticModelControllerService } from '../api/generated/kgs';
 import { ContextMenuService } from './context-menu/context-menu.service';
 import { ModalBaseConfig, ModalMouseEnabledConfig } from './dialogs/common/modal.base-config';
 import { PlsConceptDialogComponent } from './dialogs/concept-dialog/concept-dialog.component';
 import { PlsOperationsDialogComponent } from './dialogs/operations-dialog/operations-dialog/operations-dialog.component';
 import { Filter } from './model/common/filter';
-import { Util } from './model/common/util';
-import { Nodes, SyntaxNode } from './model/configuration/node';
+import { Nodes } from './model/configuration/node';
 import { ContextMenuEvent, ContextMenuEventType } from './model/events/context-menu-event';
-import { EntityDroppedEvent } from './model/events/entity-dropped-event';
 import { NodeChangedEvent } from './model/events/node-changed-event';
 
 @Component({
@@ -44,7 +42,7 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
 
   readonly Filter = Filter;
 
-  @Input() dataSource: string;
+  @Input() modelId: string;
   @Input() backgroundColor: string;
   @Input() fullScreen: boolean = true;
   @Input() readonly: boolean = false;
@@ -79,8 +77,8 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
     return !!this.main?.fullScreenIsActive;
   }
 
-  constructor(private modelingService: DataModelingControllerService, private contextMenu: ContextMenuService, private kgsService: UniversalKnowledgeGraphControllerService,
-              private kgsModelService: LocalKnowledgeControllerService, private modal: NzModalService) {
+  constructor(private modelingService: DataModelingControllerService, private contextMenu: ContextMenuService, private ontologyService: OntologyControllerService,
+              private semanticModelService: SemanticModelControllerService, private modal: NzModalService) {
   }
 
   ngOnInit(): void {
@@ -96,10 +94,18 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
     this.contextMenuSubscription = this.contextMenu.onClosed.subscribe((event: ContextMenuEvent) => {
       if (event) {
         if (event.type === ContextMenuEventType.removeEntity) {
-          this.modelingService.removeEntityType(this.dataSource, (event.target as EntityType).uuid).subscribe((res: CombinedModel) => this.schema = res);
+          const delta: DeltaModification = {
+            nodes: [event.target],
+            deletion: true
+          };
+          this.modelingService.modifyModel(this.modelId, delta).subscribe((res: CombinedModel) => this.schema = res);
         }
         if (event.type === ContextMenuEventType.removeRelation) {
-          this.modelingService.removeRelation(this.dataSource, (event.target as Relation).uuid).subscribe((res: CombinedModel) => this.schema = res);
+          const delta: DeltaModification = {
+            relations: [event.target],
+            deletion: true
+          };
+          this.modelingService.modifyModel(this.modelId, delta).subscribe((res: CombinedModel) => this.schema = res);
         }
         if (event.type === ContextMenuEventType.performOperation) {
           const operation = event.operation;
@@ -113,7 +119,7 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
           const dialogRef = this.modal.create(Object.assign(config, ModalBaseConfig));
           dialogRef.afterClose.subscribe(context => {
             if (context) {
-              this.modelingService.modifySchema(this.dataSource, context).subscribe((res: CombinedModel) => this.schema = res);
+              this.modelingService.modifySyntacticSchema(this.modelId, context).subscribe((res: CombinedModel) => this.schema = res);
             }
           });
         }
@@ -128,14 +134,14 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
   }
 
   getSchema(): void {
-    this.modelingService.getCombinedModel(this.dataSource).subscribe((schema: CombinedModel) => {
+    this.modelingService.getCombinedModel(this.modelId).subscribe((schema: CombinedModel) => {
         this.schema = schema;
         if (this.readonly) {
           this.$filter.next(Filter.SEMANTIC);
         }
         this.loading = false;
       },
-      () => this.modelingService.initDataSourceSchema(this.dataSource).subscribe(() => {
+      () => this.modelingService.initSchema(this.modelId).subscribe(() => {
         this.loading = false;
         this.getSchema();
       }));
@@ -144,11 +150,11 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
   // ======= Menu functions ===========
 
   undo(): void {
-    this.modelingService.undoModification(this.dataSource).subscribe((res: CombinedModel) => this.schema = res);
+    this.modelingService.undo(this.modelId).subscribe((res: CombinedModel) => this.schema = res);
   }
 
   redo(): void {
-    this.modelingService.redoModification(this.dataSource).subscribe((res: CombinedModel) => this.schema = res);
+    this.modelingService.redo(this.modelId).subscribe((res: CombinedModel) => this.schema = res);
   }
 
   addConcepts(): void {
@@ -162,7 +168,7 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
       nzTitle: '',
       nzContent: PlsConceptDialogComponent,
       nzComponentParams: {
-        dataSource: this.dataSource
+        dataSource: this.modelId
       }
     };
     this.addConceptDialogRef = this.modal.create(Object.assign(config, ModalMouseEnabledConfig));
@@ -172,39 +178,48 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
     this.clickedNode.emit(event);
   }
 
-  onRelationConceptLinked(event: Relation): void {
-    this.modelingService.addRelation(this.dataSource, event).subscribe((res) => this.schema = res);
+  onRelationAdded(event: Relation): void {
+    const delta: DeltaModification = {
+      relations: [event]
+    };
+    this.modelingService.modifyModel(this.modelId, delta).subscribe((res) => this.schema = res);
   }
 
-  onConceptMapped(event: EntityDroppedEvent): void {
-    this.modelingService.addEntityType(this.dataSource, event.entityType, event.primitiveNodeUUID).subscribe((res) => this.schema = res);
+  onMappingCreated(event: SemanticModelNode): void {
+    const delta: DeltaModification = {
+      entities: [event]
+    };
+    this.modelingService.modifyModel(this.modelId, delta).subscribe((res) => this.schema = res);
   }
 
   onGraphLaidOut(event: CombinedModel): void {
-    this.modelingService.updatePositions(this.dataSource, event.semanticModel.nodes.concat(event.syntaxModel.nodes)).subscribe();
+    this.modelingService.updatePositions(this.modelId, event.semanticModel.nodes.concat(event.syntaxModel.nodes)).subscribe();
   }
 
   onNodePositionChanged(event: NodeChangedEvent): void {
     switch (event.type) {
       case Nodes.syntaxNodeName:
-        this.modelingService.positionSchemaNode(this.dataSource, event.node.uuid, event.node as SyntaxNode).subscribe();
+        const delta: DeltaModification = {
+          nodes: [event.node]
+        };
+        this.modelingService.modifyModel(this.modelId, delta).subscribe();
         break;
-      case Nodes.semanticNodeName:
-        this.modelingService.positionEntityType(this.dataSource, event.node.uuid, event.node as EntityType).subscribe();
+      case Nodes.semanticClassName:
+        const delta2: DeltaModification = {
+          entities: [event.node]
+        };
+        this.modelingService.modifyModel(this.modelId, delta2).subscribe();
         break;
       default:
         console.error('Unsupported type.');
     }
   }
 
-  onNodeChanged(event: NodeChangedEvent): void {
-    switch (event.type) {
-      case Nodes.semanticNodeName:
-        this.modelingService.updateEntityType(this.dataSource, event.node.uuid, event.node as EntityType).subscribe();
-        break;
-      default:
-        console.error('Unsupported type.');
-    }
+  onSemanticNodeChanged(event: NodeChangedEvent): void {
+    const delta: DeltaModification = {
+      entities: [event.node]
+    };
+    this.modelingService.modifyModel(this.modelId, delta).subscribe();
   }
 
   toggleFlatMode(event): void {
@@ -224,7 +239,7 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
 
   onRecommendationAccepted(event: DeltaModification): void {
     console.log('accepting recommendation', event);
-    this.modelingService.acceptRecommendation(this.dataSource, event).subscribe(cm =>
+    this.modelingService.acceptRecommendation(this.modelId, event).subscribe(cm =>
       this.schema = cm
     );
   }
@@ -233,7 +248,7 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
     // close all dialogs
     this.modal.closeAll();
     this.readonly = true;
-    this.modelingService.finishModeling(this.dataSource).subscribe(() => {
+    this.modelingService.finishModeling(this.modelId).subscribe(() => {
       this.finished.emit();
     }, () => {
       this.readonly = false;
@@ -241,6 +256,6 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
   }
 
   exportModel(): void {
-    this.kgsModelService.convertSemanticModel(this.schema.semanticModel.entityId, 'turtle', this.$flat.getValue()).subscribe((res) => Util.download('model.rdf', res));
+    // this.semanticModelService.convertSemanticModel(this.schema.semanticModel.entityId, 'turtle', this.$flat.getValue()).subscribe((res) => Util.download('model.rdf', res));
   }
 }

@@ -15,7 +15,7 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "@class")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "_class")
 @JsonSubTypes({
         @JsonSubTypes.Type(value = ObjectProperty.class, name = "ObjectProperty"),
         @JsonSubTypes.Type(value = DataProperty.class, name = "DataProperty")
@@ -23,15 +23,21 @@ import java.util.Set;
 public abstract class Relation extends CombinedModelElement implements Serializable, RelationTemplate {
     private static final long serialVersionUID = -2964347710102077197L;
 
+    public static final String FROM_PROPERTY = "from";
+    public static final String TO_PROPERTY = "to";
+    public static final String URI_PROPERTY = "uri";
+    public static final String DESCRIPTION_PROPERTY = "description";
+    public static final String PROPERTIES_PROPERTY = "properties";
+
     /**
      * The uuid of the origin element, identified by CombinedModelElement#uuid.
      */
-    private String fromId;
+    private String from;
 
     /**
      * The uuid of the destination element, identified by CombinedModelElement#uuid.
      */
-    private String toId;
+    private String to;
 
 
     @NotNull
@@ -40,66 +46,66 @@ public abstract class Relation extends CombinedModelElement implements Serializa
     private Set<String> properties;
 
     public Relation(
-            @NotNull String fromId,
-            @NotNull String toId,
+            String from,
+            String to,
             @NotNull String uri
     ) {
-        this(null, fromId, toId, uri, null, null, null);
+        this(null, from, to, uri, null, null, null);
     }
 
     public Relation(
-            @NotNull String fromId,
-            @NotNull String toId,
+            String from,
+            String to,
             @NotNull String uri,
             @NotNull String label
     ) {
-        this(null, fromId, toId, uri, label, null, null);
+        this(null, from, to, uri, label, null, null);
     }
 
     public Relation(
-            @NotNull String fromId,
-            @NotNull String toId,
+            String from,
+            String to,
             @NotNull String uri,
             @NotNull String label,
             @NotNull String description
     ) {
-        this(null, fromId, toId, uri, label, description, null);
+        this(null, from, to, uri, label, description, null);
     }
 
     @JsonCreator
     public Relation(
-            @Nullable @JsonProperty String uuid,
-            @NotNull @JsonProperty String fromId,
-            @NotNull @JsonProperty String toId,
-            @NotNull @JsonProperty String uri,
-            @Nullable @JsonProperty String label,
-            @Nullable @JsonProperty String description,
-            @Nullable @JsonProperty Set<String> properties
+            @Nullable @JsonProperty(UUID_PROPERTY) String uuid,
+            @Nullable @JsonProperty(FROM_PROPERTY) String from,
+            @Nullable @JsonProperty(TO_PROPERTY) String to,
+            @NotNull @JsonProperty(URI_PROPERTY) String uri,
+            @Nullable @JsonProperty(LABEL_PROPERTY) String label,
+            @Nullable @JsonProperty(DESCRIPTION_PROPERTY) String description,
+            @Nullable @JsonProperty(PROPERTIES_PROPERTY) Set<String> properties
     ) {
         super(uuid, label == null ? "" : label);
-        this.fromId = fromId;
-        this.toId = toId;
+        this.from = from;
+        this.to = to;
         this.description = description;
         this.uri = uri;
         this.properties = properties == null ? new HashSet<>() : new HashSet<>(properties);
     }
 
     @JsonProperty
-    public String getFromId() {
-        return fromId;
+    public String getFrom() {
+        return from;
     }
 
-    public void setFromId(@NotNull String fromId) {
-        this.fromId = fromId;
+    public void setFrom(@NotNull String from) {
+        this.from = from;
     }
 
     @JsonProperty
-    public String getToId() {
-        return toId;
+    public String getTo() {
+        return to;
     }
 
-    public void setToId(@NotNull String toId) {
-        this.toId = toId;
+    public void setTo(@NotNull String to) {
+        this.to = to;
     }
 
     @JsonProperty
@@ -119,7 +125,7 @@ public abstract class Relation extends CombinedModelElement implements Serializa
 
     @Override
     public int hashCode() {
-        return Objects.hash(fromId, toId, uri);
+        return Objects.hash(from, to, uri);
     }
 
     @Override
@@ -142,8 +148,8 @@ public abstract class Relation extends CombinedModelElement implements Serializa
     @SuppressWarnings("MagicCharacter")
     public String toString() {
         return "{\"@class\":\"Relation\""
-                + ", \"fromId\":\"" + fromId + '"'
-                + ", \"toId\":\"" + toId + '"'
+                + ", \"fromId\":\"" + from + '"'
+                + ", \"toId\":\"" + to + '"'
                 + ", \"URI\":" + uri
                 + '}';
     }
@@ -159,8 +165,9 @@ public abstract class Relation extends CombinedModelElement implements Serializa
      */
     @SuppressWarnings("ConstantConditions") // this is only to be invoked before serialization
     public Relation convertToTemplate() {
-        this.fromId = null;
-        this.toId = null;
+        removeUuid();
+        this.from = null;
+        this.to = null;
         return this;
     }
 
@@ -170,14 +177,16 @@ public abstract class Relation extends CombinedModelElement implements Serializa
     }
 
     public void validate() {
-        if (getFromId() == null || getFromId().isBlank()) {
-            throw new CombinedModelIntegrityException("Relation " + getUuid() + " has no proper fromId");
-        }
-        if (getToId() == null || getToId().isBlank()) {
-            throw new CombinedModelIntegrityException("Relation " + getUuid() + " has no proper toId");
-        }
         if (getURI() == null || getURI().isBlank()) {
             throw new CombinedModelIntegrityException("Relation " + getUuid() + " has no proper URL assigned");
+        }
+        if(!isTemplate()){
+            if (getFrom() == null || getFrom().isBlank()) {
+                throw new CombinedModelIntegrityException("Relation " + getUuid() + " has no proper fromId");
+            }
+            if (getTo() == null || getTo().isBlank()) {
+                throw new CombinedModelIntegrityException("Relation " + getUuid() + " has no proper toId");
+            }
         }
     }
 

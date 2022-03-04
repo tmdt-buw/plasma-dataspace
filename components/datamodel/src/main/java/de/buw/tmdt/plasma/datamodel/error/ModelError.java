@@ -30,7 +30,9 @@ public class ModelError implements Serializable {
     }
 
     @JsonCreator
-    public ModelError(int status, @Nullable String message, @Nullable String details) {
+    public ModelError(@JsonProperty(PROPERTY_STATUS) int status,
+					  @Nullable @JsonProperty(PROPERTY_MESSAGE) String message,
+					  @Nullable @JsonProperty(PROPERTY_MESSAGE) String details) {
         this.status = status;
         this.message = message;
         this.details = details;

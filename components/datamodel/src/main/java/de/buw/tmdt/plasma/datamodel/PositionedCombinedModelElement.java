@@ -2,6 +2,11 @@ package de.buw.tmdt.plasma.datamodel;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import de.buw.tmdt.plasma.datamodel.semanticmodel.*;
+import de.buw.tmdt.plasma.datamodel.semanticmodel.Class;
+import de.buw.tmdt.plasma.datamodel.syntaxmodel.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -10,9 +15,24 @@ import java.io.Serializable;
 /**
  * Base class for all elements that can be used inside a combined model that have an explicit placement.
  */
-public class PositionedCombinedModelElement extends CombinedModelElement implements Serializable {
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "_class")
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = PrimitiveNode.class, name = "PrimitiveNode"),
+        @JsonSubTypes.Type(value = ObjectNode.class, name = "ObjectNode"),
+        @JsonSubTypes.Type(value = SetNode.class, name = "SetNode"),
+        @JsonSubTypes.Type(value = CollisionSchema.class, name = "CollisionSchema"),
+        @JsonSubTypes.Type(value = CompositeNode.class, name = "CompositeNode"),
+        @JsonSubTypes.Type(value = Instance.class, name = "Instance"),
+        @JsonSubTypes.Type(value = Literal.class, name = "Literal"),
+        @JsonSubTypes.Type(value = Class.class, name = "Class"),
+        @JsonSubTypes.Type(value = NamedEntity.class, name = "NamedEntity")
+})
+public abstract class PositionedCombinedModelElement extends CombinedModelElement implements Serializable {
 
     private static final long serialVersionUID = -3619721225687115309L;
+
+    public static final String XCOORDINATE_PROPERTY = "x";
+    public static final String YCOORDINATE_PROPERTY = "y";
 
     private Double xCoordinate;
     private Double yCoordinate;
@@ -37,10 +57,10 @@ public class PositionedCombinedModelElement extends CombinedModelElement impleme
 
     @JsonCreator
     public PositionedCombinedModelElement(
-            @Nullable @JsonProperty String uuid,
-            @NotNull @JsonProperty String label,
-            @Nullable @JsonProperty Double xCoordinate,
-            @Nullable @JsonProperty Double yCoordinate
+            @Nullable @JsonProperty(UUID_PROPERTY) String uuid,
+            @NotNull @JsonProperty(LABEL_PROPERTY) String label,
+            @Nullable @JsonProperty(XCOORDINATE_PROPERTY) Double xCoordinate,
+            @Nullable @JsonProperty(YCOORDINATE_PROPERTY) Double yCoordinate
     ) {
         super(uuid, label);
         this.xCoordinate = xCoordinate;
@@ -48,7 +68,7 @@ public class PositionedCombinedModelElement extends CombinedModelElement impleme
     }
 
     @Nullable
-    @JsonProperty
+    @JsonProperty(XCOORDINATE_PROPERTY)
     public Double getXCoordinate() {
         return xCoordinate;
     }
@@ -58,7 +78,7 @@ public class PositionedCombinedModelElement extends CombinedModelElement impleme
     }
 
     @Nullable
-    @JsonProperty
+    @JsonProperty(YCOORDINATE_PROPERTY)
     public Double getYCoordinate() {
         return yCoordinate;
     }
@@ -68,14 +88,7 @@ public class PositionedCombinedModelElement extends CombinedModelElement impleme
     }
 
     @Override
-    public PositionedCombinedModelElement copy() {
-        return new PositionedCombinedModelElement(
-                getUuid(),
-                getLabel(),
-                getXCoordinate(),
-                getYCoordinate()
-        );
-    }
+    public abstract PositionedCombinedModelElement copy();
 
     @Override
     @SuppressWarnings("MagicCharacter")

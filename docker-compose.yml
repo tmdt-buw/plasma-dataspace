@@ -238,7 +238,7 @@ services:
   ########################### External Services ######################################
 
   semantic-recommender:
-    image: git.uni-wuppertal.de:4567/tmdt/projects/dataspace/semantic-recommender/recommender:${RECOMMENDER_VERSION}
+    image: plasma/recommender:${RECOMMENDER_VERSION}
     hostname: semantic-recommender
     restart: unless-stopped
     ports:

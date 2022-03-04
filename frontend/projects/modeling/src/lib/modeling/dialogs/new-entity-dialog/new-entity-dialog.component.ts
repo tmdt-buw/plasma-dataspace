@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { NzModalRef } from 'ng-zorro-antd/modal';
-import { DataModelingControllerService, EntityConcept } from '../../../api/generated/dms';
+import { Class, DataModelingControllerService } from '../../../api/generated/dms';
 
 @Component({
   selector: 'pls-new-entity-dialog',
@@ -15,7 +15,7 @@ export class PlsNewEntityDialogComponent {
   form = new FormGroup({
     label: new FormControl('', [Validators.required]),
     description: new FormControl('', [Validators.required]),
-    sourceURI: new FormControl('')
+    uri: new FormControl('')
   });
 
   error;
@@ -31,16 +31,23 @@ export class PlsNewEntityDialogComponent {
       this.error = 'Empty label is not allowed';
       return;
     }
-    if (this.form.get('sourceURI').value === '') {
+    if (this.form.get('uri').value === '') {
       const defaultUri = this.cleanURI(this.defaultConceptPrefix + this.form.get('label').value.trim().split(' ').join('_'));
-      this.form.get('sourceURI').setValue(defaultUri);
-    } else if (this.form.get('sourceURI').value.startsWith(':')) {
+      this.form.get('uri').setValue(defaultUri);
+    } else if (this.form.get('uri').value.startsWith(':')) {
       const defaultUri = this.cleanURI(this.defaultConceptPrefix + this.form.get('label').value.trim().split(' ').join('_'));
-      this.form.get('sourceURI').setValue(defaultUri);
+      this.form.get('uri').setValue(defaultUri);
     } else {
-      this.form.get('sourceURI').setValue(this.cleanURI(this.form.get('sourceURI').value));
+      this.form.get('uri').setValue(this.cleanURI(this.form.get('uri').value));
     }
-    this.modelingService.cacheEntityConcept(this.dataSource, this.form.value as EntityConcept).subscribe(() => this.modalRef.close(true), error => this.error = error.error.message);
+    const node: Class = {
+      _class: 'Class',
+      uri: this.form.get('uri').value,
+      description: this.form.get('description').value,
+      label: this.form.get('label').value
+    };
+
+    this.modelingService.cacheElement(this.dataSource, node).subscribe(() => this.modalRef.close(true), error => this.error = error.error.message);
   }
 
   cancel(): void {
@@ -48,7 +55,7 @@ export class PlsNewEntityDialogComponent {
     this.modalRef.close();
   }
 
-  generateSourceURI(): string {
+  generateURI(): string {
     return this.cleanURI('plasma:' + this.form.get('label').value);
   }
 

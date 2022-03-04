@@ -26,6 +26,15 @@ public class CombinedModel implements Serializable {
 
     private static final long serialVersionUID = 1069167546126071914L;
 
+    public static final String ID_PROPERTY = "id";
+    public static final String SYNTAXMODEL_PROPERTY = "syntaxModel";
+    public static final String SEMANTICMODEL_PROPERTY = "semanticModel";
+    public static final String RECOMMENDATIONS_PROPERTY = "recommendations";
+    public static final String LASTMODIFICATION_PROPERTY = "lastModification";
+    public static final String FINALIZED_PROPERTY = "finalized";
+    public static final String PROVISIONAL_ELEMENTS_PROPERTY = "provisionalElements";
+    public static final String PROVISIONAL_RELATIONS_PROPERTY = "provisionalRelations";
+
     private final String id;
     private final SyntaxModel syntaxModel;
     private final SemanticModel semanticModel;
@@ -81,14 +90,14 @@ public class CombinedModel implements Serializable {
 
     @JsonCreator
     public CombinedModel(
-            @JsonProperty @NotNull String id,
-            @JsonProperty @Nullable SyntaxModel syntaxModel,
-            @JsonProperty SemanticModel semanticModel,
-            @JsonProperty @Nullable List<DeltaModification> recommendations,
-            @JsonProperty DeltaModification lastModification,
-            @JsonProperty(defaultValue = "false") boolean finalized,
-            @JsonProperty @Nullable List<SemanticModelNode> provisionalElements,
-            @JsonProperty @Nullable List<Relation> provisionalRelations
+            @JsonProperty(ID_PROPERTY) @NotNull String id,
+            @JsonProperty(SYNTAXMODEL_PROPERTY) @Nullable SyntaxModel syntaxModel,
+            @JsonProperty(SEMANTICMODEL_PROPERTY) SemanticModel semanticModel,
+            @JsonProperty(RECOMMENDATIONS_PROPERTY) @Nullable List<DeltaModification> recommendations,
+            @JsonProperty(LASTMODIFICATION_PROPERTY) DeltaModification lastModification,
+            @JsonProperty(value = FINALIZED_PROPERTY, defaultValue = "false") boolean finalized,
+            @JsonProperty(PROVISIONAL_ELEMENTS_PROPERTY) @Nullable List<SemanticModelNode> provisionalElements,
+            @JsonProperty(PROVISIONAL_RELATIONS_PROPERTY) @Nullable List<Relation> provisionalRelations
 
     ) {
         this.id = id;
@@ -101,33 +110,33 @@ public class CombinedModel implements Serializable {
         this.provisionalRelations = provisionalRelations == null ? new ArrayList<>() : provisionalRelations;
     }
 
-    @JsonProperty
+    @JsonProperty(ID_PROPERTY)
     public String getId() {
         return id;
     }
 
-    @JsonProperty
+    @JsonProperty(SYNTAXMODEL_PROPERTY)
     public SyntaxModel getSyntaxModel() {
         return syntaxModel;
     }
 
-    @JsonProperty
+    @JsonProperty(SEMANTICMODEL_PROPERTY)
     public SemanticModel getSemanticModel() {
         return semanticModel;
     }
 
-    @JsonProperty(defaultValue = "false")
+    @JsonProperty(value = FINALIZED_PROPERTY, defaultValue = "false")
     public boolean isFinalized() {
         return finalized;
     }
 
     @NotNull
-    @JsonProperty
+    @JsonProperty(RECOMMENDATIONS_PROPERTY)
     public ArrayList<DeltaModification> getRecommendations() {
         return recommendations;
     }
 
-    @JsonProperty
+    @JsonProperty(LASTMODIFICATION_PROPERTY)
     public DeltaModification getLastModification() {
         return lastModification;
     }
@@ -147,7 +156,7 @@ public class CombinedModel implements Serializable {
      * @return A list of provisional {@link Class}es in the model
      */
     @NotNull
-    @JsonProperty
+    @JsonProperty(PROVISIONAL_ELEMENTS_PROPERTY)
     public List<SemanticModelNode> getProvisionalElements() {
         return provisionalElements;
     }
@@ -158,7 +167,7 @@ public class CombinedModel implements Serializable {
      * @return A list of provisional {@link Relation}s in the model
      */
     @NotNull
-    @JsonProperty
+    @JsonProperty(PROVISIONAL_RELATIONS_PROPERTY)
     public List<Relation> getProvisionalRelations() {
         return provisionalRelations;
     }
@@ -189,7 +198,10 @@ public class CombinedModel implements Serializable {
             }
             // as we match by uuid only, we can use removeAll and addAll
             // remove all nodes that are to be overwritten (i.e. uuids match)
-            nodesToBeReplaced = syntaxModel.getNodes().stream().filter(schemaNode -> delta.getNodes().contains(schemaNode)).collect(Collectors.toList());
+            nodesToBeReplaced = syntaxModel.getNodes().stream()
+                    .filter(schemaNode -> delta.getNodes().stream()
+                            .anyMatch(snode -> Objects.equals(snode.getUuid(), schemaNode.getUuid())))
+                    .collect(Collectors.toList());
             syntaxModel.getNodes().removeAll(nodesToBeReplaced);
 
 
@@ -389,36 +401,38 @@ public class CombinedModel implements Serializable {
         if (delta.isDeletion()) {
             List<String> deletedTypeIds = delta.getEntities().stream().map(CombinedModelElement::getUuid).collect(Collectors.toList());
             // remove dangling edges
-            semanticModel.getEdges().removeIf(relation -> deletedTypeIds.contains(relation.getFromId()) || deletedTypeIds.contains(relation.getToId()));
+            semanticModel.getEdges().removeIf(relation -> deletedTypeIds.contains(relation.getFrom()) || deletedTypeIds.contains(relation.getTo()));
         }
         // now validate the model state
         validate();
         lastModification = delta;
     }
 
-    @JsonProperty
-    public List<PrimitiveEntityTypeMapping> generatePrimitiveInstanceMappings() {
+    @JsonProperty(value = "modelMappings", access = JsonProperty.Access.READ_ONLY)
+    public List<ModelMapping> generateModelMappings() {
         return getSemanticModel().getNodes().stream()
                 .filter(node -> node instanceof Class)
-                .map(node -> ((Class) node).getInstance())
-                .filter(Objects::nonNull)
-                .filter(instance -> instance.getSyntaxNodeUuid() != null)
+                .map(node -> (Class) node)
+                .filter(Class::isMapped)
                 .map(this::createExplicitMapping)
                 .collect(Collectors.toList());
     }
 
     /**
-     * Creates an explicit {@link PrimitiveEntityTypeMapping} for the given {@link Instance} and a {@link SchemaNode}.
+     * Creates an explicit {@link ModelMapping} for the given {@link Class} with an {@link Instance} and a {@link SchemaNode}.
      * The syntax node is identified by {@link Instance#getSyntaxNodeUuid()}.
      *
-     * @param instance The instance to map
+     * @param mappedClass The class to map
      * @return The new mapping
      */
-    private PrimitiveEntityTypeMapping createExplicitMapping(Instance instance) {
+    private ModelMapping createExplicitMapping(Class mappedClass) {
         if (syntaxModel == null) {
             throw new UnsupportedOperationException("Syntax Model cannot be null if a modification is applied");
         }
-
+        if(mappedClass.getInstance() == null || mappedClass.getInstance().getSyntaxNodeUuid() == null){
+            throw new UnsupportedOperationException("Cannot create explicit mapping for unmapped class");
+        }
+        Instance instance = mappedClass.getInstance();
         SchemaNode syntaxNode = syntaxModel.getNodes().stream()
                 .filter(schemaNode -> schemaNode.getUuid().equals(instance.getSyntaxNodeUuid()))
                 .findFirst()
@@ -430,7 +444,7 @@ public class CombinedModel implements Serializable {
         // now get parent
         SchemaNode parentNode = syntaxModel.getParentNodeFor(syntaxNode.getUuid());
         // create new explicit mapping
-        return new PrimitiveEntityTypeMapping(syntaxNode.getUuid(), instance.getUuid(), parentNode.getUuid());
+        return new ModelMapping(syntaxNode.getUuid(), mappedClass.getUuid(), parentNode.getUuid());
     }
 
     /**
@@ -564,11 +578,11 @@ public class CombinedModel implements Serializable {
             }
             for (Relation edge : recommendation.getRelations()) {
                 if (Stream.concat(modelSemanticUuids.stream(), recommendationSemanticUuids.stream())
-                        .noneMatch(uuid -> Objects.equals(uuid, edge.getFromId()))) {
+                        .noneMatch(uuid -> Objects.equals(uuid, edge.getFrom()))) {
                     errors.add("Relation " + edge.getUuid() + " fromId matches " + 0 + " EntityTypes (must be >= 1)");
                 }
                 if (Stream.concat(modelSemanticUuids.stream(), recommendationSemanticUuids.stream())
-                        .noneMatch(uuid -> Objects.equals(uuid, edge.getToId()))) {
+                        .noneMatch(uuid -> Objects.equals(uuid, edge.getTo()))) {
                     errors.add("Relation " + edge.getUuid() + " toId matches " + 0 + " EntityTypes (must be >=1 )");
                 }
             }

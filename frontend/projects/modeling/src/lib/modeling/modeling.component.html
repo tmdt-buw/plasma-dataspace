@@ -38,13 +38,13 @@
   <nz-spin fxFlex class="modeling-container" nzTip="Loading..." [nzSpinning]="loading">
     <div class="modeling-area" *ngIf="schema" #modelingArea>
       <pls-modeling-diagram [$filter]="$filter" [$center]="$center" [$layout]="$layout" [$flat]="$flat"
-                            [dataSource]="dataSource" [lockDragAndDrop]="lockDragAndDrop"
+                            (nodeChanged)="onSemanticNodeChanged($event)" (relationAdded)="onRelationAdded($event)"
                             [schema]="schema"
                             (graphLaidOut)="onGraphLaidOut($event)"
-                            (entityConceptMapped)="onConceptMapped($event)"
-                            (relationConceptLinked)="onRelationConceptLinked($event)"
+                            (semanticNodeAdded)="onMappingCreated($event)"
+                            [dataSource]="modelId"
                             (nodePositionChanged)="onNodePositionChanged($event)"
-                            (nodeChanged)="onNodeChanged($event)"
+                            [lockDragAndDrop]="lockDragAndDrop"
                             (nodeClicked)="onNodeClicked($event)"
                             (recommendationAccepted)="onRecommendationAccepted($event)">
       </pls-modeling-diagram>
