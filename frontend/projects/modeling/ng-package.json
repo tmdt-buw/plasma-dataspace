@@ -3,13 +3,6 @@
   "dest": "../../dist/@tmdt/dms",
   "assets": ["modeling.less", "src/style/themes/default.less"],
   "lib": {
-    "entryFile": "src/public-api.ts",
-    "umdModuleIds": {
-      "jointjs": "jointjs",
-      "dagre": "dagre",
-      "graphlib": "graphlib",
-      "svg-pan-zoom": "svgPanZoom",
-      "lodash": "lodash"
-    }
+    "entryFile": "src/public-api.ts"
   }
 }
