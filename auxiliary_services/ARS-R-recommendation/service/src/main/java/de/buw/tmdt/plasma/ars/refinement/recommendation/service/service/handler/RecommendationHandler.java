@@ -100,8 +100,8 @@ public class RecommendationHandler {
                     .map(
                             rec -> {
 
-                                Set<SemanticModelNode> entities = new HashSet<>();
-                                Set<Relation> relations = new HashSet<>();
+                                ArrayList<SemanticModelNode> entities = new ArrayList<>();
+                                ArrayList<Relation> relations = new ArrayList<>();
 
                                 String objectURI = rec.getO().replace("http://tmdtkg#", "plasma:"); // KGS speaks a different language
 
@@ -129,8 +129,8 @@ public class RecommendationHandler {
                                 DeltaModification dm = new DeltaModification("test",
                                         entities,
                                         relations,
-                                        new HashSet<>(),
-                                        new HashSet<>(),
+                                        new ArrayList<>(),
+                                        new ArrayList<>(),
                                         rec.getC());
                                 dm.getAnchors().add(node.getUuid());
                                 return dm;

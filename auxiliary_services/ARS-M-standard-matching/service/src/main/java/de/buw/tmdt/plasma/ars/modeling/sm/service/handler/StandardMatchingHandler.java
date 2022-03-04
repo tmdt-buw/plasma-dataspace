@@ -159,8 +159,8 @@ public class StandardMatchingHandler {
         // generate a modification and add the computed changes to the combined model
         DeltaModification labelingModification = new DeltaModification(
                 "semantic_labeling",
-                new HashSet<>(semanticModel.getNodes()),
-                new HashSet<>(semanticModel.getEdges()),
+                new ArrayList<>(semanticModel.getNodes()),
+                new ArrayList<>(semanticModel.getEdges()),
                 null,
                 null
         );
@@ -184,8 +184,8 @@ public class StandardMatchingHandler {
         // generate a modification and add the computed changes to the combined model
         DeltaModification modelingModification = new DeltaModification(
                 "semantic_modeling",
-                new HashSet<>(semanticModel.getNodes()),
-                new HashSet<>(semanticModel.getEdges()),
+                new ArrayList<>(semanticModel.getNodes()),
+                new ArrayList<>(semanticModel.getEdges()),
                 null,
                 null
         );
