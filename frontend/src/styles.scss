@@ -1,4 +1,4 @@
-@import '~@angular/material/theming';
+@use '~@angular/material' as mat;
 @import 'plasma-theme';
 
 html, body {
@@ -14,23 +14,23 @@ html, body {
 ::-webkit-scrollbar-track
 {
   border-radius: 4px;
-  background-color: mat-color($plasma-app-grey-1);
+  background-color: mat.get-color-from-palette($plasma-app-grey-1);
 }
 
 ::-webkit-scrollbar
 {
   width: 6px;
   height: 6px;
-  background-color: mat-color($plasma-app-grey-1);
+  background-color: mat.get-color-from-palette($plasma-app-grey-1);
 }
 
 ::-webkit-scrollbar-thumb
 {
   border-radius: 4px;
-  background-color: mat-color($plasma-app-grey-2);
+  background-color: mat.get-color-from-palette($plasma-app-grey-2);
   transition: height ease-out 150ms;
 }
 
-@include mat-core($plasma-typography);
-@include angular-material-theme($plasma-app-theme);
+@include mat.core($plasma-typography);
+@include mat.all-component-themes($plasma-app-theme);
 
