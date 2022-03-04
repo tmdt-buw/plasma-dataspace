@@ -163,7 +163,7 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
     }
     const rect: DOMRect = this.modelingArea.nativeElement.getBoundingClientRect();
     const config: ModalOptions = {
-      nzStyle: {position: 'absolute', top: `${rect.top + 15}px`, left: `15px`, 'max-width': '30%', bottom: '15px'},
+      nzStyle: {position: 'absolute', top: `${rect.top + 15}px`, left: `45%`, 'max-width': '30%', bottom: '15px'},
       nzClassName: 'pls-concept-dialog',
       nzTitle: '',
       nzContent: PlsConceptDialogComponent,

@@ -170,6 +170,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
     this.paper.unfreeze();
 
     // init pan and zoom
+    /*
     this.panAndZoom = svgPanZoom(this.canvas.nativeElement.firstChild.childNodes[2],
       {
         viewportSelector: this.canvas.nativeElement.firstChild.childNodes[2].childNodes[1],
@@ -179,6 +180,8 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
         maxZoom: 5,
         minZoom: 0.0001
       });
+
+
     this.panAndZoom.setOnPan(() => {
       this.contextMenu.close(null);
       this.unhighlightAll();
@@ -187,6 +190,8 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
       this.contextMenu.close(null);
       this.unhighlightAll();
     });
+
+     */
     this.paper.on({
       // add selection for nodes
       'element:pointerclick': (elementView: dia.ElementView) => {
@@ -254,11 +259,11 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
       },
       // Enable pan when mouse button down in blank zone
       'blank:pointerdown': () => {
-        this.panAndZoom.enablePan();
+        //this.panAndZoom.enablePan();
       },
       // Disable pan when the mouse button is released
       'cell:pointerup blank:pointerup': () => {
-        this.panAndZoom.disablePan();
+        //this.panAndZoom.disablePan();
       },
       // register context menu
       'cell:contextmenu': (cellView: dia.CellView) => {
@@ -313,11 +318,11 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
           pairwise()
         ).subscribe((values) => {
             // update sizes in model
-            this.panAndZoom.resize();
+            //this.panAndZoom.resize();
             // pan by half of diff to let graph remain in relative center
             const widthScale = (values[1].width - values[0].width) / 2;
             const heightScale = (values[1].height - values[0].height) / 2;
-            this.panAndZoom.panBy({x: widthScale, y: heightScale});
+            //this.panAndZoom.panBy({x: widthScale, y: heightScale});
           }
         );
         this.initializing = false;
@@ -603,12 +608,12 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
    */
   private center(): void {
     // update bounding box in case user dragged stuff
-    this.panAndZoom.updateBBox();
+    //this.panAndZoom.updateBBox();
     // fit and center
-    this.panAndZoom.fit();
-    this.panAndZoom.center();
+    //this.panAndZoom.fit();
+    //this.panAndZoom.center();
     // leave small margin
-    this.panAndZoom.zoomBy(0.98);
+    //this.panAndZoom.zoomBy(0.98);
   }
 
   /**

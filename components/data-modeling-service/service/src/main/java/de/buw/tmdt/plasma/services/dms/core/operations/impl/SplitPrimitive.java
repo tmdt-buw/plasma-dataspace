@@ -134,7 +134,7 @@ public class SplitPrimitive extends Operation<Pair<PrimitiveNode, List<Splitting
 				primitive.getCleansingPattern(),
 				primitiveListPair.getRight());
 
-		DeltaModification modification = new DeltaModification("local_operation", null, null, Set.of(composite), null);
+		DeltaModification modification = new DeltaModification("local_operation", null, null, List.of(composite), null);
 		model.apply(modification); // this will to the magic for us
 
 		return model;

@@ -84,8 +84,8 @@ export class PlsFileDropDirective {
     }
   }
 
-  private typeCheck(types: ReadonlyArray<string> | DOMStringList): string {
-    let dropEffect: string = 'none';
+  private typeCheck(types: ReadonlyArray<string> | DOMStringList): 'link' | 'none' | 'copy' | 'move' {
+    let dropEffect: 'link' | 'none' | 'copy' | 'move' = 'none';
     if (
       types &&
       (((types as any).contains && (types as any).contains('Files')) ||

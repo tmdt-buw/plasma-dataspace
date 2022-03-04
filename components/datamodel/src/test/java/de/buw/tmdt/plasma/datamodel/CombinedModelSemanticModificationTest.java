@@ -10,6 +10,7 @@ import de.buw.tmdt.plasma.datamodel.syntaxmodel.SchemaNode;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -25,7 +26,7 @@ public class CombinedModelSemanticModificationTest {
 
         Class companyClass = new Class("plasma:company", "company", "A company");
 
-        DeltaModification modification = new DeltaModification("mod_testApplyAddOneClass", Collections.singleton(companyClass), null, null, null, 0.0);
+        DeltaModification modification = new DeltaModification("mod_testApplyAddOneClass", Collections.singletonList(companyClass), null, null, null, 0.0);
 
         assertThrows(UnsupportedOperationException.class, () -> model.apply(modification));
     }
@@ -36,7 +37,7 @@ public class CombinedModelSemanticModificationTest {
 
         Class companyClass = new Class("plasma:company", "company", "A company");
 
-        DeltaModification modification = new DeltaModification("mod_testApplyAddOneClass", Collections.singleton(companyClass), null, null, null, 0.0);
+        DeltaModification modification = new DeltaModification("mod_testApplyAddOneClass", Collections.singletonList(companyClass), null, null, null, 0.0);
 
         model.apply(modification);
 
@@ -60,7 +61,7 @@ public class CombinedModelSemanticModificationTest {
 
         Relation airlineCompanyRelation = new ObjectProperty(airlineClass.getUuid(), companyClass.getUuid(), "plasma:isA");
 
-        DeltaModification modification = new DeltaModification("mod_testApplyAddOneEntityAndOneRelation", Collections.singleton(companyClass), Collections.singleton(airlineCompanyRelation), null, null, 0.0);
+        DeltaModification modification = new DeltaModification("mod_testApplyAddOneEntityAndOneRelation", Collections.singletonList(companyClass), Collections.singletonList(airlineCompanyRelation), null, null, 0.0);
 
         model.apply(modification);
 
@@ -102,7 +103,7 @@ public class CombinedModelSemanticModificationTest {
         );
         codeClass.setInstance(codeInstance);
 
-        DeltaModification modification = new DeltaModification("mod_testApplyReplaceOneEntity", Collections.singleton(codeClass), null, null, null, 0.0);
+        DeltaModification modification = new DeltaModification("mod_testApplyReplaceOneEntity", Collections.singletonList(codeClass), null, null, null, 0.0);
 
         model.apply(modification);
 
@@ -150,7 +151,7 @@ public class CombinedModelSemanticModificationTest {
         timeInstance.setOriginalLabel(timeNode.getLabel());
         timeClass.setInstance(timeInstance);
 
-        DeltaModification modification = new DeltaModification("mod_testApplyMapOneClassToPrimitiveNode", Collections.singleton(timeClass), null, null, null, 0.0);
+        DeltaModification modification = new DeltaModification("mod_testApplyMapOneClassToPrimitiveNode", Collections.singletonList(timeClass), null, null, null, 0.0);
 
         model.apply(modification);
 
@@ -199,7 +200,7 @@ public class CombinedModelSemanticModificationTest {
         timeClass.setInstance(timeInstance);
         timeInstance.setSyntaxNodeUuid(schemaNode.getUuid());
 
-        DeltaModification modification = new DeltaModification("mod_testApplyMapOneEntityToNonPrimitiveNode", Collections.singleton(timeClass), null, null, null, 0.0);
+        DeltaModification modification = new DeltaModification("mod_testApplyMapOneEntityToNonPrimitiveNode", Collections.singletonList(timeClass), null, null, null, 0.0);
 
         assertThrows(CombinedModelIntegrityException.class, () -> model.apply(modification), "Error message not thrown when mapping to non-primitive node " + schemaNode.getUuid());
     }
@@ -218,7 +219,7 @@ public class CombinedModelSemanticModificationTest {
         replacementClass.getInstance().setSyntaxNodeUuid(null);
         replacementClass.getInstance().setOriginalLabel(null);
 
-        DeltaModification modification = new DeltaModification("mod_testApplyUnmapOneEntityFromSyntaxNode", Collections.singleton(replacementClass), null, null, null, 0.0);
+        DeltaModification modification = new DeltaModification("mod_testApplyUnmapOneEntityFromSyntaxNode", Collections.singletonList(replacementClass), null, null, null, 0.0);
 
         model.apply(modification);
 
@@ -269,8 +270,8 @@ public class CombinedModelSemanticModificationTest {
                 .orElseThrow();
 
         DeltaModification modification = new DeltaModification("mod_testApplyRemoveOneEntityAndOneRelation",
-                Set.of(airlineClass, nameClass),
-                Collections.singleton(airlineNameRelation),
+                List.of(airlineClass, nameClass),
+                Collections.singletonList(airlineNameRelation),
                 null,
                 null,
                 0.0);

@@ -16,10 +16,7 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static de.buw.tmdt.plasma.services.dms.core.operations.Operation.Strings.PRIMITIVE_NODE_IDENTIFIER;
 
@@ -114,7 +111,7 @@ public class SetDataType extends Operation<Pair<PrimitiveNode, DataType>> {
         PrimitiveNode primitiveNode = input.getLeft();
         DataType dataType = input.getRight();
         primitiveNode.setDataType(dataType);
-        DeltaModification modification = new DeltaModification("local_operation", null, null, Set.of(primitiveNode), null);
+        DeltaModification modification = new DeltaModification("local_operation", null, null, List.of(primitiveNode), null);
         model.apply(modification);
         return model;
     }

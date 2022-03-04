@@ -21,7 +21,7 @@
     "gen:dss": "npm run gen:base -- -o projects/data-sources/src/lib/api/generated -i http://localhost:8888/v3/api-docs/plasma-dss",
     "gen:kgs": "npm run gen:base -- -o projects/modeling/src/lib/api/generated/kgs -i http://localhost:8888/v3/api-docs/plasma-kgs",
     "gen:sas": "npm run gen:base -- -o projects/schema-analysis/src/lib/api/generated -i http://localhost:8888/v3/api-docs/plasma-sas",
-    "gen:base": "openapi-generator-cli generate -g typescript-angular --additional-properties=providedInRoot=false,disallowAdditionalPropertiesIfNotPresent=false"
+    "gen:base": "openapi-generator-cli generate -g typescript-angular --additional-properties=providedInRoot=false,disallowAdditionalPropertiesIfNotPresent=false,typescriptThreePlus=true,supportsES6=true,legacyDiscriminatorBehavior=false --type-mappings=set=Array"
   },
   "private": true,
   "dependencies": {

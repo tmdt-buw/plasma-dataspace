@@ -120,7 +120,7 @@ public class ModifyComposite extends Operation<Pair<CompositeNode, List<Splittin
 		}
 		composite.setSplitter(splitter);
 
-		DeltaModification modification = new DeltaModification("local_operation", null, null, Set.of(composite), null);
+		DeltaModification modification = new DeltaModification("local_operation", null, null, List.of(composite), null);
 		model.apply(modification); // this will take care of all needed stuff
 
 		return model;

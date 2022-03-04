@@ -1,4 +1,4 @@
-@use '@angular/material' as mat;
+@use 'node_modules/@angular/material' as mat;
 
 /** import fonts **/
 @font-face {
@@ -25,6 +25,7 @@ $plasma-typography: mat.define-typography-config(
 );
 
 $plasma-colors: (
+  100: #ABABAB,
   600: #b5b4ba,
   700: #737278,
   A400: #E87025,

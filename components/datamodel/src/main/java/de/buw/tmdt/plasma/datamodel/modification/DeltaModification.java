@@ -41,25 +41,25 @@ public class DeltaModification implements Serializable {
      * The set of modified semantic entities.
      */
     @NotNull
-    private Set<SemanticModelNode> entities;
+    private List<SemanticModelNode> entities;
 
     /**
      * The set of modified semantic relations.
      */
     @NotNull
-    private Set<Relation> relations;
+    private List<Relation> relations;
 
     /**
      * The set of modified syntactic nodes.
      */
     @NotNull
-    private Set<SchemaNode> nodes;
+    private List<SchemaNode> nodes;
 
     /**
      * The set of modified syntactic edges.
      */
     @NotNull
-    private Set<Edge> edges;
+    private List<Edge> edges;
 
     /**
      * Lists the ids of anchor elements.
@@ -72,18 +72,18 @@ public class DeltaModification implements Serializable {
     private Double confidence;
 
     public DeltaModification(@NotNull String reference,
-                             @Nullable Set<SemanticModelNode> entities,
-                             @Nullable Set<Relation> relations,
-                             @Nullable Set<SchemaNode> nodes,
-                             @Nullable Set<Edge> edges) {
+                             @Nullable List<SemanticModelNode> entities,
+                             @Nullable List<Relation> relations,
+                             @Nullable List<SchemaNode> nodes,
+                             @Nullable List<Edge> edges) {
         this(reference, false, entities, relations, nodes, edges, null, 0.0);
     }
 
     public DeltaModification(@NotNull String reference,
-                             @Nullable Set<SemanticModelNode> entities,
-                             @Nullable Set<Relation> relations,
-                             @Nullable Set<SchemaNode> nodes,
-                             @Nullable Set<Edge> edges,
+                             @Nullable List<SemanticModelNode> entities,
+                             @Nullable List<Relation> relations,
+                             @Nullable List<SchemaNode> nodes,
+                             @Nullable List<Edge> edges,
                              @Nullable Double confidence) {
         this(reference, false, entities, relations, nodes, edges, null, confidence);
     }
@@ -91,18 +91,18 @@ public class DeltaModification implements Serializable {
     @JsonCreator
     public DeltaModification(@JsonProperty(REFERENCE_PROPERTY) String reference,
                              @JsonProperty(value = DELETION_PROPERTY, defaultValue = "false") boolean deletion,
-                             @JsonProperty(ENTITIES_PROPERTY) @Nullable Set<SemanticModelNode> entities,
-                             @JsonProperty(RELATIONS_PROPERTY) @Nullable Set<Relation> relations,
-                             @JsonProperty(NODES_PROPERTY) @Nullable Set<SchemaNode> nodes,
-                             @JsonProperty(EDGES_PROPERTY) @Nullable Set<Edge> edges,
+                             @JsonProperty(ENTITIES_PROPERTY) @Nullable List<SemanticModelNode> entities,
+                             @JsonProperty(RELATIONS_PROPERTY) @Nullable List<Relation> relations,
+                             @JsonProperty(NODES_PROPERTY) @Nullable List<SchemaNode> nodes,
+                             @JsonProperty(EDGES_PROPERTY) @Nullable List<Edge> edges,
                              @JsonProperty(ANCHORS_PROPERTY) @Nullable List<String> anchors,
                              @JsonProperty(CONFIDENCE_PROPERTY) @Nullable Double confidence) {
         this.reference = reference;
         this.deletion = deletion;
-        this.entities = entities == null ? new HashSet<>() : entities;
-        this.relations = relations == null ? new HashSet<>() : relations;
-        this.nodes = nodes == null ? new HashSet<>() : nodes;
-        this.edges = edges == null ? new HashSet<>() : edges;
+        this.entities = entities == null ? new ArrayList<>() : entities;
+        this.relations = relations == null ? new ArrayList<>() : relations;
+        this.nodes = nodes == null ? new ArrayList<>() : nodes;
+        this.edges = edges == null ? new ArrayList<>() : edges;
         this.anchors = anchors == null ? new ArrayList<>() : anchors;
         this.confidence = confidence;
     }
@@ -119,23 +119,23 @@ public class DeltaModification implements Serializable {
 
     @NotNull
     @JsonProperty(ENTITIES_PROPERTY)
-    public Set<SemanticModelNode> getEntities() {
+    public List<SemanticModelNode> getEntities() {
         return entities;
     }
 
-    public void setEntities(@NotNull Set<SemanticModelNode> entities) {
+    public void setEntities(@NotNull List<SemanticModelNode> entities) {
         this.entities = entities;
     }
 
     @NotNull
     @JsonProperty(NODES_PROPERTY)
-    public Set<SchemaNode> getNodes() {
+    public List<SchemaNode> getNodes() {
         return nodes;
     }
 
     @NotNull
     @JsonProperty(EDGES_PROPERTY)
-    public Set<Edge> getEdges() {
+    public List<Edge> getEdges() {
         return edges;
     }
 
@@ -157,19 +157,19 @@ public class DeltaModification implements Serializable {
 
     @NotNull
     @JsonProperty(RELATIONS_PROPERTY)
-    public Set<Relation> getRelations() {
+    public List<Relation> getRelations() {
         return relations;
     }
 
-    public void setRelations(@NotNull Set<Relation> objectProperties) {
+    public void setRelations(@NotNull List<Relation> objectProperties) {
         this.relations = objectProperties;
     }
 
-    public void setNodes(@NotNull Set<SchemaNode> nodes) {
+    public void setNodes(@NotNull List<SchemaNode> nodes) {
         this.nodes = nodes;
     }
 
-    public void setEdges(@NotNull Set<Edge> edges) {
+    public void setEdges(@NotNull List<Edge> edges) {
         this.edges = edges;
     }
 
@@ -202,16 +202,16 @@ public class DeltaModification implements Serializable {
                 isDeletion(),
                 CollectionUtilities.map(getEntities(),
                         SemanticModelNode::copy,
-                        HashSet::new),
+                        ArrayList::new),
                 CollectionUtilities.map(getRelations(),
                         Relation::copy,
-                        HashSet::new),
+                        ArrayList::new),
                 CollectionUtilities.map(getNodes(),
                         SchemaNode::copy,
-                        HashSet::new),
+                        ArrayList::new),
                 CollectionUtilities.map(getEdges(),
                         Edge::copy,
-                        HashSet::new),
+                        ArrayList::new),
                 new ArrayList<>(anchors),
                 getConfidence()
         );

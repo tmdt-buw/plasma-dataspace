@@ -106,7 +106,7 @@ public class ValueCleansing extends Operation<Pair<PrimitiveNode, String>> {
 
 		primitiveNode.setExamples(cleansedExamples);
 
-		DeltaModification modification = new DeltaModification("local_operation", null, null, Set.of(primitiveNode), null);
+		DeltaModification modification = new DeltaModification("local_operation", null, null, List.of(primitiveNode), null);
 		model.apply(modification);
 
 		return model;

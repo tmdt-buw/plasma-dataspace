@@ -28,7 +28,7 @@ public class CombinedModelSyntacticModificationTest {
         // by just defining the split, needed new nodes should be generated automatically
         CompositeNode compositeNode = new CompositeNode(identNode.getUuid(), "", identNode.getXCoordinate(), identNode.getYCoordinate(), new ArrayList<>(), true, new ArrayList<>(), identNode.getCleansingPattern(), Arrays.asList(splitting1));
 
-        DeltaModification modification = new DeltaModification("mod_testSplitPrimitiveNode", null, null, Collections.singleton(compositeNode), null, 0.0);
+        DeltaModification modification = new DeltaModification("mod_testSplitPrimitiveNode", null, null, Collections.singletonList(compositeNode), null, 0.0);
         model.apply(modification);
 
         // assert that the node has been properly replaced
@@ -100,7 +100,7 @@ public class CombinedModelSyntacticModificationTest {
         CompositeNode compositeNode = new CompositeNode(identNode.getUuid(), "", identNode.getXCoordinate(), identNode.getYCoordinate(), new ArrayList<>(), true, new ArrayList<>(), identNode.getCleansingPattern(), new ArrayList<>());
         compositeNode.getSplitter().add(splitting1);
 
-        DeltaModification modification = new DeltaModification("mod_testSplitPrimitiveNode", null, null, Collections.singleton(compositeNode), null, 0.0);
+        DeltaModification modification = new DeltaModification("mod_testSplitPrimitiveNode", null, null, Collections.singletonList(compositeNode), null, 0.0);
         model.apply(modification);
 
         // we assume the split went correctly, now re-split the node on a copy (use the old modified instance for reference)

@@ -6,7 +6,7 @@
      nz-tooltip>{{ getDescription() }}</p>
 
   <div *ngIf="!getInstance()">
-    <button (click)="customize()" nz-button nzType="text"><i>Add customization<i nz-icon nzType="edit"></i></i>
+    <button (click)="customize()" nz-button nzType="text">Add customization<i nz-icon nzType="edit"></i>
     </button>
   </div>
   <div *ngIf="getInstance()" fxLayout="column">
@@ -15,7 +15,7 @@
       [nzTooltipTitle]="'An instance defines a customized class. The changes covered by an instance are only visible and valid in this model.'"
       nz-tooltip>Instance</p>
     <div fxLayout="row" fxLayoutAlign="space-between center">
-      <div fxLayout="row"><p nz-typography nzType="secondary">Custom label:</p>
+      <div fxLayout="row"><p nz-typography nzType="secondary">Custom label: </p>
         <pls-inline-edit [$edit]="$edit" [(ngModel)]="data.node.label"
                          [nzTooltipTitle]="'Custom label for this element'"
                          nz-tooltip></pls-inline-edit>
@@ -34,14 +34,14 @@
     </div>
     <div fxLayout="column">
       <div fxLayout="row">
-        <p nz-typography nzType="secondary">Description:</p>
+        <p nz-typography nzType="secondary">Description: </p>
         <pls-inline-edit *ngIf="isClass()" [$edit]="$edit" [(ngModel)]="getClassOrNamedEntity().description"
                          [empty]="'No description'"
                          [type]="'textarea'"></pls-inline-edit>
       </div>
     </div>
     <div fxLayout="row">
-      <p nz-typography nzType="secondary">Original label:</p>
+      <p nz-typography nzType="secondary">Original label: </p>
       <p *ngIf="isMappedClass()" [nzTooltipTitle]="'Original label of the connected syntax node'" nz-tooltip
          nz-typography>{{ getInstance().originalLabel }}</p>
     </div>
