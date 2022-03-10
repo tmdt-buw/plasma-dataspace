@@ -90,7 +90,7 @@ public abstract class Relation extends CombinedModelElement implements Serializa
         this.properties = properties == null ? new HashSet<>() : new HashSet<>(properties);
     }
 
-    @JsonProperty
+    @JsonProperty(FROM_PROPERTY)
     public String getFrom() {
         return from;
     }
@@ -99,7 +99,7 @@ public abstract class Relation extends CombinedModelElement implements Serializa
         this.from = from;
     }
 
-    @JsonProperty
+    @JsonProperty(TO_PROPERTY)
     public String getTo() {
         return to;
     }
@@ -108,17 +108,17 @@ public abstract class Relation extends CombinedModelElement implements Serializa
         this.to = to;
     }
 
-    @JsonProperty
+    @JsonProperty(DESCRIPTION_PROPERTY)
     public String getDescription() {
         return description;
     }
 
-    @JsonProperty
+    @JsonProperty(URI_PROPERTY)
     public String getURI() {
         return uri;
     }
 
-    @JsonProperty
+    @JsonProperty(PROPERTIES_PROPERTY)
     public Set<String> getProperties() {
         return Collections.unmodifiableSet(this.properties);
     }
@@ -137,11 +137,8 @@ public abstract class Relation extends CombinedModelElement implements Serializa
             return false;
         }
         Relation that = (Relation) o;
-        return Objects.equals(this.getURI(), that.getURI()) &&
-                // we cannot verify this at the moment
-                //Objects.equals(this.getFromId(), that.getFromId()) &&
-                //Objects.equals(this.getToId(), that.getToId()) &&
-                Objects.equals(this.getLabel(), that.getLabel());
+        return Objects.equals(this.getUuid(), that.getUuid()) &&
+                sameAs(that);
     }
 
     @Override
@@ -180,7 +177,7 @@ public abstract class Relation extends CombinedModelElement implements Serializa
         if (getURI() == null || getURI().isBlank()) {
             throw new CombinedModelIntegrityException("Relation " + getUuid() + " has no proper URL assigned");
         }
-        if(!isTemplate()){
+        if (!isTemplate()) {
             if (getFrom() == null || getFrom().isBlank()) {
                 throw new CombinedModelIntegrityException("Relation " + getUuid() + " has no proper fromId");
             }

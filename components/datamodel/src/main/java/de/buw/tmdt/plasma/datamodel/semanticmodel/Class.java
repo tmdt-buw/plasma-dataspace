@@ -99,7 +99,8 @@ public class Class extends SemanticModelNode implements Serializable {
         return getUuid().hashCode();
     }
 
-    public boolean equals(Object o) {
+    @Override
+    public boolean sameAs(SemanticModelNode o) {
         if (this == o) {
             return true;
         } else if (o != null && this.getClass().equals(o.getClass())) {
@@ -110,6 +111,19 @@ public class Class extends SemanticModelNode implements Serializable {
                     Objects.equals(this.getXCoordinate(), that.getXCoordinate()) &&
                     Objects.equals(this.getYCoordinate(), that.getYCoordinate()) &&
                     Objects.equals(this.getInstance(), that.getInstance());
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        } else if (o != null && this.getClass().equals(o.getClass())) {
+            Class that = (Class) o;
+            return Objects.equals(this.getUuid(), that.getUuid()) &&
+                    sameAs(that);
         } else {
             return false;
         }

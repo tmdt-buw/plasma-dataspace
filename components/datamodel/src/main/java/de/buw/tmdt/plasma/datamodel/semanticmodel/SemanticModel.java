@@ -184,7 +184,7 @@ public class SemanticModel implements Serializable {
 
         if (getNodes().stream()
                 .anyMatch(node -> that.getNodes().stream()
-                        .noneMatch(thatnode -> Objects.equals(node, thatnode)))) {
+                        .noneMatch(node::sameAs))) {
             return false;
         }
 
@@ -194,7 +194,7 @@ public class SemanticModel implements Serializable {
         //noinspection RedundantIfStatement
         if (getEdges().stream()
                 .anyMatch(edge -> that.getEdges().stream()
-                        .noneMatch(thatedge -> Objects.equals(edge, thatedge)))) {
+                        .noneMatch(edge::sameAs))) {
             return false;
         }
 

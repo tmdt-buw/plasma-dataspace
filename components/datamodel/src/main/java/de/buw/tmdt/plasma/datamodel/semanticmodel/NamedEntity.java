@@ -59,7 +59,7 @@ public class NamedEntity extends SemanticModelNode implements Serializable, Node
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean sameAs(SemanticModelNode o) {
         if (this == o) {
             return true;
         } else if (o != null && this.getClass().equals(o.getClass())) {
@@ -72,6 +72,18 @@ public class NamedEntity extends SemanticModelNode implements Serializable, Node
         } else {
             return false;
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        } else if (o != null && this.getClass().equals(o.getClass())) {
+            NamedEntity that = (NamedEntity) o;
+            return Objects.equals(this.getUuid(), that.getUuid()) &&
+                    sameAs(that);
+        }
+        return false;
     }
 
     @Override
