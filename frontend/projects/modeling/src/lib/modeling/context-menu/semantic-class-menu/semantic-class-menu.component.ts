@@ -24,4 +24,15 @@ export class PlsSemanticClassMenuComponent {
   remove(): void {
     this.contextMenu.close(new ContextMenuEvent(ContextMenuEventType.removeEntity, this.node));
   }
+
+  unmap():void {
+    this.node.instance.syntaxNodeUuid = undefined;
+    this.node.instance.originalLabel = undefined;
+    this.contextMenu.close(new ContextMenuEvent(ContextMenuEventType.updateEntity, this.node));
+  }
+
+  removeInstance():void {
+    this.node.instance = undefined;
+    this.contextMenu.close(new ContextMenuEvent(ContextMenuEventType.updateEntity, this.node));
+  }
 }

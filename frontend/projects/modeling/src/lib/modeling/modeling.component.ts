@@ -93,21 +93,24 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
     });
     this.contextMenuSubscription = this.contextMenu.onClosed.subscribe((event: ContextMenuEvent) => {
       if (event) {
-        if (event.type === ContextMenuEventType.removeEntity) {
+        if (event.type === ContextMenuEventType.updateEntity) {
+          const delta: DeltaModification = {
+            entities: [event.target]
+          };
+          this.modelingService.modifyModel(this.modelId, delta).subscribe((res: CombinedModel) => this.schema = res);
+        } else if (event.type === ContextMenuEventType.removeEntity) {
           const delta: DeltaModification = {
             entities: [event.target],
             deletion: true
           };
           this.modelingService.modifyModel(this.modelId, delta).subscribe((res: CombinedModel) => this.schema = res);
-        }
-        if (event.type === ContextMenuEventType.removeRelation) {
+        } else if (event.type === ContextMenuEventType.removeRelation) {
           const delta: DeltaModification = {
             relations: [event.target],
             deletion: true
           };
           this.modelingService.modifyModel(this.modelId, delta).subscribe((res: CombinedModel) => this.schema = res);
-        }
-        if (event.type === ContextMenuEventType.performOperation) {
+        } else if (event.type === ContextMenuEventType.performOperation) {
           const operation = event.operation;
           const config: ModalOptions = {
             nzTitle: operation.label,
@@ -183,7 +186,7 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
       relations: event.relations,
       entities: event.nodes
     };
-    console.log(event, 'modifying model', delta );
+    console.log(event, 'modifying model', delta);
     this.modelingService.modifyModel(this.modelId, delta).subscribe((res) => this.schema = res);
   }
 
