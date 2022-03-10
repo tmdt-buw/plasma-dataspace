@@ -11,9 +11,9 @@ export abstract class Papers {
    * Call constructor for paper
    * @param graph model
    * @param activeRelation function
-   * @param primary color function
+   * @param lockDragAndDrop if true, freezes elements in place
    */
-  static createPaper(graph: dia.Graph, activeRelation: () => Relation, primary: () => string, lockDragAndDrop: boolean): dia.Paper {
+  static createPaper(graph: dia.Graph, activeRelation: () => Relation, lockDragAndDrop: boolean): dia.Paper {
     const interactive = () => {
       if (!lockDragAndDrop) {
         if (activeRelation()?._class === 'ObjectProperty') {
@@ -66,7 +66,7 @@ export abstract class Papers {
       // default link style
       defaultLink: () => {
         const label = activeRelation().label;
-        return Links.createDefaultLink(label, primary());
+        return Links.createDefaultLink(label);
       }
     });
   }

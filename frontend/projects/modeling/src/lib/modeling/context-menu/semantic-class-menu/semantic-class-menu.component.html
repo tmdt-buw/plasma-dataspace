@@ -1,8 +1,8 @@
 <nz-card class="menu-card">
   <ul nz-menu nzSelectable>
-    <li *ngIf="semanticNode" nz-menu-group nzTitle="Edit entity">
+    <li *ngIf="node" nz-menu-group nzTitle="Edit class">
       <ul>
-        <li nz-menu-item nzDanger (click)="remove()"><i nz-icon nzType="delete"></i>Remove entity</li>
+        <li nz-menu-item nzDanger (click)="remove()"><i nz-icon nzType="delete"></i>Remove class</li>
       </ul>
     </li>
     <li nz-menu-divider></li>

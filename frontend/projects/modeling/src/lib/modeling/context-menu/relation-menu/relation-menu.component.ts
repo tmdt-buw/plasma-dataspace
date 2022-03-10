@@ -5,7 +5,7 @@ import { ContextMenuEvent, ContextMenuEventType } from '../../model/events/conte
 
 @Component({
   selector: 'pls-relation-concept-menu',
-  templateUrl: 'relation-concept-menu.component.html',
+  templateUrl: 'relation-menu.component.html',
   styleUrls: ['../context-menu.scss']
 })
 export class PlsRelationConceptMenuComponent {

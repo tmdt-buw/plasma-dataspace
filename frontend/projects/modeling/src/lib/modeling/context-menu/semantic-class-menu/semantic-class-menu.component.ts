@@ -1,27 +1,27 @@
 import { Component, Input } from '@angular/core';
-import { SemanticModelNode, SyntacticOperationDTO } from '../../../api/generated/dms';
+import { Class, SemanticModelNode, SyntacticOperationDTO } from '../../../api/generated/dms';
 import { ContextMenuEvent, ContextMenuEventType } from '../../model/events/context-menu-event';
 import { ContextMenuService } from '../context-menu.service';
 import { SyntaxNode } from '../../model/configuration/node';
 
 @Component({
   selector: 'pls-entity-concept-menu',
-  templateUrl: 'entity-concept-menu.component.html',
+  templateUrl: 'semantic-class-menu.component.html',
   styleUrls: ['../context-menu.scss']
 })
-export class PlsEntityConceptMenuComponent {
+export class PlsSemanticClassMenuComponent {
 
-  @Input() semanticNode: SemanticModelNode;
+  @Input() node: Class;
   @Input() syntaxNode: SyntaxNode;
 
   constructor(private contextMenu: ContextMenuService) {
   }
 
   onSelectOperation(operation: SyntacticOperationDTO): void {
-    this.contextMenu.close(new ContextMenuEvent(ContextMenuEventType.performOperation, this.semanticNode, operation));
+    this.contextMenu.close(new ContextMenuEvent(ContextMenuEventType.performOperation, this.node, operation));
   }
 
   remove(): void {
-    this.contextMenu.close(new ContextMenuEvent(ContextMenuEventType.removeEntity, this.semanticNode));
+    this.contextMenu.close(new ContextMenuEvent(ContextMenuEventType.removeEntity, this.node));
   }
 }

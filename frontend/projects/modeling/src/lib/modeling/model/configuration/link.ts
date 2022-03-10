@@ -5,7 +5,7 @@ import { groupBy } from 'lodash';
 /**
  * Link type def
  */
-export type Link = 'custom.SyntaxLink' | 'custom.SemanticLink';
+export type Link = 'custom.SyntaxLink' |'custom.ObjectPropertyLink' | 'custom.DataPropertyLink';
 
 /**
  * Abstract class that provides configs for links
@@ -14,11 +14,12 @@ export abstract class Links {
 
   // internal link type names
   static readonly syntaxLinkName: Link = 'custom.SyntaxLink';
-  static readonly semanticLinkName: Link = 'custom.SemanticLink';
+  static readonly objectPropertyLinkName: Link = 'custom.ObjectPropertyLink';
+  static readonly dataPropertyLinkName: Link = 'custom.DataPropertyLink';
 
-  // basic semantic link config
-  private static semanticLink = shapes.standard.Link.define(
-    Links.semanticLinkName, {
+  // object property semantic link config
+  private static objectPropertyLink = shapes.standard.Link.define(
+    Links.objectPropertyLinkName, {
       attrs: {
         line: {
           strokeWidth: 1,
@@ -28,7 +29,18 @@ export abstract class Links {
     }
   );
 
-  // basic syntax link config
+  // data property semantic link config
+  private static dataPropertyLink = shapes.standard.Link.define(
+    Links.dataPropertyLinkName, {
+      attrs: {
+        line: {
+          strokeWidth: 1,
+          stroke: '#333333'
+        }
+      }
+    }
+  );
+
   private static syntaxLink = shapes.standard.Link.define(
     Links.syntaxLinkName, {
       attrs: {
@@ -44,15 +56,13 @@ export abstract class Links {
   /**
    * Creates label
    * @param label text
-   * @param color of text
    * @param opacity of text
    */
-  private static createLabel(label: string, color: string, opacity?: number): dia.Link.Label[] {
+  private static createLabel(label: string, opacity?: number): dia.Link.Label[] {
     return label ? [{
       attrs: {
         text: {
           text: label,
-          fill: color,
           opacity: opacity ? opacity : 1
         }
       },
@@ -80,7 +90,7 @@ export abstract class Links {
    * @param link to test
    */
   static isSemanticLink(link: dia.CellView | dia.LinkView): boolean {
-    return link.model?.attributes?.type === this.semanticLinkName;
+    return link.model?.attributes?.type === this.objectPropertyLinkName;
   }
 
   /**
@@ -94,12 +104,11 @@ export abstract class Links {
   /**
    * Calls constructor and return new default link
    * @param label of link
-   * @param color of link
    */
-  static createDefaultLink(label: string, color: string): dia.Link {
-    const link = new Links.semanticLink({
+  static createDefaultLink(label: string): dia.Link {
+    const link = new Links.objectPropertyLink({
       // @ts-ignore not in jointjs model but works this way
-      labels: Links.createLabel(label, color)
+      labels: Links.createLabel(label)
     });
     // link style
     link.router('normal');
@@ -110,16 +119,37 @@ export abstract class Links {
   /**
    * Calls constructor and return new semantic link
    */
-  static createSemanticLink(id: string, source: string, target: string, label: string, color: string, opacity?: number): dia.Link {
-    const link = new Links.semanticLink({
+  static createObjectPropertyLink(id: string, source: string, target: string, label: string, opacity?: number): dia.Link {
+    const link = new Links.objectPropertyLink({
       id,
       // @ts-ignore not in jointjs model but works this way
       source: {id: source},
       target: {id: target},
-      labels: Links.createLabel(label, color, opacity),
+      labels: Links.createLabel(label, opacity),
       attrs: {
         line: {
-          stroke: color,
+          opacity: opacity ? opacity : 1
+        }
+      }
+    });
+    // link style
+    link.router('normal');
+    link.connector('jumpover');
+    return link;
+  }
+
+  /**
+   * Calls constructor and return new semantic datatype link
+   */
+  static createDataPropertyLink(id: string, source: string, target: string, label: string, opacity?: number): dia.Link {
+    const link = new Links.dataPropertyLink({
+      id,
+      // @ts-ignore not in jointjs model but works this way
+      source: {id: source},
+      target: {id: target},
+      labels: Links.createLabel(label, opacity),
+      attrs: {
+        line: {
           opacity: opacity ? opacity : 1
         }
       }
@@ -134,18 +164,12 @@ export abstract class Links {
    * Call constructor and return new syntax link
    * @param source of link
    * @param target of link
-   * @param color of link
    */
-  static createSyntaxLink(source: string, target: string, color: string): dia.Link {
+  static createSyntaxLink(source: string, target: string, ): dia.Link {
     const link = new Links.syntaxLink({
       // @ts-ignore not in jointjs model but works this way
       source: {id: source},
       target: {id: target},
-      attrs: {
-        line: {
-          stroke: color
-        }
-      }
     });
     // link style
     link.router('normal');

@@ -23,8 +23,7 @@ import {
   Class,
   CombinedModel, DataProperty,
   DeltaModification,
-  Instance,
-  Literal,
+  Instance, Literal,
   NamedEntity,
   ObjectProperty,
   PrimitiveNode,
@@ -34,8 +33,8 @@ import {
   SyntaxModel
 } from '../../api/generated/dms';
 import { ContextMenuService } from '../context-menu/context-menu.service';
-import { PlsEntityConceptMenuComponent } from '../context-menu/entity-concept-menu/entity-concept-menu.component';
-import { PlsRelationConceptMenuComponent } from '../context-menu/relation-concept-menu/relation-concept-menu.component';
+import { PlsSemanticClassMenuComponent } from '../context-menu/semantic-class-menu/semantic-class-menu.component';
+import { PlsRelationConceptMenuComponent } from '../context-menu/relation-menu/relation-menu.component';
 import { ModalMouseEnabledConfig } from '../dialogs/common/modal.base-config';
 import {
   PlsSemanticNodeDetailsComponent,
@@ -52,6 +51,8 @@ import { NodeChangedEvent } from '../model/events/node-changed-event';
 import { ModelingService } from '../modeling.service';
 import { v4 as uuidv4 } from 'uuid';
 import svgPanZoom from '@dash14/svg-pan-zoom';
+import { PlsNamedEntityMenuComponent } from '../context-menu/named-entity-menu/named-entity-menu.component';
+import { PlsLiteralMenuComponent } from '../context-menu/literal-menu/literal-menu.component';
 
 
 @Component({
@@ -133,7 +134,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
     // init joint.js graph
     this.graph = Graphs.createGraph();
     // init joint.js paper
-    this.paper = Papers.createPaper(this.graph, () => this.relation, () => this.colorToHex('primary'), this.lockDragAndDrop);
+    this.paper = Papers.createPaper(this.graph, () => this.relation, this.lockDragAndDrop);
     // create nodes and links
     this.createGraph();
     // subscribe to relation tool
@@ -218,6 +219,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
       },
       // Highlights for modeling
       'element:mouseover': (elementView: dia.ElementView) => {
+        console.log('element:mouseover');
         if (this.modelNode?._class === 'Class' && this.getIfLeafNode(elementView)) {
           elementView.highlight();
           this.hoveredElement = elementView;
@@ -234,7 +236,11 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
         */
 
       },
+      'cell:mouseout': () => {
+        console.log('cell:mouseout');
+      },
       'element:mouseout': () => {
+        console.log('element:mouseout');
         if (this.modelNode) {
           this.unhighlightAll();
         }
@@ -266,6 +272,9 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
       // Enable pan when mouse button down in blank zone
       'blank:pointerdown': () => {
         this.panAndZoom.enablePan();
+      },
+      'blank:pointerup': () => {
+        this.panAndZoom.disablePan();
       },
       // Disable pan when the mouse button is released
       'cell:pointerup': () => {
@@ -300,6 +309,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
       'cell:pointerdown': (cellView) => {
         const model = cellView.model.attributes;
         // console.log('cell:pointerdown', cellView);
+        this.panAndZoom.disablePan();
       },
       // register context menu
       'cell:contextmenu': (cellView: dia.CellView) => {
@@ -310,21 +320,35 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
             relation: link
           });
         }
-        if (Nodes.isSemanticNode(cellView)) {
+        if (Nodes.isClass(cellView)) {
           const node = this.findSemanticNodeById(id);
           this.unhighlightAll();
           cellView.highlight();
-          this.contextMenu.open(cellView.el, PlsEntityConceptMenuComponent, this.viewContainerRef, {
-            entity: node,
-            syntaxNode: node._class === 'Class' && (node as Class).instance &&
-            (node as Class).instance.syntaxNodeUuid ? (node as Class).instance.syntaxNodeUuid : null
+          const instance = (node as Class).instance;
+          this.contextMenu.open(cellView.el, PlsSemanticClassMenuComponent, this.viewContainerRef, {
+            node,
+            syntaxNode: instance?.syntaxNodeUuid ? instance.syntaxNodeUuid : null
+          });
+        } else if (Nodes.isNamedEntity(cellView)) {
+          const node = this.findSemanticNodeById(id);
+          this.unhighlightAll();
+          cellView.highlight();
+          this.contextMenu.open(cellView.el, PlsNamedEntityMenuComponent, this.viewContainerRef, {
+            node
+          });
+        } else if (Nodes.isLiteral(cellView)) {
+          const node = this.findSemanticNodeById(id);
+          this.unhighlightAll();
+          cellView.highlight();
+          this.contextMenu.open(cellView.el, PlsLiteralMenuComponent, this.viewContainerRef, {
+            node
           });
         }
         if (Nodes.isSyntaxNode(cellView)) {
           const node = this.findSyntaxNodeById(id);
           this.unhighlightAll();
           cellView.highlight();
-          this.contextMenu.open(cellView.el, PlsEntityConceptMenuComponent, this.viewContainerRef, {
+          this.contextMenu.open(cellView.el, PlsSemanticClassMenuComponent, this.viewContainerRef, {
             syntaxNode: node
           });
         }
@@ -575,19 +599,19 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
           if (instance?.syntaxNodeUuid) {
             icon = Icons.getIcon(this.findSyntaxNodeById(instance.syntaxNodeUuid));
           }
-          this.addClassNode(node.uuid, flat ? node.uri : node.label, color, node.x, node.y, 1, instance?.label, icon);
+          this.addClassNode(node.uuid, flat ? node.uri : node.label, node.x, node.y, 1, instance?.label, icon);
         } else if (node._class === 'NamedEntity') {
-          this.addNamedEntityNode(node.uuid, flat ? node.uri : node.label, color, node.x, node.y);
+          this.addNamedEntityNode(node.uuid, flat ? node.uri : node.label, node.x, node.y);
         } else if (node._class === 'Literal') {
-          this.addLiteralNode(node.uuid, node.label, 'text_fields', color, node.x, node.y);
+          this.addLiteralNode(node.uuid, node.label, 'text_fields', node.x, node.y);
         }
       });
 
       semanticModel.edges.forEach(edge => {
         if (edge._class === 'DataProperty') {
-          this.addSemanticLink(edge.uuid, edge.from, edge.to, flat ? edge.uri : edge.label, 'highlight');
+          this.addDataPropertyLink(edge.uuid, edge.from, edge.to, flat ? edge.uri : edge.label);
         } else {
-          this.addSemanticLink(edge.uuid, edge.from, edge.to, flat ? edge.uri : edge.label, 'accent');
+          this.addObjectPropertyLink(edge.uuid, edge.from, edge.to, flat ? edge.uri : edge.label);
         }
       });
     }
@@ -604,7 +628,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
   private addSyntaxNode(id: string, label: string, icon: string, x?: number, y?: number): void {
     const dim = this.calcDimensionsForLabel(label, !!icon);
     const position = {x, y};
-    this.graph.addCell(Nodes.createSyntaxNode(id, label, icon, position, dim[0], dim[1], this.colorToHex('primary')));
+    this.graph.addCell(Nodes.createSyntaxNode(id, label, icon, position, dim[0], dim[1]));
   }
 
   /**
@@ -613,7 +637,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
    * @param target of link
    */
   private addSyntaxLink(source: string, target: string): void {
-    this.graph.addCell(Links.createSyntaxLink(source, target, this.colorToHex('primary')));
+    this.graph.addCell(Links.createSyntaxLink(source, target));
   }
 
   /**
@@ -690,7 +714,6 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
    */
   private showRecommendation(recommendation: DeltaModification): void {
     const opacity = 0.8;
-    const color = 'highlight';
     recommendation.entities.forEach(node => {
       let icon = '';
       if (node._class === 'Class') {
@@ -698,19 +721,27 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
         if (instance && instance.syntaxNodeUuid) {
           icon = Icons.getIcon(this.findSyntaxNodeById(instance.syntaxNodeUuid));
         }
-        this.recommendations.push(this.addClassNode(node.uuid, node.uri, color, node.x, node.y, opacity, instance?.label, icon));
+        this.recommendations.push(this.addClassNode(node.uuid, node.uri, node.x, node.y, opacity, instance?.label, icon));
       }
     });
-    recommendation.relations.forEach(edge => this.recommendations.push(this.addSemanticLink(edge.uuid, edge.from, edge.to, edge.label, color, opacity)));
+    recommendation.relations.forEach(edge => this.recommendations.push(this.addObjectPropertyLink(edge.uuid, edge.from, edge.to, edge.label, opacity)));
   }
 
   /**
-   * Add semantic link to graph
+   * Add object property link to graph
    */
-  private addSemanticLink(id: string, source: string, target: string, label: string, color: 'primary' | 'accent' | 'highlight' = 'primary', opacity?: number): dia.Link {
-    const link = Links.createSemanticLink(id, source, target, label, this.colorToHex(color), opacity);
+  private addObjectPropertyLink(id: string, source: string, target: string, label: string, opacity?: number): dia.Link {
+    const link = Links.createObjectPropertyLink(id, source, target, label, opacity);
     this.graph.addCell(link);
-    console.log('link added', link);
+    return link;
+  }
+
+  /**
+   * Add data property link to graph
+   */
+  private addDataPropertyLink(id: string, source: string, target: string, label: string, opacity?: number): dia.Link {
+    const link = Links.createDataPropertyLink(id, source, target, label, opacity);
+    this.graph.addCell(link);
     return link;
   }
 
@@ -749,7 +780,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
   /**
    * Adds a semantic class node to the graph
    */
-  private addClassNode(id: string, uri: string, color: 'primary' | 'accent' | 'highlight' = 'primary', x?: number, y?: number, opacity?: number, instancelabel?: string, icon?: string,): dia.Element {
+  private addClassNode(id: string, uri: string, x?: number, y?: number, opacity?: number, instancelabel?: string, icon?: string): dia.Element {
     const classDims = this.calcDimensionsForLabel(uri, false);
     let instanceDims = [0, 0];
     if (instancelabel) {
@@ -757,12 +788,11 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
     }
     const dim = [Math.max(classDims[0], instanceDims[0]), classDims[1] + instanceDims[1]];
     const position = {x, y};
-    const nodeColors = {color: this.colorToHex(color), contrast: this.colorToHex(color, true)};
     let node;
     if (instancelabel) {
-      node = Nodes.createInstancedSemanticClassNode(id, uri, instancelabel, icon, position, dim[0], dim[1], nodeColors, opacity);
+      node = Nodes.createInstancedSemanticClassNode(id, uri, instancelabel, icon, position, dim[0], dim[1], opacity);
     } else {
-      node = Nodes.createSemanticClassNode(id, uri, position, dim[0], dim[1], nodeColors, opacity);
+      node = Nodes.createSemanticClassNode(id, uri, position, dim[0], dim[1], opacity);
     }
     this.graph.addCell(node);
     return node;
@@ -771,12 +801,11 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
   /**
    * Adds a named entity node to the graph
    */
-  private addNamedEntityNode(id: string, label: string, color: 'primary' | 'accent' | 'highlight' = 'primary', x?: number, y?: number, opacity?: number): dia.Element {
+  private addNamedEntityNode(id: string, label: string, x?: number, y?: number, opacity?: number): dia.Element {
     const classDims = this.calcDimensionsForLabel(label, false);
     const dim = [classDims[0], classDims[1]];
     const position = {x, y};
-    const nodeColors = {color: this.colorToHex(color), contrast: this.colorToHex(color, true)};
-    const node = Nodes.createNamedEntityNode(id, label, position, dim[0], dim[1], nodeColors, opacity);
+    const node = Nodes.createNamedEntityNode(id, label, position, dim[0], dim[1], opacity);
     this.graph.addCell(node);
     return node;
   }
@@ -784,12 +813,11 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
   /**
    * Adds a literal node to the graph
    */
-  private addLiteralNode(id: string, value: string, icon: string, color: 'primary' | 'accent' | 'highlight' = 'primary', x?: number, y?: number, opacity?: number): dia.Element {
+  private addLiteralNode(id: string, value: string, icon: string, x?: number, y?: number, opacity?: number): dia.Element {
     const classDims = this.calcDimensionsForLabel(value, !!icon);
     const dim = [classDims[0], classDims[1]];
     const position = {x, y};
-    const nodeColors = {color: this.colorToHex(color), contrast: this.colorToHex(color, true)};
-    const node = Nodes.createLiteralNode(id, value, icon, position, dim[0], dim[1], nodeColors, opacity);
+    const node = Nodes.createLiteralNode(id, value, icon, position, dim[0], dim[1], opacity);
     this.graph.addCell(node);
     return node;
   }
@@ -963,34 +991,6 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
   onResize(): void {
     if (this.$resize) {
       this.$resize.next(this.paper.getComputedSize());
-    }
-  }
-
-  /**
-   * Transform primary and accent into hex values
-   * @param color to convert
-   * @param contrast if contrast
-   */
-  private colorToHex(color: 'primary' | 'accent' | 'highlight', contrast: boolean = false): string {
-    switch (color) {
-      case 'primary':
-        if (contrast) {
-          return '#fff';
-        } else {
-          return '#000';
-        }
-      case 'accent':
-        if (contrast) {
-          return '#fff';
-        } else {
-          return '#111d4f';
-        }
-      case 'highlight':
-        if (contrast) {
-          return '#eb973f';
-        } else {
-          return '#eb973f';
-        }
     }
   }
 

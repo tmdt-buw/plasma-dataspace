@@ -10,9 +10,24 @@
   }
 }
 
-.joint-type-custom-semanticlink {
+.joint-type-custom-objectpropertylink {
   path[joint-selector="line"] {
-    stroke: @modeling-primary-color;
+    stroke: @modeling-object-property-color;
+  }
+
+  .label {
+    rect {
+      fill-opacity: 0;
+    }
+    text {
+      fill: @modeling-primary-color;
+    }
+  }
+}
+
+.joint-type-custom-datapropertylink {
+  path[joint-selector="line"] {
+    stroke: @modeling-data-property-color;
   }
 
   .label {
@@ -45,9 +60,23 @@ marker {
   }
 }
 
-.joint-type-custom-semanticnode {
+.joint-type-custom-semanticclassnode {
   rect {
-    stroke: @modeling-primary-color;
+    stroke: @modeling-class-color;
+  }
+
+  rect[joint-selector="body"] {
+    fill: @modeling-class-color;
+  }
+
+  text[joint-selector="bodyText"] {
+    fill: @modeling-text-color;
+  }
+}
+
+.joint-type-custom-extendedsemanticclassnode {
+  rect {
+    stroke: @modeling-class-color;
   }
 
   rect[joint-selector="body"] {
@@ -55,7 +84,7 @@ marker {
   }
 
   rect[joint-selector="header"] {
-    fill: @modeling-primary-color;
+    fill: @modeling-class-color;
   }
 
   text[joint-selector="headerText"] {
@@ -63,7 +92,35 @@ marker {
   }
 
   text[joint-selector="bodyIcon"], text[joint-selector="bodyText"] {
-    fill: @modeling-primary-color;
+    fill: @modeling-class-color;
+  }
+}
+
+.joint-type-custom-namedentitynode {
+  rect {
+    stroke: @modeling-named-entity-color;
+  }
+
+  rect[joint-selector="body"] {
+    fill: @modeling-named-entity-color;
+  }
+
+  text[joint-selector="bodyText"]{
+    fill: @modeling-text-color;
+  }
+}
+
+.joint-type-custom-literalnode {
+  rect {
+    stroke: @modeling-literal-color;
+  }
+
+  rect[joint-selector="body"] {
+    fill: @modeling-literal-color;
+  }
+
+  text[joint-selector="bodyText"]{
+    fill: @modeling-text-color;
   }
 }
 

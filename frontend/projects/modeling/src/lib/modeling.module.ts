@@ -22,8 +22,8 @@ import { NzTypographyModule } from 'ng-zorro-antd/typography';
 import { NzUploadModule } from 'ng-zorro-antd/upload';
 import { ApiModule, BASE_PATH } from './api/generated/dms';
 import { ApiModule as KGSApiModule } from './api/generated/kgs';
-import { PlsEntityConceptMenuComponent } from './modeling/context-menu/entity-concept-menu/entity-concept-menu.component';
-import { PlsRelationConceptMenuComponent } from './modeling/context-menu/relation-concept-menu/relation-concept-menu.component';
+import { PlsSemanticClassMenuComponent } from './modeling/context-menu/semantic-class-menu/semantic-class-menu.component';
+import { PlsRelationConceptMenuComponent } from './modeling/context-menu/relation-menu/relation-menu.component';
 import { PlsDiagramComponent } from './modeling/diagram/diagram.component';
 import { InlineInputEditComponent } from './modeling/dialogs/common/inline-edit/inline-edit.component';
 import { PlsConceptDialogComponent } from './modeling/dialogs/concept-dialog/concept-dialog.component';
@@ -38,6 +38,8 @@ import { PlsModelingComponent } from './modeling/modeling.component';
 import { NzCheckboxModule } from 'ng-zorro-antd/checkbox';
 import { NzRadioModule } from 'ng-zorro-antd/radio';
 import { NzTagModule } from 'ng-zorro-antd/tag';
+import { PlsNamedEntityMenuComponent } from './modeling/context-menu/named-entity-menu/named-entity-menu.component';
+import { PlsLiteralMenuComponent } from './modeling/context-menu/literal-menu/literal-menu.component';
 
 
 @NgModule({
@@ -45,7 +47,8 @@ import { NzTagModule } from 'ng-zorro-antd/tag';
     PlsModelingComponent, PlsDiagramComponent, PlsSyntaxNodeDetailsComponent,
     PlsSemanticNodeDetailsComponent, PlsConceptDialogComponent, PlsNewEntityDialogComponent,
     PlsNewRelationDialogComponent, PlsImportDialogComponent,
-    InlineInputEditComponent, PlsEntityConceptMenuComponent, PlsRelationConceptMenuComponent, PlsFullscreenDirective
+    InlineInputEditComponent, PlsSemanticClassMenuComponent, PlsRelationConceptMenuComponent, PlsFullscreenDirective,
+    PlsNamedEntityMenuComponent, PlsLiteralMenuComponent
   ],
   imports: [
     // Plasma
