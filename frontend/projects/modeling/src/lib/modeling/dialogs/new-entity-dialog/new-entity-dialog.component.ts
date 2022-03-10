@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { NzModalRef } from 'ng-zorro-antd/modal';
-import { Class, DataModelingControllerService } from '../../../api/generated/dms';
+import { Class, DataModelingControllerService, NamedEntity } from '../../../api/generated/dms';
 
 @Component({
   selector: 'pls-new-entity-dialog',
@@ -15,11 +15,13 @@ export class PlsNewEntityDialogComponent {
   form = new FormGroup({
     label: new FormControl('', [Validators.required]),
     description: new FormControl('', [Validators.required]),
-    uri: new FormControl('')
+    uri: new FormControl(''),
+    namedEntity: new FormControl(false)
   });
 
   error;
   defaultConceptPrefix = 'plasma:';
+  isNamedEntity = false;
 
   constructor(private modalRef: NzModalRef, private modelingService: DataModelingControllerService) {
   }
@@ -40,13 +42,22 @@ export class PlsNewEntityDialogComponent {
     } else {
       this.form.get('uri').setValue(this.cleanURI(this.form.get('uri').value));
     }
-    const node: Class = {
-      _class: 'Class',
-      uri: this.form.get('uri').value,
-      description: this.form.get('description').value,
-      label: this.form.get('label').value
-    };
-
+    let node: Class | NamedEntity;
+    if (this.form.get('namedEntity').value) {
+      node = {
+        _class: 'NamedEntity',
+        uri: this.form.get('uri').value,
+        description: this.form.get('description').value,
+        label: this.form.get('label').value
+      };
+    } else {
+      node = {
+        _class: 'Class',
+        uri: this.form.get('uri').value,
+        description: this.form.get('description').value,
+        label: this.form.get('label').value
+      };
+    }
     this.modelingService.cacheElement(this.dataSource, node).subscribe(() => this.modalRef.close(true), error => this.error = error.error.message);
   }
 

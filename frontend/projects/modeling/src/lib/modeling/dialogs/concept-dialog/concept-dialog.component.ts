@@ -1,4 +1,4 @@
-import { Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit, ViewChild, ViewEncapsulation } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { ModalOptions, NzModalService } from 'ng-zorro-antd/modal';
 import { NzTabChangeEvent } from 'ng-zorro-antd/tabs';
@@ -18,7 +18,8 @@ import { PlsNewRelationDialogComponent } from '../new-relation-dialog/new-relati
 @Component({
   selector: 'pls-concept-dialog',
   templateUrl: 'concept-dialog.component.html',
-  styleUrls: ['../common/dialog.styles.scss', 'concept-dialog.component.less']
+  styleUrls: ['../common/dialog.styles.scss', 'concept-dialog.component.less'],
+  encapsulation: ViewEncapsulation.None
 })
 export class PlsConceptDialogComponent implements OnInit, OnDestroy {
 
@@ -93,9 +94,9 @@ export class PlsConceptDialogComponent implements OnInit, OnDestroy {
     return current === relation;
   }
 
-  newEntityConcept(): void {
+  newSemanticNode(): void {
     const config: ModalOptions = {
-      nzTitle: 'New entity concept',
+      nzTitle: 'Add new modeling element',
       nzContent: PlsNewEntityDialogComponent,
       nzComponentParams: {
         dataSource: this.dataSource
@@ -111,7 +112,7 @@ export class PlsConceptDialogComponent implements OnInit, OnDestroy {
 
   newRelationConcept(): void {
     const config: ModalOptions = {
-      nzTitle: 'New relation concept',
+      nzTitle: 'Add new relation',
       nzContent: PlsNewRelationDialogComponent,
       nzComponentParams: {
         dataSource: this.dataSource

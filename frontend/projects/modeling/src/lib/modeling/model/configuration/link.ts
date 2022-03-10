@@ -21,7 +21,8 @@ export abstract class Links {
     Links.semanticLinkName, {
       attrs: {
         line: {
-          strokeWidth: 1
+          strokeWidth: 1,
+          stroke: '#333333'
         }
       }
     }
@@ -32,7 +33,7 @@ export abstract class Links {
     Links.syntaxLinkName, {
       attrs: {
         line: {
-          strokeOpacity: 0.75,
+          strokeOpacity: 0.2,
           strokeWidth: 1,
           strokeDasharray: '10,2'
         }
@@ -71,7 +72,7 @@ export abstract class Links {
    * @param link to test
    */
   static isSyntaxLink(link: dia.CellView | dia.LinkView): boolean {
-    return link.model?.attributes?.type === Links.syntaxLinkName;
+    return link.model?.attributes?.type === this.syntaxLinkName;
   }
 
   /**
@@ -79,7 +80,7 @@ export abstract class Links {
    * @param link to test
    */
   static isSemanticLink(link: dia.CellView | dia.LinkView): boolean {
-    return link.model?.attributes?.type === Links.semanticLinkName;
+    return link.model?.attributes?.type === this.semanticLinkName;
   }
 
   /**
@@ -87,7 +88,7 @@ export abstract class Links {
    * @param link to test
    */
   static targetsSemanticNode(link: dia.LinkView): boolean {
-    return link.model?.getTargetElement()?.attributes?.type === Nodes.semanticClassName;
+    return Nodes.isSemanticNode(link.model?.getTargetElement());
   }
 
   /**
@@ -108,12 +109,6 @@ export abstract class Links {
 
   /**
    * Calls constructor and return new semantic link
-   * @param id of link
-   * @param source of link
-   * @param target of link
-   * @param label of link
-   * @param color of link
-   * @param opacity of link
    */
   static createSemanticLink(id: string, source: string, target: string, label: string, color: string, opacity?: number): dia.Link {
     const link = new Links.semanticLink({

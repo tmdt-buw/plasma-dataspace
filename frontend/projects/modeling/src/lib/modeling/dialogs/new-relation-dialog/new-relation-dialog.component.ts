@@ -15,11 +15,13 @@ export class PlsNewRelationDialogComponent {
   form = new FormGroup({
     label: new FormControl('', [Validators.required]),
     description: new FormControl('', [Validators.required]),
-    uri: new FormControl('')
+    uri: new FormControl(''),
+    type: new FormControl('', [Validators.required])
   });
 
   error;
   defaultConceptPrefix = 'http://plasma/';
+  relationType: 'ObjectProperty' | 'DataProperty';
 
   constructor(private modalRef: NzModalRef, private modelingService: DataModelingControllerService) {
   }
@@ -31,10 +33,11 @@ export class PlsNewRelationDialogComponent {
       this.form.get('uri').setValue(defaultUri);
     }
     const rel: ObjectProperty = {
-      _class: 'ObjectProperty',
+      _class: this.form.get('type').value,
       uri: this.form.get('uri').value,
       label: this.form.get('label').value
     };
+    console.log(rel);
     this.modelingService.cacheRelation(this.dataSource, rel).subscribe(() => this.modalRef.close(true), error => this.error = error.error.message);
   }
 

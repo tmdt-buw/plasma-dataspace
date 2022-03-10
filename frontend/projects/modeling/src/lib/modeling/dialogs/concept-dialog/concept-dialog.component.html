@@ -10,7 +10,7 @@
         </ng-template>
 
         <div>
-          <button nz-button nzType="primary" (click)="newEntityConcept()">
+          <button nz-button nzType="primary" (click)="newSemanticNode()">
             <span>New</span>
           </button>
         </div>
@@ -21,13 +21,18 @@
            [cdkDropListData]="semanticModelNodes"
            class="concept-list scroll-list"
            cdkDropListSortingDisabled>
-        <div *ngFor="let entityConcept of semanticModelNodes" cdkDrag class="concept-box" nz-tooltip
-             nzTooltipTitle="{{entityConcept.description}}" [cdkDragData]="entityConcept">
-          {{ entityConcept.label }}
+        <div *ngFor="let element of semanticModelNodes" cdkDrag class="concept-box" nz-tooltip
+             nzTooltipTitle="{{element.description}}" [cdkDragData]="element">
+          <div fxLayout="row" fxLayoutAlign="start center" >{{ element.label }}
+            <nz-tag class="named-entity-tag" *ngIf="element._class === 'NamedEntity'"
+                    [nz-tooltip]="'A Named Entity represents a fixed entity and cannot be modified.'">NE
+            </nz-tag>
+          </div>
+          <span nz-typography nzType="secondary">{{element.uri}}</span>
           <div *cdkDragPreview class="concept-preview"
                [ngStyle]="{ border: '3px solid', 'border-color': 'black',  color: 'black'}">
             <div class="concept-preview-header" [ngStyle]="{ background: 'black', color: 'black' }">
-              <span class="concept-preview-header-text">{{ entityConcept.label }}</span></div>
+              <span class="concept-preview-header-text">{{ element.label }}</span></div>
           </div>
         </div>
       </div>
@@ -52,13 +57,18 @@
       </div>
 
       <ul nz-menu class="concept-list">
-        <li *ngFor="let relationConcept of relations; let i = index" nz-menu-item
-            [value]="relationConcept"
-            (click)="toggleRelation(i, relationConcept)"
-            [ngStyle]="{
-                           'background': isSelected(relationConcept) ? 'black' : null,
-                           'color': isSelected(relationConcept) ? 'white' : null
-                         }">{{ relationConcept.label }}
+        <li *ngFor="let relation of relations; let i = index" nz-menu-item
+            [value]="relation"
+            (click)="toggleRelation(i, relation)"
+            [ngStyle]="{'background': isSelected(relation) ? 'black' : null, 'color': isSelected(relation) ? 'white' : null}">
+          <div fxLayout="row" fxLayoutAlign="space-between center">
+            <div fxLayout="row" fxLayoutAlign="start center" >{{ relation.label }}
+              <nz-tag class="datatype-property-tag" *ngIf="relation._class === 'DataProperty'"
+                      [nz-tooltip]="'A DatatypeProperty extends a Class with a literal.'">DP
+              </nz-tag>
+            </div>
+            <span nz-typography nzType="secondary">{{relation.uri}}</span>
+          </div>
         </li>
       </ul>
     </div>

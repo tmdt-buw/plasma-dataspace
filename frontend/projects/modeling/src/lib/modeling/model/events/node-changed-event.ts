@@ -1,11 +1,11 @@
 import { SemanticModelNode } from '../../../api/generated/dms';
-import { Node, SyntaxNode } from '../configuration/node';
+import { NodeType, SyntaxNode } from '../configuration/node';
 
 export class NodeChangedEvent {
-  type: Node;
+  type: NodeType;
   node: SyntaxNode | SemanticModelNode;
 
-  constructor(type: Node, node: SyntaxNode | SemanticModelNode) {
+  constructor(type: NodeType, node: SyntaxNode | SemanticModelNode) {
     this.type = type;
     this.node = node;
   }

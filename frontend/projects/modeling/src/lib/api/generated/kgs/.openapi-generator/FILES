@@ -1,0 +1,17 @@
+.gitignore
+README.md
+api.module.ts
+api/api.ts
+api/ontologyController.service.ts
+api/semanticModelController.service.ts
+configuration.ts
+encoder.ts
+git_push.sh
+index.ts
+model/dataProperty.ts
+model/models.ts
+model/objectProperty.ts
+model/relation.ts
+model/semanticModel.ts
+model/semanticModelNode.ts
+variables.ts

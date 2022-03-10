@@ -1,6 +1,13 @@
 <form nz-form [formGroup]="form" (submit)="submit()" fxLayout="column">
 
   <nz-form-item>
+    <nz-radio-group formControlName="type" [(ngModel)]="relationType">
+      <label nz-radio [nz-tooltip]="'Creates a relation that can be used to link classes or named entities.'" nzValue="ObjectProperty">ObjectProperty</label>
+      <label nz-radio [nz-tooltip]="'Creates a relation that can be used to add (string) literals to existing classes or named entities.'" nzValue="DataProperty">DatatypeProperty</label>
+    </nz-radio-group>
+  </nz-form-item>
+
+  <nz-form-item>
     <nz-form-label nzRequired nzFor="label">Label</nz-form-label>
     <nz-form-control nzErrorTip="Label is required"
                      nzExtra="This will identify the concept in multiple sources, so it should be independent from your current data set.">
@@ -12,7 +19,7 @@
     <nz-form-label nzRequired nzFor="description">Description</nz-form-label>
     <nz-form-control nzErrorTip="Description is required"
                      nzExtra="Detailed description of the entity concept.">
-      <input nz-input formControlName="description"/>
+      <textarea nz-input [nzAutosize]="{ minRows: 3}" formControlName="description"></textarea>
     </nz-form-control>
   </nz-form-item>
 

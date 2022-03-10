@@ -5,7 +5,7 @@
   <p [nzTooltipTitle]="'Element description as defined by the knowledge source'"
      nz-tooltip>{{ getDescription() }}</p>
 
-  <div *ngIf="!getInstance()">
+  <div *ngIf="isClass() && !getInstance()">
     <button (click)="customize()" nz-button nzType="text">Add customization<i nz-icon nzType="edit"></i>
     </button>
   </div>
@@ -16,7 +16,7 @@
       nz-tooltip>Instance</p>
     <div fxLayout="row" fxLayoutAlign="space-between center">
       <div fxLayout="row"><p nz-typography nzType="secondary">Custom label: </p>
-        <pls-inline-edit [$edit]="$edit" [(ngModel)]="data.node.label"
+        <pls-inline-edit [$edit]="$edit" [(ngModel)]="getInstance().label"
                          [nzTooltipTitle]="'Custom label for this element'"
                          nz-tooltip></pls-inline-edit>
       </div>
@@ -35,7 +35,7 @@
     <div fxLayout="column">
       <div fxLayout="row">
         <p nz-typography nzType="secondary">Description: </p>
-        <pls-inline-edit *ngIf="isClass()" [$edit]="$edit" [(ngModel)]="getClassOrNamedEntity().description"
+        <pls-inline-edit *ngIf="isMappedClass()" [$edit]="$edit" [(ngModel)]="getInstance().description"
                          [empty]="'No description'"
                          [type]="'textarea'"></pls-inline-edit>
       </div>

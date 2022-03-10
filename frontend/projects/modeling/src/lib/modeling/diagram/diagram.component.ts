@@ -19,10 +19,9 @@ import { dia, layout } from 'jointjs';
 import { ModalOptions, NzModalRef, NzModalService } from 'ng-zorro-antd/modal';
 import { BehaviorSubject, Subject } from 'rxjs';
 import { auditTime, distinctUntilChanged, pairwise, skip } from 'rxjs/operators';
-import * as svgPanZoom from 'svg-pan-zoom';
 import {
   Class,
-  CombinedModel,
+  CombinedModel, DataProperty,
   DeltaModification,
   Instance,
   Literal,
@@ -47,10 +46,12 @@ import { Filter } from '../model/common/filter';
 import { Graphs } from '../model/configuration/graph';
 import { Icons } from '../model/configuration/icons';
 import { Links } from '../model/configuration/link';
-import { Node, Nodes, SemanticNode, SyntaxNode } from '../model/configuration/node';
+import { NodeType, Nodes, SemanticNode, SyntaxNode } from '../model/configuration/node';
 import { Papers } from '../model/configuration/paper';
 import { NodeChangedEvent } from '../model/events/node-changed-event';
 import { ModelingService } from '../modeling.service';
+import { v4 as uuidv4 } from 'uuid';
+import svgPanZoom from '@dash14/svg-pan-zoom';
 
 
 @Component({
@@ -63,6 +64,7 @@ import { ModelingService } from '../modeling.service';
 export class PlsDiagramComponent implements OnInit, AfterViewInit {
 
   // create graph if input schema changes and graph has already been initialized
+
   @Input() set schema(schema: CombinedModel) {
     this._schema = schema;
     if (!this.initializing) {
@@ -94,7 +96,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
   @ViewChild('graph') canvas: ElementRef;
   private graph: dia.Graph;
   private paper: dia.Paper;
-  private panAndZoom: SvgPanZoom.Instance;
+  private panAndZoom: any;
   private $resize: BehaviorSubject<{ width: number, height: number }>;
 
   // dialog
@@ -103,14 +105,15 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
   // modeling
   modelNode: SemanticModelNode; // currently selected node template
   relation: Relation; // currently selected relation template
+  relationTarget = false;
   hoveredElement;
   mousePosition;
   recommendations = [];
 
   // events
   @Output() graphLaidOut = new EventEmitter<CombinedModel>();
-  @Output() semanticNodeAdded = new EventEmitter<SemanticModelNode>();
-  @Output() relationAdded = new EventEmitter<Relation>();
+  @Output() semanticModelElementsAdded = new EventEmitter<{ nodes?: Array<SemanticModelNode>, relations?: Array<Relation> }>();
+  @Output() semanticModelElementsRemoved = new EventEmitter<{ nodes?: Array<SemanticModelNode>, relations?: Array<Relation> }>();
   @Output() nodeChanged = new EventEmitter<NodeChangedEvent>();
   @Output() nodePositionChanged = new EventEmitter<NodeChangedEvent>();
   @Output() nodeClicked = new EventEmitter<string>();
@@ -170,7 +173,6 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
     this.paper.unfreeze();
 
     // init pan and zoom
-    /*
     this.panAndZoom = svgPanZoom(this.canvas.nativeElement.firstChild.childNodes[2],
       {
         viewportSelector: this.canvas.nativeElement.firstChild.childNodes[2].childNodes[1],
@@ -178,9 +180,9 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
         zoomScaleSensitivity: 0.2,
         panEnabled: false,
         maxZoom: 5,
-        minZoom: 0.0001
+        minZoom: 0.0001,
+        dblClickZoomEnabled: false
       });
-
 
     this.panAndZoom.setOnPan(() => {
       this.contextMenu.close(null);
@@ -191,7 +193,6 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
       this.unhighlightAll();
     });
 
-     */
     this.paper.on({
       // add selection for nodes
       'element:pointerclick': (elementView: dia.ElementView) => {
@@ -213,9 +214,11 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
         const element = elementView.model;
         this.updatePosition(element, true);
       },
+      'cell:mouseover': () => {
+      },
       // Highlights for modeling
       'element:mouseover': (elementView: dia.ElementView) => {
-        if (this.modelNode && this.getIfLeafNode(elementView)) {
+        if (this.modelNode?._class === 'Class' && this.getIfLeafNode(elementView)) {
           elementView.highlight();
           this.hoveredElement = elementView;
         }
@@ -240,17 +243,20 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
       },
       // handle linking of nodes
       'link:connect': (linkView: dia.LinkView) => {
-        const model = linkView.model.attributes;
-        const from = model.source.id;
-        const to = model.target.id;
-        // TODO Object properties vs Data Properties
-        const relation: ObjectProperty = {
-          _class: 'ObjectProperty',
-          from,
-          to,
-          uri: this.relation.uri
-        };
-        this.relationAdded.emit(relation);
+        console.log('link:connect', linkView);
+        if (this.relation?._class === 'ObjectProperty') {
+          const model = linkView.model.attributes;
+          const from = model.source.id;
+          const to = model.target.id;
+          const relation: ObjectProperty = {
+            _class: 'ObjectProperty',
+            from,
+            to,
+            label: this.relation.label,
+            uri: this.relation.uri
+          };
+          this.semanticModelElementsAdded.emit({relations: [relation]});
+        }
       },
       // remove highlight and close dialog if clicked in blank zone
       'blank:pointerclick': () => {
@@ -259,11 +265,41 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
       },
       // Enable pan when mouse button down in blank zone
       'blank:pointerdown': () => {
-        //this.panAndZoom.enablePan();
+        this.panAndZoom.enablePan();
       },
       // Disable pan when the mouse button is released
-      'cell:pointerup blank:pointerup': () => {
-        //this.panAndZoom.disablePan();
+      'cell:pointerup': () => {
+        this.panAndZoom.disablePan();
+      },
+      'link:pointerup': (link, evt, x, y) => {
+        console.log('link:pointerup', link, 'target', this.relationTarget, 'event', evt);
+        if (this.relation?._class === 'DataProperty') {
+          const source = link.sourceView?.model?.id;
+          const literal: Literal = {
+            _class: 'Literal',
+            x,
+            y,
+            value: '',
+            uuid: uuidv4()
+          };
+          const from = source;
+          const to = literal.uuid;
+          const relation: DataProperty = {
+            _class: 'DataProperty',
+            from,
+            to,
+            label: this.relation.label,
+            uri: this.relation.uri
+          };
+          console.log('ADD DATAPROPERTY', 'source', source, 'literal', literal, 'relation', relation);
+          this.semanticModelElementsAdded.emit({nodes: [literal], relations: [relation]});
+        } else {
+          this.panAndZoom.disablePan();
+        }
+      },
+      'cell:pointerdown': (cellView) => {
+        const model = cellView.model.attributes;
+        // console.log('cell:pointerdown', cellView);
       },
       // register context menu
       'cell:contextmenu': (cellView: dia.CellView) => {
@@ -318,11 +354,11 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
           pairwise()
         ).subscribe((values) => {
             // update sizes in model
-            //this.panAndZoom.resize();
+            this.panAndZoom.resize();
             // pan by half of diff to let graph remain in relative center
             const widthScale = (values[1].width - values[0].width) / 2;
             const heightScale = (values[1].height - values[0].height) / 2;
-            //this.panAndZoom.panBy({x: widthScale, y: heightScale});
+            this.panAndZoom.panBy({x: widthScale, y: heightScale});
           }
         );
         this.initializing = false;
@@ -369,17 +405,11 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
           };
           break;
         case 'Literal':
-          semanticNode = {
-            _class: this.modelNode._class,
-            value: 'unknown', // TODO
-            xcoordinate: position.x + 10,
-            ycoordinate: position.y + 10
-          };
+          console.log('Should not happen!');
           break;
       }
-      this.semanticNodeAdded.emit(semanticNode);
-      // dropped in blank area
-    } else if (event.isPointerOverContainer) {
+      this.semanticModelElementsAdded.emit(semanticNode);
+    } else if (event.isPointerOverContainer) { // dropped in blank area
       const localPosition = this.paper.clientToLocalPoint(this.mousePosition.x, this.mousePosition.y);
       let semanticNode;
       switch (this.modelNode._class) {
@@ -404,15 +434,10 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
           };
           break;
         case 'Literal':
-          semanticNode = {
-            _class: this.modelNode._class,
-            value: 'unknown', // TODO
-            x: localPosition.x,
-            y: localPosition.y
-          };
+          console.log('Literals are not dropped!');
           break;
       }
-      this.semanticNodeAdded.emit(semanticNode);
+      this.semanticModelElementsAdded.emit({nodes: [semanticNode]});
     }
     // clear all even if dropped out of container
     this.modelNode = null;
@@ -542,14 +567,29 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
     const color = 'primary';
     if (semanticModel.nodes.length > 0) {
       semanticModel.nodes.forEach(node => {
-        let icon = '';
-        if (node._class === 'class') {
+        // console.log('adding node', node);
+        if (node._class === 'Class') {
+          const instance = (node as Class).instance;
           // get icon from syntax node
-          icon = Icons.getIcon(this.findSyntaxNodeById((node as Class).instance?.syntaxNodeUuid));
+          let icon = '';
+          if (instance?.syntaxNodeUuid) {
+            icon = Icons.getIcon(this.findSyntaxNodeById(instance.syntaxNodeUuid));
+          }
+          this.addClassNode(node.uuid, flat ? node.uri : node.label, color, node.x, node.y, 1, instance?.label, icon);
+        } else if (node._class === 'NamedEntity') {
+          this.addNamedEntityNode(node.uuid, flat ? node.uri : node.label, color, node.x, node.y);
+        } else if (node._class === 'Literal') {
+          this.addLiteralNode(node.uuid, node.label, 'text_fields', color, node.x, node.y);
         }
-        this.addSemanticNode(node.uuid, flat ? node.uri : node.label, node.label, icon, color, node.x, node.y);
       });
-      semanticModel.edges.forEach(edge => this.addSemanticLink(edge.uuid, edge.from, edge.to, flat ? edge.uri : edge.label), color);
+
+      semanticModel.edges.forEach(edge => {
+        if (edge._class === 'DataProperty') {
+          this.addSemanticLink(edge.uuid, edge.from, edge.to, flat ? edge.uri : edge.label, 'highlight');
+        } else {
+          this.addSemanticLink(edge.uuid, edge.from, edge.to, flat ? edge.uri : edge.label, 'accent');
+        }
+      });
     }
   }
 
@@ -608,12 +648,12 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
    */
   private center(): void {
     // update bounding box in case user dragged stuff
-    //this.panAndZoom.updateBBox();
+    this.panAndZoom.updateBBox();
     // fit and center
-    //this.panAndZoom.fit();
-    //this.panAndZoom.center();
+    this.panAndZoom.fit();
+    this.panAndZoom.center();
     // leave small margin
-    //this.panAndZoom.zoomBy(0.98);
+    this.panAndZoom.zoomBy(0.98);
   }
 
   /**
@@ -653,26 +693,24 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
     const color = 'highlight';
     recommendation.entities.forEach(node => {
       let icon = '';
-      if (node._class === 'Class' && (node as Class).instance && (node as Class).instance.syntaxNodeUuid) {
-        icon = Icons.getIcon(this.findSyntaxNodeById((node as Class).instance.syntaxNodeUuid));
+      if (node._class === 'Class') {
+        const instance = (node as Class).instance;
+        if (instance && instance.syntaxNodeUuid) {
+          icon = Icons.getIcon(this.findSyntaxNodeById(instance.syntaxNodeUuid));
+        }
+        this.recommendations.push(this.addClassNode(node.uuid, node.uri, color, node.x, node.y, opacity, instance?.label, icon));
       }
-      this.recommendations.push(this.addSemanticNode(node.uuid, node.uri, node.label, icon, color, node.x, node.y, opacity));
     });
     recommendation.relations.forEach(edge => this.recommendations.push(this.addSemanticLink(edge.uuid, edge.from, edge.to, edge.label, color, opacity)));
   }
 
   /**
    * Add semantic link to graph
-   * @param id of link
-   * @param source of link
-   * @param target of link
-   * @param label of link
-   * @param color of link
-   * @param opacity of link
    */
   private addSemanticLink(id: string, source: string, target: string, label: string, color: 'primary' | 'accent' | 'highlight' = 'primary', opacity?: number): dia.Link {
     const link = Links.createSemanticLink(id, source, target, label, this.colorToHex(color), opacity);
     this.graph.addCell(link);
+    console.log('link added', link);
     return link;
   }
 
@@ -709,23 +747,49 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
   }
 
   /**
-   * Adds a semantic node to the graph
-   * @param id of node
-   * @param uri of node
-   * @param label of node
-   * @param icon of node
-   * @param color of node
-   * @param x of node
-   * @param y of node
-   * @param opacity of node
+   * Adds a semantic class node to the graph
    */
-  private addSemanticNode(id: string, uri: string, label: string, icon: string, color: 'primary' | 'accent' | 'highlight' = 'primary', x?: number, y?: number, opacity?: number): dia.Element {
+  private addClassNode(id: string, uri: string, color: 'primary' | 'accent' | 'highlight' = 'primary', x?: number, y?: number, opacity?: number, instancelabel?: string, icon?: string,): dia.Element {
     const classDims = this.calcDimensionsForLabel(uri, false);
-    const labelDims = this.calcDimensionsForLabel(label, !!icon);
-    const dim = [Math.max(classDims[0], labelDims[0]), classDims[1] + labelDims[1]];
+    let instanceDims = [0, 0];
+    if (instancelabel) {
+      instanceDims = this.calcDimensionsForLabel(instancelabel, !!icon);
+    }
+    const dim = [Math.max(classDims[0], instanceDims[0]), classDims[1] + instanceDims[1]];
     const position = {x, y};
     const nodeColors = {color: this.colorToHex(color), contrast: this.colorToHex(color, true)};
-    const node = Nodes.createSemanticNode(id, uri, label, icon, position, dim[0], dim[1], nodeColors, opacity);
+    let node;
+    if (instancelabel) {
+      node = Nodes.createInstancedSemanticClassNode(id, uri, instancelabel, icon, position, dim[0], dim[1], nodeColors, opacity);
+    } else {
+      node = Nodes.createSemanticClassNode(id, uri, position, dim[0], dim[1], nodeColors, opacity);
+    }
+    this.graph.addCell(node);
+    return node;
+  }
+
+  /**
+   * Adds a named entity node to the graph
+   */
+  private addNamedEntityNode(id: string, label: string, color: 'primary' | 'accent' | 'highlight' = 'primary', x?: number, y?: number, opacity?: number): dia.Element {
+    const classDims = this.calcDimensionsForLabel(label, false);
+    const dim = [classDims[0], classDims[1]];
+    const position = {x, y};
+    const nodeColors = {color: this.colorToHex(color), contrast: this.colorToHex(color, true)};
+    const node = Nodes.createNamedEntityNode(id, label, position, dim[0], dim[1], nodeColors, opacity);
+    this.graph.addCell(node);
+    return node;
+  }
+
+  /**
+   * Adds a literal node to the graph
+   */
+  private addLiteralNode(id: string, value: string, icon: string, color: 'primary' | 'accent' | 'highlight' = 'primary', x?: number, y?: number, opacity?: number): dia.Element {
+    const classDims = this.calcDimensionsForLabel(value, !!icon);
+    const dim = [classDims[0], classDims[1]];
+    const position = {x, y};
+    const nodeColors = {color: this.colorToHex(color), contrast: this.colorToHex(color, true)};
+    const node = Nodes.createLiteralNode(id, value, icon, position, dim[0], dim[1], nodeColors, opacity);
     this.graph.addCell(node);
     return node;
   }
@@ -813,7 +877,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
    * @param id of details
    * @param type of node
    */
-  private openDetails(id: string, type: Node): void {
+  private openDetails(id: string, type: NodeType): void {
     this.closeDialog();
     switch (type) {
       case Nodes.syntaxNodeName:
@@ -844,6 +908,40 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
           this.hideRecommendations();
           this.recommendationAccepted.emit(recommendation);
         });
+        this.nodeDialogRef.afterClose.subscribe((res) => {
+          if (res) {
+            this.nodeDialogRef = null;
+            const element = this.graph.getElements().find(el => el.attributes.id === id);
+            // TODO update width
+            element.attr('bodyText/text', semanticNode.label);
+          }
+        });
+        break;
+      case Nodes.namedEntityName:
+        const namedEntityNode = this.findSemanticNodeById(id);
+        const namedEntityTitle = `${namedEntityNode.label} (${namedEntityNode.uri})`;
+        this.nodeDialogRef = this.modal.create(this.createConfig(namedEntityTitle, PlsSemanticNodeDetailsComponent, {
+          modelId: this.dataSource,
+          node: namedEntityNode,
+          recommendations: this.filterRecommendationsForAnchor(namedEntityNode.uuid)
+        }));
+        this.nodeDialogRef.afterClose.subscribe((res) => {
+          if (res) {
+            this.nodeDialogRef = null;
+            const element = this.graph.getElements().find(el => el.attributes.id === id);
+            // TODO update width
+            element.attr('bodyText/text', semanticNode.label);
+          }
+        });
+        break;
+      case Nodes.literalName:
+        const literalNode = this.findSemanticNodeById(id);
+        const literalTitle = `${literalNode.label}`;
+        this.nodeDialogRef = this.modal.create(this.createConfig(literalTitle, PlsSemanticNodeDetailsComponent, {
+          modelId: this.dataSource,
+          node: literalNode,
+          recommendations: this.filterRecommendationsForAnchor(literalNode.uuid)
+        }));
         this.nodeDialogRef.afterClose.subscribe((res) => {
           if (res) {
             this.nodeDialogRef = null;

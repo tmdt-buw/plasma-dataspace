@@ -3,7 +3,7 @@
     <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="15px">
       <button nz-button nzType="text" nzShape="circle" (click)="undo()" nz-tooltip nzTooltipTitle="Undo"><i nz-icon nzType="undo"></i></button>
       <button nz-button nzType="text" nzShape="circle" (click)="redo()" nz-tooltip nzTooltipTitle="Redo"><i nz-icon nzType="redo"></i></button>
-      <button nz-button nzType="primary" nz-tooltip nzTooltipTitle="Add entity or relation concept" (click)="addConcepts()"><i nz-icon nzType="deployment-unit"></i>Add concepts and relations</button>
+      <button nz-button nzType="primary" nz-tooltip nzTooltipTitle="Add entity or relation" (click)="addConcepts()"><i nz-icon nzType="deployment-unit"></i>Add concepts and relations</button>
       <nz-switch (change)="toggleFlatMode($event)"></nz-switch>
     </div>
 
@@ -38,10 +38,10 @@
   <nz-spin fxFlex class="modeling-container" nzTip="Loading..." [nzSpinning]="loading">
     <div class="modeling-area" *ngIf="schema" #modelingArea>
       <pls-modeling-diagram [$filter]="$filter" [$center]="$center" [$layout]="$layout" [$flat]="$flat"
-                            (nodeChanged)="onSemanticNodeChanged($event)" (relationAdded)="onRelationAdded($event)"
                             [schema]="schema"
                             (graphLaidOut)="onGraphLaidOut($event)"
-                            (semanticNodeAdded)="onMappingCreated($event)"
+                            (semanticModelElementsAdded)="onSemanticElementsAdded($event)"
+                            (semanticModelElementsRemoved)="onSemanticElementsRemoved($event)"
                             [dataSource]="modelId"
                             (nodePositionChanged)="onNodePositionChanged($event)"
                             [lockDragAndDrop]="lockDragAndDrop"

@@ -35,6 +35,9 @@ import { PlsSemanticNodeDetailsComponent } from './modeling/dialogs/semantic-nod
 import { PlsSyntaxNodeDetailsComponent } from './modeling/dialogs/syntax-node-dialog/syntax-node.component';
 import { PlsFullscreenDirective } from './modeling/directives/fullscreen.directive';
 import { PlsModelingComponent } from './modeling/modeling.component';
+import { NzCheckboxModule } from 'ng-zorro-antd/checkbox';
+import { NzRadioModule } from 'ng-zorro-antd/radio';
+import { NzTagModule } from 'ng-zorro-antd/tag';
 
 
 @NgModule({
@@ -71,7 +74,10 @@ import { PlsModelingComponent } from './modeling/modeling.component';
     NzUploadModule,
     NzModalModule,
     NzTabsModule,
-    NzAlertModule
+    NzAlertModule,
+    NzCheckboxModule,
+    NzRadioModule,
+    NzTagModule
   ],
   exports: [PlsModelingComponent]
 })

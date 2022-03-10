@@ -43,14 +43,17 @@ export class PlsSemanticNodeDetailsComponent {
   }
 
   startEdit(): void {
-    this.$edit.next(EditState.start);
-    this.label = this.data.node.label;
     switch (this.data.node._class) {
       case 'Class':
-        this.description = (this.data.node as Class).description;
+        const instance = this.getInstance();
+        if (!instance){
+          return;
+        }
+        this.$edit.next(EditState.start);
+        this.label = instance.label;
+        this.description = instance.description;
         break;
       case 'NamedEntity':
-        this.description = (this.data.node as NamedEntity).description;
         break;
       case 'Literal':
         break;
@@ -64,13 +67,10 @@ export class PlsSemanticNodeDetailsComponent {
     };
 
     this.modelingService.modifyModel(this.data.modelId, delta).subscribe(() => null, () => {
-      this.data.node.label = this.label;
       switch (this.data.node._class) {
         case 'Class':
-          (this.data.node as Class).description = this.description;
-          break;
-        case 'NamedEntity':
-          (this.data.node as NamedEntity).description = this.description;
+          this.getInstance().label = this.label;
+          this.getInstance().description = this.description;
           break;
       }
     });
@@ -156,6 +156,16 @@ export class PlsSemanticNodeDetailsComponent {
 
   customize(): void {
     console.log('start customization');
+    if (!this.isClass()){
+      return;
+    }
+    if (this.getInstance()){
+      return;
+    }
+    (this.data.node as Class).instance = {
+      label: this.data.node.label
+    };
+    this.startEdit();
   }
 
   hasRecommendations(): boolean {

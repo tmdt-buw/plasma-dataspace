@@ -12,7 +12,7 @@
     <nz-form-label nzRequired nzFor="description">Description</nz-form-label>
     <nz-form-control nzErrorTip="Description is required"
                      nzExtra="Detailed description of the entity concept.">
-      <input nz-input formControlName="description"/>
+      <textarea nz-input formControlName="description"></textarea>
     </nz-form-control>
   </nz-form-item>
 
@@ -20,6 +20,13 @@
     <nz-form-label nzFor="uri">URI</nz-form-label>
     <nz-form-control nzExtra="URI of the concept from an ontology.">
       <input formControlName="uri" nz-input placeholder="{{generateURI()}}"/>
+    </nz-form-control>
+  </nz-form-item>
+
+  <nz-form-item>
+    <nz-form-label nzFor="namedentity">NamedEntity</nz-form-label>
+    <nz-form-control nzExtra="Check if this is a named entity. Named entities are entities that exist only once and cannot be altered. Examples: 'Los Angeles' or 'George Washington'. ">
+      <label nz-checkbox formControlName="namedEntity"></label>
     </nz-form-control>
   </nz-form-item>
 

@@ -163,7 +163,7 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
     }
     const rect: DOMRect = this.modelingArea.nativeElement.getBoundingClientRect();
     const config: ModalOptions = {
-      nzStyle: {position: 'absolute', top: `${rect.top + 15}px`, left: `45%`, 'max-width': '30%', bottom: '15px'},
+      nzStyle: {position: 'absolute', top: `${rect.top + 15}px`, left: `10px`, 'max-width': '30%', bottom: '15px'},
       nzClassName: 'pls-concept-dialog',
       nzTitle: '',
       nzContent: PlsConceptDialogComponent,
@@ -178,16 +178,20 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
     this.clickedNode.emit(event);
   }
 
-  onRelationAdded(event: Relation): void {
+  onSemanticElementsAdded(event: { nodes?: Array<SemanticModelNode>, relations?: Array<Relation> }): void {
     const delta: DeltaModification = {
-      relations: [event]
+      relations: event.relations,
+      entities: event.nodes
     };
+    console.log(event, 'modifying model', delta );
     this.modelingService.modifyModel(this.modelId, delta).subscribe((res) => this.schema = res);
   }
 
-  onMappingCreated(event: SemanticModelNode): void {
+  onSemanticElementsRemoved(event: { nodes?: Array<SemanticModelNode>, relations?: Array<Relation> }): void {
     const delta: DeltaModification = {
-      entities: [event]
+      relations: event.relations,
+      entities: event.nodes,
+      deletion: true
     };
     this.modelingService.modifyModel(this.modelId, delta).subscribe((res) => this.schema = res);
   }
@@ -211,15 +215,8 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
         this.modelingService.modifyModel(this.modelId, delta2).subscribe();
         break;
       default:
-        console.error('Unsupported type.');
+        console.error('Unsupported node type.');
     }
-  }
-
-  onSemanticNodeChanged(event: NodeChangedEvent): void {
-    const delta: DeltaModification = {
-      entities: [event.node]
-    };
-    this.modelingService.modifyModel(this.modelId, delta).subscribe();
   }
 
   toggleFlatMode(event): void {

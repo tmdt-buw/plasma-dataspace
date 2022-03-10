@@ -10,13 +10,19 @@ export abstract class Papers {
   /**
    * Call constructor for paper
    * @param graph model
-   * @param relationConcept function
+   * @param activeRelation function
    * @param primary color function
    */
-  static createPaper(graph: dia.Graph, relationConcept: () => Relation, primary: () => string, lockDragAndDrop: boolean): dia.Paper {
+  static createPaper(graph: dia.Graph, activeRelation: () => Relation, primary: () => string, lockDragAndDrop: boolean): dia.Paper {
     const interactive = () => {
       if (!lockDragAndDrop) {
-        if (relationConcept()) {
+        if (activeRelation()?._class === 'ObjectProperty') {
+          return {
+            labelMove: true,
+            addLinkFromMagnet: true,
+            elementMove: false
+          };
+        } else if (activeRelation()?._class === 'DataProperty') {
           return {
             labelMove: true,
             addLinkFromMagnet: true,
@@ -24,11 +30,12 @@ export abstract class Papers {
           };
         } else {
           return {
-          labelMove: true,
-          addLinkFromMagnet: false,
-          elementMove: true
-        };
-      } } else {
+            labelMove: true,
+            addLinkFromMagnet: false,
+            elementMove: true
+          };
+        }
+      } else {
         return {
           labelMove: false,
           addLinkFromMagnet: false,
@@ -46,17 +53,19 @@ export abstract class Papers {
       gridSize: 1,
       frozen: true,
       async: true,
+      // highlighting: false,
       // disable links pinning to blank space since we only want to connect nodes with links
       linkPinning: false,
       // enable link drawing and disable move nodes if relation is selected in menu
       interactive,
       // ony allow links between semantic nodes
       allowLink: (linkView: dia.LinkView) => {
-        return Links.targetsSemanticNode(linkView);
+        console.log(activeRelation(), activeRelation()._class === 'ObjectProperty' && Links.targetsSemanticNode(linkView));
+        return activeRelation()._class === 'ObjectProperty' && Links.targetsSemanticNode(linkView);
       },
       // default link style
       defaultLink: () => {
-        const label = relationConcept().label;
+        const label = activeRelation().label;
         return Links.createDefaultLink(label, primary());
       }
     });

@@ -13,7 +13,11 @@ import {
 /**
  * Node type defs
  */
-export type Node = 'custom.SyntaxNode' | 'custom.SemanticClassNode';
+export type NodeType =
+  'custom.SyntaxNode'
+  | 'custom.SemanticClassNode'
+  | 'custom.NamedEntityNode'
+  | 'custom.LiteralNode';
 export type SyntaxNode = SchemaNode | CollisionSchema | CompositeNode | ObjectNode | PrimitiveNode | SetNode;
 export type SemanticNode = SemanticModelNode;
 
@@ -23,11 +27,47 @@ export type SemanticNode = SemanticModelNode;
 export abstract class Nodes {
 
   // internal node type names
-  static readonly syntaxNodeName: Node = 'custom.SyntaxNode';
-  static readonly semanticClassName: Node = 'custom.SemanticClassNode';
+  static readonly syntaxNodeName: NodeType = 'custom.SyntaxNode';
+  static readonly semanticClassName: NodeType = 'custom.SemanticClassNode';
+  static readonly namedEntityName: NodeType = 'custom.NamedEntityNode';
+  static readonly literalName: NodeType = 'custom.LiteralNode';
 
-  // basic semantic node config
-  private static classNode: dia.Cell.Constructor<dia.Element> = shapes.standard.HeaderedRectangle.define(
+  // extended semantic class node config
+  private static basicClassNode: dia.Cell.Constructor<dia.Element> = shapes.standard.Rectangle.define(
+    Nodes.semanticClassName, {
+      attrs: {
+        body: {
+          rx: 5,
+          ry: 5,
+          strokeWidth: 2,
+          magnet: true
+        },
+        bodyText: {
+          textVerticalAnchor: 'middle',
+          textAnchor: 'left',
+          refX: '35',
+          refY: '50%',
+          fontSize: 14,
+          fill: '#FFFFFF',
+          'font-family': 'Roboto',
+          cursor: 'default',
+          pointerEvents: 'none'
+        }
+      }
+    }, {
+      markup: [{
+        tagName: 'rect',
+        selector: 'body'
+      }, {
+        tagName: 'text',
+        selector: 'bodyText'
+      }]
+    }
+  );
+
+
+// extended semantic class node config
+  private static extendedClassNode: dia.Cell.Constructor<dia.Element> = shapes.standard.HeaderedRectangle.define(
     Nodes.semanticClassName, {
       attrs: {
         body: {
@@ -97,16 +137,47 @@ export abstract class Nodes {
     }
   );
 
-  // basic syntax node config
-  private static syntaxNode: dia.Cell.Constructor<dia.Element> = shapes.standard.Rectangle.define(
-    Nodes.syntaxNodeName, {
+  private static namedEntityNode: dia.Cell.Constructor<dia.Element> = shapes.standard.Rectangle.define(
+    Nodes.namedEntityName, {
       attrs: {
         body: {
           rx: 5,
           ry: 5,
           strokeWidth: 2,
-          strokeOpacity: 0.75,
-          strokeDasharray: '10,2'
+          magnet: true
+        },
+        bodyText: {
+          textVerticalAnchor: 'middle',
+          textAnchor: 'left',
+          refX: '35',
+          refY: '50%',
+          fontSize: 14,
+          fill: '#FFFFFF',
+          'font-family': 'Roboto',
+          cursor: 'default',
+          pointerEvents: 'none'
+        }
+      }
+    }, {
+      markup: [{
+        tagName: 'rect',
+        selector: 'body'
+      }, {
+        tagName: 'text',
+        selector: 'bodyText'
+      }]
+    }
+  );
+
+  // basic syntax node config
+  private static literalNode: dia.Cell.Constructor<dia.Element> = shapes.standard.Rectangle.define(
+    Nodes.literalName, {
+      attrs: {
+        body: {
+          rx: 5,
+          ry: 5,
+          strokeWidth: 2,
+          strokeOpacity: 1.0
         },
         icon: {
           textVerticalAnchor: 'middle',
@@ -125,7 +196,51 @@ export abstract class Nodes {
           refX: '35',
           refY: '50%',
           fontSize: 14,
-          fill: '#333333',
+          // fill: '#FFFFFF',
+          'font-family': 'Roboto',
+          cursor: 'default',
+          pointerEvents: 'none'
+        }
+      }
+    }, {
+      markup: [{
+        tagName: 'rect',
+        selector: 'body'
+      }, {
+        tagName: 'text',
+        selector: 'icon'
+      }, {
+        tagName: 'text',
+        selector: 'label'
+      }]
+    }
+  );
+
+  // basic syntax node config
+  private static syntaxNode: dia.Cell.Constructor<dia.Element> = shapes.standard.Rectangle.define(
+    Nodes.syntaxNodeName, {
+      attrs: {
+        body: {
+          strokeWidth: 2,
+          strokeOpacity: 0.2,
+          strokeDasharray: '10,2'
+        },
+        icon: {
+          textVerticalAnchor: 'middle',
+          textAnchor: 'left',
+          refX: '5',
+          refY: '65%',
+          fontSize: 24,
+          'font-family': 'Material Icons',
+          cursor: 'default',
+          pointerEvents: 'none'
+        },
+        label: {
+          textVerticalAnchor: 'middle',
+          textAnchor: 'left',
+          refX: '35',
+          refY: '50%',
+          fontSize: 14,
           'font-family': 'Roboto',
           cursor: 'default',
           pointerEvents: 'none'
@@ -151,7 +266,7 @@ export abstract class Nodes {
    */
   static isSyntaxNode(node: dia.CellView | dia.ElementView | dia.Element): boolean {
     const model = node instanceof dia.Element ? node : node.model;
-    return model.attributes?.type === Nodes.syntaxNodeName;
+    return model?.attributes?.type === Nodes.syntaxNodeName;
   }
 
   /**
@@ -160,23 +275,43 @@ export abstract class Nodes {
    */
   static isSemanticNode(node: dia.CellView | dia.ElementView | dia.Element): boolean {
     const model = node instanceof dia.Element ? node : node.model;
-    return model.attributes?.type === Nodes.semanticClassName;
+    return [Nodes.semanticClassName, Nodes.namedEntityName, Nodes.literalName].includes(model?.attributes?.type);
   }
 
   /**
    * Calls constructor and returns instance of a new semantic class node
-   * @param id of node
-   * @param header of node
-   * @param label of node
-   * @param icon of node
-   * @param position of node
-   * @param width of node
-   * @param height of node
-   * @param color of node
-   * @param opacity of node
    */
-  static createSemanticNode(id: string, header: string, label: string, icon: string, position: { x: number, y: number }, width: number, height: number, color: { color: string, contrast: string }, opacity?: number): dia.Element {
-    return new Nodes.classNode({
+  static createSemanticClassNode(id: string, header: string, position: { x: number, y: number }, width: number, height: number, color: { color: string, contrast: string }, opacity?: number): dia.Element {
+    return new Nodes.basicClassNode({
+      id,
+      // @ts-ignore not in jointjs model but works this way
+      position,
+      size: {
+        width,
+        height
+      },
+      attrs: {
+        body: {
+          stroke: color.color,
+          opacity: opacity ? opacity : 1,
+          fill: color.color,
+        },
+        bodyText: {
+          // adjust text for icon
+          refX: '50%',
+          textAnchor: 'middle',
+          text: header,
+          opacity: opacity ? opacity : 1
+        }
+      }
+    });
+  }
+
+  /**
+   * Calls constructor and returns instance of a new semantic class node
+   */
+  static createInstancedSemanticClassNode(id: string, header: string, instancelabel: string, icon: string, position: { x: number, y: number }, width: number, height: number, color: { color: string, contrast: string }, opacity?: number): dia.Element {
+    return new Nodes.extendedClassNode({
       id,
       // @ts-ignore not in jointjs model but works this way
       position,
@@ -208,7 +343,7 @@ export abstract class Nodes {
           // adjust text for icon
           refX: icon ? '35' : '50%',
           textAnchor: icon ? 'left' : 'middle',
-          text: label,
+          text: instancelabel,
           fill: color.color,
           opacity: opacity ? opacity : 1
         }
@@ -217,14 +352,72 @@ export abstract class Nodes {
   }
 
   /**
+   * Calls constructor and returns instance of a new semantic class node
+   */
+  static createNamedEntityNode(id: string, label: string, position: { x: number, y: number }, width: number, height: number, color: { color: string, contrast: string }, opacity?: number): dia.Element {
+    return new Nodes.namedEntityNode({
+      id,
+      // @ts-ignore not in jointjs model but works this way
+      position,
+      size: {
+        width,
+        height
+      },
+      attrs: {
+        body: {
+          stroke: color.color,
+          opacity: opacity ? opacity : 1,
+          fill: color.color,
+        },
+        bodyText: {
+          // adjust text for icon
+          refX: '50%',
+          textAnchor: 'middle',
+          text: label,
+          opacity: opacity ? opacity : 1
+        }
+      }
+    });
+  }
+
+  /**
    * Calls constructor and returns instance of a new syntax node
-   * @param id of node
-   * @param label of node
-   * @param icon of node
-   * @param position of node
-   * @param width of node
-   * @param height of node
-   * @param color of node
+   */
+  static createLiteralNode(id: string, label: string, icon: string, position: { x: number, y: number }, width: number, height: number, color: { color: string, contrast: string }, opacity?: number): dia.Element {
+    return new Nodes.literalNode({
+      id,
+      // @ts-ignore not in jointjs model but works this way
+      position,
+      size: {
+        width,
+        height
+      },
+      attrs: {
+        body: {
+          stroke: color.color,
+          opacity: opacity ? opacity : 1
+        },
+        bodyText: {
+          // adjust text for icon
+          refX: '50%',
+          textAnchor: 'middle',
+          text: label,
+          opacity: opacity ? opacity : 1
+        },
+        icon: {
+          text: icon,
+          fill: color.color
+        },
+        label: {
+          text: label,
+          fill: color.color
+        }
+      }
+    });
+  }
+
+  /**
+   * Calls constructor and returns instance of a new syntax node
    */
   static createSyntaxNode(id: string, label: string, icon: string, position: { x: number, y: number }, width: number, height: number, color: string): dia.Element {
     return new Nodes.syntaxNode({

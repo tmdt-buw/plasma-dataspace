@@ -41,7 +41,7 @@
     "jointjs": "^3.5.3",
     "ng-zorro-antd": "^13.1.1",
     "rxjs": "6.6.3",
-    "svg-pan-zoom": "^3.6.1",
+    "@dash14/svg-pan-zoom": "^3.6.6",
     "tslib": "^2.0.3",
     "zone.js": "~0.11.4"
   },
