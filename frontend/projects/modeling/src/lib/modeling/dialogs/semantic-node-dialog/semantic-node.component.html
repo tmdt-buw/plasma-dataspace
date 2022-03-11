@@ -45,6 +45,16 @@
       <p *ngIf="isMappedClass()" [nzTooltipTitle]="'Original label of the connected syntax node'" nz-tooltip
          nz-typography>{{ getInstance().originalLabel }}</p>
     </div>
+    <nz-collapse nzGhost *ngIf="hasExampleValues()" [nzBordered]="false">
+      <nz-collapse-panel [nzHeader]="'Example Values'">
+        <div *ngFor="let example of data.examples; let i = index" fxLayout="column" fxLayoutGap="10px">
+          <nz-divider *ngIf="10 > i > 1"></nz-divider>
+          <span *ngIf="10 > i > 0">{{ example }}</span>
+          <span></span>
+        </div>
+      </nz-collapse-panel>
+    </nz-collapse>
+
   </div>
 
   <div *ngIf="hasRecommendations()" fxLayout="column" fxLayoutAlign="space-between start" fxLayoutGap="10px">

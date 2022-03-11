@@ -40,6 +40,7 @@ import { NzRadioModule } from 'ng-zorro-antd/radio';
 import { NzTagModule } from 'ng-zorro-antd/tag';
 import { PlsNamedEntityMenuComponent } from './modeling/context-menu/named-entity-menu/named-entity-menu.component';
 import { PlsLiteralMenuComponent } from './modeling/context-menu/literal-menu/literal-menu.component';
+import { NzCollapseModule } from 'ng-zorro-antd/collapse';
 
 
 @NgModule({
@@ -50,38 +51,39 @@ import { PlsLiteralMenuComponent } from './modeling/context-menu/literal-menu/li
     InlineInputEditComponent, PlsSemanticClassMenuComponent, PlsRelationConceptMenuComponent, PlsFullscreenDirective,
     PlsNamedEntityMenuComponent, PlsLiteralMenuComponent
   ],
-  imports: [
-    // Plasma
-    ApiModule,
-    PlsOperationsDialogModule,
-    KGSApiModule,
-    // Angular
-    CommonModule,
-    DragDropModule,
-    FlexLayoutModule,
-    FormsModule,
-    ReactiveFormsModule,
-    OverlayModule,
-    NzButtonModule,
-    NzIconModule,
-    NzToolTipModule,
-    NzSwitchModule,
-    NzFormModule,
-    NzInputModule,
-    NzDropDownModule,
-    NzSelectModule,
-    NzSpinModule,
-    NzCardModule,
-    NzDividerModule,
-    NzTypographyModule,
-    NzUploadModule,
-    NzModalModule,
-    NzTabsModule,
-    NzAlertModule,
-    NzCheckboxModule,
-    NzRadioModule,
-    NzTagModule
-  ],
+    imports: [
+        // Plasma
+        ApiModule,
+        PlsOperationsDialogModule,
+        KGSApiModule,
+        // Angular
+        CommonModule,
+        DragDropModule,
+        FlexLayoutModule,
+        FormsModule,
+        ReactiveFormsModule,
+        OverlayModule,
+        NzButtonModule,
+        NzIconModule,
+        NzToolTipModule,
+        NzSwitchModule,
+        NzFormModule,
+        NzInputModule,
+        NzDropDownModule,
+        NzSelectModule,
+        NzSpinModule,
+        NzCardModule,
+        NzDividerModule,
+        NzTypographyModule,
+        NzUploadModule,
+        NzModalModule,
+        NzTabsModule,
+        NzAlertModule,
+        NzCheckboxModule,
+        NzRadioModule,
+        NzTagModule,
+        NzCollapseModule
+    ],
   exports: [PlsModelingComponent]
 })
 export class PlsModelingModule {

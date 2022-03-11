@@ -144,6 +144,7 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
         }
         this.loading = false;
       },
+      // TODO this is veeeeerrrrryy baaaaad
       () => this.modelingService.initSchema(this.modelId).subscribe(() => {
         this.loading = false;
         this.getSchema();
@@ -181,19 +182,19 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
     this.clickedNode.emit(event);
   }
 
-  onSemanticElementsAdded(event: { nodes?: Array<SemanticModelNode>, relations?: Array<Relation> }): void {
+  onSemanticElementsAdded(event: { entities?: Array<SemanticModelNode>, relations?: Array<Relation> }): void {
     const delta: DeltaModification = {
       relations: event.relations,
-      entities: event.nodes
+      entities: event.entities
     };
     console.log(event, 'modifying model', delta);
     this.modelingService.modifyModel(this.modelId, delta).subscribe((res) => this.schema = res);
   }
 
-  onSemanticElementsRemoved(event: { nodes?: Array<SemanticModelNode>, relations?: Array<Relation> }): void {
+  onSemanticElementsRemoved(event: { entities?: Array<SemanticModelNode>, relations?: Array<Relation> }): void {
     const delta: DeltaModification = {
       relations: event.relations,
-      entities: event.nodes,
+      entities: event.entities,
       deletion: true
     };
     this.modelingService.modifyModel(this.modelId, delta).subscribe((res) => this.schema = res);
@@ -212,6 +213,7 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
         this.modelingService.modifyModel(this.modelId, delta).subscribe();
         break;
       case Nodes.semanticClassName:
+      case Nodes.extendedSemanticClassName:
         const delta2: DeltaModification = {
           entities: [event.node]
         };

@@ -113,8 +113,8 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
 
   // events
   @Output() graphLaidOut = new EventEmitter<CombinedModel>();
-  @Output() semanticModelElementsAdded = new EventEmitter<{ nodes?: Array<SemanticModelNode>, relations?: Array<Relation> }>();
-  @Output() semanticModelElementsRemoved = new EventEmitter<{ nodes?: Array<SemanticModelNode>, relations?: Array<Relation> }>();
+  @Output() semanticModelElementsAdded = new EventEmitter<{ entities?: Array<SemanticModelNode>, relations?: Array<Relation> }>();
+  @Output() semanticModelElementsRemoved = new EventEmitter<{ entities?: Array<SemanticModelNode>, relations?: Array<Relation> }>();
   @Output() nodeChanged = new EventEmitter<NodeChangedEvent>();
   @Output() nodePositionChanged = new EventEmitter<NodeChangedEvent>();
   @Output() nodeClicked = new EventEmitter<string>();
@@ -301,7 +301,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
             uri: this.relation.uri
           };
           console.log('ADD DATAPROPERTY', 'source', source, 'literal', literal, 'relation', relation);
-          this.semanticModelElementsAdded.emit({nodes: [literal], relations: [relation]});
+          this.semanticModelElementsAdded.emit({entities: [literal], relations: [relation]});
         } else {
           this.panAndZoom.disablePan();
         }
@@ -432,7 +432,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
           console.log('Should not happen!');
           break;
       }
-      this.semanticModelElementsAdded.emit(semanticNode);
+      this.semanticModelElementsAdded.emit({entities:[semanticNode]});
     } else if (event.isPointerOverContainer) { // dropped in blank area
       const localPosition = this.paper.clientToLocalPoint(this.mousePosition.x, this.mousePosition.y);
       let semanticNode;
@@ -461,7 +461,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
           console.log('Literals are not dropped!');
           break;
       }
-      this.semanticModelElementsAdded.emit({nodes: [semanticNode]});
+      this.semanticModelElementsAdded.emit({entities: [semanticNode]});
     }
     // clear all even if dropped out of container
     this.modelNode = null;
@@ -917,13 +917,27 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
           }
         });
         break;
+      case Nodes.extendedSemanticClassName:
       case Nodes.semanticClassName:
         const semanticNode = this.findSemanticNodeById(id);
+        if (!semanticNode) {
+          return;
+        }
+        const clazz: Class = semanticNode as Class;
+        let examples: string[] = [];
+        if (clazz.instance?.syntaxNodeUuid) {
+          const synNode = this.findSyntaxNodeById(clazz.instance.syntaxNodeUuid);
+          if (synNode?._class === 'PrimitiveNode') {
+            examples = (synNode as PrimitiveNode).examples;
+            console.log('examples', examples);
+          }
+        }
         const title = `${semanticNode.label} (${semanticNode.uri})`;
         this.nodeDialogRef = this.modal.create(this.createConfig(title, PlsSemanticNodeDetailsComponent, {
           modelId: this.dataSource,
           node: semanticNode,
-          recommendations: this.filterRecommendationsForAnchor(semanticNode.uuid)
+          recommendations: this.filterRecommendationsForAnchor(semanticNode.uuid),
+          examples
         }));
         const componentInstance: PlsSemanticNodeDetailsComponent = this.nodeDialogRef.componentInstance as PlsSemanticNodeDetailsComponent;
         componentInstance.recommendationSelect.subscribe(recommendation => {
@@ -951,14 +965,15 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
         this.nodeDialogRef = this.modal.create(this.createConfig(namedEntityTitle, PlsSemanticNodeDetailsComponent, {
           modelId: this.dataSource,
           node: namedEntityNode,
-          recommendations: this.filterRecommendationsForAnchor(namedEntityNode.uuid)
+          recommendations: this.filterRecommendationsForAnchor(namedEntityNode.uuid),
+          examples: []
         }));
         this.nodeDialogRef.afterClose.subscribe((res) => {
           if (res) {
             this.nodeDialogRef = null;
             const element = this.graph.getElements().find(el => el.attributes.id === id);
             // TODO update width
-            element.attr('bodyText/text', semanticNode.label);
+            element.attr('bodyText/text', namedEntityNode.label);
           }
         });
         break;
@@ -968,14 +983,15 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
         this.nodeDialogRef = this.modal.create(this.createConfig(literalTitle, PlsSemanticNodeDetailsComponent, {
           modelId: this.dataSource,
           node: literalNode,
-          recommendations: this.filterRecommendationsForAnchor(literalNode.uuid)
+          recommendations: this.filterRecommendationsForAnchor(literalNode.uuid),
+          examples: []
         }));
         this.nodeDialogRef.afterClose.subscribe((res) => {
           if (res) {
             this.nodeDialogRef = null;
             const element = this.graph.getElements().find(el => el.attributes.id === id);
             // TODO update width
-            element.attr('bodyText/text', semanticNode.label);
+            element.attr('bodyText/text', literalNode.label);
           }
         });
         break;

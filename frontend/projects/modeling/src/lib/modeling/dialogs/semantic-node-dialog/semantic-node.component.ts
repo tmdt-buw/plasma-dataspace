@@ -14,6 +14,7 @@ export interface PlsSemanticNodeDetailsData {
   modelId: string;
   node: SemanticModelNode;
   recommendations: DeltaModification[];
+  examples: string[];
 }
 
 @Component({
@@ -46,7 +47,7 @@ export class PlsSemanticNodeDetailsComponent {
     switch (this.data.node._class) {
       case 'Class':
         const instance = this.getInstance();
-        if (!instance){
+        if (!instance) {
           return;
         }
         this.$edit.next(EditState.start);
@@ -127,7 +128,15 @@ export class PlsSemanticNodeDetailsComponent {
     if (!clazz.instance) {
       return false;
     }
-    return clazz.instance.syntaxNodeUuid !== undefined;
+    return !!clazz.instance.syntaxNodeUuid;
+  }
+
+  hasExampleValues(): boolean {
+    if (!this.isMappedClass()) {
+      return false;
+    }
+    // console.log('examples');
+    return this.data.examples?.length >= 0;
   }
 
   isLiteral(): boolean {
@@ -156,10 +165,10 @@ export class PlsSemanticNodeDetailsComponent {
 
   customize(): void {
     console.log('start customization');
-    if (!this.isClass()){
+    if (!this.isClass()) {
       return;
     }
-    if (this.getInstance()){
+    if (this.getInstance()) {
       return;
     }
     (this.data.node as Class).instance = {
