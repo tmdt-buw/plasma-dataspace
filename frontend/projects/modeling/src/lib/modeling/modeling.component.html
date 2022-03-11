@@ -41,6 +41,7 @@
                             [schema]="schema"
                             (graphLaidOut)="onGraphLaidOut($event)"
                             (semanticModelElementsAdded)="onSemanticElementsAdded($event)"
+                            (nodeChanged)="onNodeChanged($event)"
                             (semanticModelElementsRemoved)="onSemanticElementsRemoved($event)"
                             [dataSource]="modelId"
                             (nodePositionChanged)="onNodePositionChanged($event)"

@@ -219,7 +219,32 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
         this.nodeClicked.emit(model.id);
       },
       // adjust edges and persist element position on pointer up
-      'element:pointerup': (elementView: dia.ElementView) => {
+      'element:pointerup': (elementView: dia.ElementView, evt, x, y) => {
+        const coordinates = new Point(x, y);
+        const clazzId = elementView.model.id;
+        const elementBelow = this.graph.findModelsFromPoint(coordinates).find((el) => {
+          return (el.id !== clazzId);
+        });
+        if (Nodes.isClass(elementView) && elementBelow) {
+          const syntaxNode = this.findSyntaxNodeById(elementBelow.id as string);
+          const classNode = this.findSemanticNodeById(clazzId as string) as Class;
+          if (syntaxNode._class === 'PrimitiveNode' && (!classNode.instance || !classNode.instance?.syntaxNodeUuid)) {
+            // TODO add a confirm here?
+            if (!classNode.instance) {
+              classNode.instance = {
+                uuid: uuidv4(),
+              };
+            }
+            classNode.instance.syntaxNodeUuid = syntaxNode.uuid;
+            classNode.instance.originalLabel = syntaxNode.label;
+            classNode.instance.label = syntaxNode.label;
+            classNode.x = syntaxNode.x;
+            classNode.y = syntaxNode.y;
+            const nodeChanges = {entities: [classNode]};
+            this.nodeChanged.emit(nodeChanges);
+            return;
+          }
+        }
         Links.adjustVertices(this.graph, elementView);
         const element = elementView.model;
         this.updatePosition(element, true);
@@ -285,6 +310,17 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
       'blank:pointerup': () => {
         this.panAndZoom.disablePan();
       },
+      'blank:mouseover': (evt) => {
+        /* EXPERIMENTAL FEATURE
+        console.log('blank:mouseover', evt);
+        if (this.relation?._class === 'DataProperty') {
+          if (!this.ghostLiteral) {
+            this.ghostLiteral = this.addLiteralNode(uuidv4(), 'add literal', 'text_fields', evt.x, evt.y);
+          }
+          this.ghostLiteral.position(evt.x, evt.y);
+        }
+        */
+      },
       // Disable pan when the mouse button is released
       'cell:pointerup': () => {
         this.panAndZoom.disablePan();
@@ -310,7 +346,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
             uri: this.relation.uri
           };
           console.log('ADD DATAPROPERTY', 'source', source, 'literal', literal, 'relation', relation);
-          this.semanticModelElementsAdded.emit({entities: [literal], relations: [relation]});
+          // this.semanticModelElementsAdded.emit({entities: [literal], relations: [relation]});
         } else {
           this.panAndZoom.disablePan();
         }

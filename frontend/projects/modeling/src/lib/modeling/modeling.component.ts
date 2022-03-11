@@ -8,7 +8,7 @@ import {
   CombinedModel,
   DataModelingControllerService,
   DeltaModification,
-  Relation,
+  Relation, SchemaNode,
   SemanticModelNode
 } from '../api/generated/dms';
 import { OntologyControllerService, SemanticModelControllerService } from '../api/generated/kgs';
@@ -180,6 +180,15 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
 
   onNodeClicked(event: string): void {
     this.clickedNode.emit(event);
+  }
+
+  onNodeChanged(event: { entities?: Array<SemanticModelNode>, nodes?: Array<SchemaNode> }): void {
+    const delta: DeltaModification = {
+      nodes: event.nodes,
+      entities: event.entities
+    };
+    console.log(event, 'modifying model', delta);
+    this.modelingService.modifyModel(this.modelId, delta).subscribe((res) => this.schema = res);
   }
 
   onSemanticElementsAdded(event: { entities?: Array<SemanticModelNode>, relations?: Array<Relation> }): void {
