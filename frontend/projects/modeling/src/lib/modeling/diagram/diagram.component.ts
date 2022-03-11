@@ -15,7 +15,7 @@ import {
 } from '@angular/core';
 import * as dagre from 'dagre';
 import * as graphlib from 'graphlib';
-import { dia, layout } from 'jointjs';
+import { dia, g, highlighters, layout } from 'jointjs';
 import { ModalOptions, NzModalRef, NzModalService } from 'ng-zorro-antd/modal';
 import { BehaviorSubject, Subject } from 'rxjs';
 import { auditTime, distinctUntilChanged, pairwise, skip } from 'rxjs/operators';
@@ -27,7 +27,7 @@ import {
   NamedEntity,
   ObjectProperty,
   PrimitiveNode,
-  Relation,
+  Relation, SchemaNode,
   SemanticModel,
   SemanticModelNode,
   SyntaxModel
@@ -53,6 +53,7 @@ import { v4 as uuidv4 } from 'uuid';
 import svgPanZoom from '@dash14/svg-pan-zoom';
 import { PlsNamedEntityMenuComponent } from '../context-menu/named-entity-menu/named-entity-menu.component';
 import { PlsLiteralMenuComponent } from '../context-menu/literal-menu/literal-menu.component';
+import Point = g.Point;
 
 
 @Component({
@@ -110,12 +111,13 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
   hoveredElement;
   mousePosition;
   recommendations = [];
+  ghostLiteral: dia.Element;
 
   // events
   @Output() graphLaidOut = new EventEmitter<CombinedModel>();
   @Output() semanticModelElementsAdded = new EventEmitter<{ entities?: Array<SemanticModelNode>, relations?: Array<Relation> }>();
   @Output() semanticModelElementsRemoved = new EventEmitter<{ entities?: Array<SemanticModelNode>, relations?: Array<Relation> }>();
-  @Output() nodeChanged = new EventEmitter<NodeChangedEvent>();
+  @Output() nodeChanged = new EventEmitter<{ entities?: Array<SemanticModelNode>, nodes?: Array<SchemaNode> }>();
   @Output() nodePositionChanged = new EventEmitter<NodeChangedEvent>();
   @Output() nodeClicked = new EventEmitter<string>();
   @Output() recommendationAccepted = new EventEmitter<DeltaModification>();
@@ -123,6 +125,10 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
 
   // hidden canvas to calculate label widths
   private _canvas = document.createElement('canvas');
+
+  CustomHighlighters = {
+    CONNECTION: 'connection-highlighter'
+  };
 
   constructor(private overlay: Overlay, private modelingService: ModelingService, private contextMenu: ContextMenuService, private viewContainerRef: ViewContainerRef, private modal: NzModalService) {
   }
@@ -203,6 +209,9 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
         if (!this.lockDragAndDrop) {
           this.openDetails(model.id, model.type);
         }
+        if (Nodes.isSemanticNode(elementView)) {
+          elementView.model.toFront();
+        }
       },
       // emit node id
       'element:pointerdown': (elementView: dia.ElementView) => {
@@ -236,11 +245,11 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
         */
 
       },
-      'cell:mouseout': () => {
-        console.log('cell:mouseout');
+      'cell:mouseleave': () => {
+        console.log('cell:mouseleave');
       },
-      'element:mouseout': () => {
-        console.log('element:mouseout');
+      'element:mouseleave': () => {
+        console.log('element:mouseleave');
         if (this.modelNode) {
           this.unhighlightAll();
         }
@@ -353,6 +362,19 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
           });
         }
       },
+      'cell:highlight': (cellView, node, {type}) => {
+        console.log('highlight', cellView, node, type);
+        if (type === dia.CellView.Highlighting.CONNECTING) {
+          if (this.relation._class === 'ObjectProperty') {
+            if (Nodes.isSemanticNode(cellView)) {
+              highlighters.stroke.add(cellView, node, this.CustomHighlighters.CONNECTION, {});
+            }
+          }
+        }
+      },
+      'cell:unhighlight': (cellView, node, {type}) => {
+        highlighters.stroke.remove(cellView, this.CustomHighlighters.CONNECTION);
+      },
       // init layout after first rendering
       'render:done': () => {
         // turn off this trigger
@@ -413,8 +435,8 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
             uri: this.modelNode.uri,
             label: this.modelNode.label,
             description: (this.modelNode as Class).description,
-            xcoordinate: position.x,
-            ycoordinate: position.y,
+            x: position.x,
+            y: position.y,
             instance
           };
           break;
@@ -424,15 +446,15 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
             uri: this.modelNode.uri,
             label: this.modelNode.label,
             description: (this.modelNode as Class).description,
-            xcoordinate: position.x + 10,
-            ycoordinate: position.y + 10
+            x: position.x + 10,
+            y: position.y + 10
           };
           break;
         case 'Literal':
           console.log('Should not happen!');
           break;
       }
-      this.semanticModelElementsAdded.emit({entities:[semanticNode]});
+      this.semanticModelElementsAdded.emit({entities: [semanticNode]});
     } else if (event.isPointerOverContainer) { // dropped in blank area
       const localPosition = this.paper.clientToLocalPoint(this.mousePosition.x, this.mousePosition.y);
       let semanticNode;
@@ -527,9 +549,6 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
     // create graph based on filter selection
     switch (this.$filter.getValue()) {
       case Filter.ALL:
-        // show semantic nodes and links
-        this.createSemanticGraph(this.schema.semanticModel, flat);
-
         // filter syntax nodes
         const map = this.schema.modelMappings;
         const mappedSyntaxNodes = this.schema.syntaxModel.nodes
@@ -557,6 +576,9 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
           )
         };
         this.createSyntaxGraph(reducedSyntaxModel);
+
+        // show semantic nodes and links
+        this.createSemanticGraph(this.schema.semanticModel, flat);
         break;
       case Filter.SYNTAX:
         // show syntax nodes and links
@@ -628,7 +650,8 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
   private addSyntaxNode(id: string, label: string, icon: string, x?: number, y?: number): void {
     const dim = this.calcDimensionsForLabel(label, !!icon);
     const position = {x, y};
-    this.graph.addCell(Nodes.createSyntaxNode(id, label, icon, position, dim[0], dim[1]));
+    const node = Nodes.createSyntaxNode(id, label, icon, position, dim[0], dim[1]);
+    this.graph.addCell(node);
   }
 
   /**
@@ -637,7 +660,8 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
    * @param target of link
    */
   private addSyntaxLink(source: string, target: string): void {
-    this.graph.addCell(Links.createSyntaxLink(source, target));
+    const link = Links.createSyntaxLink(source, target);
+    this.graph.addCell(link);
   }
 
   /**

@@ -53,7 +53,9 @@ export abstract class Papers {
       gridSize: 1,
       frozen: true,
       async: true,
-      // highlighting: false,
+      highlighting: {
+        connecting: false
+      },
       // disable links pinning to blank space since we only want to connect nodes with links
       linkPinning: false,
       // enable link drawing and disable move nodes if relation is selected in menu
