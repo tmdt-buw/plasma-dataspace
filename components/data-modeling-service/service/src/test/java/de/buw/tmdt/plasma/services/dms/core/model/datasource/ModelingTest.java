@@ -16,18 +16,18 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
- * Test to simulate and control stack behaviour for {@link CombinedModel}s in the {@link DataSourceModel}.
+ * Test to simulate and control stack behaviour for {@link CombinedModel}s in the {@link Modeling}.
  */
-class DataSourceModelTest {
+class ModelingTest {
 
-    DataSourceModel dataSourceModel;
+    Modeling modeling;
 
     int counter = 1;
     int modelcounter = 1;
 
     @BeforeEach
     void setUp() {
-        dataSourceModel = new DataSourceModel();
+        modeling = new Modeling();
         modelcounter = 1;
         counter = 1;
     }
@@ -35,25 +35,25 @@ class DataSourceModelTest {
     @Test
     void getCurrentModel() {
         CombinedModel model = getCombinedModel();
-        dataSourceModel.pushCombinedModel(model);
-        assertEquals(model, dataSourceModel.getCurrentModel());
+        modeling.pushCombinedModel(model);
+        assertEquals(model, modeling.getCurrentModel());
     }
 
     @Test
     void getCurrentModelOnEmptyStack() {
-        assertThrows(UnsupportedOperationException.class, () -> dataSourceModel.getCurrentModel());
+        assertThrows(UnsupportedOperationException.class, () -> modeling.getCurrentModel());
     }
 
     @Test
     void pushCombinedModel() {
         CombinedModel model;
         int count = 0;
-        assertEquals(count, dataSourceModel.getAllCombinedModels().size());
+        assertEquals(count, modeling.getAllCombinedModels().size());
         while (count < 10) {
             model = getCombinedModel();
-            dataSourceModel.pushCombinedModel(model);
+            modeling.pushCombinedModel(model);
             count++;
-            assertEquals(count, dataSourceModel.getAllCombinedModels().size());
+            assertEquals(count, modeling.getAllCombinedModels().size());
         }
     }
 
@@ -61,31 +61,31 @@ class DataSourceModelTest {
     void popCombinedModel() {
         CombinedModel model;
         int count = 0;
-        assertEquals(count, dataSourceModel.getAllCombinedModels().size());
+        assertEquals(count, modeling.getAllCombinedModels().size());
         while (count < 10) {
             model = getCombinedModel();
-            dataSourceModel.pushCombinedModel(model);
+            modeling.pushCombinedModel(model);
             count++;
-            assertEquals(count, dataSourceModel.getAllCombinedModels().size());
+            assertEquals(count, modeling.getAllCombinedModels().size());
         }
-        assertEquals("model-" + count, dataSourceModel.getCurrentModel().getId());
+        assertEquals("model-" + count, modeling.getCurrentModel().getId());
         for (int i = 0; i < 3; i++) {
-            dataSourceModel.popCombinedModel();
+            modeling.popCombinedModel();
             count--;
         }
-        assertEquals("model-" + count, dataSourceModel.getCurrentModel().getId());
+        assertEquals("model-" + count, modeling.getCurrentModel().getId());
     }
 
     @Test
     void popCombinedModelOnEmptyStack() {
         assertThrows(UnsupportedOperationException.class,
-                () -> dataSourceModel.popCombinedModel());
+                () -> modeling.popCombinedModel());
 
         // we add a model and see if the pointer behaves naturally
         CombinedModel model = getCombinedModel();
-        dataSourceModel.pushCombinedModel(model);
+        modeling.pushCombinedModel(model);
 
-        assertEquals(model, dataSourceModel.getCurrentModel());
+        assertEquals(model, modeling.getCurrentModel());
 
     }
 
@@ -93,29 +93,29 @@ class DataSourceModelTest {
     void pushCombinedModelOnReducedStackPointer() {
         CombinedModel model;
         int count = 0;
-        assertEquals(count, dataSourceModel.getAllCombinedModels().size());
+        assertEquals(count, modeling.getAllCombinedModels().size());
         while (count < 10) {
             model = getCombinedModel();
-            dataSourceModel.pushCombinedModel(model);
+            modeling.pushCombinedModel(model);
             count++;
-            assertEquals(count, dataSourceModel.getAllCombinedModels().size());
+            assertEquals(count, modeling.getAllCombinedModels().size());
         }
-        assertEquals("model-" + count, dataSourceModel.getCurrentModel().getId());
+        assertEquals("model-" + count, modeling.getCurrentModel().getId());
         for (int i = 0; i < 3; i++) {
-            dataSourceModel.popCombinedModel();
+            modeling.popCombinedModel();
             count--;
         }
-        assertEquals("model-" + count, dataSourceModel.getCurrentModel().getId());
+        assertEquals("model-" + count, modeling.getCurrentModel().getId());
         CombinedModel intermediateModel = getCombinedModel();
 
-        dataSourceModel.pushCombinedModel(intermediateModel);
+        modeling.pushCombinedModel(intermediateModel);
         count++;
-        assertEquals(count, dataSourceModel.getAllCombinedModels().size());
-        assertEquals(intermediateModel, dataSourceModel.getCurrentModel());
+        assertEquals(count, modeling.getAllCombinedModels().size());
+        assertEquals(intermediateModel, modeling.getCurrentModel());
 
         // ensure we are actually a max stack position
         assertThrows(UnsupportedOperationException.class,
-                () -> dataSourceModel.restoreCombinedModel());
+                () -> modeling.restoreCombinedModel());
     }
 
 
@@ -123,38 +123,38 @@ class DataSourceModelTest {
     void restoreCombinedModel() {
         CombinedModel model;
         int count = 0;
-        assertEquals(count, dataSourceModel.getAllCombinedModels().size());
+        assertEquals(count, modeling.getAllCombinedModels().size());
         while (count < 10) {
             model = getCombinedModel();
-            dataSourceModel.pushCombinedModel(model);
+            modeling.pushCombinedModel(model);
             count++;
-            assertEquals(count, dataSourceModel.getAllCombinedModels().size());
+            assertEquals(count, modeling.getAllCombinedModels().size());
         }
-        assertEquals("model-" + count, dataSourceModel.getCurrentModel().getId());
+        assertEquals("model-" + count, modeling.getCurrentModel().getId());
         for (int i = 0; i < 3; i++) {
-            dataSourceModel.popCombinedModel();
+            modeling.popCombinedModel();
             count--;
         }
-        assertEquals("model-" + count, dataSourceModel.getCurrentModel().getId());
+        assertEquals("model-" + count, modeling.getCurrentModel().getId());
         for (int i = 0; i < 3; i++) {
-            dataSourceModel.restoreCombinedModel();
+            modeling.restoreCombinedModel();
             count++;
         }
-        assertEquals("model-" + count, dataSourceModel.getCurrentModel().getId());
+        assertEquals("model-" + count, modeling.getCurrentModel().getId());
     }
 
     @Test
     void restoreCombinedModelOnMaxStackPointer() {
         CombinedModel model;
         int count = 0;
-        assertEquals(count, dataSourceModel.getAllCombinedModels().size());
+        assertEquals(count, modeling.getAllCombinedModels().size());
         while (count < 10) {
             model = getCombinedModel();
-            dataSourceModel.pushCombinedModel(model);
+            modeling.pushCombinedModel(model);
             count++;
-            assertEquals(count, dataSourceModel.getAllCombinedModels().size());
+            assertEquals(count, modeling.getAllCombinedModels().size());
         }
-        assertThrows(UnsupportedOperationException.class, () -> dataSourceModel.restoreCombinedModel());
+        assertThrows(UnsupportedOperationException.class, () -> modeling.restoreCombinedModel());
     }
 
 

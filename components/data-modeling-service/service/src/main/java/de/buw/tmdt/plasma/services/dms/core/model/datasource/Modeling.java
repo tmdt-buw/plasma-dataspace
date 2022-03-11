@@ -1,10 +1,12 @@
 package de.buw.tmdt.plasma.services.dms.core.model.datasource;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import de.buw.tmdt.plasma.datamodel.CombinedModel;
 import de.buw.tmdt.plasma.services.dms.core.database.CombinedModelPersistenceConverter;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.hibernate.annotations.DynamicUpdate;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -14,37 +16,52 @@ import java.util.UUID;
 
 @DynamicUpdate
 @Entity
-@Table(name = "data_sources")
-public class DataSourceModel {
+@Table(name = "modelings")
+public class Modeling {
 
     @Id
-    @Column(nullable = false, unique = true, updatable = false, length = 16)
+    @Column(nullable = false, unique = true, updatable = false)
     @NotNull
-    private UUID uuid;
+    private String id;
 
-    //The value is only set after the schema analysis
+    private String name;
+
+    private String description;
+
+    private String dataId;
+
     // Map <Version, CombinedModel>
     @SuppressWarnings("JpaAttributeTypeInspection") // will be custom serialized
     @ElementCollection
     @Convert(converter = CombinedModelPersistenceConverter.class)
     @Lob
+    @JsonIgnore
     @NotNull
     private List<@NotNull CombinedModel> combinedModelVersions = new ArrayList<>();
 
     @Column(nullable = false)
+    @JsonIgnore
     private int versionPointer;
 
-    public DataSourceModel() {
+    public Modeling() {
         this.versionPointer = 0;
-        this.uuid = UUID.randomUUID();
+        this.id = UUID.randomUUID().toString();
     }
 
-    public DataSourceModel(UUID uuid) {
+    public Modeling(@NotNull String id) {
         this();
-        this.uuid = uuid;
+        this.id = id;
+    }
+
+    public Modeling(@NotNull String id, @Nullable String name, @Nullable String description, @Nullable String dataId) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.dataId = dataId;
     }
 
     @NotNull
+    @JsonIgnore
     public List<CombinedModel> getAllCombinedModels() {
         return this.combinedModelVersions;
     }
@@ -65,11 +82,7 @@ public class DataSourceModel {
         versionPointer++;
     }
 
-    @NotNull
-    public UUID getUuid() {
-        return uuid;
-    }
-
+    @JsonIgnore
     @Transient
     @NotNull
     @SuppressFBWarnings("NP_NONNULL_RETURN_VIOLATION") // all values are not null
@@ -113,5 +126,22 @@ public class DataSourceModel {
                 + ", \"currentVersion\":" + versionPointer
                 + ", \"maxVersion\":" + combinedModelVersions.size()
                 + '}';
+    }
+
+    @NotNull
+    public String getId() {
+        return id;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public String getDataId() {
+        return dataId;
+    }
+
+    public String getName() {
+        return name;
     }
 }

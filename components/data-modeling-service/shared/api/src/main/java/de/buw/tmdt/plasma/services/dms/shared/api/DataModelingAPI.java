@@ -14,51 +14,64 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @SuppressWarnings("HardcodedFileSeparator")
-@RequestMapping(value = "/api/plasma-dms/models")
+@RequestMapping(value = "/api/plasma-dms/modelings")
 public interface DataModelingAPI {
 
-	//############################################### Schema Definition ###############################################
+    //############################################### Schema Definition ###############################################
 
-	@PostMapping(value = "/init")
-	CombinedModel initSchema(
-			@NotNull @RequestParam("modelId") String modelId,
-			@NotNull @RequestParam(value = "exampleLimit", defaultValue = "100") Integer exampleLimit
-	);
+    @PostMapping(value = "/", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    ModelingInfo createNewModeling(
+            @NotNull @RequestParam("modelId") String modelId,
+            @NotNull @RequestBody CombinedModel combinedModel,
+            @RequestParam(defaultValue = "true") boolean performInitialModeling,
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) String description,
+            @RequestParam(required = false) String dataId);
 
-	@NotNull
-	@GetMapping(value = "/{modelId}", produces = MediaType.APPLICATION_JSON_VALUE)
-	CombinedModel getCombinedModel(@NotNull @PathVariable("modelId") String modelId);
+    @GetMapping(value = "/")
+    List<ModelingInfo> listModelings();
 
-	@PatchMapping(value = "/{modelId}/positions", consumes = MediaType.APPLICATION_JSON_VALUE)
-	void updatePositions(@NotNull @PathVariable("modelId") String modelId, @NotNull @RequestBody List<PositionedCombinedModelElement> elements);
+    @NotNull
+    @GetMapping(value = "/{modelId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    CombinedModel getCombinedModel(@NotNull @PathVariable("modelId") String modelId);
 
-	@NotNull
-	@GetMapping(value = "/{modelId}/elements", produces = MediaType.APPLICATION_JSON_VALUE)
-	List<SemanticModelNode> getElements(@NotNull @PathVariable("modelId") String modelId, @NotNull @RequestParam("prefix") String prefix);
+    @NotNull
+    @GetMapping(value = "/{modelId}/labeling", produces = MediaType.APPLICATION_JSON_VALUE)
+    CombinedModel performSemanticLabeling(@NotNull @PathVariable("modelId") String modelId);
 
-	@NotNull
-	@GetMapping(value = "/{modelId}/relations", produces = MediaType.APPLICATION_JSON_VALUE)
-	List<Relation> getRelations(@NotNull @PathVariable("modelId") String modelId, @NotNull @RequestParam("prefix") String prefix);
+    @NotNull
+    @GetMapping(value = "/{modelId}/modeling", produces = MediaType.APPLICATION_JSON_VALUE)
+    CombinedModel performSemanticModeling(@NotNull @PathVariable("modelId") String modelId);
 
-	@NotNull
-	@PostMapping(value = "/{modelId}/invoke", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	CombinedModel modifySyntacticSchema(@NotNull @PathVariable("modelId") String modelId, @NotNull @RequestBody SyntacticOperationDTO syntacticOperationDTO);
+    @PatchMapping(value = "/{modelId}/positions", consumes = MediaType.APPLICATION_JSON_VALUE)
+    void updatePositions(@NotNull @PathVariable("modelId") String modelId, @NotNull @RequestBody List<PositionedCombinedModelElement> elements);
 
-	/* Cache operations */
+    @NotNull
+    @GetMapping(value = "/{modelId}/elements", produces = MediaType.APPLICATION_JSON_VALUE)
+    List<SemanticModelNode> getElements(@NotNull @PathVariable("modelId") String modelId, @NotNull @RequestParam("prefix") String prefix);
 
-	@NotNull
-	@PostMapping(value = "/{modelId}/cache/nodes", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	CombinedModelElement cacheElement(@NotNull @PathVariable("modelId") String modelId, @NotNull @RequestBody SemanticModelNode node);
+    @NotNull
+    @GetMapping(value = "/{modelId}/relations", produces = MediaType.APPLICATION_JSON_VALUE)
+    List<Relation> getRelations(@NotNull @PathVariable("modelId") String modelId, @NotNull @RequestParam("prefix") String prefix);
 
-	@NotNull
-	@PostMapping(value = "/{modelId}/cache/relations", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	CombinedModelElement cacheRelation(@NotNull @PathVariable("modelId") String modelId, @NotNull @RequestBody Relation relation);
+    @NotNull
+    @PostMapping(value = "/{modelId}/invoke", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    CombinedModel modifySyntacticSchema(@NotNull @PathVariable("modelId") String modelId, @NotNull @RequestBody SyntacticOperationDTO syntacticOperationDTO);
+
+    /* Cache operations */
+
+    @NotNull
+    @PostMapping(value = "/{modelId}/cache/nodes", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    CombinedModelElement cacheElement(@NotNull @PathVariable("modelId") String modelId, @NotNull @RequestBody SemanticModelNode node);
+
+    @NotNull
+    @PostMapping(value = "/{modelId}/cache/relations", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    CombinedModelElement cacheRelation(@NotNull @PathVariable("modelId") String modelId, @NotNull @RequestBody Relation relation);
 
 
-
-	@NotNull
-	@PatchMapping(value = "/{modelId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	CombinedModel modifyModel(@NotNull @PathVariable("modelId") String modelId, @NotNull @RequestBody DeltaModification delta);
+    @NotNull
+    @PatchMapping(value = "/{modelId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    CombinedModel modifyModel(@NotNull @PathVariable("modelId") String modelId, @NotNull @RequestBody DeltaModification delta);
 
 	/*
 
@@ -107,26 +120,26 @@ public interface DataModelingAPI {
 	CombinedModel removeRelation(@NotNull @PathVariable("modelId") String modelId, @NotNull @PathVariable("relationId") String entityTypeId);
 
 	 */
-	/* Recommendation */
+    /* Recommendation */
 
-	@NotNull
-	@PostMapping(value = "/{modelId}/recommendations/accept", produces = MediaType.APPLICATION_JSON_VALUE)
-	CombinedModel acceptRecommendation(@NotNull @PathVariable("modelId") String modelId, @NotNull @RequestBody DeltaModification recommendation);
+    @NotNull
+    @PostMapping(value = "/{modelId}/recommendations/accept", produces = MediaType.APPLICATION_JSON_VALUE)
+    CombinedModel acceptRecommendation(@NotNull @PathVariable("modelId") String modelId, @NotNull @RequestBody DeltaModification recommendation);
 
-	/* Undo / Redo / finish */
+    /* Undo / Redo / finish */
 
-	@NotNull
-	@PostMapping(value = "/{modelId}/undo", produces = MediaType.APPLICATION_JSON_VALUE)
-	CombinedModel undo(@NotNull @PathVariable("modelId") String modelId);
+    @NotNull
+    @PostMapping(value = "/{modelId}/undo", produces = MediaType.APPLICATION_JSON_VALUE)
+    CombinedModel undo(@NotNull @PathVariable("modelId") String modelId);
 
-	@NotNull
-	@PostMapping(value = "/{modelId}/redo", produces = MediaType.APPLICATION_JSON_VALUE)
-	CombinedModel redo(@NotNull @PathVariable("modelId") String modelId);
+    @NotNull
+    @PostMapping(value = "/{modelId}/redo", produces = MediaType.APPLICATION_JSON_VALUE)
+    CombinedModel redo(@NotNull @PathVariable("modelId") String modelId);
 
-	@NotNull
-	@PostMapping(value = "/{modelId}/finish")
-	CombinedModel finishModeling(@NotNull @PathVariable("modelId") String modelId);
+    @NotNull
+    @PostMapping(value = "/{modelId}/finish")
+    CombinedModel finishModeling(@NotNull @PathVariable("modelId") String modelId);
 
-	@DeleteMapping(value = "/{modelId}")
-	void deleteModel(@NotNull @PathVariable("modelId") String modelId);
+    @DeleteMapping(value = "/{modelId}")
+    void deleteModel(@NotNull @PathVariable("modelId") String modelId);
 }

@@ -5,8 +5,8 @@ import de.buw.tmdt.plasma.datamodel.semanticmodel.Class;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.ObjectNode;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.SchemaNode;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.SyntaxModel;
-import de.buw.tmdt.plasma.services.dms.core.model.datasource.DataSourceModel;
-import de.buw.tmdt.plasma.services.dms.core.repository.DataSourceRepository;
+import de.buw.tmdt.plasma.services.dms.core.model.datasource.Modeling;
+import de.buw.tmdt.plasma.services.dms.core.repository.ModelingRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,11 +22,11 @@ import static org.junit.jupiter.api.Assertions.*;
 public class DataSourceModelPersistenceTest {
 
     @Autowired
-    DataSourceRepository dataSourceRepository;
+    ModelingRepository modelingRepository;
 
     @Transactional
     public void testCreateDataSourceModel() {
-        DataSourceModel dsm = new DataSourceModel();
+        Modeling dsm = new Modeling();
 
         SchemaNode root = new ObjectNode("root", new ArrayList<>(), true);
 
@@ -44,9 +44,9 @@ public class DataSourceModelPersistenceTest {
             dsm.pushCombinedModel(combinedModel);
         }
 
-        dataSourceRepository.save(dsm);
+        modelingRepository.save(dsm);
 
-        DataSourceModel model = dataSourceRepository.findById(dsm.getUuid()).orElse(null);
+        Modeling model = modelingRepository.findById(dsm.getId()).orElse(null);
 
         assertNotNull(model);
         assertEquals(numModels, model.getAllCombinedModels().size());
