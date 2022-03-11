@@ -63,7 +63,7 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
   $center = new Subject<any>();
   $layout = new Subject<any>();
   $filter = new BehaviorSubject<Filter>(Filter.ALL);
-  $flat = new BehaviorSubject<boolean>(false);
+  $URIMode = new BehaviorSubject<boolean>(false);
 
   // schema
   schema: CombinedModel;
@@ -233,8 +233,8 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
     }
   }
 
-  toggleFlatMode(event): void {
-    this.$flat.next(event.checked);
+  toggleURIMode(checked: boolean): void {
+    this.$URIMode.next(checked);
   }
 
   /**

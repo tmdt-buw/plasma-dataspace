@@ -70,7 +70,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
   @Input() set schema(schema: CombinedModel) {
     this._schema = schema;
     if (!this.initializing) {
-      this.createGraph(this.$flat.getValue());
+      this.createGraph(this.$URIMode.getValue());
     }
   }
 
@@ -83,7 +83,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
   @Input() $center: Subject<any>;
   @Input() $layout: Subject<any>;
   @Input() $filter: BehaviorSubject<Filter>;
-  @Input() $flat: BehaviorSubject<boolean>;
+  @Input() $URIMode: BehaviorSubject<boolean>;
   @Input() lockDragAndDrop: boolean;
   // config
   @Input() primaryColor;
@@ -164,11 +164,10 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
     ).subscribe(() => {
       this.createGraph();
     });
-    this.$flat.pipe(
-      skip(1),
+    this.$URIMode.pipe(
       distinctUntilChanged()
-    ).subscribe((flat) => {
-      this.createGraph(flat);
+    ).subscribe((showURI) => {
+      this.createGraph(showURI);
     });
   }
 
@@ -575,9 +574,9 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
 
   /**
    * Fill graph object with current schema data
-   * @param flat mode
+   * @param showURI shows URIs instead of labels where possible
    */
-  private createGraph(flat: boolean = false): void {
+  private createGraph(showURI: boolean = false): void {
     // remove old content
     this.paper.freeze();
     this.graph.clear();
@@ -614,7 +613,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
         this.createSyntaxGraph(reducedSyntaxModel);
 
         // show semantic nodes and links
-        this.createSemanticGraph(this.schema.semanticModel, flat);
+        this.createSemanticGraph(this.schema.semanticModel, showURI);
         break;
       case Filter.SYNTAX:
         // show syntax nodes and links
@@ -622,7 +621,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
         break;
       case Filter.SEMANTIC:
         // show semantic nodes and links
-        this.createSemanticGraph(this.schema.semanticModel, flat);
+        this.createSemanticGraph(this.schema.semanticModel, showURI);
         break;
       default:
         console.error('Unsupported Filter');
@@ -643,13 +642,11 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
   /**
    * Creates nodes and edges from semantic model
    * @param semanticModel the semantic model
-   * @param flat maps names to url
+   * @param showURI maps labels to URIs where possible
    */
-  private createSemanticGraph(semanticModel: SemanticModel, flat: boolean): void {
-    const color = 'primary';
+  private createSemanticGraph(semanticModel: SemanticModel, showURI: boolean): void {
     if (semanticModel.nodes.length > 0) {
       semanticModel.nodes.forEach(node => {
-        // console.log('adding node', node);
         if (node._class === 'Class') {
           const instance = (node as Class).instance;
           // get icon from syntax node
@@ -657,9 +654,9 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
           if (instance?.syntaxNodeUuid) {
             icon = Icons.getIcon(this.findSyntaxNodeById(instance.syntaxNodeUuid));
           }
-          this.addClassNode(node.uuid, flat ? node.uri : node.label, node.x, node.y, 1, instance?.label, icon);
+          this.addClassNode(node.uuid, showURI ? node.uri : node.label, node.x, node.y, 1, instance?.label, icon);
         } else if (node._class === 'NamedEntity') {
-          this.addNamedEntityNode(node.uuid, flat ? node.uri : node.label, node.x, node.y);
+          this.addNamedEntityNode(node.uuid, showURI ? node.uri : node.label, node.x, node.y);
         } else if (node._class === 'Literal') {
           this.addLiteralNode(node.uuid, node.label, 'text_fields', node.x, node.y);
         }
@@ -667,9 +664,9 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
 
       semanticModel.edges.forEach(edge => {
         if (edge._class === 'DataProperty') {
-          this.addDataPropertyLink(edge.uuid, edge.from, edge.to, flat ? edge.uri : edge.label);
+          this.addDataPropertyLink(edge.uuid, edge.from, edge.to, showURI ? edge.uri : edge.label);
         } else {
-          this.addObjectPropertyLink(edge.uuid, edge.from, edge.to, flat ? edge.uri : edge.label);
+          this.addObjectPropertyLink(edge.uuid, edge.from, edge.to, showURI ? edge.uri : edge.label);
         }
       });
     }
@@ -989,7 +986,6 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
           const synNode = this.findSyntaxNodeById(clazz.instance.syntaxNodeUuid);
           if (synNode?._class === 'PrimitiveNode') {
             examples = (synNode as PrimitiveNode).examples;
-            console.log('examples', examples);
           }
         }
         const title = `${semanticNode.label} (${semanticNode.uri})`;
