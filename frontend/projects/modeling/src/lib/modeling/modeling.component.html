@@ -3,13 +3,13 @@
   <div *ngIf="!readonly" fxFlex="40px" fxLayout="row" fxLayoutAlign="space-between center" fxLayoutGap="5px"
        class="modeling-toolbar">
     <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="15px">
-      <button nz-button nzType="text" nzShape="circle" (click)="undo()" nz-tooltip nzTooltipTitle="Undo"><i nz-icon
+      <button nz-button nzType="text" nzShape="circle" (click)="undo()" nz-tooltip nzTooltipTitle="Undo" [disabled]="isFinalized()"><i nz-icon
                                                                                                             nzType="undo"></i>
       </button>
-      <button nz-button nzType="text" nzShape="circle" (click)="redo()" nz-tooltip nzTooltipTitle="Redo"><i nz-icon
+      <button nz-button nzType="text" nzShape="circle" (click)="redo()" nz-tooltip nzTooltipTitle="Redo" [disabled]="isFinalized()"><i nz-icon
                                                                                                             nzType="redo"></i>
       </button>
-      <button nz-button nzType="primary" nz-tooltip nzTooltipTitle="Add entity or relation" (click)="addConcepts()"><i
+      <button nz-button nzType="primary" nz-tooltip nzTooltipTitle="Add entity or relation" (click)="addConcepts()" [disabled]="isFinalized()"><i
         nz-icon nzType="deployment-unit"></i>Add concepts and relations
       </button>
       <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">
@@ -17,7 +17,6 @@
         <nz-switch [ngModel]="false" (ngModelChange)="toggleURIMode($event)"></nz-switch>
         <span nz-typography>URI</span>
       </div>
-
     </div>
 
     <div class="modeling-search-bar-container">
@@ -55,20 +54,20 @@
   </div>
 
   <nz-spin fxFlex class="modeling-container" nzTip="Loading..." [nzSpinning]="loading">
-    <div class="modeling-area" *ngIf="schema" #modelingArea>
+    <div class="modeling-area" *ngIf="combinedModel" #modelingArea>
       <pls-modeling-diagram [$filter]="$filter" [$center]="$center" [$layout]="$layout" [$URIMode]="$URIMode"
-                            [schema]="schema"
+                            [combinedModel]="combinedModel"
                             (graphLaidOut)="onGraphLaidOut($event)"
                             (semanticModelElementsAdded)="onSemanticElementsAdded($event)"
                             (nodeChanged)="onNodeChanged($event)"
                             (semanticModelElementsRemoved)="onSemanticElementsRemoved($event)"
-                            [dataSource]="modelId"
+                            [modelId]="modelId"
                             (nodePositionChanged)="onNodePositionChanged($event)"
                             [lockDragAndDrop]="lockDragAndDrop"
                             (nodeClicked)="onNodeClicked($event)"
                             (recommendationAccepted)="onRecommendationAccepted($event)">
       </pls-modeling-diagram>
-      <button *ngIf="!schema.finalized && !hideFinalizeButton" class="action-button" nz-button nzType="primary"
+      <button *ngIf="!isFinalized() && !hideFinalizeButton" class="action-button" nz-button nzType="primary"
               (click)="finalizeModel()"><i nz-icon nzType="play-circle"></i>Finalize
       </button>
     </div>

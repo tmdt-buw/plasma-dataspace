@@ -17,8 +17,8 @@ export interface SchemaNode {
     label?: string;
     x?: number;
     y?: number;
-    operations?: Array<SyntacticOperationDTO>;
     valid?: boolean;
+    readonly operations?: Array<SyntacticOperationDTO>;
     _class: string;
 }
 

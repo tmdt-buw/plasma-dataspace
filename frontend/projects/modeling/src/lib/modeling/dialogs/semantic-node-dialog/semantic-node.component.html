@@ -5,7 +5,7 @@
   <p [nzTooltipTitle]="'Element description as defined by the knowledge source'"
      nz-tooltip>{{ getDescription() }}</p>
 
-  <div *ngIf="isClass() && !getInstance()">
+  <div *ngIf="isClass() && !getInstance() && !data.finalized">
     <button (click)="customize()" nz-button nzType="text">Add customization<i nz-icon nzType="edit"></i>
     </button>
   </div>
@@ -20,7 +20,7 @@
                          [nzTooltipTitle]="'Custom label for this element'"
                          nz-tooltip></pls-inline-edit>
       </div>
-      <div>
+      <div *ngIf="!data.finalized">
         <button (click)="startEdit()" *ngIf="!editing" nz-button nzShape="circle" nzType="text"><i nz-icon
                                                                                                    nzType="edit"></i>
         </button>
@@ -37,7 +37,8 @@
         <p nz-typography nzType="secondary">Description: </p>
         <pls-inline-edit *ngIf="isMappedClass()" [$edit]="$edit" [(ngModel)]="getInstance().description"
                          [empty]="'No description'"
-                         [type]="'textarea'"></pls-inline-edit>
+                         [type]="'textarea'"
+        [disabled]="data.finalized"></pls-inline-edit>
       </div>
     </div>
     <div fxLayout="row">
@@ -57,7 +58,7 @@
 
   </div>
 
-  <div *ngIf="hasRecommendations()" fxLayout="column" fxLayoutAlign="space-between start" fxLayoutGap="10px">
+  <div *ngIf="!data.finalized && hasRecommendations()" fxLayout="column" fxLayoutAlign="space-between start" fxLayoutGap="10px">
     <nz-divider></nz-divider>
     <p [nzTooltipTitle]="'Recommended model extensions related to this node'" nz-tooltip>Extensions</p>
     <div (mouseenter)="showRecommendation(recommendation)" (mouseleave)="hideRecommendation()"
@@ -83,9 +84,10 @@
   <div fxLayout="row" fxLayoutAlign="space-between center">
     <div fxLayout="row"><p nz-typography nzType="secondary">Value:</p>
       <pls-inline-edit [$edit]="$edit" [(ngModel)]="data.node.label" [nzTooltipTitle]="'The value of this literal'"
-                       nz-tooltip></pls-inline-edit>
+                       nz-tooltip
+      [disabled]="data.finalized"></pls-inline-edit>
     </div>
-    <div>
+    <div *ngIf="!data.finalized">
       <button (click)="startEdit()" *ngIf="!editing" nz-button nzShape="circle" nzType="text"><i nz-icon
                                                                                                  nzType="edit"></i>
       </button>

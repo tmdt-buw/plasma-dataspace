@@ -13,11 +13,11 @@ import { SyntacticOperationDTO } from './syntacticOperationDTO';
 
 
 export interface PrimitiveNodeAllOf { 
-    operations?: Array<SyntacticOperationDTO>;
     valid?: boolean;
     datatype?: PrimitiveNodeAllOf.DatatypeEnum;
     examples?: Array<string>;
     pattern?: string;
+    readonly operations?: Array<SyntacticOperationDTO>;
 }
 export namespace PrimitiveNodeAllOf {
     export type DatatypeEnum = 'Unknown' | 'String' | 'Boolean' | 'Number' | 'Binary';

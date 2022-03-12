@@ -12,8 +12,8 @@
 
 
 export interface LiteralAllOf { 
+    value?: string;
     template?: boolean;
     uri?: string;
-    value?: string;
 }
 

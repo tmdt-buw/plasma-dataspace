@@ -15,6 +15,7 @@ export interface PlsSemanticNodeDetailsData {
   node: SemanticModelNode;
   recommendations: DeltaModification[];
   examples: string[];
+  finalized: boolean;
 }
 
 @Component({

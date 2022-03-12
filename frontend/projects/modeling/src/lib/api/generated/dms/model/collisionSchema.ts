@@ -15,7 +15,7 @@ import { SyntacticOperationDTO } from './syntacticOperationDTO';
 
 
 export interface CollisionSchema extends PositionedCombinedModelElement { 
-    operations?: Array<SyntacticOperationDTO>;
     valid?: boolean;
+    readonly operations?: Array<SyntacticOperationDTO>;
 }
 

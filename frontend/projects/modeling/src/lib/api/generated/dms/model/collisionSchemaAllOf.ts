@@ -13,7 +13,7 @@ import { SyntacticOperationDTO } from './syntacticOperationDTO';
 
 
 export interface CollisionSchemaAllOf { 
-    operations?: Array<SyntacticOperationDTO>;
     valid?: boolean;
+    readonly operations?: Array<SyntacticOperationDTO>;
 }
 

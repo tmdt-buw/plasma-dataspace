@@ -15,7 +15,7 @@ import { SyntacticOperationDTO } from './syntacticOperationDTO';
 
 
 export interface SetNode extends PositionedCombinedModelElement { 
-    operations?: Array<SyntacticOperationDTO>;
     valid?: boolean;
+    readonly operations?: Array<SyntacticOperationDTO>;
 }
 

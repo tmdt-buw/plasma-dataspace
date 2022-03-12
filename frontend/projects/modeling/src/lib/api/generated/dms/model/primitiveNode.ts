@@ -15,11 +15,11 @@ import { SyntacticOperationDTO } from './syntacticOperationDTO';
 
 
 export interface PrimitiveNode extends PositionedCombinedModelElement { 
-    operations?: Array<SyntacticOperationDTO>;
     valid?: boolean;
     datatype?: PrimitiveNode.DatatypeEnum;
     examples?: Array<string>;
     pattern?: string;
+    readonly operations?: Array<SyntacticOperationDTO>;
 }
 export namespace PrimitiveNode {
     export type DatatypeEnum = 'Unknown' | 'String' | 'Boolean' | 'Number' | 'Binary';

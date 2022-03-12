@@ -67,18 +67,18 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
 
   // create graph if input schema changes and graph has already been initialized
 
-  @Input() set schema(schema: CombinedModel) {
-    this._schema = schema;
+  @Input() set combinedModel(combinedModel: CombinedModel) {
+    this._combinedModel = combinedModel;
     if (!this.initializing) {
       this.createGraph(this.$URIMode.getValue());
     }
   }
 
-  get schema(): CombinedModel {
-    return this._schema;
+  get combinedModel(): CombinedModel {
+    return this._combinedModel;
   }
 
-  @Input() dataSource: string;
+  @Input() modelId: string;
   // external controls
   @Input() $center: Subject<any>;
   @Input() $layout: Subject<any>;
@@ -92,7 +92,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
   @Input() accentColorContrast;
   // data
   initializing = true;
-  _schema: CombinedModel;
+  _combinedModel: CombinedModel;
 
   // graph elements
   @ViewChild('graph') canvas: ElementRef;
@@ -357,9 +357,12 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
       },
       // register context menu
       'cell:contextmenu': (cellView: dia.CellView) => {
+        if (this.isFinalized()) {
+          return;
+        }
         const id = cellView.model.attributes.id;
         if (Links.isSemanticLink(cellView)) {
-          const link = this.schema.semanticModel.edges.find(edge => edge.uuid === id);
+          const link = this.combinedModel.semanticModel.edges.find(edge => edge.uuid === id);
           this.contextMenu.open(cellView.el, PlsRelationConceptMenuComponent, this.viewContainerRef, {
             relation: link
           });
@@ -415,7 +418,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
         // turn off this trigger
         this.paper.off('render:done');
         // if there are no coordinates set, we guess its the initial view
-        const initial = !this.schema.syntaxModel.nodes[0].x;
+        const initial = !this.combinedModel.syntaxModel.nodes[0].x;
         if (initial) {
           setTimeout(() => {
             // on first view layout and center
@@ -561,7 +564,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
    * @return Sublist of matching recommendations for the given node. Empty if none match
    */
   filterRecommendationsForAnchor(anchorId: string): DeltaModification[] {
-    return this.schema.recommendations.filter(rec => rec.anchors.includes(anchorId));
+    return this.combinedModel.recommendations.filter(rec => rec.anchors.includes(anchorId));
   }
 
   /**
@@ -585,22 +588,22 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
     switch (this.$filter.getValue()) {
       case Filter.ALL:
         // filter syntax nodes
-        const map = this.schema.modelMappings;
-        const mappedSyntaxNodes = this.schema.syntaxModel.nodes
-          .filter(node => this.schema.modelMappings
+        const map = this.combinedModel.modelMappings;
+        const mappedSyntaxNodes = this.combinedModel.syntaxModel.nodes
+          .filter(node => this.combinedModel.modelMappings
             .some(mapping => mapping.schemaUuid === node.uuid)
           );
         const hiddenSyntaxNodesIds = mappedSyntaxNodes.map(node => node.uuid);
         const reducedSyntaxModel = {
-          root: this.schema.syntaxModel.root,
-          nodes: this.schema.syntaxModel.nodes.filter(node => !mappedSyntaxNodes.includes(node)),
+          root: this.combinedModel.syntaxModel.root,
+          nodes: this.combinedModel.syntaxModel.nodes.filter(node => !mappedSyntaxNodes.includes(node)),
           edges: map.map(mapping => {
             return {
               from: mapping.parentUuid,
               to: mapping.classUuid
             };
           }).concat(
-            this.schema.syntaxModel.edges
+            this.combinedModel.syntaxModel.edges
               .filter(edge => !hiddenSyntaxNodesIds.includes(edge.from) && !hiddenSyntaxNodesIds.includes(edge.to))
               .map(edge => {
                 return {
@@ -613,15 +616,15 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
         this.createSyntaxGraph(reducedSyntaxModel);
 
         // show semantic nodes and links
-        this.createSemanticGraph(this.schema.semanticModel, showURI);
+        this.createSemanticGraph(this.combinedModel.semanticModel, showURI);
         break;
       case Filter.SYNTAX:
         // show syntax nodes and links
-        this.createSyntaxGraph(this.schema.syntaxModel);
+        this.createSyntaxGraph(this.combinedModel.syntaxModel);
         break;
       case Filter.SEMANTIC:
         // show semantic nodes and links
-        this.createSemanticGraph(this.schema.semanticModel, showURI);
+        this.createSemanticGraph(this.combinedModel.semanticModel, showURI);
         break;
       default:
         console.error('Unsupported Filter');
@@ -761,7 +764,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
         this.graph.getLinks().forEach(el => Links.adjustVertices(this.graph, el));
       }, 300);
       // persist new positions
-      this.graphLaidOut.emit(this.schema);
+      this.graphLaidOut.emit(this.combinedModel);
     }, 500);
   }
 
@@ -884,7 +887,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
    * @param id of node to find
    */
   private findSyntaxNodeById(id: string): SyntaxNode {
-    return this.schema.syntaxModel.nodes.find(node => node.uuid === id);
+    return this.combinedModel.syntaxModel.nodes.find(node => node.uuid === id);
   }
 
   /**
@@ -892,7 +895,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
    * @param id of node to find
    */
   private findSemanticNodeById(id: string): SemanticNode {
-    return this.schema.semanticModel.nodes.find(node => node.uuid === id);
+    return this.combinedModel.semanticModel.nodes.find(node => node.uuid === id);
   }
 
   /**
@@ -990,10 +993,11 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
         }
         const title = `${semanticNode.label} (${semanticNode.uri})`;
         this.nodeDialogRef = this.modal.create(this.createConfig(title, PlsSemanticNodeDetailsComponent, {
-          modelId: this.dataSource,
+          modelId: this.modelId,
           node: semanticNode,
           recommendations: this.filterRecommendationsForAnchor(semanticNode.uuid),
-          examples
+          examples,
+          finalized: this.isFinalized()
         }));
         const componentInstance: PlsSemanticNodeDetailsComponent = this.nodeDialogRef.componentInstance as PlsSemanticNodeDetailsComponent;
         componentInstance.recommendationSelect.subscribe(recommendation => {
@@ -1019,10 +1023,11 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
         const namedEntityNode = this.findSemanticNodeById(id);
         const namedEntityTitle = `${namedEntityNode.label} (${namedEntityNode.uri})`;
         this.nodeDialogRef = this.modal.create(this.createConfig(namedEntityTitle, PlsSemanticNodeDetailsComponent, {
-          modelId: this.dataSource,
+          modelId: this.modelId,
           node: namedEntityNode,
           recommendations: this.filterRecommendationsForAnchor(namedEntityNode.uuid),
-          examples: []
+          examples: [],
+          finalized: this.isFinalized()
         }));
         this.nodeDialogRef.afterClose.subscribe((res) => {
           if (res) {
@@ -1037,10 +1042,11 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
         const literalNode = this.findSemanticNodeById(id);
         const literalTitle = `${literalNode.label}`;
         this.nodeDialogRef = this.modal.create(this.createConfig(literalTitle, PlsSemanticNodeDetailsComponent, {
-          modelId: this.dataSource,
+          modelId: this.modelId,
           node: literalNode,
           recommendations: this.filterRecommendationsForAnchor(literalNode.uuid),
-          examples: []
+          examples: [],
+          finalized: this.isFinalized()
         }));
         this.nodeDialogRef.afterClose.subscribe((res) => {
           if (res) {
@@ -1064,6 +1070,10 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
     if (this.$resize) {
       this.$resize.next(this.paper.getComputedSize());
     }
+  }
+
+  public isFinalized(): boolean {
+    return this.combinedModel?.finalized;
   }
 
 }

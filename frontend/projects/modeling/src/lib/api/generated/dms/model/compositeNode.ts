@@ -16,10 +16,10 @@ import { SyntacticOperationDTO } from './syntacticOperationDTO';
 
 
 export interface CompositeNode extends PositionedCombinedModelElement { 
-    operations?: Array<SyntacticOperationDTO>;
     valid?: boolean;
     examples?: Array<string>;
     pattern?: string;
     splitter?: Array<Splitting>;
+    readonly operations?: Array<SyntacticOperationDTO>;
 }
 
