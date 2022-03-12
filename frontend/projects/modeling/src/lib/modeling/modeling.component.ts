@@ -20,6 +20,7 @@ import { Filter } from './model/common/filter';
 import { Nodes } from './model/configuration/node';
 import { ContextMenuEvent, ContextMenuEventType } from './model/events/context-menu-event';
 import { NodeChangedEvent } from './model/events/node-changed-event';
+import { Util } from './model/common/util';
 
 @Component({
   selector: 'pls-modeling',
@@ -47,7 +48,8 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
   @Input() fullScreen: boolean = true;
   @Input() readonly: boolean = false;
   @Input() lockDragAndDrop: boolean = false;
-  @Input() hideFinalAndExportButton: boolean = false;
+  @Input() hideFinalizeButton: boolean = false;
+  @Input() hideExportButton: boolean = false;
 
   @ViewChild('main') main;
   @ViewChild('modelingArea') modelingArea: ElementRef;
@@ -267,6 +269,9 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
   }
 
   exportModel(): void {
-    // this.semanticModelService.convertSemanticModel(this.schema.semanticModel.entityId, 'turtle', this.$flat.getValue()).subscribe((res) => Util.download('model.rdf', res));
+    if (this.schema.semanticModel.id) {
+      this.semanticModelService.exportStoredSemanticModel(this.schema.semanticModel.id, 'TURTLE').subscribe((res) => Util.download('model.ttl', res));
+    }
+    this.semanticModelService.exportSemanticModel(this.schema, 'TURTLE').subscribe((res) => Util.download('model.ttl', res));
   }
 }

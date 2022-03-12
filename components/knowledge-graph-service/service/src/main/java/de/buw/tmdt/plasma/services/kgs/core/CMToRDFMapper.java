@@ -79,7 +79,7 @@ public class CMToRDFMapper {
                 // create a resource which describes the named entity
                 // this will later be elevated to the ontology
                 Resource neResource = m.createResource(ne.getURI());
-                neResource.addProperty(RDF.type, PLCM.NamedEntity);
+                neResource.addProperty(RDF.type, PLASMA.NamedEntity);
                 neResource.addProperty(PLCM.label, m.createLiteral(ne.getLabel()));
                 if (ne.getDescription() != null && !ne.getDescription().isBlank()) {
                     neResource.addProperty(PLCM.description, m.createLiteral(ne.getDescription()));
@@ -259,7 +259,7 @@ public class CMToRDFMapper {
                                     resource.getURI(),
                                     label,
                                     description);
-                        } else if (resource.hasProperty(RDF.type, PLCM.NamedEntity)) {
+                        } else if (resource.hasProperty(RDF.type, PLASMA.NamedEntity)) {
                             return new NamedEntity(
                                     resource.getURI(),
                                     label,
@@ -301,7 +301,7 @@ public class CMToRDFMapper {
                                     resource.getURI(),
                                     label,
                                     description);
-                        } else if (resource.hasProperty(RDF.type, PLCM.NamedEntity)) {
+                        } else if (resource.hasProperty(RDF.type, PLASMA.NamedEntity)) {
                             return new ObjectProperty(
                                     null,
                                     null,

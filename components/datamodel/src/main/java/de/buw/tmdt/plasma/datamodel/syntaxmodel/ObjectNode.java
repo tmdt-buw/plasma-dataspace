@@ -23,20 +23,18 @@ public class ObjectNode extends SchemaNode {
 
     public ObjectNode(
             @NotNull String label,
-            @Nullable List<SyntacticOperationDTO> operations,
             boolean isValid
     ) {
-        super(label, operations == null ? new ArrayList<>() : operations, isValid);
+        super(label, isValid);
     }
 
     public ObjectNode(
             @NotNull String label,
             @Nullable Double xCoordinate,
             @Nullable Double yCoordinate,
-            @NotNull List<SyntacticOperationDTO> operations,
             boolean isValid
     ) {
-        super(UUID.randomUUID().toString(), label, xCoordinate, yCoordinate, operations, isValid);
+        super(UUID.randomUUID().toString(), label, xCoordinate, yCoordinate, isValid);
     }
 
     @JsonCreator
@@ -45,10 +43,9 @@ public class ObjectNode extends SchemaNode {
             @NotNull @JsonProperty(LABEL_PROPERTY) String label,
             @Nullable @JsonProperty(XCOORDINATE_PROPERTY) Double xCoordinate,
             @Nullable @JsonProperty(YCOORDINATE_PROPERTY) Double yCoordinate,
-            @JsonProperty(OPERATIONS_PROPERTY) @NotNull List<SyntacticOperationDTO> operations,
             @JsonProperty(VALID_PROPERTY) boolean isValid
     ) {
-        super(uuid, label, xCoordinate, yCoordinate, operations, isValid);
+        super(uuid, label, xCoordinate, yCoordinate,  isValid);
     }
 
     @Override
@@ -57,9 +54,6 @@ public class ObjectNode extends SchemaNode {
                 getLabel(),
                 getXCoordinate(),
                 getYCoordinate(),
-                CollectionUtilities.map(getOperations(),
-                        SyntacticOperationDTO::copy,
-                        ArrayList::new),
                 isValid());
     }
 

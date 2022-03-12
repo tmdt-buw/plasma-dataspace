@@ -31,7 +31,7 @@ public class PrimitiveNode extends SchemaNode {
             @NotNull String label,
             @NotNull DataType dataType
     ) {
-        this(label, null, true, dataType, null, null);
+        this(label,  true, dataType, null, null);
     }
 
     public PrimitiveNode(
@@ -39,18 +39,17 @@ public class PrimitiveNode extends SchemaNode {
             boolean isValid,
             @NotNull DataType dataType
     ) {
-        this(label, null, isValid, dataType, null, null);
+        this(label,  isValid, dataType, null, null);
     }
 
     public PrimitiveNode(
             @NotNull String label,
-            @Nullable List<SyntacticOperationDTO> operations,
             boolean isValid,
             @NotNull DataType dataType,
             @Nullable List<String> examples,
             @Nullable String cleansingPattern
     ) {
-        super(label, operations == null ? new ArrayList<>() : operations, isValid);
+        super(label,  isValid);
         this.dataType = dataType;
         this.examples = examples != null ? new ArrayList<>(examples) : new ArrayList<>();
         this.cleansingPattern = cleansingPattern;
@@ -62,13 +61,12 @@ public class PrimitiveNode extends SchemaNode {
             @JsonProperty(LABEL_PROPERTY) @NotNull String label,
             @JsonProperty(XCOORDINATE_PROPERTY) Double xCoordinate,
             @JsonProperty(YCOORDINATE_PROPERTY) Double yCoordinate,
-            @NotNull @JsonProperty(OPERATIONS_PROPERTY) List<SyntacticOperationDTO> operations,
             @JsonProperty(VALID_PROPERTY) boolean isValid,
             @NotNull @JsonProperty(DATATYPE_PROPERTY) DataType dataType,
             @JsonProperty(EXAMPLES_PROPERTY) List<String> examples,
             @JsonProperty(CLEANSING_PATTERN_PROPERTY) String cleansingPattern
     ) {
-        super(uuid, label, xCoordinate, yCoordinate, operations, isValid);
+        super(uuid, label, xCoordinate, yCoordinate, isValid);
         this.dataType = dataType;
         this.examples = examples != null ? new ArrayList<>(examples) : new ArrayList<>();
         this.cleansingPattern = cleansingPattern;
@@ -103,18 +101,17 @@ public class PrimitiveNode extends SchemaNode {
 
     @Override
     public PrimitiveNode copy() {
-        return new PrimitiveNode(
+        PrimitiveNode node = new PrimitiveNode(
                 getUuid(),
                 getLabel(),
                 getXCoordinate(),
                 getYCoordinate(),
-                CollectionUtilities.map(getOperations(),
-                        SyntacticOperationDTO::copy,
-                        ArrayList::new),
                 isValid(),
                 getDataType(),
                 getExamples(),
                 getCleansingPattern());
+
+        return node;
     }
 
 

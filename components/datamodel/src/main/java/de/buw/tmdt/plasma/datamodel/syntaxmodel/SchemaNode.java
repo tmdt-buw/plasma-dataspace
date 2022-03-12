@@ -38,18 +38,11 @@ public abstract class SchemaNode extends PositionedCombinedModelElement {
 
     public SchemaNode(
             @NotNull String label,
-            @Nullable List<SyntacticOperationDTO> operations,
             boolean isValid
     ) {
         super(label);
         this.isValid = isValid;
-        if (operations == null) {
-            operations = new ArrayList<>();
-        }
-        if (CollectionUtilities.containsNull(operations)) {
-            throw new IllegalArgumentException("Operations must not contain null.");
-        }
-        this.operations = new ArrayList<>(operations);
+        this.operations = new ArrayList<>();
     }
 
     @JsonCreator
@@ -58,15 +51,11 @@ public abstract class SchemaNode extends PositionedCombinedModelElement {
             @NotNull @JsonProperty(LABEL_PROPERTY) String label,
             @Nullable @JsonProperty(XCOORDINATE_PROPERTY) Double xCoordinate,
             @Nullable @JsonProperty(YCOORDINATE_PROPERTY) Double yCoordinate,
-            @NotNull @JsonProperty(OPERATIONS_PROPERTY) List<SyntacticOperationDTO> operations,
             @JsonProperty(VALID_PROPERTY) boolean isValid
     ) {
         super(uuid, label, xCoordinate, yCoordinate);
         this.isValid = isValid;
-        if (CollectionUtilities.containsNull(operations)) {
-            throw new IllegalArgumentException("Operations must not contain null.");
-        }
-        this.operations = new ArrayList<>(operations);
+        this.operations = new ArrayList<>();
     }
 
     @JsonProperty(VALID_PROPERTY)
@@ -74,7 +63,7 @@ public abstract class SchemaNode extends PositionedCombinedModelElement {
         return isValid;
     }
 
-    @JsonProperty(OPERATIONS_PROPERTY)
+    @JsonProperty(value = OPERATIONS_PROPERTY, access = JsonProperty.Access.READ_ONLY)
     public List<SyntacticOperationDTO> getOperations() {
         return operations;
     }

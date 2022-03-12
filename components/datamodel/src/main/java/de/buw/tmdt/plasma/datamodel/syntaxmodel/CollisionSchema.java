@@ -21,7 +21,7 @@ public class CollisionSchema extends SchemaNode {
             @Nullable List<SyntacticOperationDTO> operations,
             boolean isValid
     ) {
-        super(label, operations, isValid);
+        super(label, isValid);
     }
 
 	@JsonCreator
@@ -31,10 +31,9 @@ public class CollisionSchema extends SchemaNode {
             @JsonProperty(LABEL_PROPERTY) @NotNull String label,
             @Nullable @JsonProperty(XCOORDINATE_PROPERTY) Double xCoordinate,
             @Nullable @JsonProperty(YCOORDINATE_PROPERTY) Double yCoordinate,
-            @JsonProperty(OPERATIONS_PROPERTY) @NotNull List<SyntacticOperationDTO> operations,
             @JsonProperty(VALID_PROPERTY) boolean isValid
     ) {
-        super(uuid, label, xCoordinate, yCoordinate, operations, isValid);
+        super(uuid, label, xCoordinate, yCoordinate, isValid);
     }
 
     @Override
@@ -43,9 +42,6 @@ public class CollisionSchema extends SchemaNode {
                 getLabel(),
                 getXCoordinate(),
                 getYCoordinate(),
-                CollectionUtilities.map(getOperations(),
-                        SyntacticOperationDTO::copy,
-                        ArrayList::new),
                 isValid());
     }
 

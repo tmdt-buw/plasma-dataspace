@@ -1,8 +1,10 @@
 package de.buw.tmdt.plasma.services.kgs.rest.controller;
 
+import de.buw.tmdt.plasma.datamodel.CombinedModel;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.SemanticModel;
 import de.buw.tmdt.plasma.services.kgs.core.SemanticModelHandler;
 import de.buw.tmdt.plasma.services.kgs.shared.api.SemanticModelApi;
+import de.buw.tmdt.plasma.services.kgs.shared.model.ExportFormat;
 import io.swagger.v3.oas.annotations.Operation;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,12 +42,15 @@ public class SemanticModelController implements SemanticModelApi {
         semanticModelHandler.deleteSemanticModel(id);
     }
 
-    @Override
-    @Operation(description = "Returns the Turtle or RDF XML format of a semantic model identified by its id")
-    public @NotNull ResponseEntity<String> convertSemanticModel(@NotNull String id, @NotNull String format, boolean flat) throws MalformedURLException {
-        return semanticModelHandler.convertSemanticModel(id, format, flat);
+    @Operation(description = "Returns a stored semantic model in a specified format.")
+    public @NotNull ResponseEntity<String> exportStoredSemanticModel(@NotNull String id, @NotNull ExportFormat format) {
+        return semanticModelHandler.convertSemanticModel(id, format);
     }
 
+    @Operation(description = "Returns the given semantic model in a specified format.")
+    public @NotNull ResponseEntity<String> exportSemanticModel(@NotNull CombinedModel combinedModel, @NotNull ExportFormat format)  {
+        return semanticModelHandler.convertSemanticModel(combinedModel, format);
+    }
 
     @Override
     @Operation(description = "Returns Semantic Models if the search term matches a contained element")

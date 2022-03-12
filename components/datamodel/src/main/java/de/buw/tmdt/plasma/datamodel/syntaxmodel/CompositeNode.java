@@ -32,12 +32,11 @@ public class CompositeNode extends SchemaNode {
 
     public CompositeNode(
             @NotNull String label,
-            @NotNull List<SyntacticOperationDTO> operations,
             boolean isValid,
             @Nullable String cleansingPattern,
             @NotNull List<Splitting> splitter
     ) {
-        super(label, operations, isValid);
+        super(label,  isValid);
         this.cleansingPattern = cleansingPattern;
         this.splitter = splitter;
     }
@@ -48,13 +47,12 @@ public class CompositeNode extends SchemaNode {
             @JsonProperty(LABEL_PROPERTY) @NotNull String label,
             @Nullable @JsonProperty(XCOORDINATE_PROPERTY) Double xCoordinate,
             @Nullable @JsonProperty(YCOORDINATE_PROPERTY) Double yCoordinate,
-            @NotNull @JsonProperty(OPERATIONS_PROPERTY) List<SyntacticOperationDTO> operations,
             @JsonProperty(VALID_PROPERTY) boolean isValid,
             @JsonProperty(EXAMPLES_PROPERTY) List<String> examples,
             @JsonProperty(CLEANSING_PATTERN_PROPERTY) String cleansingPattern,
             @NotNull @JsonProperty(SPLITTINGS_PROPERTY) List<Splitting> splitter
     ) {
-        super(uuid, label, xCoordinate, yCoordinate, operations, isValid);
+        super(uuid, label, xCoordinate, yCoordinate, isValid);
         this.examples = examples;
         this.cleansingPattern = cleansingPattern;
         this.splitter = splitter;
@@ -95,9 +93,6 @@ public class CompositeNode extends SchemaNode {
                 getLabel(),
                 getXCoordinate(),
                 getYCoordinate(),
-                CollectionUtilities.map(getOperations(),
-                        SyntacticOperationDTO::copy,
-                        ArrayList::new),
                 isValid(),
                 getExamples(),
                 getCleansingPattern(),

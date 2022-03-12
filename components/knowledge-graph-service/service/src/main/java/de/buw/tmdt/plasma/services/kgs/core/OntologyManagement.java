@@ -49,7 +49,7 @@ public class OntologyManagement {
             Resource r = m.createResource(m.expandPrefix(resource.getURI()));
             if (resource instanceof NamedEntity) {
                 NamedEntity ne = (NamedEntity) resource;
-                m.add(new StatementImpl(r, RDF.type, PLCM.NamedEntity));
+                m.add(new StatementImpl(r, RDF.type, PLASMA.NamedEntity));
                 if (!resource.getLabel().isBlank()) {
                     m.add(new StatementImpl(r, RDFS.label, m.createLiteral(resource.getLabel())));
                 }
@@ -99,7 +99,7 @@ public class OntologyManagement {
             describeBuilder.addPrefixes(PREFIXES)
                     .addVar("?class")
                     .addWhere("?class", RDF.type, "?type")
-                    .addFilter(describeBuilder.getExprFactory().in("?type", OWL.Class, PLCM.NamedEntity))
+                    .addFilter(describeBuilder.getExprFactory().in("?type", OWL.Class, PLASMA.NamedEntity))
                     .addFilter(describeBuilder.getExprFactory().eq("?class", ResourceFactory.createResource(PREFIXES.expandPrefix(uri))))
             //.addFilter(describeBuilder.getExprFactory().eq("?class", uri))
             ;

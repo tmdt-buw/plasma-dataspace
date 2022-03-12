@@ -16,7 +16,6 @@ public class PLCM {
     public static final Property label = Init.label();
     public static final Property description = Init.description();
     public static final Resource SemanticModel = Init.semanticModel();
-    public static final Resource NamedEntity = Init.namedEntity();
 
     protected static final Resource resource(String local) {
         return ResourceFactory.createResource(uri + local);
@@ -70,10 +69,6 @@ public class PLCM {
 
         public static Resource semanticModel() {
             return resource("SemanticModel");
-        }
-
-        public static Resource namedEntity() {
-            return resource("NamedEntity");
         }
 
     }

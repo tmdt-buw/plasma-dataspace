@@ -1,8 +1,10 @@
 package de.buw.tmdt.plasma.services.kgs.core;
 
+import de.buw.tmdt.plasma.datamodel.CombinedModel;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.Class;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.*;
-import org.apache.jena.rdf.model.Model;
+import de.buw.tmdt.plasma.services.kgs.shared.model.ExportFormat;
+import org.apache.jena.rdf.model.*;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,7 +17,9 @@ import org.springframework.web.server.ResponseStatusException;
 import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -101,28 +105,54 @@ public class SemanticModelHandler {
         });
     }
 
-    public String asTurtle(Model model) {
+    public static String asTurtle(Model model) {
         StringWriter out = new StringWriter();
         model.write(out, "TURTLE");
         return out.toString();
     }
 
+    public @NotNull ResponseEntity<String> convertSemanticModel(@NotNull String id, @NotNull ExportFormat format) {
+        Model retrievedModel = ops.queryModel(id);
+        log.info(asTurtle(retrievedModel));
 
-    public @NotNull ResponseEntity<String> convertSemanticModel(@NotNull String id, @NotNull String format, boolean flat) throws MalformedURLException {
-        /**
-         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-         Model model = modelToRdfConverter.convertSemanticModelToRdf(id, flat);
-         if (format.equals(XML_VARIABLE)) {
-         RDFDataMgr.write(baos, model, Lang.RDFXML);
-         } else if (format.equals(TURTLE_VARIABLE)) {
-         RDFDataMgr.write(baos, model, Lang.TURTLE);
-         } else {
-         throw new MalformedURLException("Path variable \"format\" must either specify \"xml\" or \"format\" but states " + format);
-         }
-         String modelString = baos.toString(StandardCharsets.UTF_8);
+        if(retrievedModel.isEmpty()){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No model available for id "+ id);
+        }
+        return new ResponseEntity<>(prepareForExport(retrievedModel, format), HttpStatus.OK);
+    }
 
-         */
-        return new ResponseEntity<>("", HttpStatus.OK);
+    public @NotNull ResponseEntity<String> convertSemanticModel(@NotNull CombinedModel combinedModel, @NotNull ExportFormat format) {
+        if(combinedModel.getSemanticModel().getId() == null){
+            combinedModel.getSemanticModel().setId(UUID.randomUUID().toString().substring(0,5));
+        }
+        Model cmModel = CMToRDFMapper.convertToRDFModel(combinedModel.getSemanticModel());
+        log.info(asTurtle(cmModel));
+        return new ResponseEntity<>(prepareForExport(cmModel, format), HttpStatus.OK);
+    }
+
+    private String prepareForExport(Model model, ExportFormat format){
+        // remove all relations that are from the PLCM namespace
+        Model cleansedModel = ModelFactory.createDefaultModel();
+        cleansedModel.setNsPrefixes(model.getNsPrefixMap());
+        StmtIterator stmtIterator = model.listStatements();
+        while(stmtIterator.hasNext()){
+            Statement stmt = stmtIterator.nextStatement();
+            Property predicate = stmt.getPredicate();
+            RDFNode object = stmt.getObject();
+            if(predicate.getNameSpace().equals(PLCM.getURI())){
+                continue;
+            }
+            if(object.isResource() && Objects.equals(object.asResource(),PLCM.SemanticModel)){
+                continue;
+            }
+            cleansedModel.add(stmt);
+
+        }
+        StringWriter out = new StringWriter();
+        cleansedModel.write(out, format.getFormatString());
+        String result = out.toString();
+        log.info(result);
+       return result;
     }
 
 

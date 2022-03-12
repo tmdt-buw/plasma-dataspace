@@ -254,7 +254,6 @@ public class CombinedModel implements Serializable {
                         } else {
                             PrimitiveNode primitiveNode = new PrimitiveNode(
                                     "split" + "-" + i,
-                                    new ArrayList<>(),
                                     true,
                                     DataType.Unknown,
                                     new ArrayList<>(),
@@ -304,7 +303,6 @@ public class CombinedModel implements Serializable {
                     for (int i = 0; i < splitter.size() + 1; i++) {
                         PrimitiveNode newNode = new PrimitiveNode(
                                 replaced.getLabel() + "-" + i,
-                                replaced.getOperations(),
                                 true,
                                 ((PrimitiveNode) replacedNode).getDataType(),
                                 new ArrayList<>(),

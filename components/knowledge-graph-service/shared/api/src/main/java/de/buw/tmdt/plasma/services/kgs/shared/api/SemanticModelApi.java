@@ -1,6 +1,8 @@
 package de.buw.tmdt.plasma.services.kgs.shared.api;
 
+import de.buw.tmdt.plasma.datamodel.CombinedModel;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.SemanticModel;
+import de.buw.tmdt.plasma.services.kgs.shared.model.ExportFormat;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -29,20 +31,32 @@ public interface SemanticModelApi {
     void deleteSemanticModel(@NotNull @PathVariable("id") String id);
 
     /**
-     * Converts a semantic model into a specified format.
+     * Converts a stored semantic model into a specified format.
      *
      * @param id     The id of the semantic model in the knowledge graph.
-     * @param format The format of the output (Turtle or RDF/XML)
-     * @param flat   A flag that indicates whether entity types should be mapped to entity concepts in the RDF output.
+     * @param format The format of the output
      *
      * @return A semantic model in RDF Turtle format
      */
     @GetMapping(value = "/{id}/export", produces = MediaType.TEXT_PLAIN_VALUE)
-    @NotNull ResponseEntity<String> convertSemanticModel(
+    @NotNull ResponseEntity<String> exportStoredSemanticModel(
             @NotNull @PathVariable("id") String id,
-            @NotNull @RequestParam(name = "format", defaultValue = "turtle") String format,
-            @RequestParam(defaultValue = "false", name = "flat") boolean flat
-    ) throws MalformedURLException;
+            @NotNull @RequestParam(name = "format", defaultValue = "TURTLE") ExportFormat format
+    );
+
+    /**
+     * Converts a given combined / semantic model into a specified format.
+     *
+     * @param combinedModel    The combined model to convert. Only the semantic model part is converted.
+     * @param format The format of the output
+     *
+     * @return A semantic model in RDF Turtle format
+     */
+    @PostMapping(value = "/convert", produces = MediaType.TEXT_PLAIN_VALUE)
+    @NotNull ResponseEntity<String> exportSemanticModel(
+            @NotNull @RequestBody CombinedModel combinedModel,
+            @NotNull @RequestParam(name = "format", defaultValue = "TURTLE") ExportFormat format
+    );
 
     /* ################################ PREDEFINED QUERY FUNCTIONS ############################### */
 

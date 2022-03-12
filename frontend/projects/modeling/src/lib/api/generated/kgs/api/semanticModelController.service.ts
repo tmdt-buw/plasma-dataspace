@@ -19,6 +19,8 @@ import { CustomHttpParameterCodec }                          from '../encoder';
 import { Observable }                                        from 'rxjs';
 
 // @ts-ignore
+import { CombinedModel } from '../model/combinedModel';
+// @ts-ignore
 import { SemanticModel } from '../model/semanticModel';
 
 // @ts-ignore
@@ -83,76 +85,6 @@ export class SemanticModelControllerService {
             throw Error("key may not be null if value is not object or array");
         }
         return httpParams;
-    }
-
-    /**
-     * Returns the Turtle or RDF XML format of a semantic model identified by its id
-     * @param id
-     * @param format
-     * @param flat
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     */
-    public convertSemanticModel(id: string, format?: string, flat?: boolean, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain', context?: HttpContext}): Observable<string>;
-    public convertSemanticModel(id: string, format?: string, flat?: boolean, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain', context?: HttpContext}): Observable<HttpResponse<string>>;
-    public convertSemanticModel(id: string, format?: string, flat?: boolean, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain', context?: HttpContext}): Observable<HttpEvent<string>>;
-    public convertSemanticModel(id: string, format?: string, flat?: boolean, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain', context?: HttpContext}): Observable<any> {
-        if (id === null || id === undefined) {
-            throw new Error('Required parameter id was null or undefined when calling convertSemanticModel.');
-        }
-
-        let localVarQueryParameters = new HttpParams({encoder: this.encoder});
-        if (format !== undefined && format !== null) {
-          localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
-            <any>format, 'format');
-        }
-        if (flat !== undefined && flat !== null) {
-          localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
-            <any>flat, 'flat');
-        }
-
-        let localVarHeaders = this.defaultHeaders;
-
-        let localVarHttpHeaderAcceptSelected: string | undefined = options && options.httpHeaderAccept;
-        if (localVarHttpHeaderAcceptSelected === undefined) {
-            // to determine the Accept header
-            const httpHeaderAccepts: string[] = [
-                'text/plain'
-            ];
-            localVarHttpHeaderAcceptSelected = this.configuration.selectHeaderAccept(httpHeaderAccepts);
-        }
-        if (localVarHttpHeaderAcceptSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
-        }
-
-        let localVarHttpContext: HttpContext | undefined = options && options.context;
-        if (localVarHttpContext === undefined) {
-            localVarHttpContext = new HttpContext();
-        }
-
-
-        let responseType_: 'text' | 'json' | 'blob' = 'json';
-        if (localVarHttpHeaderAcceptSelected) {
-            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
-                responseType_ = 'text';
-            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
-                responseType_ = 'json';
-            } else {
-                responseType_ = 'blob';
-            }
-        }
-
-        return this.httpClient.get<string>(`${this.configuration.basePath}/api/plasma-kgs/semanticModels/${encodeURIComponent(String(id))}/export`,
-            {
-                context: localVarHttpContext,
-                params: localVarQueryParameters,
-                responseType: <any>responseType_,
-                withCredentials: this.configuration.withCredentials,
-                headers: localVarHeaders,
-                observe: observe,
-                reportProgress: reportProgress
-            }
-        );
     }
 
     /**
@@ -269,6 +201,146 @@ export class SemanticModelControllerService {
         return this.httpClient.delete<any>(`${this.configuration.basePath}/api/plasma-kgs/semanticModels/${encodeURIComponent(String(id))}`,
             {
                 context: localVarHttpContext,
+                responseType: <any>responseType_,
+                withCredentials: this.configuration.withCredentials,
+                headers: localVarHeaders,
+                observe: observe,
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Returns the given semantic model in a specified format.
+     * @param combinedModel
+     * @param format
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     */
+    public exportSemanticModel(combinedModel: CombinedModel, format?: 'RDFXML' | 'RDFXMLABBRV' | 'NTRIPLE' | 'TURTLE' | 'N3', observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain', context?: HttpContext}): Observable<string>;
+    public exportSemanticModel(combinedModel: CombinedModel, format?: 'RDFXML' | 'RDFXMLABBRV' | 'NTRIPLE' | 'TURTLE' | 'N3', observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain', context?: HttpContext}): Observable<HttpResponse<string>>;
+    public exportSemanticModel(combinedModel: CombinedModel, format?: 'RDFXML' | 'RDFXMLABBRV' | 'NTRIPLE' | 'TURTLE' | 'N3', observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain', context?: HttpContext}): Observable<HttpEvent<string>>;
+    public exportSemanticModel(combinedModel: CombinedModel, format?: 'RDFXML' | 'RDFXMLABBRV' | 'NTRIPLE' | 'TURTLE' | 'N3', observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain', context?: HttpContext}): Observable<any> {
+        if (combinedModel === null || combinedModel === undefined) {
+            throw new Error('Required parameter combinedModel was null or undefined when calling exportSemanticModel.');
+        }
+
+        let localVarQueryParameters = new HttpParams({encoder: this.encoder});
+        if (format !== undefined && format !== null) {
+          localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
+            <any>format, 'format');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        let localVarHttpHeaderAcceptSelected: string | undefined = options && options.httpHeaderAccept;
+        if (localVarHttpHeaderAcceptSelected === undefined) {
+            // to determine the Accept header
+            const httpHeaderAccepts: string[] = [
+                'text/plain'
+            ];
+            localVarHttpHeaderAcceptSelected = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+        }
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        let localVarHttpContext: HttpContext | undefined = options && options.context;
+        if (localVarHttpContext === undefined) {
+            localVarHttpContext = new HttpContext();
+        }
+
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+            'application/json'
+        ];
+        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
+        if (httpContentTypeSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
+        }
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        return this.httpClient.post<string>(`${this.configuration.basePath}/api/plasma-kgs/semanticModels/convert`,
+            combinedModel,
+            {
+                context: localVarHttpContext,
+                params: localVarQueryParameters,
+                responseType: <any>responseType_,
+                withCredentials: this.configuration.withCredentials,
+                headers: localVarHeaders,
+                observe: observe,
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Returns a stored semantic model in a specified format.
+     * @param id
+     * @param format
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     */
+    public exportStoredSemanticModel(id: string, format?: 'RDFXML' | 'RDFXMLABBRV' | 'NTRIPLE' | 'TURTLE' | 'N3', observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain', context?: HttpContext}): Observable<string>;
+    public exportStoredSemanticModel(id: string, format?: 'RDFXML' | 'RDFXMLABBRV' | 'NTRIPLE' | 'TURTLE' | 'N3', observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain', context?: HttpContext}): Observable<HttpResponse<string>>;
+    public exportStoredSemanticModel(id: string, format?: 'RDFXML' | 'RDFXMLABBRV' | 'NTRIPLE' | 'TURTLE' | 'N3', observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain', context?: HttpContext}): Observable<HttpEvent<string>>;
+    public exportStoredSemanticModel(id: string, format?: 'RDFXML' | 'RDFXMLABBRV' | 'NTRIPLE' | 'TURTLE' | 'N3', observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain', context?: HttpContext}): Observable<any> {
+        if (id === null || id === undefined) {
+            throw new Error('Required parameter id was null or undefined when calling exportStoredSemanticModel.');
+        }
+
+        let localVarQueryParameters = new HttpParams({encoder: this.encoder});
+        if (format !== undefined && format !== null) {
+          localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
+            <any>format, 'format');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        let localVarHttpHeaderAcceptSelected: string | undefined = options && options.httpHeaderAccept;
+        if (localVarHttpHeaderAcceptSelected === undefined) {
+            // to determine the Accept header
+            const httpHeaderAccepts: string[] = [
+                'text/plain'
+            ];
+            localVarHttpHeaderAcceptSelected = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+        }
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        let localVarHttpContext: HttpContext | undefined = options && options.context;
+        if (localVarHttpContext === undefined) {
+            localVarHttpContext = new HttpContext();
+        }
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        return this.httpClient.get<string>(`${this.configuration.basePath}/api/plasma-kgs/semanticModels/${encodeURIComponent(String(id))}/export`,
+            {
+                context: localVarHttpContext,
+                params: localVarQueryParameters,
                 responseType: <any>responseType_,
                 withCredentials: this.configuration.withCredentials,
                 headers: localVarHeaders,

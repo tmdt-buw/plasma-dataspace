@@ -26,7 +26,7 @@ public class CombinedModelSyntacticModificationTest {
         Splitting splitting1 = new Splitting("-");
 
         // by just defining the split, needed new nodes should be generated automatically
-        CompositeNode compositeNode = new CompositeNode(identNode.getUuid(), "", identNode.getXCoordinate(), identNode.getYCoordinate(), new ArrayList<>(), true, new ArrayList<>(), identNode.getCleansingPattern(), Arrays.asList(splitting1));
+        CompositeNode compositeNode = new CompositeNode(identNode.getUuid(), "", identNode.getXCoordinate(), identNode.getYCoordinate(), true, new ArrayList<>(), identNode.getCleansingPattern(), Arrays.asList(splitting1));
 
         DeltaModification modification = new DeltaModification("mod_testSplitPrimitiveNode", null, null, Collections.singletonList(compositeNode), null, 0.0);
         model.apply(modification);
@@ -97,7 +97,7 @@ public class CombinedModelSyntacticModificationTest {
         PrimitiveNode identNode = (PrimitiveNode) targetNode;
         Splitting splitting1 = new Splitting("-");
 
-        CompositeNode compositeNode = new CompositeNode(identNode.getUuid(), "", identNode.getXCoordinate(), identNode.getYCoordinate(), new ArrayList<>(), true, new ArrayList<>(), identNode.getCleansingPattern(), new ArrayList<>());
+        CompositeNode compositeNode = new CompositeNode(identNode.getUuid(), "", identNode.getXCoordinate(), identNode.getYCoordinate(),true, new ArrayList<>(), identNode.getCleansingPattern(), new ArrayList<>());
         compositeNode.getSplitter().add(splitting1);
 
         DeltaModification modification = new DeltaModification("mod_testSplitPrimitiveNode", null, null, Collections.singletonList(compositeNode), null, 0.0);
