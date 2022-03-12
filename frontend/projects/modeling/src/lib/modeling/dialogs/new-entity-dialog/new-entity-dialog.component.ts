@@ -20,7 +20,7 @@ export class PlsNewEntityDialogComponent {
   });
 
   error;
-  defaultConceptPrefix = 'plasma:';
+  defaultPrefix = 'plasma:';
   isNamedEntity = false;
 
   constructor(private modalRef: NzModalRef, private modelingService: DataModelingControllerService) {
@@ -34,10 +34,10 @@ export class PlsNewEntityDialogComponent {
       return;
     }
     if (this.form.get('uri').value === '') {
-      const defaultUri = this.cleanURI(this.defaultConceptPrefix + this.form.get('label').value.trim().split(' ').join('_'));
+      const defaultUri = this.cleanURI(this.defaultPrefix + this.form.get('label').value);
       this.form.get('uri').setValue(defaultUri);
     } else if (this.form.get('uri').value.startsWith(':')) {
-      const defaultUri = this.cleanURI(this.defaultConceptPrefix + this.form.get('label').value.trim().split(' ').join('_'));
+      const defaultUri = this.cleanURI(this.defaultPrefix + this.form.get('label').value);
       this.form.get('uri').setValue(defaultUri);
     } else {
       this.form.get('uri').setValue(this.cleanURI(this.form.get('uri').value));

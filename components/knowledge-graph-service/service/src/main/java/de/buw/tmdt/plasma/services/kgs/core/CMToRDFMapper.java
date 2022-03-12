@@ -78,7 +78,7 @@ public class CMToRDFMapper {
                 NamedEntity ne = (NamedEntity) node;
                 // create a resource which describes the named entity
                 // this will later be elevated to the ontology
-                Resource neResource = m.createResource(ne.getURI());
+                Resource neResource = m.createResource(m.expandPrefix(ne.getURI()));
                 neResource.addProperty(RDF.type, PLASMA.NamedEntity);
                 neResource.addProperty(PLCM.label, m.createLiteral(ne.getLabel()));
                 if (ne.getDescription() != null && !ne.getDescription().isBlank()) {
@@ -108,7 +108,7 @@ public class CMToRDFMapper {
             SemanticModelNode to = semanticModel.getNode(r.getTo());
             RDFNode fromNode = uuidtoResource.get(from.getUuid());
             RDFNode toNode = uuidtoResource.get(to.getUuid());
-            fromNode.asResource().addProperty(ResourceFactory.createProperty(r.getURI()), toNode);
+            fromNode.asResource().addProperty(ResourceFactory.createProperty(m.expandPrefix(r.getURI())), toNode);
         });
         return m;
     }

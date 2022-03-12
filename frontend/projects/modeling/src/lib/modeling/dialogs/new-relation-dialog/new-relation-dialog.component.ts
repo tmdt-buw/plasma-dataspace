@@ -20,7 +20,7 @@ export class PlsNewRelationDialogComponent {
   });
 
   error;
-  defaultConceptPrefix = 'http://plasma/';
+  defaultPrefix = 'plasma:';
   relationType: 'ObjectProperty' | 'DataProperty';
 
   constructor(private modalRef: NzModalRef, private modelingService: DataModelingControllerService) {
@@ -29,8 +29,13 @@ export class PlsNewRelationDialogComponent {
   submit(): void {
     this.error = null;
     if (this.form.get('uri').value === '') {
-      const defaultUri = this.defaultConceptPrefix + this.form.get('label').value;
+      const defaultUri = this.cleanURI(this.defaultPrefix + this.form.get('label').value);
       this.form.get('uri').setValue(defaultUri);
+    } else if (this.form.get('uri').value.startsWith(':')) {
+      const defaultUri = this.cleanURI(this.defaultPrefix + this.form.get('label').value);
+      this.form.get('uri').setValue(defaultUri);
+    } else {
+      this.form.get('uri').setValue(this.cleanURI(this.form.get('uri').value));
     }
     const rel: ObjectProperty = {
       _class: this.form.get('type').value,
@@ -44,6 +49,14 @@ export class PlsNewRelationDialogComponent {
   cancel(): void {
     this.error = null;
     this.modalRef.close();
+  }
+
+  generateURI(): string {
+    return this.cleanURI(this.defaultPrefix + this.form.get('label').value);
+  }
+
+  cleanURI(input: string): string {
+    return input.trim().split(' ').join('_');
   }
 
 }

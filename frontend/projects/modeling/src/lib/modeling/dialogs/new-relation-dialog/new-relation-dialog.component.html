@@ -26,7 +26,7 @@
   <nz-form-item>
     <nz-form-label nzFor="uri">URI</nz-form-label>
     <nz-form-control nzExtra="URI of the concept from an ontology.">
-      <input formControlName="uri" nz-input placeholder="{{'plasma:' +  form.get('label').value}}"/>
+      <input formControlName="uri" nz-input placeholder="{{generateURI()}}"/>
     </nz-form-control>
   </nz-form-item>
 
