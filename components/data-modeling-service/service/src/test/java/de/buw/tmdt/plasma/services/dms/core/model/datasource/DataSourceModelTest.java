@@ -159,7 +159,7 @@ class DataSourceModelTest {
 
 
     private CombinedModel getCombinedModel() {
-        SchemaNode root = new ObjectNode("root", new ArrayList<>(), true);
+        SchemaNode root = new ObjectNode("root", true);
 
         SchemaNode node = new PrimitiveNode(
                 "node-" + counter++,

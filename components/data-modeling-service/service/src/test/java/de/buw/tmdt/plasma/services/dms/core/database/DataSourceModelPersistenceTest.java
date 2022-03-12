@@ -28,7 +28,7 @@ public class DataSourceModelPersistenceTest {
     public void testCreateDataSourceModel() {
         DataSourceModel dsm = new DataSourceModel();
 
-        SchemaNode root = new ObjectNode("root", new ArrayList<>(), true);
+        SchemaNode root = new ObjectNode("root", true);
 
         CombinedModel combinedModel = new CombinedModel("test", new SyntaxModel(
                 root.getUuid(),

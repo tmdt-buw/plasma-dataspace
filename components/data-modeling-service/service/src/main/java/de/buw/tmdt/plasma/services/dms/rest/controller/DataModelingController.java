@@ -231,9 +231,9 @@ public class DataModelingController implements DataModelingAPI {
 
     @NotNull
     @Override
-    @Operation(description = "finish modelling process")
-    public CombinedModel finishModeling(@NotNull String modelId) {
-        return dataModelingHandler.finishModeling(modelId);
+    @Operation(description = "End modelling process and finalize model.")
+    public CombinedModel finalizeModeling(@NotNull String modelId) {
+        return dataModelingHandler.finalizeModel(modelId);
     }
 
     @Override

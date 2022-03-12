@@ -8,7 +8,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.net.MalformedURLException;
 import java.util.Set;
 
 @SuppressWarnings("HardcodedFileSeparator - API URLs are OK")
@@ -47,13 +46,12 @@ public interface SemanticModelApi {
     /**
      * Converts a given combined / semantic model into a specified format.
      *
-     * @param combinedModel    The combined model to convert. Only the semantic model part is converted.
-     * @param format The format of the output
-     *
+     * @param combinedModel The combined model to convert. Only the semantic model part is converted.
+     * @param format        The format of the output
      * @return A semantic model in RDF Turtle format
      */
     @PostMapping(value = "/convert", produces = MediaType.TEXT_PLAIN_VALUE)
-    @NotNull ResponseEntity<String> exportSemanticModel(
+    @NotNull ResponseEntity<String> convertSemanticModel(
             @NotNull @RequestBody CombinedModel combinedModel,
             @NotNull @RequestParam(name = "format", defaultValue = "TURTLE") ExportFormat format
     );

@@ -58,6 +58,7 @@ public class OntologyManagement {
                 }
             } else if (resource instanceof Class) {
                 Class sClass = (Class) resource;
+                m.add(new StatementImpl(r, RDF.type, OWL.Class));
                 if (!resource.getLabel().isBlank()) {
                     m.add(new StatementImpl(r, RDFS.label, m.createLiteral(resource.getLabel())));
                 }
@@ -117,8 +118,9 @@ public class OntologyManagement {
             DescribeBuilder describeBuilder = new DescribeBuilder();
             describeBuilder.addPrefixes(PREFIXES)
                     .addVar("?class")
-                    .addWhere("?class", RDF.type, OWL.Class)
+                    .addWhere("?class", RDF.type, "?type")
                     .addWhere("?class", RDFS.label, "?o")
+                    .addFilter(describeBuilder.getExprFactory().in("?type", OWL.Class, PLASMA.NamedEntity))
                     .addFilter(describeBuilder.getExprFactory().strstarts("?o", prefix));
 
             QueryExecution query = conn.query(describeBuilder.build());
@@ -133,8 +135,9 @@ public class OntologyManagement {
             DescribeBuilder describeBuilder = new DescribeBuilder();
             describeBuilder.addPrefixes(PREFIXES)
                     .addVar("?class")
-                    .addWhere("?class", RDF.type, OWL.Class)
+                    .addWhere("?class", RDF.type, "?type")
                     .addWhere("?class", RDFS.label, "?o")
+                    .addFilter(describeBuilder.getExprFactory().in("?type", OWL.Class, PLASMA.NamedEntity))
                     .addFilter(describeBuilder.getExprFactory().regex("?o", infix, "i"));
 
             QueryExecution query = conn.query(describeBuilder.build());
@@ -149,7 +152,9 @@ public class OntologyManagement {
             DescribeBuilder describeBuilder = new DescribeBuilder();
             describeBuilder.addPrefixes(PREFIXES)
                     .addVar("?class")
-                    .addWhere("?class", RDF.type, OWL.Class)
+                    .addWhere("?class", RDF.type, "?type")
+                    .addWhere("?class", RDFS.label, "?o")
+                    .addFilter(describeBuilder.getExprFactory().in("?type", OWL.Class, PLASMA.NamedEntity))
                     .addFilter(describeBuilder.getExprFactory().strstarts("?class", namespace));
 
             QueryExecution query = conn.query(describeBuilder.build());

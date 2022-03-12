@@ -48,7 +48,6 @@ class SetDataTypeTest {
 	void testInvoke() throws ParameterParsingException {
 		SchemaNode node = new PrimitiveNode(
 				"label",
-				new ArrayList<>(),
 				true,
 				DataType.String,
 				new ArrayList<>(),
@@ -86,7 +85,7 @@ class SetDataTypeTest {
 
 	@Test
 	void wrongNodeType() {
-		SchemaNode node = new SetNode(new ArrayList<>(), true);
+		SchemaNode node = new SetNode(true);
 
 		SyntaxModel syntaxModel = new SyntaxModel(node.getUuid(), new ArrayList<>(Collections.singletonList(node)), new ArrayList<>());
 		combinedModel = new CombinedModel("", syntaxModel, null);

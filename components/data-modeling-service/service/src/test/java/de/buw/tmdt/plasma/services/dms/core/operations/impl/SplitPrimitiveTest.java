@@ -57,14 +57,12 @@ class SplitPrimitiveTest {
 		expectedPrimitiveNodes = Arrays.asList(
 				new PrimitiveNode(
 						"node1",
-						new ArrayList<>(),
 						true,
 						DataType.Unknown,
 						Arrays.asList("Some", "SomeOther"),
 						null),
 				new PrimitiveNode(
 						"node2",
-						new ArrayList<>(),
 						true,
 						DataType.Unknown,
 						Arrays.asList("Funny", "NotSoFunny"),
@@ -72,7 +70,6 @@ class SplitPrimitiveTest {
 
 				new PrimitiveNode(
 						"node3",
-						new ArrayList<>(),
 						true,
 						DataType.Unknown,
 						Arrays.asList("Value", "Stuff"),

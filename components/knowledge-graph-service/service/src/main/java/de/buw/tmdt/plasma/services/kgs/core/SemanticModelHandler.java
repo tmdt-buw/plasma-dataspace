@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.StringWriter;
-import java.net.MalformedURLException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -111,12 +110,11 @@ public class SemanticModelHandler {
         return out.toString();
     }
 
-    public @NotNull ResponseEntity<String> convertSemanticModel(@NotNull String id, @NotNull ExportFormat format) {
+    public @NotNull ResponseEntity<String> exportSemanticModel(@NotNull String id, @NotNull ExportFormat format) {
         Model retrievedModel = ops.queryModel(id);
-        log.info(asTurtle(retrievedModel));
 
-        if(retrievedModel.isEmpty()){
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No model available for id "+ id);
+        if (retrievedModel.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No model available for id " + id);
         }
         return new ResponseEntity<>(prepareForExport(retrievedModel, format), HttpStatus.OK);
     }
@@ -126,7 +124,6 @@ public class SemanticModelHandler {
             combinedModel.getSemanticModel().setId(UUID.randomUUID().toString().substring(0,5));
         }
         Model cmModel = CMToRDFMapper.convertToRDFModel(combinedModel.getSemanticModel());
-        log.info(asTurtle(cmModel));
         return new ResponseEntity<>(prepareForExport(cmModel, format), HttpStatus.OK);
     }
 

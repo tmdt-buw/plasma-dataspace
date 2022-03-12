@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.net.MalformedURLException;
 import java.util.Set;
 
 @RestController
@@ -44,11 +43,11 @@ public class SemanticModelController implements SemanticModelApi {
 
     @Operation(description = "Returns a stored semantic model in a specified format.")
     public @NotNull ResponseEntity<String> exportStoredSemanticModel(@NotNull String id, @NotNull ExportFormat format) {
-        return semanticModelHandler.convertSemanticModel(id, format);
+        return semanticModelHandler.exportSemanticModel(id, format);
     }
 
     @Operation(description = "Returns the given semantic model in a specified format.")
-    public @NotNull ResponseEntity<String> exportSemanticModel(@NotNull CombinedModel combinedModel, @NotNull ExportFormat format)  {
+    public @NotNull ResponseEntity<String> convertSemanticModel(@NotNull CombinedModel combinedModel, @NotNull ExportFormat format) {
         return semanticModelHandler.convertSemanticModel(combinedModel, format);
     }
 

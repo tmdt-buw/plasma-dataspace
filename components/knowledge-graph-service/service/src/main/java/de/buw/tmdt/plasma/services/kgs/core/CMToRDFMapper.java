@@ -153,16 +153,16 @@ public class CMToRDFMapper {
             // handle object before predicate
             SemanticModelNode convertedObject;
             if (o.isResource()) {
+                Resource object = o.asResource();
                 // check if this already exist
-                convertedObject = mappedNodes.get(s);
-
-                if (convertedSubject == null) {
+                convertedObject = mappedNodes.get(object);
+                if (convertedObject == null) {
                     // we have to create a new one
-                    Resource superclass = s.getRequiredProperty(RDF.type).getObject().asResource();
+                    Resource superclass = object.getRequiredProperty(RDF.type).getObject().asResource();
                     SemanticModelNode supernode = onto.findElementsByURI(superclass.getURI());
-                    convertedObject = createSemanticModelNode(o.asResource(), supernode);
+                    convertedObject = createSemanticModelNode(object, supernode);
                     nodes.add(convertedObject);
-                    mappedNodes.put(o.asResource(), convertedObject);
+                    mappedNodes.put(object, convertedObject);
                 }
 
             } else if (o.isLiteral()) {

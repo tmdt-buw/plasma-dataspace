@@ -124,8 +124,8 @@ public interface DataModelingAPI {
 	CombinedModel redo(@NotNull @PathVariable("modelId") String modelId);
 
 	@NotNull
-	@PostMapping(value = "/{modelId}/finish")
-	CombinedModel finishModeling(@NotNull @PathVariable("modelId") String modelId);
+	@PostMapping(value = "/{modelId}/finalize")
+	CombinedModel finalizeModeling(@NotNull @PathVariable("modelId") String modelId);
 
 	@DeleteMapping(value = "/{modelId}")
 	void deleteModel(@NotNull @PathVariable("modelId") String modelId);

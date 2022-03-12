@@ -128,7 +128,6 @@ public class SplitPrimitive extends Operation<Pair<PrimitiveNode, List<Splitting
 				primitive.getLabel(),
 				primitive.getXCoordinate(),
 				primitive.getYCoordinate(),
-				new ArrayList<>(),
 				primitive.isValid(),
 				primitive.getExamples(),
 				primitive.getCleansingPattern(),

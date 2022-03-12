@@ -170,7 +170,7 @@ public class DataModelingHandler {
             availableElements =
                     ontologyApiClient.getElements(prefix, null, null);
         } catch (FeignException e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Could not reach KnowledgeGraphService");
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Ontology service currently unavailable.");
         }
 
         // Retrieve the concepts that were created within this semantic model...
@@ -195,7 +195,7 @@ public class DataModelingHandler {
             availableRelations =
                     ontologyApiClient.getRelations(prefix, null, null);
         } catch (FeignException e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Could not reach KnowledgeGraphService");
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Ontology service currently unavailable.");
         }
 
         // Retrieve the concepts that were created within this semantic model...
@@ -507,13 +507,13 @@ public class DataModelingHandler {
      * After calling this function, the {@link CombinedModel} of the data source cannot be changed as it is set to finalized.
      * The given {@link CombinedModel} is cloned first, so the change is reversible as a new instance is returned.
      *
-     * @param modelId The id of the data source to finish
+     * @param modelId The id of the data source to finalize
      * @return An updated model instance with the new persistence ids (entityIds) included
      */
     @NotNull
     @Transactional
-    public CombinedModel finishModeling(@NotNull String modelId) {
-        //Load the data source from the repository.
+    public CombinedModel finalizeModel(@NotNull String modelId) {
+        //Load from the repository.
         DataSourceModel dataSourceModel = dataSourceRepository.findById(UUID.fromString(modelId))
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND,
@@ -525,7 +525,7 @@ public class DataModelingHandler {
         combinedModel.validate();
 
         try {
-            combinedModel = createSemanticModel(combinedModel, modelId.toString());
+            combinedModel = createSemanticModel(combinedModel, modelId);
         } catch (CombinedModelIntegrityException e) {
             e.printStackTrace();
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error occurred during conversion.");
@@ -551,31 +551,40 @@ public class DataModelingHandler {
      * Equal concepts used by multiple entities or relations are merged during this process to not clutter the KG.
      * The given {@link CombinedModel} is cloned first, so the change is reversible as a new instance is returned.
      *
-     * @param combinedModel  The combined model containing the {@link SemanticModel}
-     * @param modelId The data source uuid
-     * @return The updated {@link CombinedModel} with the new KGS ids assigned
+     * @param combinedModel The combined model containing the {@link SemanticModel}
+     * @param modelId       The data source uuid
+     * @return The updated {@link CombinedModel}
      * @throws CombinedModelIntegrityException If the integrity of the {@link CombinedModel} is violated during the concept merge
      */
     @NotNull
     private CombinedModel createSemanticModel(@NotNull CombinedModel combinedModel, @NotNull String modelId) throws CombinedModelIntegrityException {
 
         combinedModel = combinedModel.copy();
-        // merge the concepts to not create possible new concepts twice
         SemanticModel semanticModel = combinedModel.getSemanticModel();
 
         //Ensure that all instances have a unique name
+        // TODO remove once not necessary any more (currently is for export in platform)
         Map<String, SemanticModelNode> duplicateCheck = new HashMap<>();
         for (SemanticModelNode node : semanticModel.getNodes()) {
-            if (duplicateCheck.containsKey(node.getLabel())) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Entity Type names must be unique");
+            if (node instanceof Class) {
+                Instance instance = ((Class) node).getInstance();
+                if (instance != null) {
+                    if (duplicateCheck.containsKey(instance.getLabel())) {
+                        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Instance labels must be unique");
+                    }
+                    duplicateCheck.put(node.getLabel(), node);
+                }
             }
-            duplicateCheck.put(node.getLabel(), node);
         }
 
         //send request
         final SemanticModel response;
         try {
             log.info("Creating Semantic Model");
+            if (semanticModel.getId() == null) {
+                // just use the one from the combined model
+                semanticModel.setId(modelId);
+            }
             response = semanticModelApiClient.createSemanticModel(semanticModel);
             log.info("Created Semantic Model");
         } catch (FeignException e) {
