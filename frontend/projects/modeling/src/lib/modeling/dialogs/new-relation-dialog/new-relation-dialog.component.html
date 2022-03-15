@@ -8,7 +8,7 @@
   </nz-form-item>
 
   <nz-form-item>
-    <nz-form-label nzRequired nzFor="label">Label</nz-form-label>
+    <nz-form-label [nzSpan]="5" nzRequired nzFor="label">Label</nz-form-label>
     <nz-form-control nzErrorTip="Label is required"
                      nzExtra="This will identify the concept in multiple sources, so it should be independent from your current data set.">
       <input nz-input formControlName="label"/>
@@ -16,7 +16,7 @@
   </nz-form-item>
 
   <nz-form-item>
-    <nz-form-label nzRequired nzFor="description">Description</nz-form-label>
+    <nz-form-label [nzSpan]="5" nzRequired nzFor="description">Description</nz-form-label>
     <nz-form-control nzErrorTip="Description is required"
                      nzExtra="Detailed description of the entity concept.">
       <textarea nz-input [nzAutosize]="{ minRows: 3}" formControlName="description"></textarea>
@@ -24,7 +24,7 @@
   </nz-form-item>
 
   <nz-form-item>
-    <nz-form-label nzFor="uri">URI</nz-form-label>
+    <nz-form-label [nzSpan]="5" nzFor="uri">URI</nz-form-label>
     <nz-form-control nzExtra="URI of the concept from an ontology.">
       <input formControlName="uri" nz-input placeholder="{{generateURI()}}"/>
     </nz-form-control>

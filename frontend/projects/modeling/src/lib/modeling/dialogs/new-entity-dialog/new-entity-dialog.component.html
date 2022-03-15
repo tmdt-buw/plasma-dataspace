@@ -1,7 +1,7 @@
 <form nz-form [formGroup]="form" (submit)="submit()">
 
   <nz-form-item>
-    <nz-form-label nzRequired nzFor="label">Label</nz-form-label>
+    <nz-form-label [nzSpan]="5" nzRequired nzFor="label">Label</nz-form-label>
     <nz-form-control nzErrorTip="Label is required"
                      nzExtra="This will identify the concept in multiple sources, so it should be independent from your current data set.">
       <input nz-input formControlName="label"/>
@@ -9,7 +9,7 @@
   </nz-form-item>
 
   <nz-form-item>
-    <nz-form-label nzRequired nzFor="description">Description</nz-form-label>
+    <nz-form-label [nzSpan]="5" nzRequired nzFor="description">Description</nz-form-label>
     <nz-form-control nzErrorTip="Description is required"
                      nzExtra="Detailed description of the entity concept.">
       <textarea nz-input formControlName="description"></textarea>
@@ -17,14 +17,14 @@
   </nz-form-item>
 
   <nz-form-item>
-    <nz-form-label nzFor="uri">URI</nz-form-label>
+    <nz-form-label [nzSpan]="5" nzFor="uri">URI</nz-form-label>
     <nz-form-control nzExtra="URI of the concept from an ontology.">
       <input formControlName="uri" nz-input placeholder="{{generateURI()}}"/>
     </nz-form-control>
   </nz-form-item>
 
   <nz-form-item>
-    <nz-form-label nzFor="namedentity">NamedEntity</nz-form-label>
+    <nz-form-label [nzSpan]="5" nzFor="namedentity">NamedEntity</nz-form-label>
     <nz-form-control nzExtra="Check if this is a named entity. Named entities are entities that exist only once and cannot be altered. Examples: 'Los Angeles' or 'George Washington'. ">
       <label nz-checkbox formControlName="namedEntity"></label>
     </nz-form-control>

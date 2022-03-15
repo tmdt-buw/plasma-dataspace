@@ -1,7 +1,7 @@
 import { animate, style, transition, trigger } from '@angular/animations';
 import { Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { FormControl } from '@angular/forms';
-import { ModalOptions, NzModalService } from 'ng-zorro-antd/modal';
+import { ModalOptions, NzModalRef, NzModalService } from 'ng-zorro-antd/modal';
 import { BehaviorSubject, Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import {
@@ -21,6 +21,7 @@ import { Nodes } from './model/configuration/node';
 import { ContextMenuEvent, ContextMenuEventType } from './model/events/context-menu-event';
 import { NodeChangedEvent } from './model/events/node-changed-event';
 import { Util } from './model/common/util';
+import { UploadOntologyComponent } from './dialogs/upload-ontology/upload-ontology.component';
 
 @Component({
   selector: 'pls-modeling',
@@ -78,6 +79,7 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
   // dialogs
   addConceptDialogRef;
   contextMenuSubscription;
+  private uploadOntologyDialogRef: NzModalRef<any, any>;
 
   get isFullscreen(): boolean {
     return !!this.main?.fullScreenIsActive;
@@ -149,6 +151,7 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
     this.modal.closeAll();
     this.contextMenuSubscription.unsubscribe();
     this.addConceptDialogRef?.close();
+    this.uploadOntologyDialogRef?.close();
   }
 
   getSchema(): void {
@@ -188,7 +191,10 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
     }
     if (this.addConceptDialogRef) {
       this.addConceptDialogRef.close();
+      this.addConceptDialogRef = undefined;
+      return;
     }
+    this.uploadOntologyDialogRef?.close();
     const rect: DOMRect = this.modelingArea.nativeElement.getBoundingClientRect();
     const config: ModalOptions = {
       nzStyle: {position: 'absolute', top: `${rect.top + 15}px`, left: `10px`, 'max-width': '30%', bottom: '15px'},
@@ -200,6 +206,7 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
       }
     };
     this.addConceptDialogRef = this.modal.create(Object.assign(config, ModalMouseEnabledConfig));
+    this.addConceptDialogRef.afterClose.subscribe(() => this.addConceptDialogRef = undefined);
   }
 
   onNodeClicked(event: string): void {
@@ -308,5 +315,23 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
 
   updateSelectedOntologies(): void {
     this.modelingService.updateSelectedOntologies(this.modelId, this.selectedOntologies).subscribe();
+  }
+
+  showUploadOntologyDialog(): void {
+    if (this.uploadOntologyDialogRef) {
+      this.uploadOntologyDialogRef.close();
+      this.uploadOntologyDialogRef = undefined;
+      return;
+    }
+    const rect: DOMRect = this.modelingArea.nativeElement.getBoundingClientRect();
+    const config: ModalOptions = {
+      nzStyle: {position: 'absolute', top: `${rect.top + 15}px`, right: `10px`, 'max-width': '30%', bottom: '15px'},
+      nzClassName: 'pls-upload-ontology',
+      nzTitle: 'Add ontology',
+      nzContent: UploadOntologyComponent,
+      nzComponentParams: {}
+    };
+    this.uploadOntologyDialogRef = this.modal.create(Object.assign(config, ModalMouseEnabledConfig));
+    this.uploadOntologyDialogRef.afterClose.subscribe(() => this.uploadOntologyDialogRef = undefined);
   }
 }

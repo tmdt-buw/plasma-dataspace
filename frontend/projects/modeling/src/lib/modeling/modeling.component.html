@@ -20,6 +20,10 @@
     </div>
 
     <div class="modeling-search-bar-container">
+      <button nz-button nzType="default" nz-tooltip nzTooltipTitle="Upload a new ontology" (click)="showUploadOntologyDialog()" [disabled]="isFinalized()"><i
+        nz-icon nzType="upload"></i>Add ontology
+      </button>
+
       <nz-select
         class="modeling-ontology-selection"
         [nzMaxTagCount]="6"
