@@ -20,6 +20,19 @@
     </div>
 
     <div class="modeling-search-bar-container">
+      <nz-select
+        class="modeling-ontology-selection"
+        [nzMaxTagCount]="6"
+        [nzMaxTagPlaceholder]="tagPlaceHolder"
+        nzMode="multiple"
+        nzPlaceHolder="Select ontologies"
+        [(ngModel)]="selectedOntologies"
+        (ngModelChange)="updateSelectedOntologies()"
+      >
+        <nz-option *ngFor="let item of availableOntologies" [nzLabel]="item.label" [nzValue]="item.label"></nz-option>
+      </nz-select>
+      <ng-template #tagPlaceHolder let-selectedList>+{{ selectedList.length }}</ng-template>
+
       <button nz-button nzType="text" nzShape="circle" (click)="toggleSearch()" nz-tooltip nzTooltipTitle="Search"><i
         nz-icon nzType="search"></i></button>
       <nz-input-group [nzSuffix]="inputClearTpl" class="modeling-search-bar" @search *ngIf="isSearchExpanded">

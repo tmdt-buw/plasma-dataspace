@@ -160,7 +160,7 @@ public class RecommendationHandler {
         }
 
         // try to find in KGS
-        Optional<Class> fromKGS = ontologyApiClient.getElements(null, null, uri).stream()
+        Optional<Class> fromKGS = ontologyApiClient.getElements(null,null, null, uri).stream()
                 .filter(element -> element instanceof Class) // TODO add NamedEntities
                 .map(element -> (Class) element)
                 .findFirst();
@@ -189,7 +189,7 @@ public class RecommendationHandler {
         }
 
         // try to find in KGS
-        Optional<Relation> fromKGS = ontologyApiClient.getRelations(null, null, uri).stream()
+        Optional<Relation> fromKGS = ontologyApiClient.getRelations(null,null, null, uri).stream()
                 .findFirst();
         if (fromKGS.isPresent()) {
             Relation r = fromKGS.get();

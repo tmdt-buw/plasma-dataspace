@@ -21,7 +21,11 @@ import { Observable }                                        from 'rxjs';
 // @ts-ignore
 import { DataProperty } from '../model/dataProperty';
 // @ts-ignore
+import { InlineObject } from '../model/inlineObject';
+// @ts-ignore
 import { ObjectProperty } from '../model/objectProperty';
+// @ts-ignore
+import { OntologyInfo } from '../model/ontologyInfo';
 // @ts-ignore
 import { SemanticModelNode } from '../model/semanticModelNode';
 
@@ -90,25 +94,35 @@ export class OntologyControllerService {
     }
 
     /**
+     * @param label 
      * @param prefix 
-     * @param infix 
      * @param uri 
+     * @param inlineObject 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public getElements(prefix?: string, infix?: string, uri?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext}): Observable<Array<SemanticModelNode>>;
-    public getElements(prefix?: string, infix?: string, uri?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext}): Observable<HttpResponse<Array<SemanticModelNode>>>;
-    public getElements(prefix?: string, infix?: string, uri?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext}): Observable<HttpEvent<Array<SemanticModelNode>>>;
-    public getElements(prefix?: string, infix?: string, uri?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext}): Observable<any> {
+    public addOntology(label: string, prefix: string, uri: string, inlineObject?: InlineObject, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext}): Observable<any>;
+    public addOntology(label: string, prefix: string, uri: string, inlineObject?: InlineObject, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext}): Observable<HttpResponse<any>>;
+    public addOntology(label: string, prefix: string, uri: string, inlineObject?: InlineObject, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext}): Observable<HttpEvent<any>>;
+    public addOntology(label: string, prefix: string, uri: string, inlineObject?: InlineObject, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext}): Observable<any> {
+        if (label === null || label === undefined) {
+            throw new Error('Required parameter label was null or undefined when calling addOntology.');
+        }
+        if (prefix === null || prefix === undefined) {
+            throw new Error('Required parameter prefix was null or undefined when calling addOntology.');
+        }
+        if (uri === null || uri === undefined) {
+            throw new Error('Required parameter uri was null or undefined when calling addOntology.');
+        }
 
         let localVarQueryParameters = new HttpParams({encoder: this.encoder});
+        if (label !== undefined && label !== null) {
+          localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
+            <any>label, 'label');
+        }
         if (prefix !== undefined && prefix !== null) {
           localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
             <any>prefix, 'prefix');
-        }
-        if (infix !== undefined && infix !== null) {
-          localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
-            <any>infix, 'infix');
         }
         if (uri !== undefined && uri !== null) {
           localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
@@ -121,7 +135,6 @@ export class OntologyControllerService {
         if (localVarHttpHeaderAcceptSelected === undefined) {
             // to determine the Accept header
             const httpHeaderAccepts: string[] = [
-                'application/json'
             ];
             localVarHttpHeaderAcceptSelected = this.configuration.selectHeaderAccept(httpHeaderAccepts);
         }
@@ -135,6 +148,15 @@ export class OntologyControllerService {
         }
 
 
+        // to determine the Content-Type header
+        const consumes: string[] = [
+            'application/json'
+        ];
+        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
+        if (httpContentTypeSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
+        }
+
         let responseType_: 'text' | 'json' | 'blob' = 'json';
         if (localVarHttpHeaderAcceptSelected) {
             if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
@@ -146,7 +168,8 @@ export class OntologyControllerService {
             }
         }
 
-        return this.httpClient.get<Array<SemanticModelNode>>(`${this.configuration.basePath}/api/plasma-kgs/ontology/nodes`,
+        return this.httpClient.post<any>(`${this.configuration.basePath}/api/plasma-kgs/ontologies/`,
+            inlineObject,
             {
                 context: localVarHttpContext,
                 params: localVarQueryParameters,
@@ -160,18 +183,25 @@ export class OntologyControllerService {
     }
 
     /**
+     * @param ontologyLabels 
      * @param prefix 
      * @param infix 
      * @param uri 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public getRelations(prefix?: string, infix?: string, uri?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext}): Observable<Array<DataProperty | ObjectProperty>>;
-    public getRelations(prefix?: string, infix?: string, uri?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext}): Observable<HttpResponse<Array<DataProperty | ObjectProperty>>>;
-    public getRelations(prefix?: string, infix?: string, uri?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext}): Observable<HttpEvent<Array<DataProperty | ObjectProperty>>>;
-    public getRelations(prefix?: string, infix?: string, uri?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext}): Observable<any> {
+    public getElements(ontologyLabels?: Array<string>, prefix?: string, infix?: string, uri?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext}): Observable<Array<SemanticModelNode>>;
+    public getElements(ontologyLabels?: Array<string>, prefix?: string, infix?: string, uri?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext}): Observable<HttpResponse<Array<SemanticModelNode>>>;
+    public getElements(ontologyLabels?: Array<string>, prefix?: string, infix?: string, uri?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext}): Observable<HttpEvent<Array<SemanticModelNode>>>;
+    public getElements(ontologyLabels?: Array<string>, prefix?: string, infix?: string, uri?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext}): Observable<any> {
 
         let localVarQueryParameters = new HttpParams({encoder: this.encoder});
+        if (ontologyLabels) {
+            ontologyLabels.forEach((element) => {
+                localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
+                  <any>element, 'ontologyLabels');
+            })
+        }
         if (prefix !== undefined && prefix !== null) {
           localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
             <any>prefix, 'prefix');
@@ -216,10 +246,139 @@ export class OntologyControllerService {
             }
         }
 
-        return this.httpClient.get<Array<DataProperty | ObjectProperty>>(`${this.configuration.basePath}/api/plasma-kgs/ontology/relations`,
+        return this.httpClient.get<Array<SemanticModelNode>>(`${this.configuration.basePath}/api/plasma-kgs/ontologies/nodes`,
             {
                 context: localVarHttpContext,
                 params: localVarQueryParameters,
+                responseType: <any>responseType_,
+                withCredentials: this.configuration.withCredentials,
+                headers: localVarHeaders,
+                observe: observe,
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * @param ontologyLabels 
+     * @param prefix 
+     * @param infix 
+     * @param uri 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     */
+    public getRelations(ontologyLabels?: Array<string>, prefix?: string, infix?: string, uri?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext}): Observable<Array<DataProperty | ObjectProperty>>;
+    public getRelations(ontologyLabels?: Array<string>, prefix?: string, infix?: string, uri?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext}): Observable<HttpResponse<Array<DataProperty | ObjectProperty>>>;
+    public getRelations(ontologyLabels?: Array<string>, prefix?: string, infix?: string, uri?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext}): Observable<HttpEvent<Array<DataProperty | ObjectProperty>>>;
+    public getRelations(ontologyLabels?: Array<string>, prefix?: string, infix?: string, uri?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext}): Observable<any> {
+
+        let localVarQueryParameters = new HttpParams({encoder: this.encoder});
+        if (ontologyLabels) {
+            ontologyLabels.forEach((element) => {
+                localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
+                  <any>element, 'ontologyLabels');
+            })
+        }
+        if (prefix !== undefined && prefix !== null) {
+          localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
+            <any>prefix, 'prefix');
+        }
+        if (infix !== undefined && infix !== null) {
+          localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
+            <any>infix, 'infix');
+        }
+        if (uri !== undefined && uri !== null) {
+          localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
+            <any>uri, 'uri');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        let localVarHttpHeaderAcceptSelected: string | undefined = options && options.httpHeaderAccept;
+        if (localVarHttpHeaderAcceptSelected === undefined) {
+            // to determine the Accept header
+            const httpHeaderAccepts: string[] = [
+                'application/json'
+            ];
+            localVarHttpHeaderAcceptSelected = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+        }
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        let localVarHttpContext: HttpContext | undefined = options && options.context;
+        if (localVarHttpContext === undefined) {
+            localVarHttpContext = new HttpContext();
+        }
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        return this.httpClient.get<Array<DataProperty | ObjectProperty>>(`${this.configuration.basePath}/api/plasma-kgs/ontologies/relations`,
+            {
+                context: localVarHttpContext,
+                params: localVarQueryParameters,
+                responseType: <any>responseType_,
+                withCredentials: this.configuration.withCredentials,
+                headers: localVarHeaders,
+                observe: observe,
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     */
+    public listOntologies(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext}): Observable<Array<OntologyInfo>>;
+    public listOntologies(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext}): Observable<HttpResponse<Array<OntologyInfo>>>;
+    public listOntologies(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext}): Observable<HttpEvent<Array<OntologyInfo>>>;
+    public listOntologies(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext}): Observable<any> {
+
+        let localVarHeaders = this.defaultHeaders;
+
+        let localVarHttpHeaderAcceptSelected: string | undefined = options && options.httpHeaderAccept;
+        if (localVarHttpHeaderAcceptSelected === undefined) {
+            // to determine the Accept header
+            const httpHeaderAccepts: string[] = [
+                'application/json'
+            ];
+            localVarHttpHeaderAcceptSelected = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+        }
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        let localVarHttpContext: HttpContext | undefined = options && options.context;
+        if (localVarHttpContext === undefined) {
+            localVarHttpContext = new HttpContext();
+        }
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        return this.httpClient.get<Array<OntologyInfo>>(`${this.configuration.basePath}/api/plasma-kgs/ontologies/`,
+            {
+                context: localVarHttpContext,
                 responseType: <any>responseType_,
                 withCredentials: this.configuration.withCredentials,
                 headers: localVarHeaders,

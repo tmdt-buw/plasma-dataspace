@@ -12,9 +12,11 @@ import de.buw.tmdt.plasma.services.dms.core.operations.OperationLookUp;
 import de.buw.tmdt.plasma.services.dms.shared.api.DataModelingAPI;
 import io.swagger.v3.oas.annotations.Operation;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -62,15 +64,15 @@ public class DataModelingController implements DataModelingAPI {
     @NotNull
     @Override
     @Operation(description = "Returns all elements either persistent in the knowledge base or cached for the referenced model sorted alphabetically.")
-    public List<SemanticModelNode> getElements(@NotNull String modelId, @NotNull String prefix) {
-        return dataModelingHandler.getElements(modelId, prefix);
+    public List<SemanticModelNode> getElements(@NotNull String modelId, @Nullable String prefix, @Nullable String infix) {
+        return dataModelingHandler.getElements(modelId, prefix, infix);
     }
 
     @NotNull
     @Override
     @Operation(description = "Returns all relations either persistent in the knowledge base or cached for the referenced model sorted alphabetically.")
-    public List<Relation> getRelations(@NotNull String modelId, @NotNull String prefix) {
-        return dataModelingHandler.getRelations(modelId, prefix);
+    public List<Relation> getRelations(@NotNull String modelId, @Nullable String prefix, @Nullable String infix) {
+        return dataModelingHandler.getRelations(modelId, prefix,infix);
     }
 
     @NotNull
@@ -118,99 +120,6 @@ public class DataModelingController implements DataModelingAPI {
         return model;
     }
 
-    /* OLD FUNCTIONS
-
-     @Override
-    @Operation(description = "Patches the position of an arbitrary schema node.")
-    public void positionSchemaNode(
-            @NotNull String uuid,
-            @NotNull String nodeId,
-            @NotNull SchemaNode schemaNode
-    ) {
-        dataModelingHandler.placeSchemaNode(uuid), nodeId), schemaNode);
-    }
-
-    @NotNull
-    @Override
-    @Operation(description = "Adds an entity type and caches or creates the referenced entity concept if it is not present yet.")
-    public CombinedModel addEntityType(
-            @NotNull String dataSourceUuid,
-            @NotNull Instance instance,
-            @Nullable String primitiveNodeUuid
-    ) {
-        // modify the semantic model
-        CombinedModel combinedModel = dataModelingHandler.addEntityType(dataSourceUuid), instance, primitiveNodeUuid);
-        // request recommendations
-        combinedModel = dataModelingHandler.requestRecommendations(dataSourceUuid, combinedModel);
-        dataModelingHandler.prepareForFrontend(combinedModel);
-        return combinedModel;
-    }
-
-    @NotNull
-    @Override
-    @Operation(description = "Updates an entity type and caches the referenced entity concept if it is not present yet.")
-    public CombinedModel updateEntityType(
-            @NotNull String dataSourceUuid,
-            @NotNull String entityTypeId,
-            @NotNull Instance instance
-    ) {
-        CombinedModel combinedModel = dataModelingHandler.updateEntityType(dataSourceUuid), entityTypeId, instance);
-        dataModelingHandler.prepareForFrontend(combinedModel);
-        return combinedModel;
-    }
-
-    @Override
-    @Operation(description = "Patches the position of an entity type node.")
-    public void positionEntityType(
-            @NotNull String dataSourceUuid,
-            @NotNull String entityTypeId,
-            @NotNull Instance instance
-    ) {
-        dataModelingHandler.placeEntityType(dataSourceUuid), entityTypeId, instance);
-    }
-
-    @NotNull
-    @Override
-    @Operation(description = "Removes an entity type.")
-    public CombinedModel removeInstance(@NotNull String dataSourceUuid, @NotNull String entityTypeId) {
-        CombinedModel combinedModel = dataModelingHandler.removeEntityTypeFromModel(dataSourceUuid), entityTypeId);
-        dataModelingHandler.prepareForFrontend(combinedModel);
-        return combinedModel;
-    }
-
-    @NotNull
-    @Override
-    @Operation(description = "Adds a relation and caches or creates the referenced relation concept if it is not present yet.")
-    public CombinedModel addRelation(@NotNull String dataSourceUuid, @NotNull Relation relation) {
-
-        CombinedModel combinedModel = dataModelingHandler.addRelation(dataSourceUuid), relation);
-        dataModelingHandler.prepareForFrontend(combinedModel);
-        return combinedModel;
-    }
-
-    @NotNull
-    @Override
-    @Operation(description = "Updates a relation and caches the referenced relation concept if it is not present yet.")
-    public CombinedModel updateRelation(
-            @NotNull String dataSourceUuid,
-            @NotNull String relationId,
-            @NotNull Relation relationDto
-    ) {
-        CombinedModel combinedModel = dataModelingHandler.updateRelation(dataSourceUuid), relationId, relationDto);
-        dataModelingHandler.prepareForFrontend(combinedModel);
-        return combinedModel;
-    }
-
-    @NotNull
-    @Override
-    @Operation(description = "Removes a relation.")
-    public CombinedModel removeRelation(@NotNull String dataSourceUuid, @NotNull String entityTypeId) {
-        CombinedModel combinedModel = dataModelingHandler.removeRelationFromModel(dataSourceUuid), entityTypeId);
-        dataModelingHandler.prepareForFrontend(combinedModel);
-        return combinedModel;
-    }
-     */
-
     @NotNull
     @Override
     @Operation(description = "pop last element from model stack")
@@ -237,7 +146,18 @@ public class DataModelingController implements DataModelingAPI {
     }
 
     @Override
+    @Operation(description = "Deletes an existing modeling")
     public void deleteModel(@NotNull String modelId) {
         dataModelingHandler.deleteModel(modelId);
+    }
+
+    @Override
+    public List<String> getSelectedOntologies(@NotNull String modelId){
+        return dataModelingHandler.getSelectedOntologies(modelId);
+    }
+
+    @Override
+    public void updateSelectedOntologies(@NotNull String modelId, @NotNull List<String> selectedOntologyLabels){
+        dataModelingHandler.updateSelectedOntologies(modelId, selectedOntologyLabels);
     }
 }

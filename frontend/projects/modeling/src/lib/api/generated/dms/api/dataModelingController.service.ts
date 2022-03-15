@@ -327,6 +327,7 @@ export class DataModelingControllerService {
     }
 
     /**
+     * Deletes an existing modeling
      * @param modelId
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -500,24 +501,26 @@ export class DataModelingControllerService {
      * Returns all elements either persistent in the knowledge base or cached for the referenced model sorted alphabetically.
      * @param modelId
      * @param prefix
+     * @param infix
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public getElements(modelId: string, prefix: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext}): Observable<Array<SemanticModelNode>>;
-    public getElements(modelId: string, prefix: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext}): Observable<HttpResponse<Array<SemanticModelNode>>>;
-    public getElements(modelId: string, prefix: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext}): Observable<HttpEvent<Array<SemanticModelNode>>>;
-    public getElements(modelId: string, prefix: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext}): Observable<any> {
+    public getElements(modelId: string, prefix?: string, infix?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext}): Observable<Array<SemanticModelNode>>;
+    public getElements(modelId: string, prefix?: string, infix?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext}): Observable<HttpResponse<Array<SemanticModelNode>>>;
+    public getElements(modelId: string, prefix?: string, infix?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext}): Observable<HttpEvent<Array<SemanticModelNode>>>;
+    public getElements(modelId: string, prefix?: string, infix?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext}): Observable<any> {
         if (modelId === null || modelId === undefined) {
             throw new Error('Required parameter modelId was null or undefined when calling getElements.');
-        }
-        if (prefix === null || prefix === undefined) {
-            throw new Error('Required parameter prefix was null or undefined when calling getElements.');
         }
 
         let localVarQueryParameters = new HttpParams({encoder: this.encoder});
         if (prefix !== undefined && prefix !== null) {
           localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
             <any>prefix, 'prefix');
+        }
+        if (infix !== undefined && infix !== null) {
+          localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
+            <any>infix, 'infix');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -568,24 +571,26 @@ export class DataModelingControllerService {
      * Returns all relations either persistent in the knowledge base or cached for the referenced model sorted alphabetically.
      * @param modelId
      * @param prefix
+     * @param infix
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public getRelations(modelId: string, prefix: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext}): Observable<Array<DataProperty | ObjectProperty>>;
-    public getRelations(modelId: string, prefix: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext}): Observable<HttpResponse<Array<DataProperty | ObjectProperty>>>;
-    public getRelations(modelId: string, prefix: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext}): Observable<HttpEvent<Array<DataProperty | ObjectProperty>>>;
-    public getRelations(modelId: string, prefix: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext}): Observable<any> {
+    public getRelations(modelId: string, prefix?: string, infix?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext}): Observable<Array<DataProperty | ObjectProperty>>;
+    public getRelations(modelId: string, prefix?: string, infix?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext}): Observable<HttpResponse<Array<DataProperty | ObjectProperty>>>;
+    public getRelations(modelId: string, prefix?: string, infix?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext}): Observable<HttpEvent<Array<DataProperty | ObjectProperty>>>;
+    public getRelations(modelId: string, prefix?: string, infix?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext}): Observable<any> {
         if (modelId === null || modelId === undefined) {
             throw new Error('Required parameter modelId was null or undefined when calling getRelations.');
-        }
-        if (prefix === null || prefix === undefined) {
-            throw new Error('Required parameter prefix was null or undefined when calling getRelations.');
         }
 
         let localVarQueryParameters = new HttpParams({encoder: this.encoder});
         if (prefix !== undefined && prefix !== null) {
           localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
             <any>prefix, 'prefix');
+        }
+        if (infix !== undefined && infix !== null) {
+          localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
+            <any>infix, 'infix');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -623,6 +628,62 @@ export class DataModelingControllerService {
             {
                 context: localVarHttpContext,
                 params: localVarQueryParameters,
+                responseType: <any>responseType_,
+                withCredentials: this.configuration.withCredentials,
+                headers: localVarHeaders,
+                observe: observe,
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * @param modelId
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     */
+    public getSelectedOntologies(modelId: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext}): Observable<Array<string>>;
+    public getSelectedOntologies(modelId: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext}): Observable<HttpResponse<Array<string>>>;
+    public getSelectedOntologies(modelId: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext}): Observable<HttpEvent<Array<string>>>;
+    public getSelectedOntologies(modelId: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext}): Observable<any> {
+        if (modelId === null || modelId === undefined) {
+            throw new Error('Required parameter modelId was null or undefined when calling getSelectedOntologies.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        let localVarHttpHeaderAcceptSelected: string | undefined = options && options.httpHeaderAccept;
+        if (localVarHttpHeaderAcceptSelected === undefined) {
+            // to determine the Accept header
+            const httpHeaderAccepts: string[] = [
+                'application/json'
+            ];
+            localVarHttpHeaderAcceptSelected = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+        }
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        let localVarHttpContext: HttpContext | undefined = options && options.context;
+        if (localVarHttpContext === undefined) {
+            localVarHttpContext = new HttpContext();
+        }
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        return this.httpClient.get<Array<string>>(`${this.configuration.basePath}/api/plasma-dms/models/${encodeURIComponent(String(modelId))}/selectedOntologies`,
+            {
+                context: localVarHttpContext,
                 responseType: <any>responseType_,
                 withCredentials: this.configuration.withCredentials,
                 headers: localVarHeaders,
@@ -1021,6 +1082,72 @@ export class DataModelingControllerService {
             classCollisionSchemaCompositeNodeLiteralNamedEntityObjectNodePrimitiveNodeSetNode,
             {
                 context: localVarHttpContext,
+                responseType: <any>responseType_,
+                withCredentials: this.configuration.withCredentials,
+                headers: localVarHeaders,
+                observe: observe,
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * @param modelId
+     * @param labels
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     */
+    public updateSelectedOntologies(modelId: string, labels?: Array<string>, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext}): Observable<any>;
+    public updateSelectedOntologies(modelId: string, labels?: Array<string>, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext}): Observable<HttpResponse<any>>;
+    public updateSelectedOntologies(modelId: string, labels?: Array<string>, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext}): Observable<HttpEvent<any>>;
+    public updateSelectedOntologies(modelId: string, labels?: Array<string>, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext}): Observable<any> {
+        if (modelId === null || modelId === undefined) {
+            throw new Error('Required parameter modelId was null or undefined when calling updateSelectedOntologies.');
+        }
+
+        let localVarQueryParameters = new HttpParams({encoder: this.encoder});
+        if (labels) {
+            labels.forEach((element) => {
+                localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
+                  <any>element, 'labels');
+            })
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        let localVarHttpHeaderAcceptSelected: string | undefined = options && options.httpHeaderAccept;
+        if (localVarHttpHeaderAcceptSelected === undefined) {
+            // to determine the Accept header
+            const httpHeaderAccepts: string[] = [
+            ];
+            localVarHttpHeaderAcceptSelected = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+        }
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        let localVarHttpContext: HttpContext | undefined = options && options.context;
+        if (localVarHttpContext === undefined) {
+            localVarHttpContext = new HttpContext();
+        }
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        return this.httpClient.put<any>(`${this.configuration.basePath}/api/plasma-dms/models/${encodeURIComponent(String(modelId))}/selectedOntologies`,
+            null,
+            {
+                context: localVarHttpContext,
+                params: localVarQueryParameters,
                 responseType: <any>responseType_,
                 withCredentials: this.configuration.withCredentials,
                 headers: localVarHeaders,

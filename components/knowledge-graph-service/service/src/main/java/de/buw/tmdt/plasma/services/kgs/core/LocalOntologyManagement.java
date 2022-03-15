@@ -6,6 +6,7 @@ import de.buw.tmdt.plasma.datamodel.semanticmodel.Relation;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.SemanticModelNode;
 import org.apache.jena.arq.querybuilder.DescribeBuilder;
 import org.apache.jena.arq.querybuilder.UpdateBuilder;
+import org.apache.jena.ontology.OntModel;
 import org.apache.jena.query.QueryExecution;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
@@ -25,13 +26,16 @@ import java.util.List;
 
 import static de.buw.tmdt.plasma.services.kgs.core.Ontologies.PREFIXES;
 
+/**
+ * Handles the connection to the ontology build by manually adding objects and relations
+ */
 @Service
-public class OntologyManagement {
+public class LocalOntologyManagement {
 
     private RDFConnectionRemoteBuilder builder;
 
 
-    public OntologyManagement(@Value("${plasma.jena.ontology.server}") String ontologyServerAddress) {
+    public LocalOntologyManagement(@Value("${plasma.jena.ontology.server}") String ontologyServerAddress) {
         builder = RDFConnectionFuseki.create()
                 .destination(ontologyServerAddress);
     }
@@ -93,8 +97,24 @@ public class OntologyManagement {
         putModel(m);
     }
 
+    public OntModel getInternalOntology(){
+        try (RDFConnectionFuseki conn = (RDFConnectionFuseki) builder.build()) {
+           DescribeBuilder describeBuilder = new DescribeBuilder();
+            describeBuilder.addPrefixes(PREFIXES)
+                    .addVar("?subject")
+                    .addVar("?predicate")
+                    .addVar("?object")
+                    .addWhere("?subject", "?predicate", "?object")
+            ;
+            QueryExecution query = conn.query(describeBuilder.build());
+            Model model1 = query.execDescribe();
+            OntModel ontology = ModelFactory.createOntologyModel();
+            ontology.add(model1);
+            return ontology;
+        }
+    }
 
-    public SemanticModelNode findElementsByURI(String uri) {
+    public SemanticModelNode findElemegntsByURI(String uri) {
         try (RDFConnectionFuseki conn = (RDFConnectionFuseki) builder.build()) {
             DescribeBuilder describeBuilder = new DescribeBuilder();
             describeBuilder.addPrefixes(PREFIXES)
@@ -107,7 +127,7 @@ public class OntologyManagement {
 
             QueryExecution query = conn.query(describeBuilder.build());
             Model model1 = query.execDescribe();
-            List<SemanticModelNode> elements = CMToRDFMapper.convertToSemanticModelNodes(model1.listSubjects().toList());
+            List<SemanticModelNode> elements = CMToRDFMapper.convertOntologyResourcesToSemanticModelNodes(model1.listSubjects().toList());
             return elements.stream().findFirst().orElse(null);
         }
     }
@@ -125,7 +145,8 @@ public class OntologyManagement {
 
             QueryExecution query = conn.query(describeBuilder.build());
             Model model1 = query.execDescribe();
-            List<SemanticModelNode> elements = CMToRDFMapper.convertToSemanticModelNodes(model1.listSubjects().toList());
+
+            List<SemanticModelNode> elements = CMToRDFMapper.convertOntologyResourcesToSemanticModelNodes(model1.listSubjects().toList());
             return elements;
         }
     }
@@ -142,7 +163,7 @@ public class OntologyManagement {
 
             QueryExecution query = conn.query(describeBuilder.build());
             Model model1 = query.execDescribe();
-            List<SemanticModelNode> elements = CMToRDFMapper.convertToSemanticModelNodes(model1.listSubjects().toList());
+            List<SemanticModelNode> elements = CMToRDFMapper.convertOntologyResourcesToSemanticModelNodes(model1.listSubjects().toList());
             return elements;
         }
     }
@@ -159,7 +180,7 @@ public class OntologyManagement {
 
             QueryExecution query = conn.query(describeBuilder.build());
             Model model1 = query.execDescribe();
-            List<SemanticModelNode> elements = CMToRDFMapper.convertToSemanticModelNodes(model1.listSubjects().toList());
+            List<SemanticModelNode> elements = CMToRDFMapper.convertOntologyResourcesToSemanticModelNodes(model1.listSubjects().toList());
             return elements;
         }
     }
@@ -176,7 +197,7 @@ public class OntologyManagement {
 
             QueryExecution query = conn.query(describeBuilder.build());
             Model model1 = query.execDescribe();
-            List<Relation> elements = CMToRDFMapper.convertToRelations(model1.listSubjects().toList());
+            List<Relation> elements = CMToRDFMapper.convertOntologyRelationsToRelations(model1.listSubjects().toList());
             return elements.stream().findFirst().orElse(null);
         }
     }
@@ -194,7 +215,7 @@ public class OntologyManagement {
 
             QueryExecution query = conn.query(describeBuilder.build());
             Model model1 = query.execDescribe();
-            List<Relation> elements = CMToRDFMapper.convertToRelations(model1.listSubjects().toList());
+            List<Relation> elements = CMToRDFMapper.convertOntologyRelationsToRelations(model1.listSubjects().toList());
             return elements;
         }
     }
@@ -211,7 +232,7 @@ public class OntologyManagement {
 
             QueryExecution query = conn.query(describeBuilder.build());
             Model model1 = query.execDescribe();
-            List<Relation> elements = CMToRDFMapper.convertToRelations(model1.listSubjects().toList());
+            List<Relation> elements = CMToRDFMapper.convertOntologyRelationsToRelations(model1.listSubjects().toList());
             return elements;
         }
     }
@@ -228,7 +249,7 @@ public class OntologyManagement {
 
             QueryExecution query = conn.query(describeBuilder.build());
             Model model1 = query.execDescribe();
-            List<Relation> elements = CMToRDFMapper.convertToRelations(model1.listSubjects().toList());
+            List<Relation> elements = CMToRDFMapper.convertOntologyRelationsToRelations(model1.listSubjects().toList());
             return elements;
         }
     }

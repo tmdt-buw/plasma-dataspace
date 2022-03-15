@@ -11,7 +11,7 @@ import {
   Relation, SchemaNode,
   SemanticModelNode
 } from '../api/generated/dms';
-import { OntologyControllerService, SemanticModelControllerService } from '../api/generated/kgs';
+import { OntologyControllerService, OntologyInfo, SemanticModelControllerService } from '../api/generated/kgs';
 import { ContextMenuService } from './context-menu/context-menu.service';
 import { ModalBaseConfig, ModalMouseEnabledConfig } from './dialogs/common/modal.base-config';
 import { PlsConceptDialogComponent } from './dialogs/concept-dialog/concept-dialog.component';
@@ -57,6 +57,10 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
   @Output() finished = new EventEmitter();
   @Output() clickedNode = new EventEmitter();
 
+  // ontologies
+  availableOntologies: Array<OntologyInfo>;
+  selectedOntologies: Array<string>;
+
   // search bar
   searchControl = new FormControl();
   isSearchExpanded = false;
@@ -84,6 +88,15 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.ontologyService.listOntologies().subscribe((ontologies: Array<OntologyInfo>) => {
+      console.log('available', ontologies);
+      this.availableOntologies = ontologies;
+    });
+    this.modelingService.getSelectedOntologies(this.modelId).subscribe((ontologies: Array<string>) => {
+      console.log('selected', ontologies);
+      this.selectedOntologies = ontologies;
+    });
+
     // query schema
     this.getSchema();
     // subscribe to search
@@ -291,5 +304,9 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
 
   isFinalized(): boolean {
     return this.combinedModel?.finalized;
+  }
+
+  updateSelectedOntologies(): void {
+    this.modelingService.updateSelectedOntologies(this.modelId, this.selectedOntologies).subscribe();
   }
 }

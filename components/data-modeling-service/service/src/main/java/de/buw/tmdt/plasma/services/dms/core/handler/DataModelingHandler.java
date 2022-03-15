@@ -23,7 +23,9 @@ import de.buw.tmdt.plasma.services.sas.shared.feignclient.SchemaAnalysisApiClien
 import de.buw.tmdt.plasma.services.srs.feignclient.SemanticRecommendationApiClient;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import feign.FeignException;
+import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -98,6 +100,7 @@ public class DataModelingHandler {
                     false
             );
             dataSourceModel = new DataSourceModel(UUID.fromString(modelId) );
+            dataSourceModel.getSelectedOntologies().add("PLASMA");
 
             dataSourceModel.pushCombinedModel(syntaxCombinedModel);
 
@@ -157,18 +160,19 @@ public class DataModelingHandler {
     /**
      * Retrieves all available {@link SemanticModelNode}s, from the KGS as well as the current model.
      *
-     * @param modelId The data source uuid
+     * @param modelId The modeling
      * @param prefix  A search prefix
+     * @param infix  A search infix
      * @return The resulting list of matching {@link SemanticModelNode}s
      */
     @SuppressFBWarnings("NP_NONNULL_RETURN_VIOLATION") // stream collector does not return null
     @NotNull
-    public List<SemanticModelNode> getElements(@NotNull String modelId, @NotNull String prefix) {
-        //Retrieve the concepts from the KGS
+    public List<SemanticModelNode> getElements(@NotNull String modelId, @Nullable String prefix, @Nullable String infix) {
+        DataSourceModel modeling = findDataSourceOrThrow(modelId);
         List<SemanticModelNode> availableElements;
         try {
             availableElements =
-                    ontologyApiClient.getElements(prefix, null, null);
+                    ontologyApiClient.getElements(modeling.getSelectedOntologies(),prefix, infix, null);
         } catch (FeignException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Ontology service currently unavailable.");
         }
@@ -176,7 +180,15 @@ public class DataModelingHandler {
         // Retrieve the concepts that were created within this semantic model...
         CombinedModel combinedModel = getCombinedModel(findDataSourceOrThrow(modelId), false);
         combinedModel.getProvisionalElements().stream()
-                .filter(element -> element.getLabel().toLowerCase().startsWith(prefix.toLowerCase()))
+                .filter(element -> {
+                    if(prefix != null && !(prefix.isBlank())){
+                        return StringUtils.startsWithIgnoreCase(element.getLabel(),prefix);
+                    }
+                    if(infix != null && !(infix.isBlank())){
+                        return StringUtils.containsIgnoreCase(element.getLabel(),infix);
+                    }
+                    return true;
+                })
                 // ... and add them to the ones from the KGS while ensuring that there are no conflicts
                 .filter(element -> availableElements.stream().noneMatch(ae -> ae.sameAs(element)))
                 .forEach(availableElements::add);
@@ -188,12 +200,13 @@ public class DataModelingHandler {
 
     @SuppressFBWarnings("NP_NONNULL_RETURN_VIOLATION") // stream collector does not return null
     @NotNull
-    public List<Relation> getRelations(@NotNull String modelId, @NotNull String prefix) {
-        // Retrieve the concepts from the KGS
+    public List<Relation> getRelations(@NotNull String modelId, @Nullable String prefix, @Nullable String infix) {
+        DataSourceModel modeling = findDataSourceOrThrow(modelId);
+
         List<Relation> availableRelations;
         try {
             availableRelations =
-                    ontologyApiClient.getRelations(prefix, null, null);
+                    ontologyApiClient.getRelations(modeling.getSelectedOntologies(),prefix, infix, null);
         } catch (FeignException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Ontology service currently unavailable.");
         }
@@ -201,7 +214,15 @@ public class DataModelingHandler {
         // Retrieve the concepts that were created within this semantic model...
         CombinedModel combinedModel = getCombinedModel(findDataSourceOrThrow(modelId), false);
         combinedModel.getProvisionalRelations().stream()
-                .filter(relationConcept -> relationConcept.getLabel().startsWith(prefix))
+                .filter(relation -> {
+                    if(prefix != null && !(prefix.isBlank())){
+                        return StringUtils.startsWithIgnoreCase(relation.getLabel(),prefix);
+                    }
+                    if(infix != null && !(infix.isBlank())){
+                        return StringUtils.containsIgnoreCase(relation.getLabel(),infix);
+                    }
+                    return true;
+                })
                 // ... and add them to the ones from the KGS while ensuring that there are no conflicts
                 .filter(relationConcept -> availableRelations.stream().noneMatch(ar -> ar.sameAs(relationConcept)))
                 .forEach(availableRelations::add);
@@ -640,4 +661,17 @@ public class DataModelingHandler {
         }
         return combinedModel;
     }
+
+    public List<String> getSelectedOntologies(@NotNull String modelId){
+        DataSourceModel modeling = findDataSourceOrThrow(modelId);
+        return modeling.getSelectedOntologies();
+    }
+
+    public void updateSelectedOntologies(@NotNull String modelId, @NotNull List<String> selectedOntologies){
+        DataSourceModel modeling = findDataSourceOrThrow(modelId);
+        modeling.getSelectedOntologies().clear();
+        modeling.getSelectedOntologies().addAll(selectedOntologies);
+        dataSourceRepository.save(modeling);
+    }
+
 }

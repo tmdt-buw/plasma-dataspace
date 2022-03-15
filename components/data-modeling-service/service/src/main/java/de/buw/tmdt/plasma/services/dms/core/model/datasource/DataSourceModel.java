@@ -22,6 +22,11 @@ public class DataSourceModel {
     @NotNull
     private UUID uuid;
 
+    @Column()
+    @ElementCollection
+    @NotNull
+    private List<String> selectedOntologies;
+
     //The value is only set after the schema analysis
     // Map <Version, CombinedModel>
     @SuppressWarnings("JpaAttributeTypeInspection") // will be custom serialized
@@ -37,6 +42,7 @@ public class DataSourceModel {
     public DataSourceModel() {
         this.versionPointer = 0;
         this.uuid = UUID.randomUUID();
+        this.selectedOntologies = new ArrayList<>();
     }
 
     public DataSourceModel(UUID uuid) {
@@ -105,6 +111,10 @@ public class DataSourceModel {
         return getCurrentModel();
     }
 
+    public List<String> getSelectedOntologies() {
+        return selectedOntologies;
+    }
+
     @Override
     @SuppressWarnings("MagicCharacter")
     public String toString() {
@@ -114,4 +124,6 @@ public class DataSourceModel {
                 + ", \"maxVersion\":" + combinedModelVersions.size()
                 + '}';
     }
+
+
 }

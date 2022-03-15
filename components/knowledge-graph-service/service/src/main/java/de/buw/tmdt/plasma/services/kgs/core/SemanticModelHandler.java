@@ -15,10 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.StringWriter;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -26,18 +23,17 @@ public class SemanticModelHandler {
 
     private static final Logger log = LoggerFactory.getLogger(SemanticModelHandler.class);
 
-    private static final String XML_VARIABLE = "xml";
-    private static final String TURTLE_VARIABLE = "turtle";
-
     private final SemanticModelManagement ops;
-    private final OntologyManagement onto;
+    private final LocalOntologyManagement onto;
+    private final OntologyHandler ontologyHandler;
 
     @Autowired
     public SemanticModelHandler(
             @NotNull SemanticModelManagement ops,
-            @NotNull OntologyManagement onto) {
+            @NotNull LocalOntologyManagement onto, OntologyHandler ontologyHandler) {
         this.ops = ops;
         this.onto = onto;
+        this.ontologyHandler = ontologyHandler;
     }
 
 
@@ -70,38 +66,18 @@ public class SemanticModelHandler {
         if(retrievedModel.isEmpty()){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No model available for id "+ id);
         }
-        SemanticModel restoredSM = CMToRDFMapper.convertToSemanticModel(retrievedModel, onto);
+        SemanticModel restoredSM = CMToRDFMapper.convertToSemanticModel(retrievedModel, this::lookupElementByURI);
         return restoredSM;
+    }
+
+    private SemanticModelNode lookupElementByURI(String uri) {
+        return ontologyHandler.getElements(Collections.emptyList(),null, null,uri ).stream()
+                .findFirst()
+                .orElse(null);
     }
 
     public void deleteSemanticModel(@NotNull String id) {
         ops.deleteModel(id);
-    }
-
-    public void enhanceEntities(SemanticModel semanticModel) {
-
-        semanticModel.getNodes().forEach(smn -> {
-            if (smn instanceof Class) {
-                Class semanticClass = (Class) smn;
-                SemanticModelNode entity = onto.findElementsByURI(semanticClass.getURI());
-                if (entity instanceof Class) {
-                    semanticClass.setLabel(entity.getLabel());
-                    semanticClass.setDescription(((Class) entity).getDescription());
-                } else {
-                    log.error(smn.getURI() + " is not a Class but is declared as one.");
-                }
-            } else if (smn instanceof NamedEntity) {
-                SemanticModelNode entity = onto.findElementsByURI(smn.getURI());
-                NamedEntity ne = (NamedEntity) smn;
-                if (entity instanceof NamedEntity) {
-                    NamedEntity enhanced = (NamedEntity) entity;
-                    ne.setLabel(enhanced.getLabel());
-                    ne.setDescription(enhanced.getDescription());
-                } else {
-                    log.error(smn.getURI() + " is not a NamedEntity but is declared as one.");
-                }
-            }
-        });
     }
 
     public static String asTurtle(Model model) {

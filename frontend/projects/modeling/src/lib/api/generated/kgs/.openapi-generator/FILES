@@ -12,9 +12,11 @@ model/combinedModel.ts
 model/dataProperty.ts
 model/deltaModification.ts
 model/edge.ts
+model/inlineObject.ts
 model/modelMapping.ts
 model/models.ts
 model/objectProperty.ts
+model/ontologyInfo.ts
 model/relation.ts
 model/schemaNode.ts
 model/semanticModel.ts

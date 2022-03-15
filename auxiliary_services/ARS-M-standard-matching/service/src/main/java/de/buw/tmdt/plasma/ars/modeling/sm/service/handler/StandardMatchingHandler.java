@@ -261,7 +261,7 @@ public class StandardMatchingHandler {
     }
 
     private Class getOrGenerateClass(EntityRule rule) {
-        return universalKnowledgeApiClient.getElements(null, null, rule.getConceptName()).stream()
+        return universalKnowledgeApiClient.getElements(null, null, null,rule.getConceptName()).stream()
                 .filter(element -> element instanceof Class)
                 .map(element -> (Class) element)
                 .filter(kgsClass -> kgsClass.getURI().equals(rule.getConceptURI()))
@@ -277,7 +277,7 @@ public class StandardMatchingHandler {
     }
 
     private Relation getOrGenerateRelationConcept(RelationRule rule) {
-        return universalKnowledgeApiClient.getRelations(null, null, rule.getConceptName()).stream()
+        return universalKnowledgeApiClient.getRelations(null,null, null, rule.getConceptName()).stream()
                 .filter(relation -> relation.getURI().equals(rule.getRelationURI()))
                 .findFirst()
                 .orElse(new ObjectProperty(

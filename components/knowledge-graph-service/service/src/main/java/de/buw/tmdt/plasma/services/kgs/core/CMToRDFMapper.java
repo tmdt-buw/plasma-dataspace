@@ -4,6 +4,9 @@ import de.buw.tmdt.plasma.datamodel.CombinedModelIntegrityException;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.Class;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.Literal;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.*;
+import org.apache.jena.ontology.DatatypeProperty;
+import org.apache.jena.ontology.OntClass;
+import org.apache.jena.ontology.OntProperty;
 import org.apache.jena.rdf.model.*;
 import org.apache.jena.shared.PropertyNotFoundException;
 import org.apache.jena.vocabulary.OWL;
@@ -13,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static de.buw.tmdt.plasma.services.kgs.core.Ontologies.PREFIXES;
@@ -114,7 +118,7 @@ public class CMToRDFMapper {
     }
 
 
-    public static SemanticModel convertToSemanticModel(Model model, OntologyManagement onto) {
+    public static SemanticModel convertToSemanticModel(Model model, Function<String, SemanticModelNode> elementRetrieverByURI) {
         String modelId = null;
         List<SemanticModelNode> nodes = new ArrayList<>();
         List<Relation> relations = new ArrayList<>();
@@ -138,7 +142,7 @@ public class CMToRDFMapper {
             if (convertedSubject == null) {
                 // we have to create a new one
                 Resource superclass = s.getRequiredProperty(RDF.type).getObject().asResource();
-                SemanticModelNode supernode = onto.findElementsByURI(superclass.getURI());
+                SemanticModelNode supernode =  elementRetrieverByURI.apply(superclass.getURI());
                 convertedSubject = createSemanticModelNode(s, supernode);
                 nodes.add(convertedSubject);
                 mappedNodes.put(s, convertedSubject);
@@ -159,7 +163,7 @@ public class CMToRDFMapper {
                 if (convertedObject == null) {
                     // we have to create a new one
                     Resource superclass = object.getRequiredProperty(RDF.type).getObject().asResource();
-                    SemanticModelNode supernode = onto.findElementsByURI(superclass.getURI());
+                    SemanticModelNode supernode = elementRetrieverByURI.apply(superclass.getURI());
                     convertedObject = createSemanticModelNode(object, supernode);
                     nodes.add(convertedObject);
                     mappedNodes.put(object, convertedObject);
@@ -176,15 +180,15 @@ public class CMToRDFMapper {
             // handle properties
             if (o.isResource()) {
                 // this is an ObjectProperty
-                Relation r = new ObjectProperty(convertedSubject.getUuid(), convertedObject.getUuid(), stmt.getPredicate().getURI());
+                Relation r = new ObjectProperty(convertedSubject.getUuid(), convertedObject.getUuid(), PREFIXES.shortForm(stmt.getPredicate().getURI()));
                 relations.add(r);
             } else if (o.isLiteral()) {
                 // this is a DataProperty
-                Relation r = new DataProperty(convertedSubject.getUuid(), convertedObject.getUuid(), stmt.getPredicate().getURI());
+                Relation r = new DataProperty(convertedSubject.getUuid(), convertedObject.getUuid(), PREFIXES.shortForm(stmt.getPredicate().getURI()));
                 relations.add(r);
             }
         }
-        if(modelId == null){
+        if (modelId == null) {
             // there is no model for that id in the model
             return null;
         }
@@ -216,7 +220,7 @@ public class CMToRDFMapper {
         String uuid = res.getRequiredProperty(PLCM.cmUuid).getString();
         Double xCoordinate = getPropertyAsDoubleOrNull(res, PLCM.xCoordinate);
         Double yCoordinate = getPropertyAsDoubleOrNull(res, PLCM.yCoordinate);
-        Class sClass = new Class(uuid, superclass.getURI(), superclass.getLabel(),
+        Class sClass = new Class(uuid, PREFIXES.shortForm(superclass.getURI()), superclass.getLabel(),
                 superclass.getDescription(), xCoordinate, yCoordinate, null);
 
         if (!res.isAnon()) {
@@ -226,7 +230,7 @@ public class CMToRDFMapper {
             String description = getPropertyOrNull(res, PLCM.description);
             String syntaxNodeId = getPropertyOrNull(res, PLCM.syntaxNodeId);
             String originalLabel = getPropertyOrNull(res, PLCM.originalLabel);
-            Instance i = new Instance(uuid, instanceURI, label, syntaxNodeId, originalLabel, description);
+            Instance i = new Instance(uuid, PREFIXES.shortForm(instanceURI), label, syntaxNodeId, originalLabel, description);
             sClass.setInstance(i);
         }
         return sClass;
@@ -235,7 +239,7 @@ public class CMToRDFMapper {
     private static NamedEntity createNamedEntity(Resource res, NamedEntity namedEntity) {
         Double xCoordinate = getPropertyAsDoubleOrNull(res, PLCM.xCoordinate);
         Double yCoordinate = getPropertyAsDoubleOrNull(res, PLCM.yCoordinate);
-        NamedEntity ne = new NamedEntity(namedEntity.getURI(), namedEntity.getLabel(),
+        NamedEntity ne = new NamedEntity(PREFIXES.shortForm(namedEntity.getURI()), namedEntity.getLabel(),
                 namedEntity.getDescription(), xCoordinate, yCoordinate);
         return ne;
     }
@@ -248,31 +252,33 @@ public class CMToRDFMapper {
         return l;
     }
 
-    public static List<SemanticModelNode> convertToSemanticModelNodes(List<Resource> resources) {
+    public static List<SemanticModelNode> convertOntologyResourcesToSemanticModelNodes(List<Resource> resources) {
         return resources.stream()
-                .map(resource -> {
-                    try {
-                        String label = resource.getRequiredProperty(RDFS.label).getString();
-                        String description = getPropertyOrNull(resource, RDFS.comment);
-                        if (resource.hasProperty(RDF.type, OWL.Class)) {
-                            return new Class(
-                                    resource.getURI(),
-                                    label,
-                                    description);
-                        } else if (resource.hasProperty(RDF.type, PLASMA.NamedEntity)) {
-                            return new NamedEntity(
-                                    resource.getURI(),
-                                    label,
-                                    description);
-                        }
-                    } catch (PropertyNotFoundException pnfe) {
-                        log.error("Error occurred building class from {}", resource.getURI(), pnfe);
-
-                    }
-                    return null;
-                })
+                .map(CMToRDFMapper::convertOntologyResourceToSemanticModelNode)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
+    }
+
+    public static SemanticModelNode convertOntologyResourceToSemanticModelNode(Resource resource) {
+        try {
+            String label = resource.getRequiredProperty(RDFS.label).getString();
+            String description = getPropertyOrNull(resource, RDFS.comment);
+            if (resource.hasProperty(RDF.type, OWL.Class)) {
+                return new Class(
+                        PREFIXES.shortForm(resource.getURI()),
+                        label,
+                        description);
+            } else if (resource.hasProperty(RDF.type, PLASMA.NamedEntity)) {
+                return new NamedEntity(
+                        PREFIXES.shortForm(resource.getURI()),
+                        label,
+                        description);
+            }
+        } catch (PropertyNotFoundException pnfe) {
+            log.error("Error occurred building class from {}", resource.getURI(), pnfe);
+
+        }
+        return null;
     }
 
     private static String getPropertyOrNull(Resource r, Property property) {
@@ -288,7 +294,7 @@ public class CMToRDFMapper {
         return formatted;
     }
 
-    public static List<Relation> convertToRelations(List<Resource> resources) {
+    public static List<Relation> convertOntologyRelationsToRelations(List<Resource> resources) {
         return resources.stream()
                 .map(resource -> {
                     try {
@@ -298,19 +304,19 @@ public class CMToRDFMapper {
                             return new DataProperty(
                                     null,
                                     null,
-                                    resource.getURI(),
+                                    PREFIXES.shortForm(resource.getURI()),
                                     label,
                                     description);
                         } else if (resource.hasProperty(RDF.type, PLASMA.NamedEntity)) {
                             return new ObjectProperty(
                                     null,
                                     null,
-                                    resource.getURI(),
+                                    PREFIXES.shortForm(resource.getURI()),
                                     label,
                                     description);
                         }
                     } catch (PropertyNotFoundException pnfe) {
-                        log.error("Error occurred building class from {}", resource.getURI(), pnfe);
+                        log.error("Error occurred building relation from {}", resource.getURI(), pnfe);
 
                     }
                     return null;
@@ -318,4 +324,18 @@ public class CMToRDFMapper {
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
     }
+
+    public static Relation convertOntologyPropertyToRelation(OntProperty property) {
+        if (property instanceof DatatypeProperty) {
+            return new DataProperty("", "", PREFIXES.shortForm(property.getURI()), property.getLabel(null), property.getComment(null));
+        } else if (property instanceof ObjectProperty) {
+            return new ObjectProperty("", "", PREFIXES.shortForm(property.getURI()), property.getLabel(null), property.getComment(null));
+        }
+        return null;
+    }
+
+    public static Class convertOntologyClassToClass(OntClass ontClass) {
+        return new Class(PREFIXES.shortForm(ontClass.getURI()),ontClass.getLabel(null),ontClass.getComment(null));
+    }
+
 }
