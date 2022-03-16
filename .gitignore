@@ -14,7 +14,10 @@ target/
 
 *.iml
 
+ontologies/
+
 ### Logging ###
 logs/*
 **.log
-**.log.zip
+**.log.zip!/
+

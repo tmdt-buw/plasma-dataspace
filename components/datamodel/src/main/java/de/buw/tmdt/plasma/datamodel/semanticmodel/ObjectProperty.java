@@ -6,7 +6,6 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashSet;
 import java.util.Set;
 
 @JsonTypeName("ObjectProperty")
@@ -15,11 +14,11 @@ public class ObjectProperty extends Relation {
         super(fromId, toId, uri);
     }
 
-    public ObjectProperty( String fromId,  String toId, @NotNull String uri, @NotNull String label) {
+    public ObjectProperty(String fromId, String toId, @NotNull String uri, String label) {
         super(fromId, toId, uri, label);
     }
 
-    public ObjectProperty(String fromId, String toId, @NotNull String uri, @NotNull String label, @NotNull String description) {
+    public ObjectProperty(String fromId, String toId, @NotNull String uri, String label, String description) {
         super(fromId, toId, uri, label, description);
     }
 

@@ -14,11 +14,11 @@ public class DataProperty extends Relation {
         super(fromId, toId, uri);
     }
 
-    public DataProperty(String fromId, String toId, @NotNull String uri, @NotNull String label) {
+    public DataProperty(String fromId, String toId, @NotNull String uri, String label) {
         super(fromId, toId, uri, label);
     }
 
-    public DataProperty(String fromId,String toId, @NotNull String uri, @NotNull String label, @NotNull String description) {
+    public DataProperty(String fromId, String toId, @NotNull String uri, String label, String description) {
         super(fromId, toId, uri, label, description);
     }
 

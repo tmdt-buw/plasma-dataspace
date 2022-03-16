@@ -8,21 +8,24 @@
       <button nz-button nzType="text" nzShape="circle" (click)="redo()" nz-tooltip nzTooltipTitle="Redo" [disabled]="isFinalized()"><i nz-icon
                                                                                                             nzType="redo"></i>
       </button>
-      <button nz-button nzType="primary" nz-tooltip nzTooltipTitle="Add entity or relation" (click)="addConcepts()" [disabled]="isFinalized()"><i
+      <button (click)="showAddConceptDialog()" [disabled]="isFinalized()" nz-button nz-tooltip
+              nzTooltipTitle="Add entity or relation" nzType="primary"><i
         nz-icon nzType="deployment-unit"></i>Add concepts and relations
       </button>
       <!--      ontology selection and upload-->
       <div fxLayout="row" fxLayoutAlign="start center">
         <nz-select
+          (ngModelChange)="onOntologySelectionChanged()"
           class="modeling-ontology-selection"
           [nzMaxTagCount]="3"
           [nzMaxTagPlaceholder]="tagPlaceHolder"
           nzMode="multiple"
           nzPlaceHolder="Select ontologies"
           [(ngModel)]="selectedOntologies"
-          (ngModelChange)="updateSelectedOntologies()"
+          nzBorderless
         >
-          <nz-option *ngFor="let item of availableOntologies" [nzLabel]="item.label" [nzValue]="item.label"></nz-option>
+          <nz-option *ngFor="let item of availableOntologies" [nz-tooltip]="item.uri" [nzLabel]="item.label"
+                     [nzValue]="item.label"></nz-option>
         </nz-select>
         <ng-template #tagPlaceHolder let-selectedList>+{{ selectedList.length }}</ng-template>
         <button nz-button nzType="default" nz-tooltip nzTooltipTitle="Upload a new ontology" (click)="showUploadOntologyDialog()" [disabled]="isFinalized()"><i

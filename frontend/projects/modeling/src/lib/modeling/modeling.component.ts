@@ -8,7 +8,8 @@ import {
   CombinedModel,
   DataModelingControllerService,
   DeltaModification,
-  Relation, SchemaNode,
+  Relation,
+  SchemaNode,
   SemanticModelNode
 } from '../api/generated/dms';
 import { OntologyControllerService, OntologyInfo, SemanticModelControllerService } from '../api/generated/kgs';
@@ -80,6 +81,7 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
   addConceptDialogRef;
   contextMenuSubscription;
   private uploadOntologyDialogRef: NzModalRef<any, any>;
+  private reopenConceptsDialog: boolean;
 
   get isFullscreen(): boolean {
     return !!this.main?.fullScreenIsActive;
@@ -181,30 +183,6 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
       return;
     }
     this.modelingService.redo(this.modelId).subscribe((res: CombinedModel) => this.combinedModel = res);
-  }
-
-  addConcepts(): void {
-    if (this.isFinalized()) {
-      return;
-    }
-    if (this.addConceptDialogRef) {
-      this.addConceptDialogRef.close();
-      this.addConceptDialogRef = undefined;
-      return;
-    }
-    this.uploadOntologyDialogRef?.close();
-    const rect: DOMRect = this.modelingArea.nativeElement.getBoundingClientRect();
-    const config: ModalOptions = {
-      nzStyle: {position: 'absolute', top: `${rect.top + 15}px`, left: `10px`, 'max-width': '30%', bottom: '15px'},
-      nzClassName: 'pls-concept-dialog',
-      nzTitle: '',
-      nzContent: PlsConceptDialogComponent,
-      nzComponentParams: {
-        dataSource: this.modelId
-      }
-    };
-    this.addConceptDialogRef = this.modal.create(Object.assign(config, ModalMouseEnabledConfig));
-    this.addConceptDialogRef.afterClose.subscribe(() => this.addConceptDialogRef = undefined);
   }
 
   onNodeClicked(event: string): void {
@@ -311,8 +289,38 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
     return this.combinedModel?.finalized;
   }
 
-  updateSelectedOntologies(): void {
-    this.modelingService.updateSelectedOntologies(this.modelId, this.selectedOntologies).subscribe();
+  // DIALOGS
+
+  showAddConceptDialog(): void {
+    if (this.isFinalized()) {
+      return;
+    }
+    if (this.addConceptDialogRef) {
+      this.addConceptDialogRef.close();
+      this.addConceptDialogRef = undefined;
+      return;
+    }
+    this.uploadOntologyDialogRef?.close();
+    const rect: DOMRect = this.modelingArea.nativeElement.getBoundingClientRect();
+    const config: ModalOptions = {
+      nzStyle: {position: 'absolute', top: `${rect.top + 15}px`, left: `10px`, 'max-width': '30%', bottom: '15px'},
+      nzClassName: 'pls-concept-dialog',
+      nzTitle: '',
+      nzContent: PlsConceptDialogComponent,
+      nzComponentParams: {
+        dataSource: this.modelId
+      }
+    };
+    this.addConceptDialogRef = this.modal.create(Object.assign(config, ModalMouseEnabledConfig));
+    this.addConceptDialogRef.afterClose.subscribe(() => this.addConceptDialogRef = undefined);
+  }
+
+
+  closeAddConceptDialog(): void {
+    if (this.addConceptDialogRef) {
+      this.addConceptDialogRef.close();
+      this.addConceptDialogRef = undefined;
+    }
   }
 
   showUploadOntologyDialog(): void {
@@ -321,6 +329,7 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
       this.uploadOntologyDialogRef = undefined;
       return;
     }
+    this.closeAddConceptDialog();
     const rect: DOMRect = this.modelingArea.nativeElement.getBoundingClientRect();
     const config: ModalOptions = {
       nzStyle: {position: 'absolute', top: `${rect.top + 15}px`, right: `10px`, 'max-width': '30%', bottom: '15px'},
@@ -331,5 +340,18 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
     };
     this.uploadOntologyDialogRef = this.modal.create(Object.assign(config, ModalMouseEnabledConfig));
     this.uploadOntologyDialogRef.afterClose.subscribe(() => this.uploadOntologyDialogRef = undefined);
+    this.uploadOntologyDialogRef.getContentComponent().ontologyCreated.subscribe(() => {
+      this.ontologyService.listOntologies().subscribe((ontologies: Array<OntologyInfo>) => {
+        this.availableOntologies = ontologies;
+      });
+    });
+  }
+
+  onOntologySelectionChanged(): void {
+    this.closeAddConceptDialog();
+    this.modelingService.updateSelectedOntologies(this.modelId, this.selectedOntologies).subscribe();
+    // if (this.reopenConceptsDialog) {
+    //   this.showAddConceptDialog();
+    // }
   }
 }

@@ -1,7 +1,6 @@
-import { Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, Output, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { OntologyControllerService } from '../../../api/generated/kgs';
-import { NzUploadFile } from 'ng-zorro-antd/upload';
 
 @Component({
   selector: 'pls-upload-ontology',
@@ -26,7 +25,7 @@ export class UploadOntologyComponent {
 
   ontologyFiles: File[] = [];
 
-  @Output() dataSourceCreated = new EventEmitter();
+  @Output() ontologyCreated = new EventEmitter();
 
   @ViewChild('fileInput') fileInput: ElementRef;
 
@@ -37,7 +36,6 @@ export class UploadOntologyComponent {
    * Submits the ontology.
    */
   onSubmit(): void {
-    console.log('uploading', this.ontologyFiles[0]);
     this.error = null;
     this.ontologyController.addOntology(
       this.form.get('label').value,
@@ -49,6 +47,7 @@ export class UploadOntologyComponent {
       this.ontologyFiles = [];
       this.success = 'Ontology added.';
       this.error = undefined;
+      this.ontologyCreated.next();
     }, error => {
       this.success = undefined;
       this.error = error;
