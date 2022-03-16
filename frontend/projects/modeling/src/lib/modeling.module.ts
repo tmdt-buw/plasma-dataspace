@@ -45,6 +45,7 @@ import { UploadOntologyComponent } from './modeling/dialogs/upload-ontology/uplo
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { NzResultModule } from 'ng-zorro-antd/result';
 
 
 @NgModule({
@@ -55,42 +56,43 @@ import { MatFormFieldModule } from '@angular/material/form-field';
     InlineInputEditComponent, PlsSemanticClassMenuComponent, PlsRelationConceptMenuComponent, PlsFullscreenDirective,
     PlsNamedEntityMenuComponent, PlsLiteralMenuComponent, UploadOntologyComponent
   ],
-  imports: [
-    // Plasma
-    ApiModule,
-    PlsOperationsDialogModule,
-    KGSApiModule,
-    // Angular
-    CommonModule,
-    DragDropModule,
-    FlexLayoutModule,
-    FormsModule,
-    ReactiveFormsModule,
-    OverlayModule,
-    NzButtonModule,
-    NzIconModule,
-    NzToolTipModule,
-    NzSwitchModule,
-    NzFormModule,
-    NzInputModule,
-    NzDropDownModule,
-    NzSelectModule,
-    NzSpinModule,
-    NzCardModule,
-    NzDividerModule,
-    NzTypographyModule,
-    NzUploadModule,
-    NzModalModule,
-    NzTabsModule,
-    NzAlertModule,
-    NzCheckboxModule,
-    NzRadioModule,
-    NzTagModule,
-    NzCollapseModule,
-    MatButtonModule,
-    MatIconModule,
-    MatFormFieldModule
-  ],
+    imports: [
+        // Plasma
+        ApiModule,
+        PlsOperationsDialogModule,
+        KGSApiModule,
+        // Angular
+        CommonModule,
+        DragDropModule,
+        FlexLayoutModule,
+        FormsModule,
+        ReactiveFormsModule,
+        OverlayModule,
+        NzButtonModule,
+        NzIconModule,
+        NzToolTipModule,
+        NzSwitchModule,
+        NzFormModule,
+        NzInputModule,
+        NzDropDownModule,
+        NzSelectModule,
+        NzSpinModule,
+        NzCardModule,
+        NzDividerModule,
+        NzTypographyModule,
+        NzUploadModule,
+        NzModalModule,
+        NzTabsModule,
+        NzAlertModule,
+        NzCheckboxModule,
+        NzRadioModule,
+        NzTagModule,
+        NzCollapseModule,
+        MatButtonModule,
+        MatIconModule,
+        MatFormFieldModule,
+        NzResultModule
+    ],
   exports: [PlsModelingComponent]
 })
 export class PlsModelingModule {

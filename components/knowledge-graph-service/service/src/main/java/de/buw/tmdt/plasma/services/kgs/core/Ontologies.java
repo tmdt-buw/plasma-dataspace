@@ -1,6 +1,7 @@
 package de.buw.tmdt.plasma.services.kgs.core;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import de.buw.tmdt.plasma.services.kgs.shared.model.OntologyInfo;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.jena.ontology.OntModel;
@@ -17,6 +18,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -50,7 +52,8 @@ public class Ontologies {
     @Autowired
     public Ontologies(LocalOntologyManagement localOntologyManagement) {
         this.localOntologyManagement = localOntologyManagement;
-        mapper = new ObjectMapper();
+        mapper = new ObjectMapper()
+                .registerModule( new ParameterNamesModule() );
         reloadOntologies();
     }
 
@@ -64,7 +67,7 @@ public class Ontologies {
         try {
             Files.list(ontologiesFolder)
                     .forEach(filePath -> {
-                        if (!ONTOLOGY_SUFFIX.equals(FilenameUtils.getExtension(filePath.toString()))) {
+                        if (!ONTOLOGY_SUFFIX.equals("." + FilenameUtils.getExtension(filePath.toString()))) {
                             return;
                         }
                         try {
@@ -73,6 +76,7 @@ public class Ontologies {
                             try (FileInputStream fis = new FileInputStream(ontology.getFilePath())) {
                                 loadedOnto.read(fis, "", "TURTLE"); // TODO handle different formats or homogenize
                             } catch (IOException fnfe) {
+                                log.error("Could not read {}:", filePath, fnfe);
                                 return;
                             }
                             reloadedModels.put(ontology,loadedOnto);
@@ -101,12 +105,22 @@ public class Ontologies {
         if (filename == null || filename.isBlank()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "File must have a filename.");
         }
-        if (Files.exists(Paths.get(filename))) {
+        if (Files.exists(Paths.get(getOntologyFolder(),filename))) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "This ontology already exists.");
         }
         label = label.replaceAll(" ", "_");
 
         try {
+            // try loading the ontology
+            OntModel loadedOnto = ModelFactory.createOntologyModel();
+
+            try (InputStream is = ontologyFile.getInputStream()) {
+                loadedOnto.read(is, "", "TURTLE"); // TODO handle different formats or homogenize
+            } catch (IOException e) {
+                log.error("Could not read received ontology {}:", ontologyFile.getOriginalFilename(), e);
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Could not read the received ontology: " + e.getMessage());
+            }
+
             Path metadataFilePath = Paths.get(getOntologyFolder(), label + ONTOLOGY_SUFFIX);
             if (Files.exists(metadataFilePath)) {
                 throw new ResponseStatusException(HttpStatus.CONFLICT, "Ontology for this label already exists");
@@ -115,10 +129,10 @@ public class Ontologies {
             log.info("Uploading ontology file");
             Path ontologyFilePath = Paths.get(getOntologyFolder(), filename);
             byte[] bytes = ontologyFile.getBytes();
-            Files.write(Paths.get(filename), bytes);
+            Files.write(Paths.get(getOntologyFolder(),filename), bytes);
             log.info("Written ontology file to " + ontologyFilePath);
 
-            Ontology onto = new Ontology(label, prefix, namespace, metadataFilePath.toString());
+            Ontology onto = new Ontology(label, ontologyFilePath.toString(), prefix, namespace );
             mapper.writeValue(metadataFilePath.toFile(), onto);
         } catch (IOException e) {
             log.error("Error while writing ontology or metadata file", e);
@@ -127,6 +141,8 @@ public class Ontologies {
                     "Ontology could not be stored."
             );
         }
+        // rebuild the index
+        reloadOntologies();
     }
 
     public List<OntologyInfo> listOntologies() {

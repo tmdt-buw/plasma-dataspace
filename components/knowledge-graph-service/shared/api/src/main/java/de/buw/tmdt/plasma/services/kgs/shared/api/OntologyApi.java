@@ -51,12 +51,12 @@ public interface OntologyApi {
     /**
      * Add ontology
      */
-    @PostMapping(value = "/")
+    @PostMapping(value = "/ontologies",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     void addOntology(@RequestParam(value = "label") String label,
                      @RequestParam(value = "prefix") String prefix,
                      @RequestParam(value = "uri") String uri,
-                     @RequestParam("ontologyFile") MultipartFile ontologyFile);
+                     @RequestParam("file") MultipartFile ontologyFile);
 
-    @GetMapping(value = "/", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/ontologies", produces = MediaType.APPLICATION_JSON_VALUE)
     List<OntologyInfo> listOntologies();
 }

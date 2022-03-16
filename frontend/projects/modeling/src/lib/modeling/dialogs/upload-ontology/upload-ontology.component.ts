@@ -1,6 +1,6 @@
 import { Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { InlineObject, OntologyControllerService } from '../../../api/generated/kgs';
+import { OntologyControllerService } from '../../../api/generated/kgs';
 import { NzUploadFile } from 'ng-zorro-antd/upload';
 
 @Component({
@@ -19,12 +19,12 @@ export class UploadOntologyComponent {
     label: new FormControl('', [Validators.required, Validators.maxLength(6), Validators.minLength(2)]),
     uri: new FormControl('', [Validators.required]),
     prefix: new FormControl('', [Validators.required, Validators.maxLength(6), Validators.minLength(2)]),
-    description: new FormControl('', [Validators.required]),
-    filename: new FormControl()
+    description: new FormControl('', [])
   });
   error;
+  success;
 
-  ontologyFile: NzUploadFile;
+  ontologyFiles: File[] = [];
 
   @Output() dataSourceCreated = new EventEmitter();
 
@@ -33,26 +33,33 @@ export class UploadOntologyComponent {
   constructor(private ontologyController: OntologyControllerService) {
   }
 
-  test: InlineObject;
-
   /**
    * Submits the ontology.
    */
   onSubmit(): void {
+    console.log('uploading', this.ontologyFiles[0]);
     this.error = null;
     this.ontologyController.addOntology(
       this.form.get('label').value,
-      this.form.get('uri').value,
       this.form.get('prefix').value,
-      {ontologyFile: this.ontologyFile.originFileObj}
-    ).subscribe(success => console.log('upload ok'), error => this.error = error);
+      this.form.get('uri').value,
+      this.ontologyFiles[0]
+    ).subscribe(() => {
+      this.form.reset();
+      this.ontologyFiles = [];
+      this.success = 'Ontology added.';
+      this.error = undefined;
+    }, error => {
+      this.success = undefined;
+      this.error = error;
+    });
   }
 
-  beforeUpload = (file: NzUploadFile): boolean => {
-    if (this.checkFileExtension(file.originFileObj)) {
-      this.ontologyFile = file;
+  beforeUpload = (file: File): boolean => {
+    if (this.checkFileExtension(file)) {
+      this.ontologyFiles = [file];
     } else {
-      this.ontologyFile = undefined;
+      this.ontologyFiles = [];
     }
     return false;
   }
@@ -61,7 +68,7 @@ export class UploadOntologyComponent {
    * Checks if the form is valid
    */
   isValid(): boolean {
-    return this.form.valid && !!this.ontologyFile;
+    return this.form.valid && this.ontologyFiles?.length === 1;
   }
 
   /**

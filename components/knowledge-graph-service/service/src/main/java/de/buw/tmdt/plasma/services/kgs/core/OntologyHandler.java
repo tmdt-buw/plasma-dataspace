@@ -54,25 +54,29 @@ public class OntologyHandler {
                     .forEach(nodes::add);
             findNamedEntities(localOntologyList, ne -> uri.equals(ne.getURI())).stream()
                     .map(CMToRDFMapper::convertOntologyResourceToSemanticModelNode)
+                    .filter(Objects::nonNull)
                     .forEach(nodes::add);
         } else if (prefix != null && !prefix.isBlank()) {
             findClasses(filteredOntologyModels,
-                    clazz -> StringUtils.startsWithIgnoreCase(clazz.getLabel(null), infix)).stream()
+                    clazz -> StringUtils.startsWithIgnoreCase(clazz.getLabel(null), prefix)).stream()
                     .map(CMToRDFMapper::convertOntologyClassToClass)
                     .forEach(nodes::add);
-            findNamedEntities(localOntologyList, ne -> StringUtils.startsWithIgnoreCase(ne.getRequiredProperty(RDFS.label).getString(), infix)).stream()
+            findNamedEntities(localOntologyList, ne -> StringUtils.startsWithIgnoreCase(ne.getProperty(RDFS.label) != null ? ne.getProperty(RDFS.label).getString() : "", prefix)).stream()
                     .map(CMToRDFMapper::convertOntologyResourceToSemanticModelNode)
                     .forEach(nodes::add);
         } else if (infix != null && !infix.isBlank()) {
             findClasses(filteredOntologyModels,
-                    clazz -> StringUtils.containsIgnoreCase(clazz.getLabel(null), infix)).stream()
+                    clazz -> StringUtils.containsIgnoreCase(clazz.getLabel(null), infix) ||
+                            StringUtils.containsIgnoreCase(clazz.getURI(), infix)).stream()
                     .map(CMToRDFMapper::convertOntologyClassToClass)
                     .forEach(nodes::add);
-            findNamedEntities(localOntologyList, ne -> StringUtils.containsIgnoreCase(ne.getRequiredProperty(RDFS.label).getString(), infix)).stream()
+            findNamedEntities(localOntologyList, ne -> StringUtils.containsIgnoreCase(ne.getProperty(RDFS.label) != null ? ne.getProperty(RDFS.label).getString() : "", infix) ||
+                    StringUtils.containsIgnoreCase(ne.getURI(), infix)).stream()
                     .map(CMToRDFMapper::convertOntologyResourceToSemanticModelNode)
+                    .filter(Objects::nonNull)
                     .forEach(nodes::add);
         } else {
-            findClasses(filteredOntologyModels, clazz -> Objects.nonNull(clazz.getLabel(null))).stream()
+            findClasses(filteredOntologyModels, clazz -> true).stream()
                     .map(CMToRDFMapper::convertOntologyClassToClass)
                     .forEach(nodes::add);
         }
@@ -87,20 +91,27 @@ public class OntologyHandler {
         if (uri != null && !uri.isBlank()) {
             findProperties(filteredOntologyModels, prop -> uri.equals(prop.getURI())).stream()
                     .map(CMToRDFMapper::convertOntologyPropertyToRelation)
+                    .filter(Objects::nonNull)
                     .forEach(relations::add);
         } else if (prefix != null && !prefix.isBlank()) {
             findProperties(filteredOntologyModels,
-                    prop -> StringUtils.startsWithIgnoreCase(prop.getLabel(null), infix)).stream()
+                    prop -> StringUtils.startsWithIgnoreCase(prop.getLabel(null), prefix)||
+                            StringUtils.startsWithIgnoreCase(prop.getURI(), prefix)).stream()
                     .map(CMToRDFMapper::convertOntologyPropertyToRelation)
+                    .filter(Objects::nonNull)
                     .forEach(relations::add);
         } else if (infix != null && !infix.isBlank()) {
             findProperties(filteredOntologyModels,
-                    prop -> StringUtils.containsIgnoreCase(prop.getLabel(null), infix)).stream()
+                    prop -> StringUtils.containsIgnoreCase(prop.getLabel(null), infix) ||
+                    StringUtils.containsIgnoreCase(prop.getURI(), infix)).stream()
                     .map(CMToRDFMapper::convertOntologyPropertyToRelation)
+                    .filter(Objects::nonNull)
                     .forEach(relations::add);
         } else {
-            findProperties(filteredOntologyModels, prop -> Objects.nonNull(prop.getLabel(null))).stream()
+            List<OntProperty> properties = findProperties(filteredOntologyModels, prop -> true);
+            properties.stream()
                     .map(CMToRDFMapper::convertOntologyPropertyToRelation)
+                    .filter(Objects::nonNull)
                     .forEach(relations::add);
         }
         return relations;

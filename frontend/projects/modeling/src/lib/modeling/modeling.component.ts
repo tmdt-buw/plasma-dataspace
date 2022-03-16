@@ -47,7 +47,7 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
   @Input() modelId: string;
   @Input() backgroundColor: string;
   @Input() fullScreen: boolean = true;
-  @Input() readonly: boolean = false;
+  @Input() viewerMode: boolean = false;
   @Input() lockDragAndDrop: boolean = false;
   @Input() hideFinalizeButton: boolean = false;
   @Input() hideExportButton: boolean = false;
@@ -91,11 +91,9 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.ontologyService.listOntologies().subscribe((ontologies: Array<OntologyInfo>) => {
-      console.log('available', ontologies);
       this.availableOntologies = ontologies;
     });
     this.modelingService.getSelectedOntologies(this.modelId).subscribe((ontologies: Array<string>) => {
-      console.log('selected', ontologies);
       this.selectedOntologies = ontologies;
     });
 
@@ -157,7 +155,7 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
   getSchema(): void {
     this.modelingService.getCombinedModel(this.modelId).subscribe((schema: CombinedModel) => {
         this.combinedModel = schema;
-        if (this.readonly) {
+        if (this.viewerMode) {
           this.$filter.next(Filter.SEMANTIC);
         }
         this.loading = false;
@@ -293,11 +291,11 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
   finalizeModel(): void {
     // close all dialogs
     this.modal.closeAll();
-    this.readonly = true;
+    this.viewerMode = true;
     this.modelingService.finalizeModeling(this.modelId).subscribe(() => {
       this.finished.emit();
     }, () => {
-      this.readonly = false;
+      this.viewerMode = false;
     });
   }
 

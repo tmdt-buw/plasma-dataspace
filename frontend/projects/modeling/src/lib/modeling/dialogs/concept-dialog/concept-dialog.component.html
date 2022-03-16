@@ -16,26 +16,27 @@
         </div>
       </div>
 
-      <div cdkDropList
-           id="entityList" [cdkDropListConnectedTo]="['canvasContainer']"
-           [cdkDropListData]="semanticModelNodes"
-           class="concept-list scroll-list"
-           cdkDropListSortingDisabled>
-        <div *ngFor="let element of semanticModelNodes" cdkDrag class="concept-box" nz-tooltip
-             nzTooltipTitle="{{element.description}}" [cdkDragData]="element">
-          <div fxLayout="row" fxLayoutAlign="start center" >{{ element.label }}
-            <nz-tag class="named-entity-tag" *ngIf="element._class === 'NamedEntity'"
-                    [nz-tooltip]="'A Named Entity represents a fixed entity and cannot be modified.'">NE
-            </nz-tag>
-          </div>
-          <span nz-typography nzType="secondary">{{element.uri}}</span>
-          <div *cdkDragPreview class="concept-preview"
-               [ngStyle]="{ border: '3px solid', 'border-color': 'black',  color: 'black'}">
-            <div class="concept-preview-header" [ngStyle]="{ background: 'black', color: 'black' }">
-              <span class="concept-preview-header-text">{{ element.label }}</span></div>
+        <div cdkDropList
+             id="entityList" [cdkDropListConnectedTo]="['canvasContainer']"
+             [cdkDropListData]="semanticModelNodes"
+             class="concept-list scroll-list"
+             cdkDropListSortingDisabled>
+          <div *ngFor="let element of semanticModelNodes" cdkDrag class="concept-box" nz-tooltip
+               nzTooltipTitle="{{element.description}}" [cdkDragData]="element">
+            <div fxLayout="row" fxLayoutAlign="start center" class="concept-box-label">{{ element.label }}
+              <nz-tag class="named-entity-tag" *ngIf="element._class === 'NamedEntity'"
+                      [nz-tooltip]="'A Named Entity represents a fixed entity and cannot be modified.'">NE
+              </nz-tag>
+            </div>
+            <span class="concept-box-uri" nz-typography nzType="secondary">{{element.uri}}</span>
+            <div *cdkDragPreview class="concept-preview"
+                 [ngStyle]="{ border: '3px solid', 'border-color': 'black',  color: 'black'}">
+              <div class="concept-preview-header" [ngStyle]="{ background: 'black', color: 'black' }">
+                <span class="concept-preview-header-text">{{ element.label }}</span></div>
+            </div>
           </div>
         </div>
-      </div>
+
     </div>
   </nz-tab>
 

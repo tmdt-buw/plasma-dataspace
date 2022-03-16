@@ -42,8 +42,8 @@ public abstract class Relation extends CombinedModelElement implements Serializa
 
     @NotNull
     private final String uri;
-    private String description;
-    private Set<String> properties;
+    private final String description;
+    private final Set<String> properties;
 
     public Relation(
             String from,
@@ -67,7 +67,7 @@ public abstract class Relation extends CombinedModelElement implements Serializa
             String to,
             @NotNull String uri,
             @NotNull String label,
-            @NotNull String description
+            @Nullable String description
     ) {
         this(null, from, to, uri, label, description, null);
     }

@@ -326,16 +326,19 @@ public class CMToRDFMapper {
     }
 
     public static Relation convertOntologyPropertyToRelation(OntProperty property) {
-        if (property instanceof DatatypeProperty) {
-            return new DataProperty("", "", PREFIXES.shortForm(property.getURI()), property.getLabel(null), property.getComment(null));
-        } else if (property instanceof ObjectProperty) {
-            return new ObjectProperty("", "", PREFIXES.shortForm(property.getURI()), property.getLabel(null), property.getComment(null));
+        if(property == null){
+            return null;
+        }
+        if (property.isDatatypeProperty()) {
+            return new DataProperty("", "", PREFIXES.shortForm(property.getURI()), PREFIXES.shortForm(property.getLabel(null) == null ? property.getURI() : property.getLabel(null)), property.getComment(null));
+        } else if (property.isObjectProperty()) {
+            return new ObjectProperty("", "", PREFIXES.shortForm(property.getURI()), PREFIXES.shortForm(property.getLabel(null) == null ? property.getURI() : property.getLabel(null)), property.getComment(null));
         }
         return null;
     }
 
     public static Class convertOntologyClassToClass(OntClass ontClass) {
-        return new Class(PREFIXES.shortForm(ontClass.getURI()),ontClass.getLabel(null),ontClass.getComment(null));
+        return new Class(PREFIXES.shortForm(ontClass.getURI()),PREFIXES.shortForm(ontClass.getLabel(null) == null ? ontClass.getURI() : ontClass.getLabel(null)),ontClass.getComment(null));
     }
 
 }

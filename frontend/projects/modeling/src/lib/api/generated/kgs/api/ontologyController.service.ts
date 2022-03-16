@@ -21,8 +21,6 @@ import { Observable }                                        from 'rxjs';
 // @ts-ignore
 import { DataProperty } from '../model/dataProperty';
 // @ts-ignore
-import { InlineObject } from '../model/inlineObject';
-// @ts-ignore
 import { ObjectProperty } from '../model/objectProperty';
 // @ts-ignore
 import { OntologyInfo } from '../model/ontologyInfo';
@@ -56,6 +54,19 @@ export class OntologyControllerService {
         this.encoder = this.configuration.encoder || new CustomHttpParameterCodec();
     }
 
+    /**
+     * @param consumes string[] mime-types
+     * @return true: consumes contains 'multipart/form-data', false: otherwise
+     */
+    private canConsumeForm(consumes: string[]): boolean {
+        const form = 'multipart/form-data';
+        for (const consume of consumes) {
+            if (form === consume) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     private addToHttpParams(httpParams: HttpParams, value: any, key?: string): HttpParams {
         if (typeof value === "object" && value instanceof Date === false) {
@@ -97,14 +108,14 @@ export class OntologyControllerService {
      * @param label 
      * @param prefix 
      * @param uri 
-     * @param inlineObject 
+     * @param file 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public addOntology(label: string, prefix: string, uri: string, inlineObject?: InlineObject, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext}): Observable<any>;
-    public addOntology(label: string, prefix: string, uri: string, inlineObject?: InlineObject, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext}): Observable<HttpResponse<any>>;
-    public addOntology(label: string, prefix: string, uri: string, inlineObject?: InlineObject, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext}): Observable<HttpEvent<any>>;
-    public addOntology(label: string, prefix: string, uri: string, inlineObject?: InlineObject, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext}): Observable<any> {
+    public addOntology(label: string, prefix: string, uri: string, file: Blob, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext}): Observable<any>;
+    public addOntology(label: string, prefix: string, uri: string, file: Blob, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext}): Observable<HttpResponse<any>>;
+    public addOntology(label: string, prefix: string, uri: string, file: Blob, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext}): Observable<HttpEvent<any>>;
+    public addOntology(label: string, prefix: string, uri: string, file: Blob, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext}): Observable<any> {
         if (label === null || label === undefined) {
             throw new Error('Required parameter label was null or undefined when calling addOntology.');
         }
@@ -113,6 +124,9 @@ export class OntologyControllerService {
         }
         if (uri === null || uri === undefined) {
             throw new Error('Required parameter uri was null or undefined when calling addOntology.');
+        }
+        if (file === null || file === undefined) {
+            throw new Error('Required parameter file was null or undefined when calling addOntology.');
         }
 
         let localVarQueryParameters = new HttpParams({encoder: this.encoder});
@@ -147,14 +161,27 @@ export class OntologyControllerService {
             localVarHttpContext = new HttpContext();
         }
 
-
         // to determine the Content-Type header
         const consumes: string[] = [
-            'application/json'
+            'multipart/form-data'
         ];
-        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
-        if (httpContentTypeSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
+
+        const canConsumeForm = this.canConsumeForm(consumes);
+
+        let localVarFormParams: { append(param: string, value: any): any; };
+        let localVarUseForm = false;
+        let localVarConvertFormParamsToString = false;
+        // use FormData to transmit files using content-type "multipart/form-data"
+        // see https://stackoverflow.com/questions/4007969/application-x-www-form-urlencoded-or-multipart-form-data
+        localVarUseForm = canConsumeForm;
+        if (localVarUseForm) {
+            localVarFormParams = new FormData();
+        } else {
+            localVarFormParams = new HttpParams({encoder: this.encoder});
+        }
+
+        if (file !== undefined) {
+            localVarFormParams = localVarFormParams.append('file', <any>file) as any || localVarFormParams;
         }
 
         let responseType_: 'text' | 'json' | 'blob' = 'json';
@@ -168,8 +195,8 @@ export class OntologyControllerService {
             }
         }
 
-        return this.httpClient.post<any>(`${this.configuration.basePath}/api/plasma-kgs/ontologies/`,
-            inlineObject,
+        return this.httpClient.post<any>(`${this.configuration.basePath}/api/plasma-kgs/ontologies/ontologies`,
+            localVarConvertFormParamsToString ? localVarFormParams.toString() : localVarFormParams,
             {
                 context: localVarHttpContext,
                 params: localVarQueryParameters,
@@ -376,7 +403,7 @@ export class OntologyControllerService {
             }
         }
 
-        return this.httpClient.get<Array<OntologyInfo>>(`${this.configuration.basePath}/api/plasma-kgs/ontologies/`,
+        return this.httpClient.get<Array<OntologyInfo>>(`${this.configuration.basePath}/api/plasma-kgs/ontologies/ontologies`,
             {
                 context: localVarHttpContext,
                 responseType: <any>responseType_,
