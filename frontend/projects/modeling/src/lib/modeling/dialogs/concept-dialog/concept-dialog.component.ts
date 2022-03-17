@@ -82,6 +82,7 @@ export class PlsConceptDialogComponent implements OnInit, OnDestroy {
   }
 
   toggleRelation(index: number, relation: Relation): void {
+    console.log('toggle relation', index, relation);
     if (this.isSelected(relation)) {
       this.modeling.relation.next(null);
     } else {

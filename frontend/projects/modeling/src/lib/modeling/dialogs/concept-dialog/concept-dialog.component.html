@@ -1,6 +1,6 @@
 <nz-tabset (nzSelectChange)="onIndexChange($event)">
   <nz-tab nzTitle="Concepts">
-    <div fxLayout="column" fxLayoutGap="5px">
+    <div fxLayout="column" fxLayoutGap="5px" class="concept-list-container">
       <div fxLayout="row" fxLayoutGap="5px" fxLayoutAlign="start center">
         <nz-input-group [nzSuffix]="suffixIconSearch">
           <input type="text" nz-input placeholder="Search" [formControl]="entitySearchControl"/>
@@ -21,14 +21,18 @@
              [cdkDropListData]="semanticModelNodes"
              class="concept-list scroll-list"
              cdkDropListSortingDisabled>
-          <div *ngFor="let element of semanticModelNodes" cdkDrag class="concept-box" nz-tooltip
-               nzTooltipTitle="{{element.description}}" [cdkDragData]="element">
-            <div fxLayout="row" fxLayoutAlign="start center" class="concept-box-label">{{ element.label }}
+          <div *ngFor="let element of semanticModelNodes" cdkDrag class="concept-box" nz-tooltip fxLayout="column"
+               nzTooltipTitle="{{element.description}}" [cdkDragData]="element" fxLayoutAlign="start start">
+            <div fxFlex fxLayout="row" fxLayoutAlign="start center" >
+              <span nz-typography nzEllipsis>{{ element.label }}</span>
               <nz-tag class="named-entity-tag" *ngIf="element._class === 'NamedEntity'"
                       [nz-tooltip]="'A Named Entity represents a fixed entity and cannot be modified.'">NE
               </nz-tag>
             </div>
-            <span class="concept-box-uri" nz-typography nzType="secondary">{{element.uri}}</span>
+            <div fxFlex fxLayoutAlign="start center">
+              <span nz-typography nzType="secondary" nzEllipsis>{{ element.uri }}</span>
+            </div>
+
             <div *cdkDragPreview class="concept-preview"
                  [ngStyle]="{ border: '3px solid', 'border-color': 'black',  color: 'black'}">
               <div class="concept-preview-header" [ngStyle]="{ background: 'black', color: 'black' }">
@@ -41,7 +45,7 @@
   </nz-tab>
 
   <nz-tab nzTitle="Relations">
-    <div fxLayout="column" fxLayoutGap="5px">
+    <div fxLayout="column" fxLayoutGap="5px" class="concept-list-container">
       <div fxLayout="row" fxLayoutGap="5px" fxLayoutAlign="start center">
         <nz-input-group [nzSuffix]="suffixIconSearch">
           <input type="text" nz-input placeholder="Search" [formControl]="relationSearchControl"/>
@@ -57,21 +61,24 @@
         </div>
       </div>
 
-      <ul nz-menu class="concept-list">
-        <li *ngFor="let relation of relations; let i = index" nz-menu-item
-            [value]="relation"
+      <div class="concept-list scroll-list">
+        <div *ngFor="let relation of relations; let i = index"
             (click)="toggleRelation(i, relation)"
-            [ngStyle]="{'background': isSelected(relation) ? 'black' : null, 'color': isSelected(relation) ? 'white' : null}">
-          <div fxLayout="row" fxLayoutAlign="space-between center">
-            <div fxLayout="row" fxLayoutAlign="start center" >{{ relation.label }}
+            [ngStyle]="{'background': isSelected(relation) ? 'lightgrey' : null, 'color': isSelected(relation) ? 'white' : null}"
+            class="concept-box" fxLayout="column">
+
+            <div fxLayout="row" fxLayoutAlign="space-between" >
+              <span nz-typography nzEllipsis >{{ relation.label }}</span>
               <nz-tag class="datatype-property-tag" *ngIf="relation._class === 'DataProperty'"
                       [nz-tooltip]="'A DatatypeProperty extends a Class with a literal.'">DP
               </nz-tag>
             </div>
-            <span nz-typography nzType="secondary">{{relation.uri}}</span>
-          </div>
-        </li>
-      </ul>
+            <div>
+              <span nz-typography nzType="secondary" nzEllipsis>{{ relation.uri }}</span>
+            </div>
+
+        </div>
+      </div>
     </div>
   </nz-tab>
 
