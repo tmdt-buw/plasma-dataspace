@@ -95,11 +95,6 @@
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
-            <groupId>de.buw.tmdt.plasma.services.sas</groupId>
-            <artifactId>feign-client</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
             <groupId>de.buw.tmdt.plasma.services.srs</groupId>
             <artifactId>feign-client</artifactId>
             <version>${project.parent.version}</version>

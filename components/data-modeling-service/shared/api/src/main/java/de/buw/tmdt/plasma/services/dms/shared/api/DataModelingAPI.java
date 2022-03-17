@@ -15,14 +15,22 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @SuppressWarnings("HardcodedFileSeparator")
-@RequestMapping(value = "/api/plasma-dms/models")
+@RequestMapping(value = "/api/plasma-dms/modelings")
 public interface DataModelingAPI {
 
-    @PostMapping(value = "/init")
-    CombinedModel initSchema(
-            @NotNull @RequestParam("modelId") String modelId,
-            @NotNull @RequestParam(value = "exampleLimit", defaultValue = "100") Integer exampleLimit
-    );
+    //############################################### Schema Definition ###############################################
+
+    @PostMapping(value = "/", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    ModelingInfo createNewModeling(
+			@NotNull @RequestParam("modelId") String modelId,
+            @NotNull @RequestBody CombinedModel combinedModel,
+            @RequestParam(defaultValue = "true") boolean performInitialModeling,
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) String description,
+            @RequestParam(required = false) String dataId);
+
+    @GetMapping(value = "/")
+    List<ModelingInfo> listModelings();
 
     @NotNull
     @GetMapping(value = "/{modelId}/import")
@@ -31,6 +39,14 @@ public interface DataModelingAPI {
     @NotNull
     @GetMapping(value = "/{modelId}", produces = MediaType.APPLICATION_JSON_VALUE)
     CombinedModel getCombinedModel(@NotNull @PathVariable("modelId") String modelId);
+
+    @NotNull
+    @GetMapping(value = "/{modelId}/labeling", produces = MediaType.APPLICATION_JSON_VALUE)
+    CombinedModel performSemanticLabeling(@NotNull @PathVariable("modelId") String modelId);
+
+    @NotNull
+    @GetMapping(value = "/{modelId}/modeling", produces = MediaType.APPLICATION_JSON_VALUE)
+    CombinedModel performSemanticModeling(@NotNull @PathVariable("modelId") String modelId);
 
     @PatchMapping(value = "/{modelId}/positions", consumes = MediaType.APPLICATION_JSON_VALUE)
     void updatePositions(@NotNull @PathVariable("modelId") String modelId, @NotNull @RequestBody List<PositionedCombinedModelElement> elements);
