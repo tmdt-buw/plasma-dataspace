@@ -40,7 +40,7 @@ public class Literal extends SemanticModelNode {
     }
 
     public void validate() throws CombinedModelIntegrityException {
-        if (getValue() == null || getValue().isBlank()) {
+        if (getValue() == null) {
             throw new CombinedModelIntegrityException("Literal " + getUuid() + " has no proper value");
         }
     }
