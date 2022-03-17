@@ -78,7 +78,7 @@ public class ModelingHandler {
             return modelingResult.get();
         }
         Modeling modeling = new Modeling(modelId, name, description, dataId);
-        dataSourceModel.getSelectedOntologies().add("PLASMA");
+        modeling.getSelectedOntologies().add("PLASMA");
         // save initial version of submitted model
         modeling.pushCombinedModel(combinedModel);
         modeling = persistModeling(modeling);
@@ -129,7 +129,7 @@ public class ModelingHandler {
      */
     // TODO handle proper positioning of new nodes
     public CombinedModel copySemanticModelFromOtherModel(@NotNull String modelId, @NotNull String sourceModelId) {
-        DataSourceModel modeling = findDataSourceOrThrow(modelId);
+        Modeling modeling = findModelingOrThrow(modelId);
         CombinedModel model = getCombinedModel(modelId, true);
         CombinedModel sourceCM = getCombinedModel(sourceModelId);
 
@@ -173,7 +173,7 @@ public class ModelingHandler {
 
         model.apply(delta);
         modeling.pushCombinedModel(model);
-        persistDataSourceModel(modeling);
+        persistModeling(modeling);
         return model;
     }
 
@@ -217,7 +217,7 @@ public class ModelingHandler {
     @SuppressFBWarnings("NP_NONNULL_RETURN_VIOLATION") // stream collector does not return null
     @NotNull
     public List<SemanticModelNode> getElements(@NotNull String modelId, @Nullable String prefix, @Nullable String infix) {
-        DataSourceModel modeling = findDataSourceOrThrow(modelId);
+        Modeling modeling = findModelingOrThrow(modelId);
         List<SemanticModelNode> availableElements;
         try {
             availableElements =
@@ -250,7 +250,7 @@ public class ModelingHandler {
     @SuppressFBWarnings("NP_NONNULL_RETURN_VIOLATION") // stream collector does not return null
     @NotNull
     public List<Relation> getRelations(@NotNull String modelId, @Nullable String prefix, @Nullable String infix) {
-        DataSourceModel modeling = findDataSourceOrThrow(modelId);
+        Modeling modeling = findModelingOrThrow(modelId);
 
         List<Relation> availableRelations;
         try {
@@ -712,15 +712,15 @@ public class ModelingHandler {
     }
 
     public List<String> getSelectedOntologies(@NotNull String modelId) {
-        DataSourceModel modeling = findDataSourceOrThrow(modelId);
+        Modeling modeling = findModelingOrThrow(modelId);
         return modeling.getSelectedOntologies();
     }
 
     public void updateSelectedOntologies(@NotNull String modelId, @NotNull List<String> selectedOntologies) {
-        DataSourceModel modeling = findDataSourceOrThrow(modelId);
+        Modeling modeling = findModelingOrThrow(modelId);
         modeling.getSelectedOntologies().clear();
         modeling.getSelectedOntologies().addAll(selectedOntologies);
-        dataSourceRepository.save(modeling);
+        persistModeling(modeling);
     }
 
 }

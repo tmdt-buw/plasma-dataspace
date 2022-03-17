@@ -51,7 +51,7 @@ public class Modeling {
 
     public Modeling() {
         this.versionPointer = 0;
-        this.uuid = UUID.randomUUID();
+        this.id = UUID.randomUUID().toString();
         this.selectedOntologies = new ArrayList<>();
     }
 

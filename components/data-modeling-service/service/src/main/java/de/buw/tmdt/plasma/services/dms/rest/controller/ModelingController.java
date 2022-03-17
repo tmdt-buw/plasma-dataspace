@@ -85,7 +85,7 @@ public class ModelingController implements DataModelingAPI {
     @Override
     @Operation(description = "Copy the semantic model from source model to target model")
     public CombinedModel copySemanticModelFromOtherModel(@NotNull String modelId, @NotNull String sourceModelId) {
-        return dataModelingHandler.copySemanticModelFromOtherModel(modelId, sourceModelId);
+        return modelingHandler.copySemanticModelFromOtherModel(modelId, sourceModelId);
     }
 
     @NotNull
@@ -185,7 +185,7 @@ public class ModelingController implements DataModelingAPI {
     @Override
     @Operation(description = "End modelling process and finalize model.")
     public CombinedModel finalizeModeling(@NotNull String modelId) {
-        return modelingHandler.finalizeModel(modelId);
+        return modelingHandler.finalizeModeling(modelId);
     }
 
     @Override
@@ -196,11 +196,11 @@ public class ModelingController implements DataModelingAPI {
 
     @Override
     public List<String> getSelectedOntologies(@NotNull String modelId){
-        return dataModelingHandler.getSelectedOntologies(modelId);
+        return modelingHandler.getSelectedOntologies(modelId);
     }
 
     @Override
     public void updateSelectedOntologies(@NotNull String modelId, @NotNull List<String> selectedOntologyLabels){
-        dataModelingHandler.updateSelectedOntologies(modelId, selectedOntologyLabels);
+        modelingHandler.updateSelectedOntologies(modelId, selectedOntologyLabels);
     }
 }
