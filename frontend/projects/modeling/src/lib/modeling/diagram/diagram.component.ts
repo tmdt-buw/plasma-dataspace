@@ -347,7 +347,12 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
             label: this.relation.label,
             uri: this.relation.uri
           };
-          console.log('ADD DATAPROPERTY', 'source', source, 'literal', literal, 'relation', relation);
+          // console.log('ADD DATAPROPERTY', 'source', source, 'literal', literal, 'relation', relation);
+          console.log('adding literal', literal);
+          this.addLiteralNode(literal.uuid, 'blub', 'text_fields', literal.x, literal.y);
+          console.log('literal added');
+          this.addObjectPropertyLink(relation.uuid, relation.from, relation.to, relation.label);
+
           // this.semanticModelElementsAdded.emit({entities: [literal], relations: [relation]});
         } else {
           this.panAndZoom.disablePan();

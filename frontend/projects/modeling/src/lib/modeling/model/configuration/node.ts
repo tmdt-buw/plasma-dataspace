@@ -372,7 +372,7 @@ export abstract class Nodes {
   }
 
   /**
-   * Calls constructor and returns instance of a new semantic class node
+   * Calls constructor and returns instance of a new named entity node
    */
   static createNamedEntityNode(id: string, label: string, position: { x: number, y: number }, width: number, height: number, opacity?: number): dia.Element {
     return new Nodes.namedEntityNode({
@@ -399,7 +399,7 @@ export abstract class Nodes {
   }
 
   /**
-   * Calls constructor and returns instance of a new syntax node
+   * Calls constructor and returns instance of a new literal node
    */
   static createLiteralNode(id: string, label: string, icon: string, position: { x: number, y: number }, width: number, height: number, opacity?: number): dia.Element {
     return new Nodes.literalNode({
