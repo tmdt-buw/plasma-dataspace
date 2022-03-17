@@ -15,14 +15,13 @@
       <!--      ontology selection and upload-->
       <div fxLayout="row" fxLayoutAlign="start center">
         <nz-select
-          (ngModelChange)="onOntologySelectionChanged()"
+          (ngModelChange)="onOntologySelectionChanged($event)"
           class="modeling-ontology-selection"
           [nzMaxTagCount]="3"
           [nzMaxTagPlaceholder]="tagPlaceHolder"
           nzMode="multiple"
           nzPlaceHolder="Select ontologies"
           [(ngModel)]="selectedOntologies"
-          nzBorderless
         >
           <nz-option *ngFor="let item of availableOntologies" [nz-tooltip]="item.uri" [nzLabel]="item.label"
                      [nzValue]="item.label"></nz-option>
@@ -37,9 +36,25 @@
       <!-- URI mode toggle -->
       <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">
         <span nz-typography>Label</span>
-        <nz-switch [ngModel]="false" (ngModelChange)="toggleURIMode($event)"></nz-switch>
+        <nz-switch (ngModelChange)="toggleURIMode($event)" [ngModel]="false"
+                   [nz-tooltip]="'Select to show either the label or the URI of semantic elements'"></nz-switch>
         <span nz-typography>URI</span>
       </div>
+
+      <!-- (Magic) assistance functions -->
+      <button [disabled]="isViewerMode()" [nz-tooltip]="'Generate new elements using automated operations'"
+              [nzDropdownMenu]="assistanceFunctionsMenu"
+              nz-button nz-dropdown nzPlacement="bottomLeft" nzTrigger="click"
+              nzType="text">
+        <i [nzTheme]="'twotone'" [nzTwotoneColor]="'orange'" [nzType]="'thunderbolt'" nz-icon></i>
+      </button>
+      <nz-dropdown-menu #assistanceFunctionsMenu="nzDropdownMenu">
+        <ul nz-menu>
+          <li (click)="openSemanticModelCopyDialog()" nz-menu-item><a class="dropdown-icon" nz-icon nzType="copy"></a>Copy
+            semantic model
+          </li>
+        </ul>
+      </nz-dropdown-menu>
     </div>
 
     <div class="modeling-search-bar-container">

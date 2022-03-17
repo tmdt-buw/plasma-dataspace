@@ -21,13 +21,16 @@ import { BehaviorSubject, Subject } from 'rxjs';
 import { auditTime, distinctUntilChanged, pairwise, skip } from 'rxjs/operators';
 import {
   Class,
-  CombinedModel, DataProperty,
+  CombinedModel,
+  DataProperty,
   DeltaModification,
-  Instance, Literal,
+  Instance,
+  Literal,
   NamedEntity,
   ObjectProperty,
   PrimitiveNode,
-  Relation, SchemaNode,
+  Relation,
+  SchemaNode,
   SemanticModel,
   SemanticModelNode,
   SyntaxModel
@@ -45,7 +48,7 @@ import { Filter } from '../model/common/filter';
 import { Graphs } from '../model/configuration/graph';
 import { Icons } from '../model/configuration/icons';
 import { Links } from '../model/configuration/link';
-import { NodeType, Nodes, SemanticNode, SyntaxNode } from '../model/configuration/node';
+import { Nodes, NodeType, SemanticNode, SyntaxNode } from '../model/configuration/node';
 import { Papers } from '../model/configuration/paper';
 import { NodeChangedEvent } from '../model/events/node-changed-event';
 import { ModelingService } from '../modeling.service';
@@ -156,15 +159,15 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
       }
     });
     // subscribe to external events
-    this.$center.subscribe(() => this.center());
-    this.$layout.subscribe(() => this.layout());
+    this.$center?.subscribe(() => this.center());
+    this.$layout?.subscribe(() => this.layout());
     this.$filter.pipe(
       skip(1),
       distinctUntilChanged()
     ).subscribe(() => {
       this.createGraph();
     });
-    this.$URIMode.pipe(
+    this.$URIMode?.pipe(
       distinctUntilChanged()
     ).subscribe((showURI) => {
       this.createGraph(showURI);

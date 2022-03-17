@@ -16,7 +16,6 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -43,6 +42,12 @@ public class DataModelingController implements DataModelingAPI {
     public CombinedModel initSchema(@NotNull String modelId, @NotNull Integer exampleLimit) {
         dataModelingHandler.initModel(modelId, exampleLimit);
         return getCombinedModel(modelId);
+    }
+
+    @Override
+    @Operation(description = "Copy the semantic model from source model to target model")
+    public CombinedModel copySemanticModelFromOtherModel(@NotNull String modelId, @NotNull String sourceModelId) {
+        return dataModelingHandler.copySemanticModelFromOtherModel(modelId, sourceModelId);
     }
 
     @NotNull

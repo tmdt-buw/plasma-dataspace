@@ -95,11 +95,11 @@ public class DataModelingHandler {
             CombinedModel syntaxCombinedModel = new CombinedModel(
                     modelId,
                     syntaxModel,
-                   null,
+                    null,
                     null,
                     false
             );
-            dataSourceModel = new DataSourceModel(UUID.fromString(modelId) );
+            dataSourceModel = new DataSourceModel(UUID.fromString(modelId));
             dataSourceModel.getSelectedOntologies().add("PLASMA");
 
             dataSourceModel.pushCombinedModel(syntaxCombinedModel);
@@ -126,6 +126,64 @@ public class DataModelingHandler {
         }
         //store the schema
         dataSourceRepository.save(dataSourceModel);
+    }
+
+    /**
+     * Copies the semantic model from the source model into the given model.
+     * All uuids are generated new, all mappings or modifications are removed.
+     *
+     * @param modelId       The target model id
+     * @param sourceModelId The source model id
+     * @return The updated model
+     */
+    // TODO handle proper positioning of new nodes
+    public CombinedModel copySemanticModelFromOtherModel(@NotNull String modelId, @NotNull String sourceModelId) {
+        DataSourceModel modeling = findDataSourceOrThrow(modelId);
+        CombinedModel model = getCombinedModel(modelId, true);
+        CombinedModel sourceCM = getCombinedModel(sourceModelId);
+
+        SemanticModel sourceSM = sourceCM.getSemanticModel();
+        DeltaModification delta = new DeltaModification("clone-" + sourceModelId);
+        // sanitize and clone all elements
+        Map<String, String> uuidMapping = new HashMap<>(); // keep track of exchanged uuids to adjust relations later on
+        sourceSM.getNodes().stream().map(node -> {
+                    String newUuid = UUID.randomUUID().toString();
+                    uuidMapping.put(node.getUuid(), newUuid);
+                    if (node instanceof Class) {
+                        Class source = (Class) node;
+                        return new Class(newUuid, source.getURI(), source.getLabel(),
+                                source.getDescription(), source.getXCoordinate(), source.getYCoordinate());
+                    } else if (node instanceof NamedEntity) {
+                        NamedEntity source = (NamedEntity) node;
+                        return new NamedEntity(newUuid, source.getURI(), source.getLabel(),
+                                source.getDescription(), source.getXCoordinate(), source.getYCoordinate());
+                    } else if (node instanceof Literal) {
+                        Literal source = (Literal) node;
+                        return new Literal(newUuid, source.getValue(), source.getXCoordinate(), source.getYCoordinate());
+                    }
+                    return null;
+                })
+                .filter(Objects::nonNull)
+                .forEach(node -> delta.getEntities().add(node));
+        sourceSM.getEdges().stream().map(rel -> {
+                    String newUuid = UUID.randomUUID().toString();
+                    uuidMapping.put(rel.getUuid(), newUuid);
+                    if (rel instanceof ObjectProperty) {
+                        return new ObjectProperty(newUuid, uuidMapping.get(rel.getFrom()), uuidMapping.get(rel.getTo()),
+                                rel.getURI(), rel.getLabel(), rel.getDescription(), null);
+                    } else if (rel instanceof DataProperty) {
+                        return new DataProperty(newUuid, uuidMapping.get(rel.getFrom()), uuidMapping.get(rel.getTo()),
+                                rel.getURI(), rel.getLabel(), rel.getDescription(), null);
+                    }
+                    return null;
+                })
+                .filter(Objects::nonNull)
+                .forEach(rel -> delta.getRelations().add(rel));
+
+        model.apply(delta);
+        modeling.pushCombinedModel(model);
+        persistDataSourceModel(modeling);
+        return model;
     }
 
     @SuppressWarnings("SameParameterValue") // this might change
@@ -162,7 +220,7 @@ public class DataModelingHandler {
      *
      * @param modelId The modeling
      * @param prefix  A search prefix
-     * @param infix  A search infix
+     * @param infix   A search infix
      * @return The resulting list of matching {@link SemanticModelNode}s
      */
     @SuppressFBWarnings("NP_NONNULL_RETURN_VIOLATION") // stream collector does not return null
@@ -172,7 +230,7 @@ public class DataModelingHandler {
         List<SemanticModelNode> availableElements;
         try {
             availableElements =
-                    ontologyApiClient.getElements(modeling.getSelectedOntologies(),prefix, infix, null);
+                    ontologyApiClient.getElements(modeling.getSelectedOntologies(), prefix, infix, null);
         } catch (FeignException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Ontology service currently unavailable.");
         }
@@ -181,11 +239,11 @@ public class DataModelingHandler {
         CombinedModel combinedModel = getCombinedModel(findDataSourceOrThrow(modelId), false);
         combinedModel.getProvisionalElements().stream()
                 .filter(element -> {
-                    if(prefix != null && !(prefix.isBlank())){
-                        return StringUtils.startsWithIgnoreCase(element.getLabel(),prefix);
+                    if (prefix != null && !(prefix.isBlank())) {
+                        return StringUtils.startsWithIgnoreCase(element.getLabel(), prefix);
                     }
-                    if(infix != null && !(infix.isBlank())){
-                        return StringUtils.containsIgnoreCase(element.getLabel(),infix);
+                    if (infix != null && !(infix.isBlank())) {
+                        return StringUtils.containsIgnoreCase(element.getLabel(), infix);
                     }
                     return true;
                 })
@@ -206,7 +264,7 @@ public class DataModelingHandler {
         List<Relation> availableRelations;
         try {
             availableRelations =
-                    ontologyApiClient.getRelations(modeling.getSelectedOntologies(),prefix, infix, null);
+                    ontologyApiClient.getRelations(modeling.getSelectedOntologies(), prefix, infix, null);
         } catch (FeignException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Ontology service currently unavailable.");
         }
@@ -215,11 +273,11 @@ public class DataModelingHandler {
         CombinedModel combinedModel = getCombinedModel(findDataSourceOrThrow(modelId), false);
         combinedModel.getProvisionalRelations().stream()
                 .filter(relation -> {
-                    if(prefix != null && !(prefix.isBlank())){
-                        return StringUtils.startsWithIgnoreCase(relation.getLabel(),prefix);
+                    if (prefix != null && !(prefix.isBlank())) {
+                        return StringUtils.startsWithIgnoreCase(relation.getLabel(), prefix);
                     }
-                    if(infix != null && !(infix.isBlank())){
-                        return StringUtils.containsIgnoreCase(relation.getLabel(),infix);
+                    if (infix != null && !(infix.isBlank())) {
+                        return StringUtils.containsIgnoreCase(relation.getLabel(), infix);
                     }
                     return true;
                 })
@@ -237,7 +295,7 @@ public class DataModelingHandler {
     /**
      * Updates the position of a {@link SchemaNode} in the {@link CombinedModel}.
      *
-     * @param modelId The data source uuid identifying the {@link CombinedModel}
+     * @param modelId        The data source uuid identifying the {@link CombinedModel}
      * @param schemaNode     The {@link SchemaNode} to place
      * @param schemaNodeUuid The reference uuid of the existing {@link SchemaNode} to update
      * @deprecated Legacy function, use {@link #applyModification(String, DeltaModification)} instead
@@ -272,7 +330,7 @@ public class DataModelingHandler {
     /**
      * Apply a syntactic operation to the model.
      *
-     * @param modelId        The data source to modify
+     * @param modelId               The data source to modify
      * @param syntacticOperationDTO The operation to invoke
      * @return The updated model
      * @deprecated Legacy function, use {@link #applyModification(String, DeltaModification)} instead
@@ -325,8 +383,8 @@ public class DataModelingHandler {
      * Applies all modifications stored in the modification object to the {@link CombinedModel} for the data source
      * identified by modelId.
      *
-     * @param modelId The data source uuid identifying the model
-     * @param modification   The modifications. All modifications are applied in one step
+     * @param modelId      The data source uuid identifying the model
+     * @param modification The modifications. All modifications are applied in one step
      * @return The updated {@link CombinedModel}
      */
     @NotNull
@@ -355,8 +413,8 @@ public class DataModelingHandler {
      * This function updates the positions of the given movedElements.
      * All other changes are ignored, only the position information is updated.
      *
-     * @param modelId The data source uuid identifying the {@link CombinedModel} to update
-     * @param movedElements  A list of elements with updated positions, can be syntactic and semantic elements
+     * @param modelId       The data source uuid identifying the {@link CombinedModel} to update
+     * @param movedElements A list of elements with updated positions, can be syntactic and semantic elements
      */
     public void updatePositions(@NotNull String modelId, @NotNull List<PositionedCombinedModelElement> movedElements) {
         //load referenced data source
@@ -662,12 +720,12 @@ public class DataModelingHandler {
         return combinedModel;
     }
 
-    public List<String> getSelectedOntologies(@NotNull String modelId){
+    public List<String> getSelectedOntologies(@NotNull String modelId) {
         DataSourceModel modeling = findDataSourceOrThrow(modelId);
         return modeling.getSelectedOntologies();
     }
 
-    public void updateSelectedOntologies(@NotNull String modelId, @NotNull List<String> selectedOntologies){
+    public void updateSelectedOntologies(@NotNull String modelId, @NotNull List<String> selectedOntologies) {
         DataSourceModel modeling = findDataSourceOrThrow(modelId);
         modeling.getSelectedOntologies().clear();
         modeling.getSelectedOntologies().addAll(selectedOntologies);

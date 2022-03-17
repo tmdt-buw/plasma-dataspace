@@ -11,7 +11,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * Defines a Delta recommendation, a partial update of a combined model.
@@ -70,6 +72,10 @@ public class DeltaModification implements Serializable {
     private List<String> anchors;
 
     private Double confidence;
+
+    public DeltaModification(@NotNull String reference) {
+        this(reference, false, null, null, null, null, null, 0.0);
+    }
 
     public DeltaModification(@NotNull String reference,
                              @Nullable List<SemanticModelNode> entities,

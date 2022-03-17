@@ -181,6 +181,7 @@ public class CombinedModel implements Serializable {
      * the state of the model is undefined and may be inconsistent.
      *
      * @param delta The modification to apply
+     * @throws CombinedModelIntegrityException If any inconsistencies are detected before or after the merge or in the {@link DeltaModification} itself.
      */
     public void apply(DeltaModification delta) throws CombinedModelIntegrityException {
         if (finalized || syntaxModel == null) {
@@ -471,8 +472,10 @@ public class CombinedModel implements Serializable {
 
     /**
      * Validates the state of the current model.
+     *
+     * @throws CombinedModelIntegrityException If any inconsistencies are detected.
      */
-    public void validate() {
+    public void validate() throws CombinedModelIntegrityException {
         List<String> errors = new ArrayList<>();
         // Validate syntax model
         try {

@@ -46,6 +46,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { NzResultModule } from 'ng-zorro-antd/result';
+import { CopySemanticModelComponent } from './modeling/dialogs/copy-semantic-model/copy-semantic-model.component';
+import { NzNotificationModule } from 'ng-zorro-antd/notification';
 
 
 @NgModule({
@@ -54,45 +56,46 @@ import { NzResultModule } from 'ng-zorro-antd/result';
     PlsSemanticNodeDetailsComponent, PlsConceptDialogComponent, PlsNewEntityDialogComponent,
     PlsNewRelationDialogComponent, PlsImportDialogComponent,
     InlineInputEditComponent, PlsSemanticClassMenuComponent, PlsRelationConceptMenuComponent, PlsFullscreenDirective,
-    PlsNamedEntityMenuComponent, PlsLiteralMenuComponent, UploadOntologyComponent
+    PlsNamedEntityMenuComponent, PlsLiteralMenuComponent, UploadOntologyComponent, CopySemanticModelComponent
   ],
-    imports: [
-        // Plasma
-        ApiModule,
-        PlsOperationsDialogModule,
-        KGSApiModule,
-        // Angular
-        CommonModule,
-        DragDropModule,
-        FlexLayoutModule,
-        FormsModule,
-        ReactiveFormsModule,
-        OverlayModule,
-        NzButtonModule,
-        NzIconModule,
-        NzToolTipModule,
-        NzSwitchModule,
-        NzFormModule,
-        NzInputModule,
-        NzDropDownModule,
-        NzSelectModule,
-        NzSpinModule,
-        NzCardModule,
-        NzDividerModule,
-        NzTypographyModule,
-        NzUploadModule,
-        NzModalModule,
-        NzTabsModule,
-        NzAlertModule,
-        NzCheckboxModule,
-        NzRadioModule,
-        NzTagModule,
-        NzCollapseModule,
-        MatButtonModule,
-        MatIconModule,
-        MatFormFieldModule,
-        NzResultModule
-    ],
+  imports: [
+    // Plasma
+    ApiModule,
+    PlsOperationsDialogModule,
+    KGSApiModule,
+    // Angular
+    CommonModule,
+    DragDropModule,
+    FlexLayoutModule,
+    FormsModule,
+    ReactiveFormsModule,
+    OverlayModule,
+    NzButtonModule,
+    NzIconModule,
+    NzToolTipModule,
+    NzSwitchModule,
+    NzFormModule,
+    NzInputModule,
+    NzDropDownModule,
+    NzSelectModule,
+    NzSpinModule,
+    NzCardModule,
+    NzDividerModule,
+    NzTypographyModule,
+    NzUploadModule,
+    NzModalModule,
+    NzTabsModule,
+    NzAlertModule,
+    NzCheckboxModule,
+    NzRadioModule,
+    NzTagModule,
+    NzCollapseModule,
+    MatButtonModule,
+    MatIconModule,
+    MatFormFieldModule,
+    NzResultModule,
+    NzNotificationModule
+  ],
   exports: [PlsModelingComponent]
 })
 export class PlsModelingModule {

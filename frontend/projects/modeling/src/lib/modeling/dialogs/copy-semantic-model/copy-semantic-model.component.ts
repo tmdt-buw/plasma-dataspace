@@ -1,0 +1,84 @@
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { CombinedModel, DataModelingControllerService } from '../../../api/generated/dms';
+import { BehaviorSubject } from 'rxjs';
+import { Filter } from '../../model/common/filter';
+import { NzNotificationService } from 'ng-zorro-antd/notification';
+
+@Component({
+  selector: 'pls-copy-semantic-model',
+  templateUrl: './copy-semantic-model.component.html',
+  styleUrls: ['./copy-semantic-model.component.less']
+})
+export class CopySemanticModelComponent implements OnInit {
+
+  @Input() currentModelId: string;
+
+  sourceModelId: string;
+  combinedModel: CombinedModel;
+  loading: boolean;
+  availableModels: Array<{}>;
+
+  @Output() copySuccessful = new EventEmitter();
+  $filter = new BehaviorSubject<Filter>(Filter.SEMANTIC);
+
+  constructor(private modelingService: DataModelingControllerService, private notification: NzNotificationService) {
+  }
+
+  ngOnInit(): void {
+    this.getAvailableModels();
+  }
+
+  onModelSelectionChanged($event: string): void {
+    console.log('selected', $event);
+    this.sourceModelId = $event;
+    this.loading = true;
+    this.getModel();
+  }
+
+  getAvailableModels(): void {
+    // TODO implement once DSS is removed
+    // TODO filter own uuid
+    this.availableModels = [{
+      uuid: '79d5797f-f1bb-419a-8a29-068b278005eb',
+      title: 'Model 3'
+    }, {
+      uuid: '79d5797f-f1bb-419a-8a29-068b278005eb',
+      title: 'Model 4'
+    }];
+  }
+
+  getModel(): void {
+    console.log('getting model', this.sourceModelId);
+    this.modelingService.getCombinedModel(this.sourceModelId).subscribe((schema: CombinedModel) => {
+        this.combinedModel = schema;
+        this.loading = false;
+        this.$filter.next(Filter.SEMANTIC);
+      },
+      () => {
+        this.notification.create(
+          'error',
+          'No model',
+          'The selected model is not available.'
+        );
+        this.combinedModel = undefined;
+        this.loading = false;
+      });
+  }
+
+  onModelCopyClick(): void {
+    this.modelingService.copySemanticModelFromOtherModel(this.currentModelId, this.sourceModelId).subscribe((model) => {
+      this.notification.create(
+        'success',
+        'Import Successful',
+        'The model has been successfully imported.'
+      );
+      this.copySuccessful.next(model);
+    }, () => {
+      this.notification.create(
+        'error',
+        'Import Failed',
+        'The model could not be imported.'
+      );
+    });
+  }
+}

@@ -11,12 +11,18 @@
  */
 /* tslint:disable:no-unused-variable member-ordering */
 
-import { Inject, Injectable, Optional }                      from '@angular/core';
-import { HttpClient, HttpHeaders, HttpParams,
-         HttpResponse, HttpEvent, HttpParameterCodec, HttpContext
-        }       from '@angular/common/http';
-import { CustomHttpParameterCodec }                          from '../encoder';
-import { Observable }                                        from 'rxjs';
+import { Inject, Injectable, Optional } from '@angular/core';
+import {
+  HttpClient,
+  HttpContext,
+  HttpEvent,
+  HttpHeaders,
+  HttpParameterCodec,
+  HttpParams,
+  HttpResponse
+} from '@angular/common/http';
+import { CustomHttpParameterCodec } from '../encoder';
+import { Observable } from 'rxjs';
 
 // @ts-ignore
 import { Class } from '../model/class';
@@ -50,18 +56,17 @@ import { SetNode } from '../model/setNode';
 import { SyntacticOperationDTO } from '../model/syntacticOperationDTO';
 
 // @ts-ignore
-import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
-import { Configuration }                                     from '../configuration';
-
+import { BASE_PATH, COLLECTION_FORMATS } from '../variables';
+import { Configuration } from '../configuration';
 
 
 @Injectable()
 export class DataModelingControllerService {
 
-    protected basePath = 'http://plasma-gateway-service:8888';
-    public defaultHeaders = new HttpHeaders();
-    public configuration = new Configuration();
-    public encoder: HttpParameterCodec;
+  protected basePath = 'http://plasma-gateway-service:8888';
+  public defaultHeaders = new HttpHeaders();
+  public configuration = new Configuration();
+  public encoder: HttpParameterCodec;
 
     constructor(protected httpClient: HttpClient, @Optional()@Inject(BASE_PATH) basePath: string, @Optional() configuration: Configuration) {
         if (configuration) {
@@ -313,25 +318,93 @@ export class DataModelingControllerService {
             }
         }
 
-        return this.httpClient.post<CombinedModelElement>(`${this.configuration.basePath}/api/plasma-dms/models/${encodeURIComponent(String(modelId))}/cache/relations`,
-            dataPropertyObjectProperty,
-            {
-                context: localVarHttpContext,
-                responseType: <any>responseType_,
-                withCredentials: this.configuration.withCredentials,
-                headers: localVarHeaders,
-                observe: observe,
-                reportProgress: reportProgress
-            }
-        );
+      return this.httpClient.post<CombinedModelElement>(`${this.configuration.basePath}/api/plasma-dms/models/${encodeURIComponent(String(modelId))}/cache/relations`,
+        dataPropertyObjectProperty,
+        {
+          context: localVarHttpContext,
+          responseType: <any>responseType_,
+          withCredentials: this.configuration.withCredentials,
+          headers: localVarHeaders,
+          observe: observe,
+          reportProgress: reportProgress
+        }
+      );
     }
 
-    /**
-     * Deletes an existing modeling
-     * @param modelId
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     */
+  /**
+   * Copy the semantic model from source model to target model
+   * @param modelId
+   * @param sourceModelId
+   * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+   * @param reportProgress flag to report request and response progress.
+   */
+  public copySemanticModelFromOtherModel(modelId: string, sourceModelId: string, observe?: 'body', reportProgress?: boolean, options?: { httpHeaderAccept?: '*/*', context?: HttpContext }): Observable<CombinedModel>;
+  public copySemanticModelFromOtherModel(modelId: string, sourceModelId: string, observe?: 'response', reportProgress?: boolean, options?: { httpHeaderAccept?: '*/*', context?: HttpContext }): Observable<HttpResponse<CombinedModel>>;
+  public copySemanticModelFromOtherModel(modelId: string, sourceModelId: string, observe?: 'events', reportProgress?: boolean, options?: { httpHeaderAccept?: '*/*', context?: HttpContext }): Observable<HttpEvent<CombinedModel>>;
+  public copySemanticModelFromOtherModel(modelId: string, sourceModelId: string, observe: any = 'body', reportProgress: boolean = false, options?: { httpHeaderAccept?: '*/*', context?: HttpContext }): Observable<any> {
+    if (modelId === null || modelId === undefined) {
+      throw new Error('Required parameter modelId was null or undefined when calling copySemanticModelFromOtherModel.');
+    }
+    if (sourceModelId === null || sourceModelId === undefined) {
+      throw new Error('Required parameter sourceModelId was null or undefined when calling copySemanticModelFromOtherModel.');
+    }
+
+    let localVarQueryParameters = new HttpParams({encoder: this.encoder});
+    if (sourceModelId !== undefined && sourceModelId !== null) {
+      localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
+        <any>sourceModelId, 'sourceModelId');
+    }
+
+    let localVarHeaders = this.defaultHeaders;
+
+    let localVarHttpHeaderAcceptSelected: string | undefined = options && options.httpHeaderAccept;
+    if (localVarHttpHeaderAcceptSelected === undefined) {
+      // to determine the Accept header
+      const httpHeaderAccepts: string[] = [
+        '*/*'
+      ];
+      localVarHttpHeaderAcceptSelected = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+    }
+    if (localVarHttpHeaderAcceptSelected !== undefined) {
+      localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+    }
+
+    let localVarHttpContext: HttpContext | undefined = options && options.context;
+    if (localVarHttpContext === undefined) {
+      localVarHttpContext = new HttpContext();
+    }
+
+
+    let responseType_: 'text' | 'json' | 'blob' = 'json';
+    if (localVarHttpHeaderAcceptSelected) {
+      if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+        responseType_ = 'text';
+      } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+        responseType_ = 'json';
+      } else {
+        responseType_ = 'blob';
+      }
+    }
+
+    return this.httpClient.get<CombinedModel>(`${this.configuration.basePath}/api/plasma-dms/models/${encodeURIComponent(String(modelId))}/import`,
+      {
+        context: localVarHttpContext,
+        params: localVarQueryParameters,
+        responseType: <any>responseType_,
+        withCredentials: this.configuration.withCredentials,
+        headers: localVarHeaders,
+        observe: observe,
+        reportProgress: reportProgress
+      }
+    );
+  }
+
+  /**
+   * Deletes an existing modeling
+   * @param modelId
+   * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+   * @param reportProgress flag to report request and response progress.
+   */
     public deleteModel(modelId: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext}): Observable<any>;
     public deleteModel(modelId: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext}): Observable<HttpResponse<any>>;
     public deleteModel(modelId: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext}): Observable<HttpEvent<any>>;

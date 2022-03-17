@@ -164,4 +164,11 @@ public class Class extends SemanticModelNode implements Serializable {
     public void createInstance() {
         instance = new Instance(getLabel(), "");
     }
+
+    @Override
+    public SemanticModelNode convertToTemplate() {
+        removeUuid();
+        this.instance = null;
+        return this;
+    }
 }

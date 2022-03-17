@@ -23,6 +23,7 @@ import { ContextMenuEvent, ContextMenuEventType } from './model/events/context-m
 import { NodeChangedEvent } from './model/events/node-changed-event';
 import { Util } from './model/common/util';
 import { UploadOntologyComponent } from './dialogs/upload-ontology/upload-ontology.component';
+import { CopySemanticModelComponent } from './dialogs/copy-semantic-model/copy-semantic-model.component';
 
 @Component({
   selector: 'pls-modeling',
@@ -78,10 +79,10 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
   loading: boolean = true;
 
   // dialogs
-  addConceptDialogRef;
+  private addConceptDialogRef: NzModalRef<any, any>;
   contextMenuSubscription;
   private uploadOntologyDialogRef: NzModalRef<any, any>;
-  private reopenConceptsDialog: boolean;
+  private copySemanticModelDialogRef: NzModalRef<any, any>;
 
   get isFullscreen(): boolean {
     return !!this.main?.fullScreenIsActive;
@@ -347,11 +348,41 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
     });
   }
 
-  onOntologySelectionChanged(): void {
+  onOntologySelectionChanged(list: Array<string>): void {
     this.closeAddConceptDialog();
-    this.modelingService.updateSelectedOntologies(this.modelId, this.selectedOntologies).subscribe();
+    this.modelingService.updateSelectedOntologies(this.modelId, list).subscribe();
     // if (this.reopenConceptsDialog) {
     //   this.showAddConceptDialog();
     // }
+  }
+
+  openSemanticModelCopyDialog(): void {
+    this.closeAddConceptDialog();
+    const rect: DOMRect = this.modelingArea.nativeElement.getBoundingClientRect();
+    const config: ModalOptions = {
+      nzStyle: {position: 'absolute', top: `${rect.top + 15}px`, left: `15%`, width: '70%', bottom: '15px'},
+      nzClassName: 'pls-copy-semantic-model',
+      nzTitle: 'Import Semantic Model from other Model',
+      nzContent: CopySemanticModelComponent,
+      nzComponentParams: {
+        currentModelId: this.modelId
+      }
+    };
+    this.copySemanticModelDialogRef = this.modal.create(Object.assign(config, ModalMouseEnabledConfig));
+    this.copySemanticModelDialogRef.afterClose.subscribe(() => {
+      this.copySemanticModelDialogRef = undefined;
+    });
+    this.copySemanticModelDialogRef.getContentComponent().copySuccessful.subscribe(() => {
+      this.closeSemanticModelCopyDialog();
+      this.getSchema();
+    });
+  }
+
+  closeSemanticModelCopyDialog(): void {
+    this.copySemanticModelDialogRef?.close();
+  }
+
+  isViewerMode(): boolean {
+    return this.viewerMode || this.combinedModel?.finalized;
   }
 }

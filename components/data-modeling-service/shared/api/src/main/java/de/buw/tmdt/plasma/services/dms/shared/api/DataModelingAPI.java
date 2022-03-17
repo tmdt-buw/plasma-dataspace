@@ -25,6 +25,10 @@ public interface DataModelingAPI {
     );
 
     @NotNull
+    @GetMapping(value = "/{modelId}/import")
+    CombinedModel copySemanticModelFromOtherModel(@NotNull @PathVariable("modelId") String modelId, @RequestParam(value = "sourceModelId") @NotNull String sourceModelId);
+
+    @NotNull
     @GetMapping(value = "/{modelId}", produces = MediaType.APPLICATION_JSON_VALUE)
     CombinedModel getCombinedModel(@NotNull @PathVariable("modelId") String modelId);
 
