@@ -9,6 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.persistence.*;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -26,7 +27,10 @@ public class Modeling {
 
     private String name;
 
+    @Column(length = 4000)
     private String description;
+
+    private ZonedDateTime created;
 
     private String dataId;
 
@@ -53,6 +57,7 @@ public class Modeling {
         this.versionPointer = 0;
         this.id = UUID.randomUUID().toString();
         this.selectedOntologies = new ArrayList<>();
+        this.created = ZonedDateTime.now();
     }
 
     public Modeling(@NotNull String id) {
@@ -60,10 +65,12 @@ public class Modeling {
         this.id = id;
     }
 
-    public Modeling(@NotNull String id, @Nullable String name, @Nullable String description, @Nullable String dataId) {
+    public Modeling(@NotNull String id, @Nullable String name, @Nullable String description, @NotNull ZonedDateTime created, @Nullable String dataId) {
+        this();
         this.id = id;
         this.name = name;
         this.description = description;
+        this.created = created;
         this.dataId = dataId;
     }
 
@@ -154,5 +161,9 @@ public class Modeling {
 
     public String getName() {
         return name;
+    }
+
+    public ZonedDateTime getCreated() {
+        return created;
     }
 }

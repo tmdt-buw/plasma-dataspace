@@ -32,6 +32,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -77,7 +78,8 @@ public class ModelingHandler {
             log.info("Data source already exists");
             return modelingResult.get();
         }
-        Modeling modeling = new Modeling(modelId, name, description, dataId);
+        ZonedDateTime created = ZonedDateTime.now();
+        Modeling modeling = new Modeling(modelId, name, description, created, dataId);
         modeling.getSelectedOntologies().add("PLASMA");
         // save initial version of submitted model
         modeling.pushCombinedModel(combinedModel);

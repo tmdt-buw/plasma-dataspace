@@ -4,7 +4,7 @@ import { ModalOptions, NzModalService } from 'ng-zorro-antd/modal';
 import { NzTabChangeEvent } from 'ng-zorro-antd/tabs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import {
-  DataModelingControllerService,
+  ModelingControllerService,
   DeltaModification,
   Relation,
   SemanticModelNode
@@ -37,7 +37,7 @@ export class PlsConceptDialogComponent implements OnInit, OnDestroy {
   relations: Relation[] = [];
 
   // TODO find useful recommendation view
-  constructor(private modeling: ModelingService, private modelingService: DataModelingControllerService, private modal: NzModalService) {
+  constructor(private modeling: ModelingService, private modelingService: ModelingControllerService, private modal: NzModalService) {
 
   }
 

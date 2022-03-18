@@ -42,7 +42,6 @@
             ],
             "styles": [
               "src/styles.less",
-              "src/styles.scss",
               {
                 "input": "src/themes/default/default.less",
                 "bundleName": "default",
@@ -125,7 +124,7 @@
             "tsConfig": "tsconfig.spec.json",
             "karmaConfig": "karma.conf.js",
             "styles": [
-              "src/styles.scss"
+              "src/styles.less"
             ],
             "scripts": [],
             "assets": [
@@ -150,34 +149,6 @@
             "production": {
               "devServerTarget": "plasma-app:serve:production"
             }
-          }
-        }
-      }
-    },
-    "data-sources": {
-      "projectType": "library",
-      "root": "projects/data-sources",
-      "sourceRoot": "projects/data-sources/src",
-      "prefix": "pls",
-      "architect": {
-        "build": {
-          "builder": "@angular-devkit/build-angular:ng-packagr",
-          "options": {
-            "tsConfig": "projects/data-sources/tsconfig.lib.json",
-            "project": "projects/data-sources/ng-package.json"
-          },
-          "configurations": {
-            "production": {
-              "tsConfig": "projects/data-sources/tsconfig.lib.prod.json"
-            }
-          }
-        },
-        "test": {
-          "builder": "@angular-devkit/build-angular:karma",
-          "options": {
-            "main": "projects/data-sources/src/test.ts",
-            "tsConfig": "projects/data-sources/tsconfig.spec.json",
-            "karmaConfig": "projects/data-sources/karma.conf.js"
           }
         }
       }
@@ -234,34 +205,6 @@
             "main": "projects/schema-analysis/src/test.ts",
             "tsConfig": "projects/schema-analysis/tsconfig.spec.json",
             "karmaConfig": "projects/schema-analysis/karma.conf.js"
-          }
-        }
-      }
-    },
-    "common": {
-      "projectType": "library",
-      "root": "projects/common",
-      "sourceRoot": "projects/common/src",
-      "prefix": "pls",
-      "architect": {
-        "build": {
-          "builder": "@angular-devkit/build-angular:ng-packagr",
-          "options": {
-            "tsConfig": "projects/common/tsconfig.lib.json",
-            "project": "projects/common/ng-package.json"
-          },
-          "configurations": {
-            "production": {
-              "tsConfig": "projects/common/tsconfig.lib.prod.json"
-            }
-          }
-        },
-        "test": {
-          "builder": "@angular-devkit/build-angular:karma",
-          "options": {
-            "main": "projects/common/src/test.ts",
-            "tsConfig": "projects/common/tsconfig.spec.json",
-            "karmaConfig": "projects/common/karma.conf.js"
           }
         }
       }

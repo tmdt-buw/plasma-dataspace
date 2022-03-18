@@ -6,7 +6,7 @@ import { BehaviorSubject, Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import {
   CombinedModel,
-  DataModelingControllerService,
+  ModelingControllerService,
   DeltaModification,
   Relation,
   SchemaNode,
@@ -24,6 +24,7 @@ import { NodeChangedEvent } from './model/events/node-changed-event';
 import { Util } from './model/common/util';
 import { UploadOntologyComponent } from './dialogs/upload-ontology/upload-ontology.component';
 import { CopySemanticModelComponent } from './dialogs/copy-semantic-model/copy-semantic-model.component';
+import { NzNotificationService } from 'ng-zorro-antd/notification';
 
 @Component({
   selector: 'pls-modeling',
@@ -88,8 +89,8 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
     return !!this.main?.fullScreenIsActive;
   }
 
-  constructor(private modelingService: DataModelingControllerService, private contextMenu: ContextMenuService, private ontologyService: OntologyControllerService,
-              private semanticModelService: SemanticModelControllerService, private modal: NzModalService) {
+  constructor(private modelingService: ModelingControllerService, private contextMenu: ContextMenuService, private ontologyService: OntologyControllerService,
+              private semanticModelService: SemanticModelControllerService, private modal: NzModalService, private notification: NzNotificationService) {
   }
 
   ngOnInit(): void {
@@ -163,11 +164,8 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
         }
         this.loading = false;
       },
-      // TODO this is veeeeerrrrryy baaaaad
-      () => this.modelingService.initSchema(this.modelId).subscribe(() => {
-        this.loading = false;
-        this.getSchema();
-      }));
+      () => this.notification.error('Model not found', 'The requested model could not be found')
+    );
   }
 
   // ======= Menu functions ===========

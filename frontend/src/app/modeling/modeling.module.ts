@@ -4,9 +4,9 @@ import { environment } from '../../environments/environment';
 import { CommonModule } from '@angular/common';
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { RouterModule } from '@angular/router';
-import { DMS_ROUTES } from './modeling.routes';
-import { EditorModule } from '../shared/editor/editor.module';
+import { MODELING_ROUTES } from './modeling.routes';
 import { ModelingComponent } from './modeling/modeling.component';
+import { NzPageHeaderModule } from 'ng-zorro-antd/page-header';
 
 
 @NgModule({
@@ -17,8 +17,8 @@ import { ModelingComponent } from './modeling/modeling.component';
     // Angular
     CommonModule,
     FlexLayoutModule,
-    EditorModule,
-    RouterModule.forChild(DMS_ROUTES),
+    RouterModule.forChild(MODELING_ROUTES),
+    NzPageHeaderModule,
   ]
 })
 export class ModelingModule {

@@ -1,19 +1,24 @@
 package de.buw.tmdt.plasma.services.dms.shared.api;
 
+import java.time.ZonedDateTime;
+
 public class ModelingInfo {
 
-    private String id;
+    private final String id;
 
-    private String name;
+    private final String name;
 
-    private String description;
+    private final String description;
 
-    private String dataId;
+    private final ZonedDateTime created;
 
-    public ModelingInfo(String id, String name, String description, String dataId) {
+    private final String dataId;
+
+    public ModelingInfo(String id, String name, String description, ZonedDateTime created, String dataId) {
         this.id = id;
         this.name = name;
         this.description = description;
+        this.created = created;
         this.dataId = dataId;
     }
 
@@ -31,5 +36,9 @@ public class ModelingInfo {
 
     public String getDataId() {
         return dataId;
+    }
+
+    public ZonedDateTime getCreated() {
+        return created;
     }
 }

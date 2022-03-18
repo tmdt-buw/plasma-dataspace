@@ -7,7 +7,7 @@ import { SyntaxNode } from '../../model/configuration/node';
 @Component({
   selector: 'pls-named-entity-menu',
   templateUrl: 'named-entity-menu.component.html',
-  styleUrls: ['../context-menu.scss']
+  styleUrls: ['../context-menu.less']
 })
 export class PlsNamedEntityMenuComponent {
 

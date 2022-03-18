@@ -4,11 +4,6 @@ import en from '@angular/common/locales/en';
 import { NgModule } from '@angular/core';
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { FormsModule } from '@angular/forms';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatListModule } from '@angular/material/list';
-import { MatMenuModule } from '@angular/material/menu';
-import { MatToolbarModule } from '@angular/material/toolbar';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule } from '@angular/router';
@@ -16,6 +11,8 @@ import { en_US, NZ_I18N } from 'ng-zorro-antd/i18n';
 import { AppInitializerProvider } from './app-initializer.service';
 import { AppComponent } from './app.component';
 import { APP_ROUTES } from './app.routes';
+import { NzLayoutModule } from 'ng-zorro-antd/layout';
+import { NzTypographyModule } from 'ng-zorro-antd/typography';
 
 registerLocaleData(en);
 
@@ -28,13 +25,10 @@ registerLocaleData(en);
     CommonModule,
     FlexLayoutModule,
     HttpClientModule,
-    MatButtonModule,
-    MatIconModule,
-    MatListModule,
-    MatMenuModule,
-    MatToolbarModule,
     RouterModule.forRoot(APP_ROUTES),
-    FormsModule
+    FormsModule,
+    NzLayoutModule,
+    NzTypographyModule
   ],
   providers: [
     AppInitializerProvider,

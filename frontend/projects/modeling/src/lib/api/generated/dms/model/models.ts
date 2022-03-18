@@ -13,6 +13,7 @@ export * from './instance';
 export * from './literal';
 export * from './literalAllOf';
 export * from './modelMapping';
+export * from './modelingInfo';
 export * from './namedEntity';
 export * from './namedEntityAllOf';
 export * from './objectNode';

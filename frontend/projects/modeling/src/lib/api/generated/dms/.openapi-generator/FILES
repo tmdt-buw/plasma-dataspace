@@ -2,7 +2,7 @@
 README.md
 api.module.ts
 api/api.ts
-api/dataModelingController.service.ts
+api/modelingController.service.ts
 configuration.ts
 encoder.ts
 git_push.sh
@@ -22,6 +22,7 @@ model/instance.ts
 model/literal.ts
 model/literalAllOf.ts
 model/modelMapping.ts
+model/modelingInfo.ts
 model/models.ts
 model/namedEntity.ts
 model/namedEntityAllOf.ts

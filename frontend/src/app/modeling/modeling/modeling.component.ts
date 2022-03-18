@@ -4,7 +4,7 @@ import { ActivatedRoute } from '@angular/router';
 @Component({
   selector: 'app-modeling',
   templateUrl: './modeling.component.html',
-  styleUrls: ['./modeling.component.scss']
+  styleUrls: ['./modeling.component.less']
 })
 export class ModelingComponent implements OnInit {
 

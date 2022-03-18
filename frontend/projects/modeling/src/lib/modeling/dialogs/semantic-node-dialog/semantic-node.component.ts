@@ -2,7 +2,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { BehaviorSubject, Subject } from 'rxjs';
 import {
   Class,
-  DataModelingControllerService,
+  ModelingControllerService,
   DeltaModification,
   Instance,
   NamedEntity,
@@ -40,7 +40,7 @@ export class PlsSemanticNodeDetailsComponent {
   @Output()
   public recommendationReject: EventEmitter<DeltaModification> = new EventEmitter();
 
-  constructor(private modelingService: DataModelingControllerService) {
+  constructor(private modelingService: ModelingControllerService) {
 
   }
 

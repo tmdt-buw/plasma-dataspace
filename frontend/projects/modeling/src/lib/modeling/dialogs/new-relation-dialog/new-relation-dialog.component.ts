@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { NzModalRef } from 'ng-zorro-antd/modal';
-import { DataModelingControllerService, ObjectProperty } from '../../../api/generated/dms';
+import { ModelingControllerService, ObjectProperty } from '../../../api/generated/dms';
 
 @Component({
   selector: 'pls-new-relation-dialog',
@@ -23,7 +23,7 @@ export class PlsNewRelationDialogComponent {
   defaultPrefix = 'plasma:';
   relationType: 'ObjectProperty' | 'DataProperty';
 
-  constructor(private modalRef: NzModalRef, private modelingService: DataModelingControllerService) {
+  constructor(private modalRef: NzModalRef, private modelingService: ModelingControllerService) {
   }
 
   submit(): void {

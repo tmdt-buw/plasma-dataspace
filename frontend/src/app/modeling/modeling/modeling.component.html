@@ -1,12 +1,11 @@
-<app-editor *ngIf="modelId">
-  <ng-container appEditorContentHeaderText>Semantic Modeling</ng-container>
+<div fxFill fxLayout="column">
+  <nz-page-header fxFlex="64px" nzBackIcon class="content-header">
+    <nz-page-header-title>Semantic Modeling</nz-page-header-title>
+  </nz-page-header>
 
-  <ng-container appEditorContentHeaderButtons>
-    <!-- placeholder for buttons -->
-  </ng-container>
-
-  <ng-container appEditorContentBody>
+  <div fxFlex>
     <pls-modeling [backgroundColor]="'white'" [modelId]="modelId"></pls-modeling>
-  </ng-container>
+  </div>
 
-</app-editor>
+</div>
+

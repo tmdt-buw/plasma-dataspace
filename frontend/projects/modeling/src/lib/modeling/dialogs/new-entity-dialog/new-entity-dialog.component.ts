@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { NzModalRef } from 'ng-zorro-antd/modal';
-import { Class, DataModelingControllerService, NamedEntity } from '../../../api/generated/dms';
+import { Class, ModelingControllerService, NamedEntity } from '../../../api/generated/dms';
 
 @Component({
   selector: 'pls-new-entity-dialog',
@@ -23,7 +23,7 @@ export class PlsNewEntityDialogComponent {
   defaultPrefix = 'plasma:';
   isNamedEntity = false;
 
-  constructor(private modalRef: NzModalRef, private modelingService: DataModelingControllerService) {
+  constructor(private modalRef: NzModalRef, private modelingService: ModelingControllerService) {
   }
 
   submit(): void {

@@ -7,7 +7,7 @@ import { SyntaxNode } from '../../model/configuration/node';
 @Component({
   selector: 'pls-entity-concept-menu',
   templateUrl: 'semantic-class-menu.component.html',
-  styleUrls: ['../context-menu.scss']
+  styleUrls: ['../context-menu.less']
 })
 export class PlsSemanticClassMenuComponent {
 

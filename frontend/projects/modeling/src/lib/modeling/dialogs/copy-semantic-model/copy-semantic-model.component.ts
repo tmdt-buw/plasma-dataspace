@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { CombinedModel, DataModelingControllerService } from '../../../api/generated/dms';
+import { CombinedModel, ModelingControllerService } from '../../../api/generated/dms';
 import { BehaviorSubject } from 'rxjs';
 import { Filter } from '../../model/common/filter';
 import { NzNotificationService } from 'ng-zorro-antd/notification';
@@ -21,7 +21,7 @@ export class CopySemanticModelComponent implements OnInit {
   @Output() copySuccessful = new EventEmitter();
   $filter = new BehaviorSubject<Filter>(Filter.SEMANTIC);
 
-  constructor(private modelingService: DataModelingControllerService, private notification: NzNotificationService) {
+  constructor(private modelingService: ModelingControllerService, private notification: NzNotificationService) {
   }
 
   ngOnInit(): void {

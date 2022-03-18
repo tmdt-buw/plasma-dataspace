@@ -10,7 +10,7 @@ import de.buw.tmdt.plasma.datamodel.semanticmodel.SemanticModelNode;
 import de.buw.tmdt.plasma.services.dms.core.handler.ModelingHandler;
 import de.buw.tmdt.plasma.services.dms.core.model.datasource.Modeling;
 import de.buw.tmdt.plasma.services.dms.core.repository.ModelingRepository;
-import de.buw.tmdt.plasma.services.dms.shared.api.DataModelingAPI;
+import de.buw.tmdt.plasma.services.dms.shared.api.ModelingAPI;
 import de.buw.tmdt.plasma.services.dms.shared.api.ModelingInfo;
 import io.swagger.v3.oas.annotations.Operation;
 import org.jetbrains.annotations.NotNull;
@@ -20,12 +20,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 
 @RestController("Modeling Controller")
-public class ModelingController implements DataModelingAPI {
+public class ModelingController implements ModelingAPI {
 
     private final Logger log = LoggerFactory.getLogger(ModelingController.class);
 
@@ -41,12 +43,15 @@ public class ModelingController implements DataModelingAPI {
 
     @Override
     @Operation(description = "Initializes a new modeling.")
-    public ModelingInfo createNewModeling(@NotNull String modelId,
+    public ModelingInfo createNewModeling(@Nullable String modelId,
                                           @NotNull CombinedModel combinedModel,
                                           boolean performInitialModeling,
                                           String name,
                                           String description,
                                           String dataId) {
+        if(modelId == null){
+            modelId = UUID.randomUUID().toString();
+        }
         Modeling modeling = modelingHandler.initializeModeling(modelId, combinedModel, name, description, dataId);
         if (performInitialModeling) {
             // TODO async?
@@ -57,6 +62,7 @@ public class ModelingController implements DataModelingAPI {
                 modeling.getId(),
                 modeling.getName(),
                 modeling.getDescription(),
+                modeling.getCreated(),
                 modeling.getDataId());
     }
 
@@ -68,7 +74,9 @@ public class ModelingController implements DataModelingAPI {
                         modeling.getId(),
                         modeling.getName(),
                         modeling.getDescription(),
+                        modeling.getCreated(),
                         modeling.getDataId()))
+                .sorted(Comparator.comparing(ModelingInfo::getCreated))
                 .collect(Collectors.toList());
     }
 

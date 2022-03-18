@@ -42,9 +42,6 @@ import { PlsNamedEntityMenuComponent } from './modeling/context-menu/named-entit
 import { PlsLiteralMenuComponent } from './modeling/context-menu/literal-menu/literal-menu.component';
 import { NzCollapseModule } from 'ng-zorro-antd/collapse';
 import { UploadOntologyComponent } from './modeling/dialogs/upload-ontology/upload-ontology.component';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatFormFieldModule } from '@angular/material/form-field';
 import { NzResultModule } from 'ng-zorro-antd/result';
 import { CopySemanticModelComponent } from './modeling/dialogs/copy-semantic-model/copy-semantic-model.component';
 import { NzNotificationModule } from 'ng-zorro-antd/notification';
@@ -90,9 +87,6 @@ import { NzNotificationModule } from 'ng-zorro-antd/notification';
     NzRadioModule,
     NzTagModule,
     NzCollapseModule,
-    MatButtonModule,
-    MatIconModule,
-    MatFormFieldModule,
     NzResultModule,
     NzNotificationModule
   ],

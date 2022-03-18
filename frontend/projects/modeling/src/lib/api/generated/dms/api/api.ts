@@ -1,3 +1,3 @@
-export * from './dataModelingController.service';
-import { DataModelingControllerService } from './dataModelingController.service';
-export const APIS = [DataModelingControllerService];
+export * from './modelingController.service';
+import { ModelingControllerService } from './modelingController.service';
+export const APIS = [ModelingControllerService];

@@ -16,21 +16,9 @@
       "dom"
     ],
     "paths": {
-      "@tmdt/dss": [
-        "dist/data-sources/data-sources",
-        "dist/data-sources"
-      ],
       "@tmdt/dms": [
         "dist/@tmdt/dms/@tmdt/dms",
         "dist/@tmdt/dms"
-      ],
-      "@tmdt/sas": [
-        "dist/schema-analysis/schema-analysis",
-        "dist/schema-analysis"
-      ],
-      "@tmdt/common": [
-        "dist/common/common",
-        "dist/common"
       ]
     }
   }
