@@ -7,8 +7,8 @@
       [ngModel]="sourceModelId"
       nzPlaceHolder="Select a source model"
     >
-      <nz-option *ngFor="let item of availableModels" [nzLabel]="item.title"
-                 [nzValue]="item.uuid"></nz-option>
+      <nz-option *ngFor="let item of availableModels" [nzLabel]="item.name"
+                 [nzValue]="item.id"></nz-option>
     </nz-select>
   </div>
 

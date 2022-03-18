@@ -36,15 +36,11 @@ export class CopySemanticModelComponent implements OnInit {
   }
 
   getAvailableModels(): void {
-    // TODO implement once DSS is removed
-    // TODO filter own uuid
-    this.availableModels = [{
-      uuid: '79d5797f-f1bb-419a-8a29-068b278005eb',
-      title: 'Model 3'
-    }, {
-      uuid: '79d5797f-f1bb-419a-8a29-068b278005eb',
-      title: 'Model 4'
-    }];
+    this.modelingService.listModelings().subscribe(
+      modelings => {
+        console.log('received modelings', modelings,modelings.filter(modeling => modeling.id !== this.currentModelId));
+        this.availableModels = modelings.filter(modeling => modeling.id !== this.currentModelId);
+      });
   }
 
   getModel(): void {
