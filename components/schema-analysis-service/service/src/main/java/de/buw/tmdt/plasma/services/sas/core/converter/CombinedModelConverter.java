@@ -36,7 +36,7 @@ public class CombinedModelConverter {
 
 	}
 
-	/* Coversion methods SAS model ===>  CombinedModel  */
+	/* Conversion methods SAS model ===>  CombinedModel  */
 
 	@NotNull
 	public SyntaxModel toCombinedModel(@NotNull Node root) {

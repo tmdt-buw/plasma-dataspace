@@ -22,19 +22,15 @@ import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import static de.buw.tmdt.plasma.services.kgs.core.Ontologies.PREFIXES;
-
 @Service
 public class OntologyHandler {
 
     private static final Logger log = LoggerFactory.getLogger(OntologyHandler.class);
-    private final LocalOntologyManagement onto;
     private final Ontologies ontologies;
 
     @Autowired
     public OntologyHandler(
-            @NotNull LocalOntologyManagement onto, Ontologies ontologies) {
-        this.onto = onto;
+            Ontologies ontologies) {
         this.ontologies = ontologies;
     }
 
