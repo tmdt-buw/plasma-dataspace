@@ -5,17 +5,14 @@ import de.buw.tmdt.plasma.datamodel.semanticmodel.NamedEntity;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.Relation;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.SemanticModelNode;
 import org.apache.jena.arq.querybuilder.DescribeBuilder;
-import org.apache.jena.arq.querybuilder.UpdateBuilder;
 import org.apache.jena.ontology.OntModel;
 import org.apache.jena.query.QueryExecution;
+import org.apache.jena.query.QueryExecutionFactory;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.ResourceFactory;
 import org.apache.jena.rdf.model.impl.StatementImpl;
-import org.apache.jena.rdfconnection.RDFConnectionFuseki;
-import org.apache.jena.rdfconnection.RDFConnectionRemoteBuilder;
-import org.apache.jena.update.Update;
 import org.apache.jena.vocabulary.OWL;
 import org.apache.jena.vocabulary.RDF;
 import org.apache.jena.vocabulary.RDFS;
@@ -23,6 +20,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 import static de.buw.tmdt.plasma.services.kgs.core.Ontologies.PREFIXES;
 
@@ -32,12 +30,18 @@ import static de.buw.tmdt.plasma.services.kgs.core.Ontologies.PREFIXES;
 @Service
 public class LocalOntologyManagement {
 
-    private RDFConnectionRemoteBuilder builder;
+    private final Ontologies ontologies;
+
+    @Value("${plasma.kgs.localontology.prefix:plasma}")
+    private String LOCAL_ONTOLOGY_PREFIX;
+    @Value("${plasma.kgs.localontology.uri:https://plasma.uni-wuppertal.de/ontology#}")
+    private String LOCAL_ONTOLOGY_URI;
+    @Value("${plasma.kgs.localontology.prefix:PLASMA}")
+    private String LOCAL_ONTOLOGY_LABEL;
 
 
-    public LocalOntologyManagement(@Value("${plasma.jena.ontology.server}") String ontologyServerAddress) {
-        builder = RDFConnectionFuseki.create()
-                .destination(ontologyServerAddress);
+    public LocalOntologyManagement(Ontologies ontologies) {
+        this.ontologies = ontologies;
     }
 
     public void addResourcesToOntology(List<SemanticModelNode> resources) {
@@ -97,62 +101,49 @@ public class LocalOntologyManagement {
         putModel(m);
     }
 
-    public OntModel getInternalOntology(){
-        try (RDFConnectionFuseki conn = (RDFConnectionFuseki) builder.build()) {
-           DescribeBuilder describeBuilder = new DescribeBuilder();
-            describeBuilder.addPrefixes(PREFIXES)
-                    .addVar("?subject")
-                    .addVar("?predicate")
-                    .addVar("?object")
-                    .addWhere("?subject", "?predicate", "?object")
-            ;
-            QueryExecution query = conn.query(describeBuilder.build());
-            Model model1 = query.execDescribe();
-            OntModel ontology = ModelFactory.createOntologyModel();
-            ontology.add(model1);
-            return ontology;
+    public OntModel getInternalOntology() {
+        Optional<OntModel> localModel = ontologies.getOntologyModelByLabel("PLASMA");
+        if (localModel.isEmpty()) {
+            // create a new local ontology
+            return ontologies.createLocalOntology(LOCAL_ONTOLOGY_LABEL, LOCAL_ONTOLOGY_PREFIX, LOCAL_ONTOLOGY_URI);
         }
+
+        return localModel.get();
     }
 
-    public SemanticModelNode findElemegntsByURI(String uri) {
-        try (RDFConnectionFuseki conn = (RDFConnectionFuseki) builder.build()) {
-            DescribeBuilder describeBuilder = new DescribeBuilder();
-            describeBuilder.addPrefixes(PREFIXES)
-                    .addVar("?class")
-                    .addWhere("?class", RDF.type, "?type")
-                    .addFilter(describeBuilder.getExprFactory().in("?type", OWL.Class, PLASMA.NamedEntity))
-                    .addFilter(describeBuilder.getExprFactory().eq("?class", ResourceFactory.createResource(PREFIXES.expandPrefix(uri))))
-            //.addFilter(describeBuilder.getExprFactory().eq("?class", uri))
-            ;
-
-            QueryExecution query = conn.query(describeBuilder.build());
-            Model model1 = query.execDescribe();
-            List<SemanticModelNode> elements = CMToRDFMapper.convertOntologyResourcesToSemanticModelNodes(model1.listSubjects().toList());
-            return elements.stream().findFirst().orElse(null);
-        }
+    public SemanticModelNode findElementsByURI(String uri) {
+        DescribeBuilder describeBuilder = new DescribeBuilder();
+        describeBuilder.addPrefixes(PREFIXES)
+                .addVar("?class")
+                .addWhere("?class", RDF.type, "?type")
+                .addFilter(describeBuilder.getExprFactory().in("?type", OWL.Class, PLASMA.NamedEntity))
+                .addFilter(describeBuilder.getExprFactory().eq("?class", ResourceFactory.createResource(PREFIXES.expandPrefix(uri))))
+        //.addFilter(describeBuilder.getExprFactory().eq("?class", uri))
+        ;
+        QueryExecution query = QueryExecutionFactory.create(describeBuilder.build(), getInternalOntology());
+        Model model1 = query.execDescribe();
+        List<SemanticModelNode> elements = CMToRDFMapper.convertOntologyResourcesToSemanticModelNodes(model1.listSubjects().toList());
+        return elements.stream().findFirst().orElse(null);
     }
 
 
     public List<SemanticModelNode> findElementsByLabelPrefix(String prefix) {
-        try (RDFConnectionFuseki conn = (RDFConnectionFuseki) builder.build()) {
-            DescribeBuilder describeBuilder = new DescribeBuilder();
-            describeBuilder.addPrefixes(PREFIXES)
-                    .addVar("?class")
-                    .addWhere("?class", RDF.type, "?type")
-                    .addWhere("?class", RDFS.label, "?o")
-                    .addFilter(describeBuilder.getExprFactory().in("?type", OWL.Class, PLASMA.NamedEntity))
+        DescribeBuilder describeBuilder = new DescribeBuilder();
+        describeBuilder.addPrefixes(PREFIXES)
+                .addVar("?class")
+                .addWhere("?class", RDF.type, "?type")
+                .addWhere("?class", RDFS.label, "?o")
+                .addFilter(describeBuilder.getExprFactory().in("?type", OWL.Class, PLASMA.NamedEntity))
                     .addFilter(describeBuilder.getExprFactory().strstarts("?o", prefix));
 
-            QueryExecution query = conn.query(describeBuilder.build());
-            Model model1 = query.execDescribe();
+        QueryExecution query = QueryExecutionFactory.create(describeBuilder.build(), getInternalOntology());
+        Model model1 = query.execDescribe();
 
             List<SemanticModelNode> elements = CMToRDFMapper.convertOntologyResourcesToSemanticModelNodes(model1.listSubjects().toList());
             return elements;
-        }
     }
 
     public List<SemanticModelNode> findElementsByLabelInfix(String infix) {
-        try (RDFConnectionFuseki conn = (RDFConnectionFuseki) builder.build()) {
             DescribeBuilder describeBuilder = new DescribeBuilder();
             describeBuilder.addPrefixes(PREFIXES)
                     .addVar("?class")
@@ -161,15 +152,13 @@ public class LocalOntologyManagement {
                     .addFilter(describeBuilder.getExprFactory().in("?type", OWL.Class, PLASMA.NamedEntity))
                     .addFilter(describeBuilder.getExprFactory().regex("?o", infix, "i"));
 
-            QueryExecution query = conn.query(describeBuilder.build());
-            Model model1 = query.execDescribe();
+        QueryExecution query = QueryExecutionFactory.create(describeBuilder.build(), getInternalOntology());
+        Model model1 = query.execDescribe();
             List<SemanticModelNode> elements = CMToRDFMapper.convertOntologyResourcesToSemanticModelNodes(model1.listSubjects().toList());
             return elements;
-        }
     }
 
     public List<SemanticModelNode> findElementsByNamespace(String namespace) {
-        try (RDFConnectionFuseki conn = (RDFConnectionFuseki) builder.build()) {
             DescribeBuilder describeBuilder = new DescribeBuilder();
             describeBuilder.addPrefixes(PREFIXES)
                     .addVar("?class")
@@ -178,15 +167,13 @@ public class LocalOntologyManagement {
                     .addFilter(describeBuilder.getExprFactory().in("?type", OWL.Class, PLASMA.NamedEntity))
                     .addFilter(describeBuilder.getExprFactory().strstarts("?class", namespace));
 
-            QueryExecution query = conn.query(describeBuilder.build());
-            Model model1 = query.execDescribe();
+        QueryExecution query = QueryExecutionFactory.create(describeBuilder.build(), getInternalOntology());
+        Model model1 = query.execDescribe();
             List<SemanticModelNode> elements = CMToRDFMapper.convertOntologyResourcesToSemanticModelNodes(model1.listSubjects().toList());
             return elements;
-        }
     }
 
     public Relation findRelationByURI(String uri) {
-        try (RDFConnectionFuseki conn = (RDFConnectionFuseki) builder.build()) {
             DescribeBuilder describeBuilder = new DescribeBuilder();
             describeBuilder.addPrefixes(PREFIXES)
                     .addVar("?relation")
@@ -195,16 +182,14 @@ public class LocalOntologyManagement {
                     .addFilter(describeBuilder.getExprFactory().eq("?relation", ResourceFactory.createProperty(uri)))
             ;
 
-            QueryExecution query = conn.query(describeBuilder.build());
-            Model model1 = query.execDescribe();
+        QueryExecution query = QueryExecutionFactory.create(describeBuilder.build(), getInternalOntology());
+        Model model1 = query.execDescribe();
             List<Relation> elements = CMToRDFMapper.convertOntologyRelationsToRelations(model1.listSubjects().toList());
             return elements.stream().findFirst().orElse(null);
-        }
     }
 
 
     public List<Relation> findRelationsByLabelPrefix(String prefix) {
-        try (RDFConnectionFuseki conn = (RDFConnectionFuseki) builder.build()) {
             DescribeBuilder describeBuilder = new DescribeBuilder();
             describeBuilder.addPrefixes(PREFIXES)
                     .addVar("?relation")
@@ -213,15 +198,13 @@ public class LocalOntologyManagement {
                     .addFilter(describeBuilder.getExprFactory().in("?type", OWL.ObjectProperty, OWL.DatatypeProperty))
                     .addFilter(describeBuilder.getExprFactory().strstarts("?o", prefix));
 
-            QueryExecution query = conn.query(describeBuilder.build());
-            Model model1 = query.execDescribe();
+        QueryExecution query = QueryExecutionFactory.create(describeBuilder.build(), getInternalOntology());
+        Model model1 = query.execDescribe();
             List<Relation> elements = CMToRDFMapper.convertOntologyRelationsToRelations(model1.listSubjects().toList());
             return elements;
-        }
     }
 
     public List<Relation> findRelationsByLabelInfix(String infix) {
-        try (RDFConnectionFuseki conn = (RDFConnectionFuseki) builder.build()) {
             DescribeBuilder describeBuilder = new DescribeBuilder();
             describeBuilder.addPrefixes(PREFIXES)
                     .addVar("?relation")
@@ -230,15 +213,13 @@ public class LocalOntologyManagement {
                     .addFilter(describeBuilder.getExprFactory().in("?type", OWL.ObjectProperty, OWL.DatatypeProperty))
                     .addFilter(describeBuilder.getExprFactory().strstarts("?o", infix));
 
-            QueryExecution query = conn.query(describeBuilder.build());
-            Model model1 = query.execDescribe();
+        QueryExecution query = QueryExecutionFactory.create(describeBuilder.build(), getInternalOntology());
+        Model model1 = query.execDescribe();
             List<Relation> elements = CMToRDFMapper.convertOntologyRelationsToRelations(model1.listSubjects().toList());
             return elements;
-        }
     }
 
     public List<Relation> findRelationsByNamespace(String namespace) {
-        try (RDFConnectionFuseki conn = (RDFConnectionFuseki) builder.build()) {
             DescribeBuilder describeBuilder = new DescribeBuilder();
             describeBuilder.addPrefixes(PREFIXES)
                     .addVar("?relation")
@@ -247,20 +228,15 @@ public class LocalOntologyManagement {
                     .addFilter(describeBuilder.getExprFactory().in("?type", OWL.ObjectProperty, OWL.DatatypeProperty))
                     .addFilter(describeBuilder.getExprFactory().strstarts("?relation", namespace));
 
-            QueryExecution query = conn.query(describeBuilder.build());
-            Model model1 = query.execDescribe();
+        QueryExecution query = QueryExecutionFactory.create(describeBuilder.build(), getInternalOntology());
+        Model model1 = query.execDescribe();
             List<Relation> elements = CMToRDFMapper.convertOntologyRelationsToRelations(model1.listSubjects().toList());
             return elements;
-        }
     }
 
     private void putModel(Model model) {
-        try (RDFConnectionFuseki conn = (RDFConnectionFuseki) builder.build()) {
-            UpdateBuilder updateBuilder = new UpdateBuilder()
-                    .addPrefixes(PREFIXES)
-                    .addInsert(model);
-            Update insert = updateBuilder.build();
-            conn.update(insert);
-        }
+        OntModel internalOntology = getInternalOntology();
+        internalOntology.add(model);
+        ontologies.updateOntology(LOCAL_ONTOLOGY_LABEL, internalOntology);
     }
 }

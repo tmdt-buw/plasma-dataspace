@@ -5,20 +5,21 @@ import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import de.buw.tmdt.plasma.services.kgs.shared.model.OntologyInfo;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.jena.ontology.OntModel;
+import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.shared.PrefixMapping;
 import org.apache.jena.shared.impl.PrefixMappingImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import javax.annotation.PostConstruct;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -30,40 +31,41 @@ public class Ontologies {
 
     private static final Logger log = LoggerFactory.getLogger(Ontologies.class);
 
-    static String SM_uri = "http://plasma.uni-wuppertal.de/sm/";
+    static String SM_URI = "http://plasma.uni-wuppertal.de/sm/";
 
     private Map<Ontology, OntModel> ontologyModels = new HashMap<>();
-
-    private String ontologyFolder = "./ontologies";
-    private final String ONTOLOGY_SUFFIX = ".ontology";
-
-    private final ObjectMapper mapper;
-
-    private final LocalOntologyManagement localOntologyManagement;
-
     private static final PrefixMapping DEFAULT_PREFIXES = new PrefixMappingImpl()
             .setNsPrefixes(PrefixMapping.Standard)
             .setNsPrefix("plcm", PLCM.getURI())
-            .setNsPrefix("plsm", SM_uri)
+            .setNsPrefix("plsm", SM_URI)
             .setNsPrefix("plasma", PLASMA.getURI());
+    @Value("${plasma.kgs.ontologies.metadata.suffix:.ontology}")
+    private final String ONTOLOGY_SUFFIX = ".ontology";
+
+    private final ObjectMapper mapper;
+    @Value("${plasma.kgs.ontologies.folder:./ontologies}")
+    private String ontologyFolder;
 
     public static final PrefixMapping PREFIXES = DEFAULT_PREFIXES;
 
     @Autowired
-    public Ontologies(LocalOntologyManagement localOntologyManagement) {
-        this.localOntologyManagement = localOntologyManagement;
+    public Ontologies() {
         mapper = new ObjectMapper()
-                .registerModule( new ParameterNamesModule() );
+                .registerModule(new ParameterNamesModule());
+
+    }
+
+    @PostConstruct
+    public void init() {
         reloadOntologies();
     }
 
     public synchronized void reloadOntologies() {
         Map<Ontology, OntModel> reloadedModels = new HashMap<>();
         Path ontologiesFolder = Paths.get(getOntologyFolder());
-        if(!Files.exists(ontologiesFolder)){
+        if (!Files.exists(ontologiesFolder)) {
             ontologiesFolder.toFile().mkdirs();
         }
-        reloadedModels.put(new Ontology("PLASMA", "","plasma",PLASMA.getURI()),localOntologyManagement.getInternalOntology());
         try {
             Files.list(ontologiesFolder)
                     .forEach(filePath -> {
@@ -145,9 +147,71 @@ public class Ontologies {
         reloadOntologies();
     }
 
+    public OntModel createLocalOntology(String label, String prefix, String namespace) {
+        label = label.replaceAll(" ", "_");
+        String filename = label + "_local.ttl";
+
+        if (Files.exists(Paths.get(getOntologyFolder(), filename))) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "This ontology already exists.");
+        }
+        OntModel createdOnto = ModelFactory.createOntologyModel();
+        try {
+            Path metadataFilePath = Paths.get(getOntologyFolder(), label + ONTOLOGY_SUFFIX);
+            if (Files.exists(metadataFilePath)) {
+                throw new ResponseStatusException(HttpStatus.CONFLICT, "Ontology for this label already exists");
+            }
+
+            log.info("Creating local ontology file");
+            Path ontologyFilePath = Paths.get(getOntologyFolder(), filename);
+            OutputStream out = new FileOutputStream(ontologyFilePath.toFile());
+            createdOnto.write(out, "TURTLE");
+            log.info("Written ontology file to " + ontologyFilePath);
+
+            Ontology onto = new Ontology(label, ontologyFilePath.toString(), prefix, namespace);
+            mapper.writeValue(metadataFilePath.toFile(), onto);
+        } catch (IOException e) {
+            log.error("Error while writing ontology or metadata file", e);
+            throw new ResponseStatusException(
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Ontology could not be stored."
+            );
+        }
+        // rebuild the index
+        reloadOntologies();
+        return createdOnto;
+    }
+
+    public void updateOntology(String label, Model model) {
+        Optional<OntModel> ontologyModelByLabel = getOntologyModelByLabel(label);
+        if (ontologyModelByLabel.isEmpty()) {
+            return;
+        }
+        String filepath = ontologyModels.keySet().stream()
+                .filter(ont -> ont.getLabel().equals(label))
+                .map(Ontology::getFilePath)
+                .findFirst()
+                .orElseThrow();
+        try {
+
+            Path ontologyFilePath = Paths.get(filepath);
+            OutputStream out = new FileOutputStream(ontologyFilePath.toFile());
+            model.write(out, "TURTLE");
+            log.info("Written updated model to " + ontologyFilePath);
+
+        } catch (IOException e) {
+            log.error("Error while writing updated ontology", e);
+            throw new ResponseStatusException(
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Ontology could not be stored."
+            );
+        }
+        // rebuild the index
+        reloadOntologies();
+    }
+
     public List<OntologyInfo> listOntologies() {
         return ontologyModels.keySet().stream()
-                .map(om -> new OntologyInfo(om.getLabel(),om.getPrefix(),om.getUri()))
+                .map(om -> new OntologyInfo(om.getLabel(), om.getPrefix(), om.getUri()))
                 .collect(Collectors.toList());
     }
 
@@ -156,7 +220,7 @@ public class Ontologies {
     }
 
     public List<OntModel> getFilteredOntologyModels(List<String> labels) {
-        if(labels == null || labels.isEmpty()){
+        if (labels == null || labels.isEmpty()) {
             return new ArrayList<>(ontologyModels.values());
         }
         return ontologyModels.entrySet().stream()
@@ -165,4 +229,13 @@ public class Ontologies {
                 .collect(Collectors.toList());
     }
 
+    public Optional<OntModel> getOntologyModelByLabel(String label) {
+        if (label == null || label.isBlank()) {
+            return Optional.empty();
+        }
+        return ontologyModels.entrySet().stream()
+                .filter(entry -> label.equals(entry.getKey().getLabel()))
+                .map(Map.Entry::getValue)
+                .findFirst();
+    }
 }

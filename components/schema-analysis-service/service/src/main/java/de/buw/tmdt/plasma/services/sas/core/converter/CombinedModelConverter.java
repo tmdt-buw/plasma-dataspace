@@ -100,7 +100,6 @@ public class CombinedModelConverter {
 						label,
 						xCoordinate,
 						yCoordinate,
-						new ArrayList<>(),
 						setNode.isValid());
 
 		for (SetNode.Child child : setNode.getChildren()) {
@@ -137,7 +136,7 @@ public class CombinedModelConverter {
 
 		de.buw.tmdt.plasma.datamodel.syntaxmodel.ObjectNode root =
 				new de.buw.tmdt.plasma.datamodel.syntaxmodel.ObjectNode(
-						label, xCoordinate, yCoordinate, new ArrayList<>(), objectNode.isValid());
+						label, xCoordinate, yCoordinate, objectNode.isValid());
 
 		for (Map.Entry<String, Node> entry : objectNode.getChildren().entrySet()) {
 			createChild(root, entry.getValue(), entry.getKey(), serializationContext);
@@ -162,7 +161,6 @@ public class CombinedModelConverter {
 				label,
 				xCoordinate,
 				yCoordinate,
-				new ArrayList<>(),
 				compositeNode.isValid(),
 				compositeNode.getExamples(),
 				compositeNode.getCleansingPattern(),
@@ -206,7 +204,6 @@ public class CombinedModelConverter {
 				COLLISION_ELEMENT_LABEL,
 				xCoordinate,
 				yCoordinate,
-				new ArrayList<>(),
 				collisionNode.isValid()
 		);
 
@@ -245,7 +242,6 @@ public class CombinedModelConverter {
 				label,
 				xCoordinate,
 				yCoordinate,
-				new ArrayList<>(),
 				primitiveNode.isValid(),
 				DataType.valueOf(primitiveNode.getDataType().identifier),
 				primitiveNode.getExamples(),
