@@ -90,7 +90,7 @@ export abstract class Links {
    * @param link to test
    */
   static isSemanticLink(link: dia.CellView | dia.LinkView): boolean {
-    return link.model?.attributes?.type === this.objectPropertyLinkName;
+    return [this.objectPropertyLinkName, this.dataPropertyLinkName].includes(link.model?.attributes?.type);
   }
 
   /**
