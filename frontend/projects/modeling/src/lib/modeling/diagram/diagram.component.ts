@@ -69,7 +69,6 @@ import Point = g.Point;
 export class PlsDiagramComponent implements OnInit, AfterViewInit {
 
   // create graph if input schema changes and graph has already been initialized
-
   @Input() set combinedModel(combinedModel: CombinedModel) {
     this._combinedModel = combinedModel;
     if (!this.initializing) {
@@ -99,6 +98,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
 
   // graph elements
   @ViewChild('graph') canvas: ElementRef;
+  @ViewChild('literalValueModalTpl') literalValueModalTpl;
   private graph: dia.Graph;
   private paper: dia.Paper;
   private panAndZoom: any;
@@ -115,6 +115,8 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
   mousePosition;
   recommendations = [];
   ghostLiteral: dia.Element;
+  tmpLiteralValue: string;
+  literalDefinitionError: string;
 
   // events
   @Output() graphLaidOut = new EventEmitter<CombinedModel>();
@@ -133,7 +135,8 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
     CONNECTION: 'connection-highlighter'
   };
 
-  constructor(private overlay: Overlay, private modelingService: ModelingService, private contextMenu: ContextMenuService, private viewContainerRef: ViewContainerRef, private modal: NzModalService) {
+  constructor(private overlay: Overlay, private modelingService: ModelingService, private contextMenu: ContextMenuService,
+              private viewContainerRef: ViewContainerRef, private modal: NzModalService) {
   }
 
   /**
@@ -247,6 +250,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
             return;
           }
         }
+        // console.log('elementView', elementView);
         Links.adjustVertices(this.graph, elementView);
         const element = elementView.model;
         this.updatePosition(element, true);
@@ -255,7 +259,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
       },
       // Highlights for modeling
       'element:mouseover': (elementView: dia.ElementView) => {
-        console.log('element:mouseover');
+        // console.log('element:mouseover');
         if (this.modelNode?._class === 'Class' && this.getIfLeafNode(elementView)) {
           elementView.highlight();
           this.hoveredElement = elementView;
@@ -273,10 +277,10 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
 
       },
       'cell:mouseleave': () => {
-        console.log('cell:mouseleave');
+        // console.log('cell:mouseleave');
       },
       'element:mouseleave': () => {
-        console.log('element:mouseleave');
+        // console.log('element:mouseleave');
         if (this.modelNode) {
           this.unhighlightAll();
         }
@@ -285,7 +289,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
       },
       // handle linking of nodes
       'link:connect': (linkView: dia.LinkView) => {
-        console.log('link:connect', linkView);
+        // console.log('link:connect', linkView);
         if (this.relation?._class === 'ObjectProperty') {
           const model = linkView.model.attributes;
           const from = model.source.id;
@@ -328,7 +332,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
         this.panAndZoom.disablePan();
       },
       'link:pointerup': (link, evt, x, y) => {
-        console.log('link:pointerup', link, 'target', this.relationTarget, 'event', evt);
+        // console.log('link:pointerup', link, 'target', this.relationTarget, 'event', evt);
         if (this.relation?._class === 'DataProperty') {
           const source = link.sourceView?.model?.id;
           const literal: Literal = {
@@ -347,13 +351,31 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
             label: this.relation.label,
             uri: this.relation.uri
           };
-          // console.log('ADD DATAPROPERTY', 'source', source, 'literal', literal, 'relation', relation);
-          console.log('adding literal', literal);
-          this.addLiteralNode(literal.uuid, 'blub', 'text_fields', literal.x, literal.y);
-          console.log('literal added');
-          this.addObjectPropertyLink(relation.uuid, relation.from, relation.to, relation.label);
+          const tmpNode: dia.Element = this.addLiteralNode(literal.uuid, 'Set Value', 'text_fields', literal.x, literal.y);
+          const tmpRel = this.addObjectPropertyLink(relation.uuid, relation.from, relation.to, relation.label);
+          this.modal.create({
+            nzTitle: 'Enter literal value',
+            nzContent: this.literalValueModalTpl,
+            nzClosable: false,
+            nzOnOk: () => {
+              if (!this.tmpLiteralValue) {
+                this.literalDefinitionError = 'Empty string is not allowed.';
+                return false;
+              }
+              // TODO update literal cell value if not rendered completely new
+              literal.label = this.tmpLiteralValue;
+              this.literalDefinitionError = undefined;
+              this.tmpLiteralValue = undefined;
+              this.semanticModelElementsAdded.emit({entities: [literal], relations: [relation]});
+            },
+            nzOnCancel: () => {
+              this.graph.removeCells([tmpNode, tmpRel]);
+              this.literalDefinitionError = undefined;
+              this.tmpLiteralValue = undefined;
+            }
+          });
 
-          // this.semanticModelElementsAdded.emit({entities: [literal], relations: [relation]});
+
         } else {
           this.panAndZoom.disablePan();
         }
@@ -409,10 +431,10 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
         }
       },
       'cell:highlight': (cellView, node, {type}) => {
-        console.log('highlight', cellView, node, type);
+        // console.log('highlight', cellView, node, type);
         if (type === dia.CellView.Highlighting.CONNECTING) {
           if (this.relation._class === 'ObjectProperty') {
-            if (Nodes.isSemanticNode(cellView)) {
+            if (Nodes.isSemanticNode(cellView) && !Nodes.isLiteral(cellView)) {
               highlighters.stroke.add(cellView, node, this.CustomHighlighters.CONNECTION, {});
             }
           }
@@ -884,7 +906,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
   private addLiteralNode(id: string, value: string, icon: string, x?: number, y?: number, opacity?: number): dia.Element {
     const classDims = this.calcDimensionsForLabel(value, !!icon);
     const dim = [classDims[0], classDims[1]];
-    const position = {x, y};
+    const position = {x: x - (classDims[0] / 2), y: y - (classDims[1] / 2)};
     const node = Nodes.createLiteralNode(id, value, icon, position, dim[0], dim[1], opacity);
     this.graph.addCell(node);
     return node;

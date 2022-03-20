@@ -3,4 +3,8 @@
        (cdkDropListDropped)="entityDropped($event)" (cdkDropListEntered)="setSelectedModelNode($event.item.data)"
        (cdkDropListExited)="setSelectedModelNode(null)" id="canvasContainer">
   </div>
+  <ng-template #literalValueModalTpl>
+    <input nz-input nz-typography type="text" [(ngModel)]="tmpLiteralValue"/>
+    <nz-alert *ngIf="literalDefinitionError" nzType="error" nzMessage="{{ literalDefinitionError}}"></nz-alert>
+  </ng-template>
 </div>
