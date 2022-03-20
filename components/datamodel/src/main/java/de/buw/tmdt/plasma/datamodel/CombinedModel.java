@@ -393,6 +393,13 @@ public class CombinedModel implements Serializable {
             if (!delta.isDeletion()) {
                 // now add the new ones with the same uuids but new content
                 semanticModel.getEdges().addAll(delta.getRelations());
+            } else {
+                // check if a literal exists that has no incoming edge anymore
+                delta.getRelations().stream()
+                        .map(Relation::getTo)
+                        .map(semanticModel::getNode)
+                        .filter(node -> node instanceof Literal)
+                        .forEach(semanticModel.getNodes()::remove);
             }
         }
 
