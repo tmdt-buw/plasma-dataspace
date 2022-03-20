@@ -1,6 +1,8 @@
 import { dia } from 'jointjs';
 import { Relation } from '../../../api/generated/dms';
 import { Links } from './link';
+import { Nodes } from './node';
+import sorting = dia.Paper.sorting;
 
 /**
  * Abstract class that provides configs for papers
@@ -62,9 +64,10 @@ export abstract class Papers {
       interactive,
       // ony allow links between semantic nodes
       allowLink: (linkView: dia.LinkView) => {
-        console.log(activeRelation(), activeRelation()._class === 'ObjectProperty' && Links.targetsSemanticNode(linkView));
-        return activeRelation()._class === 'ObjectProperty' && Links.targetsSemanticNode(linkView);
+        // console.log(activeRelation(), activeRelation()._class === 'ObjectProperty' && Links.targetsSemanticNode(linkView) && !Nodes.isLiteral(linkView.model?.getTargetElement()));
+        return activeRelation()._class === 'ObjectProperty' && Links.targetsSemanticNode(linkView) && !Nodes.isLiteral(linkView.model?.getTargetElement());
       },
+      sorting: sorting.NONE,
       // default link style
       defaultLink: () => {
         const label = activeRelation().label;
