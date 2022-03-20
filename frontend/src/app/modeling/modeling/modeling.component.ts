@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ModelingControllerService, ModelingInfo } from '@tmdt/dms';
 
 @Component({
@@ -12,7 +12,7 @@ export class ModelingComponent implements OnInit {
   modelId: string;
   model: ModelingInfo;
 
-  constructor(private route: ActivatedRoute, private modelingService: ModelingControllerService) {
+  constructor(private route: ActivatedRoute, private modelingService: ModelingControllerService, private router: Router) {
   }
 
   ngOnInit(): void {
@@ -20,4 +20,7 @@ export class ModelingComponent implements OnInit {
     this.modelingService.listModelings().subscribe(modelings => this.model = modelings.find(model => model.id === this.modelId));
   }
 
+  goToModelingsList(): void {
+    this.router.navigate(['/modelings']);
+  }
 }
