@@ -49,13 +49,13 @@ public class SchemaAnalysisIdentifyJSONStructure implements Serializable {
 		String truncatedExampleValue = exampleValue.substring(0, Math.min(exampleValue.length(), EXAMPLE_VALUE_LENGTH));
 		List<String> exampleValues = new ArrayList<>();
 		exampleValues.add(truncatedExampleValue);
-		return new PrimitiveNode(null, PrimitiveNode.DataType.UNKNOWN, exampleValues);
+		return new PrimitiveNode(PrimitiveNode.DataType.UNKNOWN, exampleValues);
 	}
-
 
 
 	// children.put is wrong -> check merging
 	private de.buw.tmdt.plasma.services.sas.core.model.syntaxmodel.ObjectNode parseJSONObject(ObjectNode object) throws SchemaAnalysisException {
+
 		Map<String, Node> children = new HashMap<>();
 		de.buw.tmdt.plasma.services.sas.core.model.syntaxmodel.ObjectNode objectNode =
 				new de.buw.tmdt.plasma.services.sas.core.model.syntaxmodel.ObjectNode(children, null);

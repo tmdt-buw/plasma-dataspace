@@ -3,7 +3,6 @@ package de.buw.tmdt.plasma.datamodel.syntaxmodel;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import de.buw.tmdt.plasma.datamodel.modification.operation.SyntacticOperationDTO;
 import de.buw.tmdt.plasma.utilities.collections.CollectionUtilities;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -45,6 +44,7 @@ public class CompositeNode extends SchemaNode {
     public CompositeNode(
             @NotNull @JsonProperty(UUID_PROPERTY) String uuid,
             @JsonProperty(LABEL_PROPERTY) @NotNull String label,
+            @Nullable @JsonProperty(PATH_PROPERTY) List<String> path,
             @Nullable @JsonProperty(XCOORDINATE_PROPERTY) Double xCoordinate,
             @Nullable @JsonProperty(YCOORDINATE_PROPERTY) Double yCoordinate,
             @JsonProperty(VALID_PROPERTY) boolean isValid,
@@ -52,7 +52,7 @@ public class CompositeNode extends SchemaNode {
             @JsonProperty(CLEANSING_PATTERN_PROPERTY) String cleansingPattern,
             @NotNull @JsonProperty(SPLITTINGS_PROPERTY) List<Splitting> splitter
     ) {
-        super(uuid, label, xCoordinate, yCoordinate, isValid);
+        super(uuid, label, path, xCoordinate, yCoordinate, isValid);
         this.examples = examples;
         this.cleansingPattern = cleansingPattern;
         this.splitter = splitter;
@@ -91,6 +91,7 @@ public class CompositeNode extends SchemaNode {
         return new CompositeNode(
                 getUuid(),
                 getLabel(),
+                getPath(),
                 getXCoordinate(),
                 getYCoordinate(),
                 isValid(),

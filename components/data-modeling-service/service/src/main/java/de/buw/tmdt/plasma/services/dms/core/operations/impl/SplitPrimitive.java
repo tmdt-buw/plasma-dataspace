@@ -125,13 +125,14 @@ public class SplitPrimitive extends Operation<Pair<PrimitiveNode, List<Splitting
 
 		// define what we want to have
 		CompositeNode composite = new CompositeNode(primitive.getUuid(),
-				primitive.getLabel(),
-				primitive.getXCoordinate(),
-				primitive.getYCoordinate(),
-				primitive.isValid(),
-				primitive.getExamples(),
-				primitive.getCleansingPattern(),
-				primitiveListPair.getRight());
+                primitive.getLabel(),
+                null,
+                primitive.getXCoordinate(),
+                primitive.getYCoordinate(),
+                primitive.isValid(),
+                primitive.getExamples(),
+                primitive.getCleansingPattern(),
+                primitiveListPair.getRight());
 
 		DeltaModification modification = new DeltaModification("local_operation", null, null, List.of(composite), null);
 		model.apply(modification); // this will to the magic for us

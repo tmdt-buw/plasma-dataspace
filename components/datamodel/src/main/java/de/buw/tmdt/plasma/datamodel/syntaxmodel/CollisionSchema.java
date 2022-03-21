@@ -4,11 +4,9 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import de.buw.tmdt.plasma.datamodel.modification.operation.SyntacticOperationDTO;
-import de.buw.tmdt.plasma.utilities.collections.CollectionUtilities;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @JsonTypeName("CollisionSchema")
@@ -29,17 +27,19 @@ public class CollisionSchema extends SchemaNode {
 
             @JsonProperty(UUID_PROPERTY) @NotNull String uuid,
             @JsonProperty(LABEL_PROPERTY) @NotNull String label,
+            @Nullable @JsonProperty(PATH_PROPERTY) List<String> path,
             @Nullable @JsonProperty(XCOORDINATE_PROPERTY) Double xCoordinate,
             @Nullable @JsonProperty(YCOORDINATE_PROPERTY) Double yCoordinate,
             @JsonProperty(VALID_PROPERTY) boolean isValid
     ) {
-        super(uuid, label, xCoordinate, yCoordinate, isValid);
+        super(uuid, label, path, xCoordinate, yCoordinate, isValid);
     }
 
     @Override
     public CollisionSchema copy() {
         return new CollisionSchema(getUuid(),
                 getLabel(),
+                getPath(),
                 getXCoordinate(),
                 getYCoordinate(),
                 isValid());

@@ -4,8 +4,6 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import de.buw.tmdt.plasma.datamodel.modification.operation.DataType;
-import de.buw.tmdt.plasma.datamodel.modification.operation.SyntacticOperationDTO;
-import de.buw.tmdt.plasma.utilities.collections.CollectionUtilities;
 import de.buw.tmdt.plasma.utilities.misc.StringUtilities;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -59,6 +57,7 @@ public class PrimitiveNode extends SchemaNode {
     public PrimitiveNode(
             @NotNull @JsonProperty(UUID_PROPERTY) String uuid,
             @JsonProperty(LABEL_PROPERTY) @NotNull String label,
+            @Nullable @JsonProperty(PATH_PROPERTY) List<String> path,
             @JsonProperty(XCOORDINATE_PROPERTY) Double xCoordinate,
             @JsonProperty(YCOORDINATE_PROPERTY) Double yCoordinate,
             @JsonProperty(VALID_PROPERTY) boolean isValid,
@@ -66,7 +65,7 @@ public class PrimitiveNode extends SchemaNode {
             @JsonProperty(EXAMPLES_PROPERTY) List<String> examples,
             @JsonProperty(CLEANSING_PATTERN_PROPERTY) String cleansingPattern
     ) {
-        super(uuid, label, xCoordinate, yCoordinate, isValid);
+        super(uuid, label, path, xCoordinate, yCoordinate, isValid);
         this.dataType = dataType;
         this.examples = examples != null ? new ArrayList<>(examples) : new ArrayList<>();
         this.cleansingPattern = cleansingPattern;
@@ -104,6 +103,7 @@ public class PrimitiveNode extends SchemaNode {
         PrimitiveNode node = new PrimitiveNode(
                 getUuid(),
                 getLabel(),
+                getPath(),
                 getXCoordinate(),
                 getYCoordinate(),
                 isValid(),

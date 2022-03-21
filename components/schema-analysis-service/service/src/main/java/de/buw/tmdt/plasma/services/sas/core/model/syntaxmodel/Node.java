@@ -1,9 +1,9 @@
 package de.buw.tmdt.plasma.services.sas.core.model.syntaxmodel;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import de.buw.tmdt.plasma.services.sas.core.model.exception.SchemaAnalysisException;
-import de.buw.tmdt.plasma.services.sas.core.model.Traversable;
 import de.buw.tmdt.plasma.services.sas.core.model.Position;
+import de.buw.tmdt.plasma.services.sas.core.model.Traversable;
+import de.buw.tmdt.plasma.services.sas.core.model.exception.SchemaAnalysisException;
 import org.hibernate.annotations.DynamicUpdate;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -30,25 +30,22 @@ public abstract class Node implements Traversable {
 	private transient Identity<?> identity;
 
 	protected Node() {
-
 	}
-
-	public Node merge(Traversable node) throws SchemaAnalysisException {
-		return (Node) node;
-	}
-
 
 	protected Node(@Nullable Position position) {
 		this(position, Identity.random());
 	}
 
 	protected Node(@Nullable Position position, @NotNull UUID uuid) {
+		this();
 		this.position = position;
 		this.uuid = uuid;
 		this.identity = new Identity<>(uuid);
+
 	}
 
 	protected Node(@Nullable Position position, @NotNull Identity<?> identity) {
+		this();
 		this.position = position;
 		this.uuid = null;
 		this.identity = identity;
@@ -65,6 +62,11 @@ public abstract class Node implements Traversable {
 			}
 		}
 	}
+
+	public Node merge(Traversable node) throws SchemaAnalysisException {
+		return (Node) node;
+	}
+
 
 	@Override
 	public abstract Node copy(@NotNull Map<Identity<?>, Traversable> copyableLookup);
@@ -121,8 +123,6 @@ public abstract class Node implements Traversable {
 		       + ", \"position\":" + position
 		       + '}';
 	}
-
-
 
 	public static class Fault {
 		private final String message;

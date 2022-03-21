@@ -3,12 +3,9 @@ package de.buw.tmdt.plasma.datamodel.syntaxmodel;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import de.buw.tmdt.plasma.datamodel.modification.operation.SyntacticOperationDTO;
-import de.buw.tmdt.plasma.utilities.collections.CollectionUtilities;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -34,24 +31,36 @@ public class ObjectNode extends SchemaNode {
             @Nullable Double yCoordinate,
             boolean isValid
     ) {
-        super(UUID.randomUUID().toString(), label, xCoordinate, yCoordinate, isValid);
+        super(UUID.randomUUID().toString(), label, null, xCoordinate, yCoordinate, isValid);
+    }
+
+    public ObjectNode(
+            @NotNull String label,
+            List<String> path,
+            @Nullable Double xCoordinate,
+            @Nullable Double yCoordinate,
+            boolean isValid
+    ) {
+        super(UUID.randomUUID().toString(), label, path, xCoordinate, yCoordinate, isValid);
     }
 
     @JsonCreator
     public ObjectNode(
             @NotNull @JsonProperty(UUID_PROPERTY) String uuid,
             @NotNull @JsonProperty(LABEL_PROPERTY) String label,
+            @Nullable @JsonProperty(PATH_PROPERTY) List<String> path,
             @Nullable @JsonProperty(XCOORDINATE_PROPERTY) Double xCoordinate,
             @Nullable @JsonProperty(YCOORDINATE_PROPERTY) Double yCoordinate,
             @JsonProperty(VALID_PROPERTY) boolean isValid
     ) {
-        super(uuid, label, xCoordinate, yCoordinate,  isValid);
+        super(uuid, label, path, xCoordinate, yCoordinate, isValid);
     }
 
     @Override
     public ObjectNode copy() {
         return new ObjectNode(getUuid(),
                 getLabel(),
+                getPath(),
                 getXCoordinate(),
                 getYCoordinate(),
                 isValid());

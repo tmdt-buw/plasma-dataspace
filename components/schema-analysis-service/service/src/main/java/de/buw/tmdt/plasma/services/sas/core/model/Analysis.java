@@ -1,6 +1,5 @@
 package de.buw.tmdt.plasma.services.sas.core.model;
 
-import de.buw.tmdt.plasma.services.sas.core.model.semanticmodel.SemanticModel;
 import de.buw.tmdt.plasma.services.sas.core.model.syntaxmodel.Node;
 
 import javax.persistence.*;
@@ -26,12 +25,6 @@ public class Analysis {
 	@OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
 	private Node result;
 
-	@OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
-	private SemanticModel semanticModel;
-
-	@ManyToOne
-	private Standard standard;
-
 	protected Analysis() {
 
 	}
@@ -55,21 +48,5 @@ public class Analysis {
 
 	public Node getResult() {
 		return result;
-	}
-
-	public SemanticModel getSemanticModel() {
-		return semanticModel;
-	}
-
-	public void setSemanticModel(SemanticModel semanticModel) {
-		this.semanticModel = semanticModel;
-	}
-
-	public void setStandard(Standard standard) {
-		this.standard = standard;
-	}
-
-	public Standard getStandard() {
-		return this.standard;
 	}
 }

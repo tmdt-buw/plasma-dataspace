@@ -1,4 +1,4 @@
-import { Component, Input, OnDestroy, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { AnalysisControllerService, SchemaAnalysisDataProvisionDTO, SyntaxModel } from '../api/generated';
 
@@ -13,7 +13,7 @@ export class SchemaAnalysisComponent implements OnInit, OnDestroy {
   initializing: boolean = true;
   lastDataPoints: string[] = [];
 
-  currentDataPoint = '{"stringValue": "34 PLASMA Street", "numberValue": 3.1337}';
+  currentDataPoint = '{"stringValue": "34 PLASMA Street", "numberValue": 3.1337, "object": { "stringValue":"nested", "numberValue": 6.266 }}';
   result: any;
   isReady: boolean;
   initSubscription: Subscription;
