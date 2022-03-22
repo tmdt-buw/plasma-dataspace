@@ -272,6 +272,15 @@ export abstract class Nodes {
   }
 
   /**
+   * Returns true if input node is a primitive node
+   * @param node to test
+   */
+  static isPrimitiveNode(node: dia.CellView | dia.ElementView | dia.Element): boolean {
+    const model = node instanceof dia.Element ? node : node.model;
+    return model?.attributes?.type === Nodes.syntaxNodeName && model?.attributes.subtype === 'PrimitiveNode';
+  }
+
+  /**
    * Returns true if input node is a semantic node
    * @param node to test
    */
@@ -434,9 +443,10 @@ export abstract class Nodes {
   /**
    * Calls constructor and returns instance of a new syntax node
    */
-  static createSyntaxNode(id: string, label: string, icon: string, position: { x: number, y: number }, width: number, height: number): dia.Element {
+  static createSyntaxNode(id: string, label: string, icon: string, position: { x: number, y: number }, width: number, height: number, subtype: string): dia.Element {
     return new Nodes.syntaxNode({
       id,
+      subtype,
       // @ts-ignore not in jointjs model but works this way
       position,
       size: {
@@ -444,8 +454,7 @@ export abstract class Nodes {
         height
       },
       attrs: {
-        body: {
-        },
+        body: {},
         icon: {
           text: icon,
         },

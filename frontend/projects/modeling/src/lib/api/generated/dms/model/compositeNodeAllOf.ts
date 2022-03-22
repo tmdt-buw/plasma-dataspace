@@ -13,11 +13,12 @@ import { Splitting } from './splitting';
 import { SyntacticOperationDTO } from './syntacticOperationDTO';
 
 
-export interface CompositeNodeAllOf { 
-    valid?: boolean;
-    examples?: Array<string>;
-    pattern?: string;
-    splitter?: Array<Splitting>;
-    readonly operations?: Array<SyntacticOperationDTO>;
+export interface CompositeNodeAllOf {
+  path?: Array<string>;
+  valid?: boolean;
+  examples?: Array<string>;
+  pattern?: string;
+  splitter?: Array<Splitting>;
+  readonly operations?: Array<SyntacticOperationDTO>;
 }
 

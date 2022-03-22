@@ -9,13 +9,14 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import { NamedEntityAllOf } from './namedEntityAllOf';
 import { PositionedCombinedModelElement } from './positionedCombinedModelElement';
 
 
-export interface NamedEntity extends PositionedCombinedModelElement { 
-    uri?: string;
-    description?: string;
-    template?: boolean;
+export interface NamedEntity extends PositionedCombinedModelElement {
+  uri?: string;
+  description?: string;
+  template?: boolean;
+  mappedSyntaxNodeId?: string;
+  mapped?: boolean;
 }
 

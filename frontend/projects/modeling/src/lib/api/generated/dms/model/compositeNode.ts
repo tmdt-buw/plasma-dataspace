@@ -11,15 +11,15 @@
  */
 import { Splitting } from './splitting';
 import { PositionedCombinedModelElement } from './positionedCombinedModelElement';
-import { CompositeNodeAllOf } from './compositeNodeAllOf';
 import { SyntacticOperationDTO } from './syntacticOperationDTO';
 
 
-export interface CompositeNode extends PositionedCombinedModelElement { 
-    valid?: boolean;
-    examples?: Array<string>;
-    pattern?: string;
-    splitter?: Array<Splitting>;
-    readonly operations?: Array<SyntacticOperationDTO>;
+export interface CompositeNode extends PositionedCombinedModelElement {
+  path?: Array<string>;
+  valid?: boolean;
+  examples?: Array<string>;
+  pattern?: string;
+  splitter?: Array<Splitting>;
+  readonly operations?: Array<SyntacticOperationDTO>;
 }
 

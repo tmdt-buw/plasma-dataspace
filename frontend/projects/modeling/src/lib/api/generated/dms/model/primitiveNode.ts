@@ -9,17 +9,17 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import { PrimitiveNodeAllOf } from './primitiveNodeAllOf';
 import { PositionedCombinedModelElement } from './positionedCombinedModelElement';
 import { SyntacticOperationDTO } from './syntacticOperationDTO';
 
 
-export interface PrimitiveNode extends PositionedCombinedModelElement { 
-    valid?: boolean;
-    datatype?: PrimitiveNode.DatatypeEnum;
-    examples?: Array<string>;
-    pattern?: string;
-    readonly operations?: Array<SyntacticOperationDTO>;
+export interface PrimitiveNode extends PositionedCombinedModelElement {
+  path?: Array<string>;
+  valid?: boolean;
+  datatype?: PrimitiveNode.DatatypeEnum;
+  examples?: Array<string>;
+  pattern?: string;
+  readonly operations?: Array<SyntacticOperationDTO>;
 }
 export namespace PrimitiveNode {
     export type DatatypeEnum = 'Unknown' | 'String' | 'Boolean' | 'Number' | 'Binary';

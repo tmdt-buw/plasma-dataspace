@@ -3,12 +3,7 @@ import { FormControl } from '@angular/forms';
 import { ModalOptions, NzModalService } from 'ng-zorro-antd/modal';
 import { NzTabChangeEvent } from 'ng-zorro-antd/tabs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
-import {
-  ModelingControllerService,
-  DeltaModification,
-  Relation,
-  SemanticModelNode
-} from '../../../api/generated/dms';
+import { DeltaModification, ModelingControllerService, Relation, SemanticModelNode } from '../../../api/generated/dms';
 import { ModelingService } from '../../modeling.service';
 import { ModalBaseConfig } from '../common/modal.base-config';
 import { PlsNewEntityDialogComponent } from '../new-entity-dialog/new-entity-dialog.component';
@@ -82,7 +77,7 @@ export class PlsConceptDialogComponent implements OnInit, OnDestroy {
   }
 
   toggleRelation(index: number, relation: Relation): void {
-    console.log('toggle relation', index, relation);
+    // console.log('toggle relation', index, relation);
     if (this.isSelected(relation)) {
       this.modeling.relation.next(null);
     } else {

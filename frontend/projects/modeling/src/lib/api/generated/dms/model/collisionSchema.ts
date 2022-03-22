@@ -9,13 +9,13 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import { CollisionSchemaAllOf } from './collisionSchemaAllOf';
 import { PositionedCombinedModelElement } from './positionedCombinedModelElement';
 import { SyntacticOperationDTO } from './syntacticOperationDTO';
 
 
-export interface CollisionSchema extends PositionedCombinedModelElement { 
-    valid?: boolean;
-    readonly operations?: Array<SyntacticOperationDTO>;
+export interface CollisionSchema extends PositionedCombinedModelElement {
+  path?: Array<string>;
+  valid?: boolean;
+  readonly operations?: Array<SyntacticOperationDTO>;
 }
 

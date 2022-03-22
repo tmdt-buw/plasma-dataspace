@@ -417,40 +417,37 @@ public class CombinedModel implements Serializable {
     @JsonProperty(value = "modelMappings", access = JsonProperty.Access.READ_ONLY)
     public List<ModelMapping> generateModelMappings() {
         return getSemanticModel().getNodes().stream()
-                .filter(node -> node instanceof Class)
-                .map(node -> (Class) node)
-                .filter(Class::isMapped)
+                .filter(SemanticModelNode::isMapped)
                 .map(this::createExplicitMapping)
                 .collect(Collectors.toList());
     }
 
     /**
-     * Creates an explicit {@link ModelMapping} for the given {@link Class} with an {@link Instance} and a {@link SchemaNode}.
-     * The syntax node is identified by {@link Instance#getSyntaxNodeUuid()}.
+     * Creates an explicit {@link ModelMapping} for the given {@link Class} with an {@link Instance} or a {@link Literal} and a {@link SchemaNode}.
+     * The syntax node is identified by {@link SemanticModelNode#getMappedSyntaxNodeId()}.
      *
-     * @param mappedClass The class to map
+     * @param mappedNode The class to map
      * @return The new mapping
      */
-    private ModelMapping createExplicitMapping(Class mappedClass) {
+    private ModelMapping createExplicitMapping(SemanticModelNode mappedNode) {
         if (syntaxModel == null) {
             throw new UnsupportedOperationException("Syntax Model cannot be null if a modification is applied");
         }
-        if(mappedClass.getInstance() == null || mappedClass.getInstance().getSyntaxNodeUuid() == null){
-            throw new UnsupportedOperationException("Cannot create explicit mapping for unmapped class");
+        if (!mappedNode.isMapped()) {
+            throw new UnsupportedOperationException("Cannot create explicit mapping for unmapped node");
         }
-        Instance instance = mappedClass.getInstance();
+        String syntaxNodeId = mappedNode.getMappedSyntaxNodeId();
         SchemaNode syntaxNode = syntaxModel.getNodes().stream()
-                .filter(schemaNode -> schemaNode.getUuid().equals(instance.getSyntaxNodeUuid()))
+                .filter(schemaNode -> schemaNode.getUuid().equals(syntaxNodeId))
                 .findFirst()
                 .orElseThrow();
         if (!(syntaxNode instanceof PrimitiveNode)) {
             throw new UnsupportedOperationException("Cannot map to syntax node " + syntaxNode.getUuid() + ". Not a primitive node.");
         }
-        instance.setOriginalLabel(syntaxNode.getLabel());
         // now get parent
         SchemaNode parentNode = syntaxModel.getParentNodeFor(syntaxNode.getUuid());
         // create new explicit mapping
-        return new ModelMapping(syntaxNode.getUuid(), mappedClass.getUuid(), parentNode.getUuid());
+        return new ModelMapping(syntaxNode.getUuid(), mappedNode.getUuid(), parentNode.getUuid());
     }
 
     /**
@@ -498,17 +495,23 @@ public class CombinedModel implements Serializable {
         }
 
         // Validate links between the models
-        getSemanticModel().getNodes().stream()
-                .filter(node -> node instanceof Class)
-                .map(node -> ((Class) node).getInstance())
-                .filter(Objects::nonNull)
-                .filter(node -> node.getSyntaxNodeUuid() != null)
-                .forEach(node -> {
-                    SchemaNode targetNode = getSyntaxModel().findNode(node.getSyntaxNodeUuid());
+        Stream.concat(getSemanticModel().getNodes().stream()
+                                .filter(node -> node instanceof Class)
+                                .map(node -> ((Class) node).getInstance())
+                                .filter(Objects::nonNull)
+                                .map(Instance::getSyntaxNodeUuid)
+                                .filter(Objects::nonNull),
+                        getSemanticModel().getNodes().stream()
+                                .filter(node -> node instanceof Literal)
+                                .map(node -> ((Literal) node).getSyntaxNodeUuid())
+                                .filter(Objects::nonNull)
+                )
+                .forEach(id -> {
+                    SchemaNode targetNode = getSyntaxModel().findNode(id);
                     if (targetNode == null) {
-                        errors.add("Instance " + node.getUuid() + " references non-existing syntax node " + node.getSyntaxNodeUuid());
+                        errors.add("Node references non-existing syntax node " + id);
                     } else if (!(targetNode instanceof PrimitiveNode)) {
-                        errors.add("Instance " + node.getUuid() + " references non-primitive syntax node " + node.getSyntaxNodeUuid());
+                        errors.add("Node references non-primitive syntax node " + id);
                     }
 
                 });

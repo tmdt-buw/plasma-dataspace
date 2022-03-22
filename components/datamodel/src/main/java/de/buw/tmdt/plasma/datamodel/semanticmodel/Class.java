@@ -152,8 +152,16 @@ public class Class extends SemanticModelNode implements Serializable {
         }
     }
 
-    public boolean isMapped(){
-        return getInstance() != null && getInstance().getSyntaxNodeUuid() != null;
+    public boolean isMapped() {
+        return getMappedSyntaxNodeId() != null;
+    }
+
+    @Override
+    public String getMappedSyntaxNodeId() {
+        if (getInstance() == null) {
+            return null;
+        }
+        return getInstance().getSyntaxNodeUuid();
     }
 
     /**

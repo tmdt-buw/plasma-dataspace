@@ -12,11 +12,12 @@
 import { Instance } from './instance';
 
 
-export interface ClassAllOf { 
-    uri?: string;
-    description?: string;
-    instance?: Instance;
-    mapped?: boolean;
-    template?: boolean;
+export interface ClassAllOf {
+  uri?: string;
+  description?: string;
+  instance?: Instance;
+  mappedSyntaxNodeId?: string;
+  mapped?: boolean;
+  template?: boolean;
 }
 

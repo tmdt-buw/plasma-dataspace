@@ -65,7 +65,8 @@ export abstract class Papers {
       // ony allow links between semantic nodes
       allowLink: (linkView: dia.LinkView) => {
         // console.log(activeRelation(), activeRelation()._class === 'ObjectProperty' && Links.targetsSemanticNode(linkView) && !Nodes.isLiteral(linkView.model?.getTargetElement()));
-        return activeRelation()._class === 'ObjectProperty' && Links.targetsSemanticNode(linkView) && !Nodes.isLiteral(linkView.model?.getTargetElement());
+        return (activeRelation()._class === 'ObjectProperty' && Links.targetsSemanticNode(linkView) && !Nodes.isLiteral(linkView.model?.getTargetElement())) ||
+          (activeRelation()._class === 'DataProperty' && Nodes.isPrimitiveNode(linkView.model?.getTargetElement()));
       },
       sorting: sorting.NONE,
       // default link style

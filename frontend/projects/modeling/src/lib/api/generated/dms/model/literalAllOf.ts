@@ -11,9 +11,12 @@
  */
 
 
-export interface LiteralAllOf { 
-    value?: string;
-    template?: boolean;
-    uri?: string;
+export interface LiteralAllOf {
+  value?: string;
+  syntaxNodeUuid?: string;
+  mappedSyntaxNodeId?: string;
+  mapped?: boolean;
+  template?: boolean;
+  uri?: string;
 }
 

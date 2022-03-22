@@ -11,9 +11,7 @@
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
-    "gen:dms": "npm run gen:dms1 && npm run gen:dms2",
-    "gen:dms1": "npm run gen:base -- -o projects/modeling/src/lib/api/generated/dms -i http://localhost:8888/v3/api-docs/plasma-dms",
-    "gen:dms2": "npm run gen:base -- -o src/app/modelings/api/generated/dms -i http://localhost:8888/v3/api-docs/plasma-dms",
+    "gen:dms": "npm run gen:base -- -o projects/modeling/src/lib/api/generated/dms -i http://localhost:8888/v3/api-docs/plasma-dms",
     "gen:kgs": "npm run gen:base -- -o projects/modeling/src/lib/api/generated/kgs -i http://localhost:8888/v3/api-docs/plasma-kgs",
     "gen:sas": "npm run gen:base -- -o src/app/schema-analysis/api/generated -i http://localhost:8888/v3/api-docs/plasma-sas",
     "gen:base": "openapi-generator-cli generate -g typescript-angular --additional-properties=providedInRoot=false,disallowAdditionalPropertiesIfNotPresent=false,typescriptThreePlus=true,supportsES6=true,legacyDiscriminatorBehavior=false --type-mappings=set=Array"

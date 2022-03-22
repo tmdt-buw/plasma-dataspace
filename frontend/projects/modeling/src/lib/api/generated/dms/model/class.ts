@@ -11,14 +11,14 @@
  */
 import { Instance } from './instance';
 import { PositionedCombinedModelElement } from './positionedCombinedModelElement';
-import { ClassAllOf } from './classAllOf';
 
 
-export interface Class extends PositionedCombinedModelElement { 
-    uri?: string;
-    description?: string;
-    instance?: Instance;
-    mapped?: boolean;
-    template?: boolean;
+export interface Class extends PositionedCombinedModelElement {
+  uri?: string;
+  description?: string;
+  instance?: Instance;
+  mappedSyntaxNodeId?: string;
+  mapped?: boolean;
+  template?: boolean;
 }
 

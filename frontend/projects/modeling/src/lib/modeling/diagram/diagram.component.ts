@@ -288,12 +288,11 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
         this.hoveredElement = null;
       },
       // handle linking of nodes
-      'link:connect': (linkView: dia.LinkView) => {
-        // console.log('link:connect', linkView);
+      'link:connect': (linkView: dia.LinkView, evt) => {
+        const model = linkView.model.attributes;
+        const from = model.source.id;
+        const to = model.target.id;
         if (this.relation?._class === 'ObjectProperty') {
-          const model = linkView.model.attributes;
-          const from = model.source.id;
-          const to = model.target.id;
           const relation: ObjectProperty = {
             _class: 'ObjectProperty',
             from,
@@ -332,9 +331,13 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
         this.panAndZoom.disablePan();
       },
       'link:pointerup': (link, evt, x, y) => {
-        // console.log('link:pointerup', link, 'target', this.relationTarget, 'event', evt);
-        if (this.relation?._class === 'DataProperty') {
-          const source = link.sourceView?.model?.id;
+        console.log('link:pointerup', link, 'target', this.relationTarget);
+        const coordinates = new Point(x, y);
+        const source = link.sourceView?.model?.id;
+        const elementBelow = this.graph.findModelsFromPoint(coordinates).find((el) => {
+          return (el.id !== source);
+        });
+        if (this.relation?._class === 'DataProperty' && !elementBelow) {
           const literal: Literal = {
             _class: 'Literal',
             x,
@@ -374,7 +377,30 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
               this.tmpLiteralValue = undefined;
             }
           });
-
+        } else if (this.relation?._class === 'DataProperty' && elementBelow) {
+          if (Nodes.isPrimitiveNode(elementBelow)) {
+            const syntaxNode: PrimitiveNode = this.findSyntaxNodeById(elementBelow.id as string);
+            const literal: Literal = {
+              _class: 'Literal',
+              x,
+              y,
+              value: syntaxNode.label,
+              uuid: uuidv4(),
+              syntaxNodeUuid: syntaxNode.uuid
+            };
+            const from = source;
+            const to = literal.uuid;
+            const relation: DataProperty = {
+              _class: 'DataProperty',
+              from,
+              to,
+              label: this.relation.label,
+              uri: this.relation.uri
+            };
+            const changes = {entities: [literal], relations: [relation]};
+            this.semanticModelElementsAdded.emit(changes);
+            return;
+          }
 
         } else {
           this.panAndZoom.disablePan();
@@ -435,6 +461,10 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
         if (type === dia.CellView.Highlighting.CONNECTING) {
           if (this.relation._class === 'ObjectProperty') {
             if (Nodes.isSemanticNode(cellView) && !Nodes.isLiteral(cellView)) {
+              highlighters.stroke.add(cellView, node, this.CustomHighlighters.CONNECTION, {});
+            }
+          } else if (this.relation._class === 'DataProperty') {
+            if (Nodes.isPrimitiveNode(cellView)) {
               highlighters.stroke.add(cellView, node, this.CustomHighlighters.CONNECTION, {});
             }
           }
@@ -583,7 +613,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
    */
   private createSyntaxGraph(syntaxModel: SyntaxModel): void {
     if (syntaxModel.nodes.length > 0) {
-      syntaxModel.nodes.forEach(node => this.addSyntaxNode(node.uuid, node.label, Icons.getIcon(node), node.x, node.y));
+      syntaxModel.nodes.forEach(node => this.addSyntaxNode(node.uuid, node.label, Icons.getIcon(node), node._class, node.x, node.y));
       syntaxModel.edges.forEach(edge => this.addSyntaxLink(edge.from, edge.to));
     }
   }
@@ -707,16 +737,11 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
 
   /**
    * Add syntax node to graph
-   * @param id of node
-   * @param label of node
-   * @param icon of node
-   * @param x of node
-   * @param y of node
    */
-  private addSyntaxNode(id: string, label: string, icon: string, x?: number, y?: number): void {
+  private addSyntaxNode(id: string, label: string, icon: string, subtype: string, x?: number, y?: number): void {
     const dim = this.calcDimensionsForLabel(label, !!icon);
     const position = {x, y};
-    const node = Nodes.createSyntaxNode(id, label, icon, position, dim[0], dim[1]);
+    const node = Nodes.createSyntaxNode(id, label, icon, position, dim[0], dim[1], subtype);
     this.graph.addCell(node);
   }
 

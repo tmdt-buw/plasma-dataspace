@@ -10,12 +10,14 @@
  * Do not edit the class manually.
  */
 import { PositionedCombinedModelElement } from './positionedCombinedModelElement';
-import { LiteralAllOf } from './literalAllOf';
 
 
-export interface Literal extends PositionedCombinedModelElement { 
-    value?: string;
-    template?: boolean;
-    uri?: string;
+export interface Literal extends PositionedCombinedModelElement {
+  value?: string;
+  syntaxNodeUuid?: string;
+  mappedSyntaxNodeId?: string;
+  mapped?: boolean;
+  template?: boolean;
+  uri?: string;
 }
 

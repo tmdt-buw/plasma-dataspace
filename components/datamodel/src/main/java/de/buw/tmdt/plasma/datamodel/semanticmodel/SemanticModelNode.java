@@ -70,4 +70,12 @@ public abstract class SemanticModelNode extends PositionedCombinedModelElement i
     }
 
     public abstract boolean equals(Object smn);
+
+    public boolean isMapped() {
+        return false;
+    }
+
+    public String getMappedSyntaxNodeId() {
+        return null;
+    }
 }

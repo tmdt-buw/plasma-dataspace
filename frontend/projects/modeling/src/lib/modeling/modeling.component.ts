@@ -6,8 +6,8 @@ import { BehaviorSubject, Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import {
   CombinedModel,
-  ModelingControllerService,
   DeltaModification,
+  ModelingControllerService,
   Relation,
   SchemaNode,
   SemanticModelNode
@@ -25,6 +25,7 @@ import { Util } from './model/common/util';
 import { UploadOntologyComponent } from './dialogs/upload-ontology/upload-ontology.component';
 import { CopySemanticModelComponent } from './dialogs/copy-semantic-model/copy-semantic-model.component';
 import { NzNotificationService } from 'ng-zorro-antd/notification';
+import { HttpErrorResponse, HttpStatusCode } from '@angular/common/http';
 
 @Component({
   selector: 'pls-modeling',
@@ -164,7 +165,16 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
         }
         this.loading = false;
       },
-      () => this.notification.error('Model not found', 'The requested model could not be found')
+      (error: HttpErrorResponse) => {
+        console.log('error retrieving model', error);
+        if (error.status === HttpStatusCode.ServiceUnavailable) {
+          this.notification.error('Service not available', 'The modeling service is currently not available, please try again later');
+        } else if (error.status === HttpStatusCode.NotFound) {
+          this.notification.error('Model not found', 'The requested model could not be found');
+        } else {
+          this.notification.error('Error retrieving model', 'An unexpected error occurred.');
+        }
+      }
     );
   }
 
