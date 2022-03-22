@@ -166,7 +166,6 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
         this.loading = false;
       },
       (error: HttpErrorResponse) => {
-        console.log('error retrieving model', error);
         if (error.status === HttpStatusCode.ServiceUnavailable) {
           this.notification.error('Service not available', 'The modeling service is currently not available, please try again later');
         } else if (error.status === HttpStatusCode.NotFound) {
