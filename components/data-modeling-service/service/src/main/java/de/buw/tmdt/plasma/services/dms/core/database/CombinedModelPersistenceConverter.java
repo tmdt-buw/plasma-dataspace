@@ -1,12 +1,14 @@
 package de.buw.tmdt.plasma.services.dms.core.database;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.introspect.ClassIntrospector;
 import com.fasterxml.jackson.databind.util.StdDateFormat;
 import de.buw.tmdt.plasma.datamodel.CombinedModel;
 import org.slf4j.Logger;
@@ -64,7 +66,23 @@ public class CombinedModelPersistenceConverter implements AttributeConverter<Com
                 .featuresToDisable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
                 .build();
         mapper.disable(MapperFeature.USE_GETTERS_AS_SETTERS);
+        mapper.setMixInResolver(new ClassIntrospector.MixInResolver() {
+            @Override
+            public Class<?> findMixInClassFor(Class<?> cls) {
+                return ModelMappingsIgnoreMixIn.class;
+            }
+
+            @Override
+            public ClassIntrospector.MixInResolver copy() {
+                return this;
+            }
+        });
         return mapper;
     }
+
+    @JsonIgnoreProperties({"modelMappings"})
+    abstract static class ModelMappingsIgnoreMixIn {
+    }
+
 
 }
