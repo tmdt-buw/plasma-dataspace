@@ -11,6 +11,7 @@ public class PLCM {
     public static final Property yCoordinate = Init.yCoordinate();
     public static final Property originalLabel = Init.originalLabel();
     public static final Property syntaxNodeId = Init.syntaxNodeId();
+    public static final Property syntaxNodePath = Init.syntaxNodePath();
     public static final Property cmUuid = Init.cmUuid();
     public static final Property hasNode = Init.hasNode();
     public static final Property label = Init.label();
@@ -49,6 +50,10 @@ public class PLCM {
 
         public static Property syntaxNodeId() {
             return property("syntaxNodeId");
+        }
+
+        public static Property syntaxNodePath() {
+            return property("syntaxNodePath");
         }
 
         public static Property cmUuid() {

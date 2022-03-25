@@ -38,7 +38,7 @@ public class OntologyController implements OntologyApi {
         elements.stream()
                 .filter(Objects::nonNull)
                 .forEach(element -> ((NodeTemplate) element).convertToTemplate());
-        return elements.stream().limit(20).collect(Collectors.toList());
+        return elements.stream().limit(50).collect(Collectors.toList());
     }
 
     @Override
@@ -46,7 +46,7 @@ public class OntologyController implements OntologyApi {
         List<Relation> relations = ontologyHandler.getRelations(ontologyLabels, prefix, infix, uri);
         return relations.stream()
                 .filter(Objects::nonNull)
-                .limit(20)
+                .limit(50)
                 .map(Relation::convertToTemplate)
                 .collect(Collectors.toList());
     }

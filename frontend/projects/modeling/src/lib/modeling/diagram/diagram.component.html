@@ -4,7 +4,7 @@
        (cdkDropListExited)="setSelectedModelNode(null)" id="canvasContainer">
   </div>
   <ng-template #literalValueModalTpl>
-    <input nz-input nz-typography type="text" [(ngModel)]="tmpLiteralValue"/>
+    <input [(ngModel)]="tmpLiteralValue" [placeholder]="'Enter literal value'" nz-input nz-typography type="text"/>
     <nz-alert *ngIf="literalDefinitionError" nzType="error" nzMessage="{{ literalDefinitionError}}"></nz-alert>
   </ng-template>
 </div>

@@ -16,7 +16,6 @@ export interface NamedEntity extends PositionedCombinedModelElement {
   uri?: string;
   description?: string;
   template?: boolean;
-  mappedSyntaxNodeId?: string;
   mapped?: boolean;
 }
 

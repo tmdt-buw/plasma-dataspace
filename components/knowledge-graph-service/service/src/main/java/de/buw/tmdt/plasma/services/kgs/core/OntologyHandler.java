@@ -115,7 +115,7 @@ public class OntologyHandler {
 
     private List<OntProperty> findProperties(List<OntModel> models, Predicate<OntProperty> filterFunction) {
         return models.stream()
-                .flatMap(model -> model.listOntProperties().toList().stream()
+                .flatMap(model -> model.listAllOntProperties().toList().stream()
                         .filter(filterFunction)
                 )
                 .collect(Collectors.toList());

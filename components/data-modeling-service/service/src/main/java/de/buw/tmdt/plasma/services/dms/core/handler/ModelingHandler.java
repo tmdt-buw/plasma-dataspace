@@ -152,7 +152,7 @@ public class ModelingHandler {
                                 source.getDescription(), source.getXCoordinate(), source.getYCoordinate());
                     } else if (node instanceof Literal) {
                         Literal source = (Literal) node;
-                        return new Literal(newUuid, source.getValue(), source.getXCoordinate(), source.getYCoordinate(), null);
+                        return new Literal(newUuid, source.getValue(), source.getXCoordinate(), source.getYCoordinate());
                     }
                     return null;
                 })

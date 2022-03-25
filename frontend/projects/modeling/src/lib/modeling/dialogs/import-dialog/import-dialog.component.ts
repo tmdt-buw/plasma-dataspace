@@ -1,6 +1,5 @@
 import { Component, ElementRef, ViewChild } from '@angular/core';
 import { NzUploadChangeParam } from 'ng-zorro-antd/upload';
-import { OntologyControllerService } from '../../../api/generated/kgs';
 
 @Component({
   selector: 'pls-import-dialog',
@@ -13,7 +12,7 @@ export class PlsImportDialogComponent {
 
   @ViewChild('fileInput') fileInput: ElementRef;
 
-  constructor(private ontologyService: OntologyControllerService) {
+  constructor() {
   }
 
   /**

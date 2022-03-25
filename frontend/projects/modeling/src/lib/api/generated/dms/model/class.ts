@@ -16,8 +16,10 @@ import { PositionedCombinedModelElement } from './positionedCombinedModelElement
 export interface Class extends PositionedCombinedModelElement {
   uri?: string;
   description?: string;
+  syntaxNodeUuid?: string;
+  syntaxLabel?: string;
+  syntaxPath?: string;
   instance?: Instance;
-  mappedSyntaxNodeId?: string;
   mapped?: boolean;
   template?: boolean;
 }

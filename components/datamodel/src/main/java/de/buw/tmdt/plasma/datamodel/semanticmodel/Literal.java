@@ -1,7 +1,6 @@
 package de.buw.tmdt.plasma.datamodel.semanticmodel;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import de.buw.tmdt.plasma.datamodel.CombinedModelIntegrityException;
 import org.jetbrains.annotations.NotNull;
@@ -9,15 +8,20 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
-public class Literal extends SemanticModelNode {
+public class Literal extends MappableSemanticModelNode {
 
     public static final String VALUE_PROPERTY = "value";
-    public static final String SYNTAX_NODE_PROPERTY = "syntaxNodeUuid";
-
-    private String syntaxNodeUuid;
 
     public Literal(String value) {
         super(null, value); // use the value as label
+    }
+
+    public Literal(@NotNull String label, @Nullable Double xCoordinate, @Nullable Double yCoordinate) {
+        this(null, label, xCoordinate, yCoordinate);
+    }
+
+    public Literal(@Nullable String uuid, @NotNull String label, @Nullable Double xCoordinate, @Nullable Double yCoordinate) {
+        super(uuid, null, label, xCoordinate, yCoordinate);
     }
 
     @JsonCreator
@@ -25,19 +29,20 @@ public class Literal extends SemanticModelNode {
                    @NotNull @JsonProperty(VALUE_PROPERTY) String value,
                    @Nullable @JsonProperty(XCOORDINATE_PROPERTY) Double xCoordinate,
                    @Nullable @JsonProperty(YCOORDINATE_PROPERTY) Double yCoordinate,
-                   @Nullable @JsonProperty(SYNTAX_NODE_PROPERTY) String syntaxNodeUuid) {
-        super(uuid, null, value, xCoordinate, yCoordinate);
-        this.syntaxNodeUuid = syntaxNodeUuid;
+                   @Nullable @JsonProperty(MAPPED_SYNTAX_NODE_UUID_PROPERTY) String mappedSyntaxNodeUuid,
+                   @Nullable @JsonProperty(MAPPED_SYNTAX_NODE_LABEL_PROPERTY) String mappedSyntaxNodeLabel,
+                   @Nullable @JsonProperty(MAPPED_SYNTAX_NODE_PATH_PROPERTY) String mappedSyntaxNodePath) {
+        super(uuid, null, value, xCoordinate, yCoordinate, mappedSyntaxNodeUuid, mappedSyntaxNodeLabel, mappedSyntaxNodePath);
     }
 
     @Override
     public Literal copy() {
-        return new Literal(getUuid(), getValue(), getXCoordinate(), getYCoordinate(), getSyntaxNodeUuid());
+        return new Literal(getUuid(), getValue(), getXCoordinate(), getYCoordinate(), getMappedSyntaxNodeUuid(), getMappedSyntaxNodeLabel(), getMappedSyntaxNodePath());
     }
 
     @Override
     public Literal instanciate() {
-        return new Literal(null, getValue(), getXCoordinate(), getYCoordinate(), null);
+        return new Literal(null, getValue(), getXCoordinate(), getYCoordinate());
     }
 
     @JsonProperty(VALUE_PROPERTY)
@@ -49,16 +54,6 @@ public class Literal extends SemanticModelNode {
         if (getValue() == null) {
             throw new CombinedModelIntegrityException("Literal " + getUuid() + " has no proper value");
         }
-    }
-
-    public boolean isMapped() {
-        return getMappedSyntaxNodeId() != null;
-    }
-
-    @Override
-    @JsonIgnore
-    public String getMappedSyntaxNodeId() {
-        return getSyntaxNodeUuid();
     }
 
     @Override
@@ -94,14 +89,5 @@ public class Literal extends SemanticModelNode {
         return "Literal{" +
                 "value='" + getLabel() + '\'' +
                 '}';
-    }
-
-    @JsonProperty(SYNTAX_NODE_PROPERTY)
-    public String getSyntaxNodeUuid() {
-        return syntaxNodeUuid;
-    }
-
-    public void setSyntaxNodeUuid(String syntaxNodeUuid) {
-        this.syntaxNodeUuid = syntaxNodeUuid;
     }
 }

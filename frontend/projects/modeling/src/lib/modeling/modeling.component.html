@@ -23,6 +23,7 @@
           nzMode="multiple"
           nzPlaceHolder="Select ontologies"
           [(ngModel)]="selectedOntologies"
+          [nzDisabled]="isFinalized()"
         >
           <nz-option *ngFor="let item of availableOntologies" [nz-tooltip]="item.uri" [nzLabel]="item.label"
                      [nzValue]="item.label"></nz-option>
@@ -60,7 +61,8 @@
 
     <div class="modeling-search-bar-container">
       <!--      search -->
-      <button nz-button nzType="text" nzShape="circle" (click)="toggleSearch()" nz-tooltip nzTooltipTitle="Search"><i
+      <button (click)="toggleSearch()" *ngIf="false" nz-button nz-tooltip nzShape="circle" nzTooltipTitle="Search"
+              nzType="text"><i
         nz-icon nzType="search"></i></button>
       <nz-input-group [nzSuffix]="inputClearTpl" class="modeling-search-bar" @search *ngIf="isSearchExpanded">
         <input type="text" nz-input [formControl]="searchControl" placeholder="Search"/>
@@ -103,7 +105,7 @@
                             (semanticModelElementsRemoved)="onSemanticElementsRemoved($event)"
                             [modelId]="modelId"
                             (nodePositionChanged)="onNodePositionChanged($event)"
-                            [lockDragAndDrop]="lockDragAndDrop"
+                            [viewerMode]="viewerMode"
                             (nodeClicked)="onNodeClicked($event)"
                             (recommendationAccepted)="onRecommendationAccepted($event)">
       </pls-modeling-diagram>

@@ -13,11 +13,11 @@ export abstract class Papers {
    * Call constructor for paper
    * @param graph model
    * @param activeRelation function
-   * @param lockDragAndDrop if true, freezes elements in place
+   * @param moveNodes if true, freezes elements in place
    */
-  static createPaper(graph: dia.Graph, activeRelation: () => Relation, lockDragAndDrop: boolean): dia.Paper {
+  static createPaper(graph: dia.Graph, activeRelation: () => Relation, moveNodes: boolean): dia.Paper {
     const interactive = () => {
-      if (!lockDragAndDrop) {
+      if (!moveNodes) {
         if (activeRelation()?._class === 'ObjectProperty') {
           return {
             labelMove: true,

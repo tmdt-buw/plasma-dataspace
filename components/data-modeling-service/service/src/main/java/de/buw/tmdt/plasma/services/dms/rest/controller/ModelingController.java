@@ -76,7 +76,7 @@ public class ModelingController implements ModelingAPI {
                         modeling.getDescription(),
                         modeling.getCreated(),
                         modeling.getDataId()))
-                .sorted(Comparator.comparing(ModelingInfo::getCreated))
+                .sorted(Comparator.comparing(ModelingInfo::getCreated).reversed())
                 .collect(Collectors.toList());
     }
 
@@ -101,7 +101,8 @@ public class ModelingController implements ModelingAPI {
     @Operation(description = "Returns the current schema of the specified model.")
     public CombinedModel getCombinedModel(@NotNull String modelId) {
         CombinedModel combinedModel = modelingHandler.getCombinedModel(modelId);
-        combinedModel = modelingHandler.requestRecommendations(modelId, combinedModel);
+        // TODO re-enable once recompiled
+        //combinedModel = modelingHandler.requestRecommendations(modelId, combinedModel);
         modelingHandler.prepareForFrontend(combinedModel);
         return combinedModel;
     }
@@ -166,7 +167,8 @@ public class ModelingController implements ModelingAPI {
         @NotNull CombinedModel model = modelingHandler.applyModification(modelId, recommendation);
 
         // request new recommendations
-        model = modelingHandler.requestRecommendations(modelId, model);
+        // TODO re-enable once recompiled
+        // model = modelingHandler.requestRecommendations(modelId, model);
         modelingHandler.prepareForFrontend(model);
         return model;
     }

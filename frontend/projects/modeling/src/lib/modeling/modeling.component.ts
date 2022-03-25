@@ -27,6 +27,7 @@ import { CopySemanticModelComponent } from './dialogs/copy-semantic-model/copy-s
 import { NzNotificationService } from 'ng-zorro-antd/notification';
 import { HttpErrorResponse, HttpStatusCode } from '@angular/common/http';
 
+
 @Component({
   selector: 'pls-modeling',
   templateUrl: './modeling.component.html',
@@ -52,7 +53,6 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
   @Input() backgroundColor: string;
   @Input() fullScreen: boolean = true;
   @Input() viewerMode: boolean = false;
-  @Input() lockDragAndDrop: boolean = false;
   @Input() hideFinalizeButton: boolean = false;
   @Input() hideExportButton: boolean = false;
 

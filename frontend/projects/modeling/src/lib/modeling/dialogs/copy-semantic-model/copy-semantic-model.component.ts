@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { CombinedModel, ModelingControllerService } from '../../../api/generated/dms';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Subject } from 'rxjs';
 import { Filter } from '../../model/common/filter';
 import { NzNotificationService } from 'ng-zorro-antd/notification';
 
@@ -18,8 +18,13 @@ export class CopySemanticModelComponent implements OnInit {
   loading: boolean;
   availableModels: Array<{}>;
 
-  @Output() copySuccessful = new EventEmitter();
   $filter = new BehaviorSubject<Filter>(Filter.SEMANTIC);
+  $URIMode = new BehaviorSubject<boolean>(true);
+  $center = new Subject<any>();
+  $layout = new Subject<any>();
+
+  @Output() copySuccessful = new EventEmitter();
+
 
   constructor(private modelingService: ModelingControllerService, private notification: NzNotificationService) {
   }
@@ -38,7 +43,6 @@ export class CopySemanticModelComponent implements OnInit {
   getAvailableModels(): void {
     this.modelingService.listModelings().subscribe(
       modelings => {
-        console.log('received modelings', modelings,modelings.filter(modeling => modeling.id !== this.currentModelId));
         this.availableModels = modelings.filter(modeling => modeling.id !== this.currentModelId);
       });
   }
@@ -49,8 +53,9 @@ export class CopySemanticModelComponent implements OnInit {
         this.combinedModel = schema;
         this.loading = false;
         this.$filter.next(Filter.SEMANTIC);
+        this.$center.next();
       },
-      () => {
+      error => {
         this.notification.create(
           'error',
           'No model',

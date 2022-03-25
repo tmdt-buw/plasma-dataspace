@@ -3,17 +3,17 @@ package de.buw.tmdt.plasma.datamodel.semanticmodel;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import de.buw.tmdt.plasma.datamodel.CombinedModelIntegrityException;
+import de.buw.tmdt.plasma.datamodel.syntaxmodel.PrimitiveNode;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.Serializable;
 import java.util.Objects;
 
-public class Class extends SemanticModelNode implements Serializable {
+public class Class extends MappableSemanticModelNode implements Serializable, Customizable {
     private static final long serialVersionUID = 2351939502355153654L;
 
     public static final String DESCRIPTION_PROPERTY = "description";
-    public static final String INSTANCE_PROPERTY = "instance";
 
     private String description;
 
@@ -29,12 +29,18 @@ public class Class extends SemanticModelNode implements Serializable {
             @NotNull String label,
             @Nullable String description
     ) {
-        this(null, uri, label, description, null, null, null);
+        this(null, uri, label, description, null, null, null, null, null, null);
     }
 
     public Class(String uuid, String uri, String label, String description, Double xCoordinate, Double yCoordinate) {
-        this(uuid, uri, label, description, xCoordinate, yCoordinate, null);
+        this(uuid, uri, label, description, xCoordinate, yCoordinate, null, null, null, null);
     }
+
+    /**
+     * @param mappedSyntaxNodeUuid  The syntax node id to be mapped to.
+     *                              Should be equal to a {@link PrimitiveNode#getUuid()}
+     * @param mappedSyntaxNodeLabel The original attributes label
+     */
 
     @JsonCreator
     public Class(
@@ -44,13 +50,15 @@ public class Class extends SemanticModelNode implements Serializable {
             @Nullable @JsonProperty(DESCRIPTION_PROPERTY) String description,
             @Nullable @JsonProperty(XCOORDINATE_PROPERTY) Double xCoordinate,
             @Nullable @JsonProperty(YCOORDINATE_PROPERTY) Double yCoordinate,
+            @Nullable @JsonProperty(MAPPED_SYNTAX_NODE_UUID_PROPERTY) String mappedSyntaxNodeUuid,
+            @Nullable @JsonProperty(MAPPED_SYNTAX_NODE_LABEL_PROPERTY) String mappedSyntaxNodeLabel,
+            @Nullable @JsonProperty(MAPPED_SYNTAX_NODE_PATH_PROPERTY) String mappedSyntaxNodePath,
             @Nullable @JsonProperty(INSTANCE_PROPERTY) Instance instance
     ) {
-        super(uuid, uri, label, xCoordinate, yCoordinate);
+        super(uuid, uri, label, xCoordinate, yCoordinate, mappedSyntaxNodeUuid, mappedSyntaxNodeLabel, mappedSyntaxNodePath);
         this.description = description;
         this.instance = instance;
     }
-
 
     @JsonProperty(DESCRIPTION_PROPERTY)
     public String getDescription() {
@@ -61,7 +69,6 @@ public class Class extends SemanticModelNode implements Serializable {
         this.description = description;
     }
 
-    @JsonProperty(INSTANCE_PROPERTY)
     public Instance getInstance() {
         return instance;
     }
@@ -83,6 +90,9 @@ public class Class extends SemanticModelNode implements Serializable {
                 getDescription(),
                 getXCoordinate(),
                 getYCoordinate(),
+                getMappedSyntaxNodeUuid(),
+                getMappedSyntaxNodeLabel(),
+                getMappedSyntaxNodePath(),
                 getInstance());
     }
 
@@ -152,18 +162,6 @@ public class Class extends SemanticModelNode implements Serializable {
         }
     }
 
-    public boolean isMapped() {
-        return getMappedSyntaxNodeId() != null;
-    }
-
-    @Override
-    public String getMappedSyntaxNodeId() {
-        if (getInstance() == null) {
-            return null;
-        }
-        return getInstance().getSyntaxNodeUuid();
-    }
-
     /**
      * Creates a default {@link Instance} for this {@link Class}.
      * The default instance uses the label from this {@link Class}.
@@ -177,6 +175,9 @@ public class Class extends SemanticModelNode implements Serializable {
     public SemanticModelNode convertToTemplate() {
         removeUuid();
         this.instance = null;
+        setMappedSyntaxNodeUuid(null);
+        setMappedSyntaxNodeLabel(null);
+        setMappedSyntaxNodePath(null);
         return this;
     }
 }

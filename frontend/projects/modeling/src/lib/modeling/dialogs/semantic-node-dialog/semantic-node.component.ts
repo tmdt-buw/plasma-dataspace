@@ -1,14 +1,16 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { BehaviorSubject, Subject } from 'rxjs';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { BehaviorSubject } from 'rxjs';
 import {
   Class,
-  ModelingControllerService,
   DeltaModification,
   Instance,
+  Literal,
+  ModelingControllerService,
   NamedEntity,
   SemanticModelNode
 } from '../../../api/generated/dms';
 import { EditState } from './model/edit-state';
+import { FormBuilder, Validators } from '@angular/forms';
 
 export interface PlsSemanticNodeDetailsData {
   modelId: string;
@@ -23,7 +25,7 @@ export interface PlsSemanticNodeDetailsData {
   templateUrl: 'semantic-node.component.html',
   styleUrls: ['../common/dialog.styles.scss', 'semantic-node.component.less']
 })
-export class PlsSemanticNodeDetailsComponent {
+export class PlsSemanticNodeDetailsComponent implements OnInit {
 
   @Input() data: PlsSemanticNodeDetailsData;
 
@@ -31,7 +33,7 @@ export class PlsSemanticNodeDetailsComponent {
   label: string;
   description: string;
 
-  public output = new Subject<DeltaModification>();
+  form;
 
   @Output()
   public recommendationSelect: EventEmitter<DeltaModification> = new EventEmitter();
@@ -39,12 +41,48 @@ export class PlsSemanticNodeDetailsComponent {
   public recommendationAccept: EventEmitter<DeltaModification> = new EventEmitter();
   @Output()
   public recommendationReject: EventEmitter<DeltaModification> = new EventEmitter();
+  @Output()
+  public nodeEdited: EventEmitter<any> = new EventEmitter<any>();
 
-  constructor(private modelingService: ModelingControllerService) {
 
+  constructor(private modelingService: ModelingControllerService, private fb: FormBuilder) {
+  }
+
+  ngOnInit(): void {
+    if (this.isClass()) {
+      this.form = this.fb.group({
+        label: [{
+          value: this.getInstance()?.label,
+          disabled: !this.editing
+        }, [Validators.required, Validators.maxLength(20)]],
+        description: [{
+          value: this.getInstance().description,
+          disabled: !this.editing
+        }, [Validators.required, Validators.maxLength(200)]]
+      });
+    } else if (this.isLiteral()) {
+      this.form = this.fb.group({
+        value: [{
+          value: (this.data.node as Literal).label,
+          disabled: !this.editing
+        }, Validators.required]
+      });
+    }
+
+    this.$edit.subscribe((editState: EditState) => {
+      switch (editState) {
+        case EditState.start:
+          this.form?.enable();
+          break;
+        case EditState.confirm:
+        case EditState.cancel:
+          this.form?.disable();
+      }
+    });
   }
 
   startEdit(): void {
+    console.log('start edit');
     switch (this.data.node._class) {
       case 'Class':
         const instance = this.getInstance();
@@ -58,22 +96,37 @@ export class PlsSemanticNodeDetailsComponent {
       case 'NamedEntity':
         break;
       case 'Literal':
+        this.$edit.next(EditState.start);
+        this.label = this.data.node.label;
         break;
     }
   }
 
   acceptEdit(): void {
     this.$edit.next(EditState.confirm);
+    console.log('accepted', this.form.controls.label);
+    if (this.isClass()) {
+      const clazz = this.data.node as Class;
+      clazz.instance.label = this.form.controls.label.value;
+      clazz.instance.description = this.form.controls.description.value;
+    } else if (this.isLiteral()) {
+      const literal = this.data.node as Literal;
+      literal.label = this.form.controls.value.value;
+    }
+
     const delta: DeltaModification = {
       entities: [this.data.node]
     };
 
-    this.modelingService.modifyModel(this.data.modelId, delta).subscribe(() => null, () => {
+    this.modelingService.modifyModel(this.data.modelId, delta).subscribe(() => this.nodeEdited.next(), () => {
       switch (this.data.node._class) {
         case 'Class':
           this.getInstance().label = this.label;
           this.getInstance().description = this.description;
           break;
+        case 'Literal':
+          const literal: Literal = this.data.node as Literal;
+          literal.label = this.label;
       }
     });
   }
@@ -121,27 +174,27 @@ export class PlsSemanticNodeDetailsComponent {
     return this.data.node._class === 'Class';
   }
 
-  isMappedClass(): boolean {
-    if (this.data.node._class !== 'Class') {
-      return false;
+  isLiteral(): boolean {
+    return this.data.node._class === 'Literal';
+  }
+
+  isMappedNode(): boolean {
+    if (this.data.node._class === 'Class') {
+      const clazz = this.data.node as Class;
+      return !!clazz.syntaxNodeUuid;
+    } else if (this.data.node._class === 'Literal') {
+      const literal = this.data.node as Literal;
+      return !!literal.syntaxNodeUuid;
     }
-    const clazz = this.data.node as Class;
-    if (!clazz.instance) {
-      return false;
-    }
-    return !!clazz.instance.syntaxNodeUuid;
+    return false;
   }
 
   hasExampleValues(): boolean {
-    if (!this.isMappedClass()) {
+    if (!this.isMappedNode()) {
       return false;
     }
     // console.log('examples');
     return this.data.examples?.length >= 0;
-  }
-
-  isLiteral(): boolean {
-    return this.data.node._class === 'Literal';
   }
 
   getInstance(): Instance {
@@ -155,6 +208,15 @@ export class PlsSemanticNodeDetailsComponent {
     return clazz.instance;
   }
 
+  getAsMappedNode(): Literal | Class {
+    if (this.isClass()) {
+      return this.data.node as Class;
+    }
+    if (this.isLiteral()) {
+      return this.data.node as Literal;
+    }
+  }
+
   getClassOrNamedEntity(): Class | NamedEntity {
     if (this.isClass()) {
       return this.data.node as Class;
@@ -165,7 +227,6 @@ export class PlsSemanticNodeDetailsComponent {
   }
 
   customize(): void {
-    console.log('start customization');
     if (!this.isClass()) {
       return;
     }

@@ -15,8 +15,6 @@ export interface Instance {
     uuid?: string;
     uri?: string;
     label?: string;
-    syntaxNodeUuid?: string;
-    originalLabel?: string;
     description?: string;
 }
 

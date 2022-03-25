@@ -1,8 +1,7 @@
 package de.buw.tmdt.plasma.datamodel;
 
 import de.buw.tmdt.plasma.datamodel.modification.DeltaModification;
-import de.buw.tmdt.plasma.datamodel.semanticmodel.Class;
-import de.buw.tmdt.plasma.datamodel.semanticmodel.Instance;
+import de.buw.tmdt.plasma.datamodel.semanticmodel.MappableSemanticModelNode;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.*;
 import de.buw.tmdt.plasma.utilities.misc.Pair;
 import org.junit.jupiter.api.Test;
@@ -21,9 +20,15 @@ public class CombinedModelSyntacticModificationTest {
 
         SchemaNode targetNode = model.getSyntaxModel().getNodes().stream().filter(schemaNode -> schemaNode.getLabel().equals("ident")).findFirst().orElseThrow();
         assertTrue(targetNode instanceof PrimitiveNode);
-
         PrimitiveNode identNode = (PrimitiveNode) targetNode;
         Splitting splitting1 = new Splitting("-");
+
+        MappableSemanticModelNode mappedSemanticNode = model.getSemanticModel().getNodes().stream()
+                .filter(node -> node instanceof MappableSemanticModelNode)
+                .map(node -> (MappableSemanticModelNode) node)
+                .filter(MappableSemanticModelNode::isMapped)
+                .filter(node -> node.getMappedSyntaxNodeUuid().equals(identNode.getUuid()))
+                .findFirst().orElseThrow();
 
         // by just defining the split, needed new nodes should be generated automatically
         CompositeNode compositeNode = new CompositeNode(identNode.getUuid(), "", null, identNode.getXCoordinate(), identNode.getYCoordinate(), true, new ArrayList<>(), identNode.getCleansingPattern(), Arrays.asList(splitting1));
@@ -51,15 +56,15 @@ public class CombinedModelSyntacticModificationTest {
         assertEquals(getCombinedModel().getSyntaxModel().getEdges().size() + expectedNewEdgesCount, model.getSyntaxModel().getEdges().size(), "Number of expected edges does not match");
 
 
-        // assert that the originally assigned instance is disconnected now, as the node is no longer a PrimitiveNode
-        Instance identifierType = model.getSemanticModel().getNodes().stream()
-                .filter(node -> node instanceof Class)
-                .map(node -> (Class) node)
-                .map(Class::getInstance)
-                .filter(Objects::nonNull)
-                .filter(instance -> instance.getURI().equals("plasma:identifier")).findFirst().orElseThrow();
-        assertNull(identifierType.getOriginalLabel());
-        assertNull(identifierType.getSyntaxNodeUuid());
+        // assert that the originally assigned node is disconnected now, as the node is no longer a PrimitiveNode
+        MappableSemanticModelNode identifierType = model.getSemanticModel().getNodes().stream()
+                .filter(node -> node instanceof MappableSemanticModelNode)
+                .map(node -> (MappableSemanticModelNode) node)
+                .filter(MappableSemanticModelNode::isMapped)
+                .filter(node -> node.getUuid().equals(mappedSemanticNode.getUuid())).findFirst().orElseThrow();
+        assertNull(identifierType.getMappedSyntaxNodeUuid());
+        assertNull(identifierType.getMappedSyntaxNodeLabel());
+        assertNull(identifierType.getMappedSyntaxNodePath());
 
         // also assure that the explicit mapping has been removed
         assertTrue(model.generateModelMappings().stream().noneMatch(primitiveEntityTypeMapping -> primitiveEntityTypeMapping.getPrimitiveUUID().equals(identNode.getUuid())), "Explicit mapping to old node has not been removed");

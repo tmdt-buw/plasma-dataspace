@@ -2,9 +2,14 @@
   <ul nz-menu nzSelectable>
     <li *ngIf="node" nz-menu-group nzTitle="Edit class">
       <ul>
-        <li nz-menu-item *ngIf="node.instance?.syntaxNodeUuid" (click)="unmap()"><i class="context-icon" nz-icon nzType="disconnect"></i>Remove mapping</li>
-        <li nz-menu-item *ngIf="node.instance" (click)="removeInstance()"><i class="context-icon" nz-icon nzType="clear"></i>Remove customization</li>
-        <li nz-menu-item nzDanger (click)="remove()"><i class="context-icon" nz-icon nzType="delete"></i>Remove class</li>
+        <li (click)="unmap()" *ngIf="node.syntaxNodeUuid" nz-menu-item><i class="context-icon" nz-icon
+                                                                          nzType="disconnect"></i>Remove mapping
+        </li>
+        <li (click)="removeInstance()" *ngIf="node.instance" [nzDisabled]="!!node.syntaxNodeUuid" nz-menu-item><i
+          class="context-icon" nz-icon nzType="clear"></i>Remove customization
+        </li>
+        <li nz-menu-item nzDanger (click)="remove()"><i class="context-icon" nz-icon nzType="delete"></i>Remove class
+        </li>
       </ul>
     </li>
     <li nz-menu-divider></li>

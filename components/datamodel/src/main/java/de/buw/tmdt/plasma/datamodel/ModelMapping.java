@@ -14,15 +14,15 @@ public class ModelMapping implements Serializable {
 
     private static final long serialVersionUID = -6888269571341658964L;
 
-    public static final String PRIMITIVE_PROPERTY = "schemaUuid";
-    public static final String CLASS_PROPERTY = "classUuid";
+    public static final String PRIMITIVE_PROPERTY = "schemaNodeUuid";
+    public static final String NODE_PROPERTY = "semanticNodeUuid";
     public static final String PARENT_PROPERTY = "parentUuid";
 
     @NotNull
     private String primitiveUUID;
 
     @NotNull
-    private String classUUID;
+    private String nodeUUID;
 
     /**
      * The parent syntax node of the node identified by primitiveUUID.
@@ -34,12 +34,12 @@ public class ModelMapping implements Serializable {
     @JsonCreator
     public ModelMapping(
             @JsonProperty(PRIMITIVE_PROPERTY) @NotNull String primitiveUUID,
-            @JsonProperty(CLASS_PROPERTY) @NotNull String classUUID,
+            @JsonProperty(NODE_PROPERTY) @NotNull String nodeUUID,
             @JsonProperty(PARENT_PROPERTY) @NotNull String parentUUID
 
     ) {
         this.parentUUID = parentUUID;
-        this.classUUID = classUUID;
+        this.nodeUUID = nodeUUID;
         this.primitiveUUID = primitiveUUID;
     }
 
@@ -64,13 +64,13 @@ public class ModelMapping implements Serializable {
     }
 
     @NotNull
-    @JsonProperty(CLASS_PROPERTY)
-    public String getClassUUID() {
-        return this.classUUID;
+    @JsonProperty(NODE_PROPERTY)
+    public String getNodeUUID() {
+        return this.nodeUUID;
     }
 
-    public void setClassUUID(@NotNull String classUUID) {
-        this.classUUID = classUUID;
+    public void setNodeUUID(@NotNull String nodeUUID) {
+        this.nodeUUID = nodeUUID;
     }
 
     /**
@@ -79,14 +79,14 @@ public class ModelMapping implements Serializable {
      * @return The cloned entity
      */
     public ModelMapping copy() {
-        return new ModelMapping(getPrimitiveUUID(), getClassUUID(), getParentUUID());
+        return new ModelMapping(getPrimitiveUUID(), getNodeUUID(), getParentUUID());
     }
 
     @Override
     public String toString() {
-        return "PrimitiveEntityTypeMapping{" +
+        return "ModelMapping{" +
                 "parentUUID=" + parentUUID +
-                ", entityTypeId=" + classUUID +
+                ", nodeId=" + nodeUUID +
                 ", primitiveUUID=" + primitiveUUID +
                 '}';
     }

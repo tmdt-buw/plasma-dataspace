@@ -15,6 +15,9 @@
   <nz-spin [nzSpinning]="loading" class="modeling-container" fxFlex nzTip="Loading...">
     <div *ngIf="combinedModel" class="modeling-area">
       <pls-modeling-diagram [$filter]="$filter"
+                            [$URIMode]="$URIMode"
+                            [$center]="$center"
+                            [$layout]="$layout"
                             [combinedModel]="combinedModel"
                             [lockDragAndDrop]="true"
                             [modelId]="sourceModelId"

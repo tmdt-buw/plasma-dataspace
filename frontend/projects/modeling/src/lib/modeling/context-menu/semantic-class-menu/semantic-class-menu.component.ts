@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { Class, SemanticModelNode, SyntacticOperationDTO } from '../../../api/generated/dms';
+import { Class, SyntacticOperationDTO } from '../../../api/generated/dms';
 import { ContextMenuEvent, ContextMenuEventType } from '../../model/events/context-menu-event';
 import { ContextMenuService } from '../context-menu.service';
 import { SyntaxNode } from '../../model/configuration/node';
@@ -25,13 +25,14 @@ export class PlsSemanticClassMenuComponent {
     this.contextMenu.close(new ContextMenuEvent(ContextMenuEventType.removeEntity, this.node));
   }
 
-  unmap():void {
-    this.node.instance.syntaxNodeUuid = undefined;
-    this.node.instance.originalLabel = undefined;
+  unmap(): void {
+    this.node.syntaxNodeUuid = undefined;
+    this.node.syntaxLabel = undefined;
+    this.node.syntaxPath = undefined;
     this.contextMenu.close(new ContextMenuEvent(ContextMenuEventType.updateEntity, this.node));
   }
 
-  removeInstance():void {
+  removeInstance(): void {
     this.node.instance = undefined;
     this.contextMenu.close(new ContextMenuEvent(ContextMenuEventType.updateEntity, this.node));
   }

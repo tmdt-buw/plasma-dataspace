@@ -16,21 +16,25 @@ import java.util.UUID;
  */
 public class CombinedModelGenerator {
 
-    private static String namespace = "http://plasma.uni-wuppertal.de/ontology#";
+    public static final String NAMESPACE = "http://plasma.uni-wuppertal.de/ontology#";
 
     private CombinedModelGenerator() {
 
     }
 
+    public static String generateResourceURI(String label) {
+        return NAMESPACE + label;
+    }
+
     public static CombinedModel getCombinedModel() {
-        return getCombinedModel(namespace);
+        return getCombinedModel(NAMESPACE);
     }
 
     public static CombinedModel getCombinedModel(String namespace) {
         SchemaNode root = new ObjectNode("ROOT", true);
         List<String> examples = Arrays.asList("10-11;suffix1", "20-21;suffix2", "test-test;suffix3");
         PrimitiveNode identifierNode = new PrimitiveNode("ident", true, DataType.String, examples, null);
-        PrimitiveNode timeNode = new PrimitiveNode("time",  true, DataType.String, null, null);
+        PrimitiveNode timeNode = new PrimitiveNode("time", true, DataType.String, null, null);
         ObjectNode companyNode = new ObjectNode("carrier",  true);
         PrimitiveNode nameNode = new PrimitiveNode("name", true, DataType.String, null, null);
 
@@ -58,22 +62,22 @@ public class CombinedModelGenerator {
 
         Class identifierClass = new Class(namespace + "identifier", "identifier", "Identifies a certain object");
         Instance identifierInstance = new Instance(identifierClass.getLabel(), null);
-        identifierInstance.setOriginalLabel(identifierNode.getLabel());
-        identifierInstance.setSyntaxNodeUuid(identifierNode.getUuid());
+        identifierClass.setMappedSyntaxNodeLabel(identifierNode.getLabel());
+        identifierClass.setMappedSyntaxNodeUuid(identifierNode.getUuid());
         identifierClass.setInstance(identifierInstance);
 
         Class airlineClass = new Class(namespace + "airline", "airline", "A company that provides air travel services");
 
         Class nameClass = new Class(namespace + "name", "name", "A commonly known but not unique identifier of something");
         Instance nameInstance = new Instance(nameClass.getLabel(), null);
-        nameInstance.setOriginalLabel(nameNode.getLabel());
-        nameInstance.setSyntaxNodeUuid(nameNode.getUuid());
+        nameClass.setMappedSyntaxNodeLabel(nameNode.getLabel());
+        nameClass.setMappedSyntaxNodeUuid(nameNode.getUuid());
         nameClass.setInstance(nameInstance);
 
         Class iataCodeClass = new Class(namespace + "iata_code", "IATA code", "A unique identifier issued by the IATA");
         Instance iataCodeInstance = new Instance(iataCodeClass.getLabel(), null);
-        iataCodeInstance.setOriginalLabel(codeNode.getLabel());
-        iataCodeInstance.setSyntaxNodeUuid(codeNode.getUuid());
+        iataCodeClass.setMappedSyntaxNodeLabel(codeNode.getLabel());
+        iataCodeClass.setMappedSyntaxNodeUuid(codeNode.getUuid());
         iataCodeClass.setInstance(iataCodeInstance);
 
         NamedEntity iataClass = new NamedEntity(namespace + "IATA", "IATA", "The International Air Transport Association");

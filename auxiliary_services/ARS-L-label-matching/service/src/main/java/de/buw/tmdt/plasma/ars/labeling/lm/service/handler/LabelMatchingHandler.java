@@ -56,9 +56,12 @@ public class LabelMatchingHandler {
                 // create an Instance
                 Class clazz = matching.get();
                 clazz.createInstance();
+                clazz.setMappedSyntaxNodeLabel(node.getLabel());
+                clazz.setMappedSyntaxNodeUuid(node.getUuid());
+                clazz.setMappedSyntaxNodePath(String.join("->", node.getPath()));
                 if (clazz.getInstance() != null) {
-                    clazz.getInstance().setOriginalLabel(node.getLabel());
-                    clazz.getInstance().setSyntaxNodeUuid(node.getUuid());
+                    clazz.getInstance().setLabel(node.getLabel());
+
                 }
 
                 combined.getSemanticModel().getNodes().add(clazz);

@@ -4,7 +4,6 @@ import de.buw.tmdt.plasma.datamodel.CombinedModelIntegrityException;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.Class;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.Literal;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.*;
-import org.apache.jena.ontology.DatatypeProperty;
 import org.apache.jena.ontology.OntClass;
 import org.apache.jena.ontology.OntProperty;
 import org.apache.jena.rdf.model.*;
@@ -55,16 +54,16 @@ public class CMToRDFMapper {
                     if (i.getDescription() != null && !i.getDescription().isBlank()) {
                         resource.addProperty(PLCM.description, m.createLiteral(i.getDescription()));
                     }
-
-                    if (i.getSyntaxNodeUuid() != null) {
-                        resource.addProperty(PLCM.syntaxNodeId, m.createLiteral(i.getSyntaxNodeUuid()));
-                    }
-                    if (i.getOriginalLabel() != null && !i.getOriginalLabel().isBlank()) {
-                        resource.addProperty(PLCM.originalLabel, m.createLiteral(i.getOriginalLabel()));
-                    }
                 } else {
                     resource = m.createResource();
                 }
+                if (clazz.getMappedSyntaxNodeUuid() != null) {
+                    resource.addProperty(PLCM.syntaxNodeId, m.createLiteral(clazz.getMappedSyntaxNodeUuid()));
+                }
+                if (clazz.getMappedSyntaxNodeLabel() != null && !clazz.getMappedSyntaxNodeLabel().isBlank()) {
+                    resource.addProperty(PLCM.originalLabel, m.createLiteral(clazz.getMappedSyntaxNodeLabel()));
+                }
+
                 resource.addProperty(RDF.type, m.createResource(m.expandPrefix(clazz.getURI())));
 
                 if (clazz.getXCoordinate() != null) {
@@ -220,17 +219,18 @@ public class CMToRDFMapper {
         String uuid = res.getRequiredProperty(PLCM.cmUuid).getString();
         Double xCoordinate = getPropertyAsDoubleOrNull(res, PLCM.xCoordinate);
         Double yCoordinate = getPropertyAsDoubleOrNull(res, PLCM.yCoordinate);
+        String syntaxNodeId = getPropertyOrNull(res, PLCM.syntaxNodeId);
+        String originalLabel = getPropertyOrNull(res, PLCM.originalLabel);
+        String syntaxNodePath = getPropertyOrNull(res, PLCM.syntaxNodePath);
         Class sClass = new Class(uuid, PREFIXES.shortForm(superclass.getURI()), superclass.getLabel(),
-                superclass.getDescription(), xCoordinate, yCoordinate, null);
+                superclass.getDescription(), xCoordinate, yCoordinate, syntaxNodeId, originalLabel, syntaxNodePath, null);
 
         if (!res.isAnon()) {
             // this is an actual instance
             String instanceURI = res.getURI();
             String label = res.getRequiredProperty(PLCM.label).getString();
             String description = getPropertyOrNull(res, PLCM.description);
-            String syntaxNodeId = getPropertyOrNull(res, PLCM.syntaxNodeId);
-            String originalLabel = getPropertyOrNull(res, PLCM.originalLabel);
-            Instance i = new Instance(uuid, PREFIXES.shortForm(instanceURI), label, syntaxNodeId, originalLabel, description);
+            Instance i = new Instance(uuid, PREFIXES.shortForm(instanceURI), label, description);
             sClass.setInstance(i);
         }
         return sClass;

@@ -15,8 +15,10 @@ import { Instance } from './instance';
 export interface ClassAllOf {
   uri?: string;
   description?: string;
+  syntaxNodeUuid?: string;
+  syntaxLabel?: string;
+  syntaxPath?: string;
   instance?: Instance;
-  mappedSyntaxNodeId?: string;
   mapped?: boolean;
   template?: boolean;
 }

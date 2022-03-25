@@ -8,6 +8,7 @@ import { ModelingService } from '../../modeling.service';
 import { ModalBaseConfig } from '../common/modal.base-config';
 import { PlsNewEntityDialogComponent } from '../new-entity-dialog/new-entity-dialog.component';
 import { PlsNewRelationDialogComponent } from '../new-relation-dialog/new-relation-dialog.component';
+import { NzNotificationService } from 'ng-zorro-antd/notification';
 
 
 @Component({
@@ -32,7 +33,8 @@ export class PlsConceptDialogComponent implements OnInit, OnDestroy {
   relations: Relation[] = [];
 
   // TODO find useful recommendation view
-  constructor(private modeling: ModelingService, private modelingService: ModelingControllerService, private modal: NzModalService) {
+  constructor(private modeling: ModelingService, private modelingService: ModelingControllerService,
+              private modal: NzModalService, private notification: NzNotificationService) {
 
   }
 
@@ -67,7 +69,7 @@ export class PlsConceptDialogComponent implements OnInit, OnDestroy {
     this.modelingService.getRelations(this.dataSource, this.relationSearchControl.value).subscribe((res) => {
       this.relations = res;
       this.loadingRelationConcepts = false;
-    });
+    }, error => this.notification.error('Error during fetch of concept and relations', 'Could not retrieve data from the modeling service. '));
   }
 
   onIndexChange(event: NzTabChangeEvent): void {

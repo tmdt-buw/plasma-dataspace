@@ -15,7 +15,6 @@ export interface NamedEntityAllOf {
   uri?: string;
   description?: string;
   template?: boolean;
-  mappedSyntaxNodeId?: string;
   mapped?: boolean;
 }
 

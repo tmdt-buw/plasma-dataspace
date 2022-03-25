@@ -15,7 +15,8 @@ import { PositionedCombinedModelElement } from './positionedCombinedModelElement
 export interface Literal extends PositionedCombinedModelElement {
   value?: string;
   syntaxNodeUuid?: string;
-  mappedSyntaxNodeId?: string;
+  syntaxLabel?: string;
+  syntaxPath?: string;
   mapped?: boolean;
   template?: boolean;
   uri?: string;
