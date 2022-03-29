@@ -282,6 +282,7 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
       this.finished.emit();
     }, () => {
       this.viewerMode = false;
+      this.notification.error('Could not finalize model', 'An error occurred during model finalization. Please contact an admin for more information.');
     });
   }
 
