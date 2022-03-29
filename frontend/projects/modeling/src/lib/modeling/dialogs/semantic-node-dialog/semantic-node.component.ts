@@ -42,7 +42,7 @@ export class PlsSemanticNodeDetailsComponent implements OnInit {
   @Output()
   public recommendationReject: EventEmitter<DeltaModification> = new EventEmitter();
   @Output()
-  public nodeEdited: EventEmitter<any> = new EventEmitter<any>();
+  public nodeEdited: EventEmitter<SemanticModelNode> = new EventEmitter<SemanticModelNode>();
 
 
   constructor(private modelingService: ModelingControllerService, private fb: FormBuilder) {
@@ -56,7 +56,7 @@ export class PlsSemanticNodeDetailsComponent implements OnInit {
           disabled: !this.editing
         }, [Validators.required, Validators.maxLength(20)]],
         description: [{
-          value: this.getInstance().description,
+          value: this.getInstance()?.description,
           disabled: !this.editing
         }, [Validators.required, Validators.maxLength(200)]]
       });
@@ -118,7 +118,9 @@ export class PlsSemanticNodeDetailsComponent implements OnInit {
       entities: [this.data.node]
     };
 
-    this.modelingService.modifyModel(this.data.modelId, delta).subscribe(() => this.nodeEdited.next(), () => {
+    this.modelingService.modifyModel(this.data.modelId, delta).subscribe(() => {
+      this.nodeEdited.next(this.data.node);
+    }, () => {
       switch (this.data.node._class) {
         case 'Class':
           this.getInstance().label = this.label;
@@ -236,6 +238,7 @@ export class PlsSemanticNodeDetailsComponent implements OnInit {
     (this.data.node as Class).instance = {
       label: this.data.node.label
     };
+
     this.startEdit();
   }
 

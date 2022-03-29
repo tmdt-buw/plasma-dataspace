@@ -15,5 +15,6 @@ export interface OntologyInfo {
     prefix?: string;
     uri?: string;
     label?: string;
+    local?: boolean;
 }
 

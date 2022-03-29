@@ -12,8 +12,8 @@
 
 
 export interface ModelMapping { 
-    schemaUuid?: string;
-    classUuid?: string;
+    schemaNodeUuid?: string;
+    semanticNodeUuid?: string;
     parentUuid?: string;
 }
 

@@ -1063,6 +1063,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
    */
   private openDetails(id: string, type: NodeType): void {
     this.closeDialog();
+    let nodeDialogRef: PlsSemanticNodeDetailsComponent;
     switch (type) {
       case Nodes.syntaxNodeName:
         const syntaxNode = this.findSyntaxNodeById(id);
@@ -1095,23 +1096,21 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
           examples,
           finalized: this.isViewerMode()
         }));
-        const componentInstance: PlsSemanticNodeDetailsComponent = this.nodeDialogRef.componentInstance as PlsSemanticNodeDetailsComponent;
-        componentInstance.recommendationSelect.subscribe(recommendation => {
+        nodeDialogRef = this.nodeDialogRef.componentInstance as PlsSemanticNodeDetailsComponent;
+        nodeDialogRef.recommendationSelect.subscribe(recommendation => {
           this.hideRecommendations();
           if (recommendation !== null) {
             this.showRecommendation(recommendation);
           }
         });
-        componentInstance.recommendationAccept.subscribe(recommendation => {
+        nodeDialogRef.recommendationAccept.subscribe(recommendation => {
           this.hideRecommendations();
           this.recommendationAccepted.emit(recommendation);
         });
-        this.nodeDialogRef.afterClose.subscribe((res) => {
-          if (res) {
-            this.nodeDialogRef = null;
-            const element = this.graph.getElements().find(el => el.attributes.id === id);
-            // TODO update width
-            element.attr('bodyText/text', semanticNode.label);
+        nodeDialogRef.nodeEdited.subscribe((node: SemanticModelNode) => {
+          const element = this.graph.getElements().find(el => el.attributes.id === id);
+          if ((node as Class).instance) {
+            element.attr('bodyText/text', (node as Class).instance.label);
           }
         });
         break;
@@ -1125,14 +1124,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
           examples: [],
           finalized: this.isViewerMode()
         }));
-        this.nodeDialogRef.afterClose.subscribe((res) => {
-          if (res) {
-            this.nodeDialogRef = null;
-            const element = this.graph.getElements().find(el => el.attributes.id === id);
-            // TODO update width
-            element.attr('bodyText/text', namedEntityNode.label);
-          }
-        });
+        nodeDialogRef = this.nodeDialogRef.componentInstance as PlsSemanticNodeDetailsComponent;
         break;
       case Nodes.literalName:
         const literalNode = this.findSemanticNodeById(id);
@@ -1143,7 +1135,6 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
           const synNode = this.findSyntaxNodeById(literal.syntaxNodeUuid);
           if (synNode?._class === 'PrimitiveNode') {
             exampleValues = (synNode as PrimitiveNode).examples;
-            console.log('examples', exampleValues);
           }
         }
         this.nodeDialogRef = this.modal.create(this.createConfig(literalTitle, PlsSemanticNodeDetailsComponent, {
@@ -1153,19 +1144,12 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
           examples: exampleValues,
           finalized: this.isViewerMode()
         }));
-        this.nodeDialogRef.afterClose.subscribe((res) => {
-          if (res) {
-            this.nodeDialogRef = null;
-            const element = this.graph.getElements().find(el => el.attributes.id === id);
-            // TODO update width
-            element.attr('bodyText/text', literalNode.label);
-          }
-        });
-        const componentDialog: PlsSemanticNodeDetailsComponent = this.nodeDialogRef.componentInstance as PlsSemanticNodeDetailsComponent;
-        componentDialog.nodeEdited.subscribe(() => {
+        nodeDialogRef = this.nodeDialogRef.componentInstance as PlsSemanticNodeDetailsComponent;
+        nodeDialogRef.nodeEdited.subscribe((node: SemanticModelNode) => {
           const element = this.graph.getElements().find(el => el.attributes.id === id);
-          // TODO update width
-          element.attr('bodyText/text', literalNode.label);
+          const dims = this.calcDimensionsForLabel(node.label, true);
+          element.attributes.size = {width: dims[0], height: dims[1]};
+          element.attr('label/text', node.label);
         });
         break;
       default:

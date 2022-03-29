@@ -12,14 +12,14 @@
 import { SyntacticOperationDTO } from './syntacticOperationDTO';
 
 
-export interface SchemaNode {
-  uuid?: string;
-  label?: string;
-  path?: Array<string>;
-  x?: number;
-  y?: number;
-  valid?: boolean;
-  readonly operations?: Array<SyntacticOperationDTO>;
-  _class: string;
+export interface SchemaNode { 
+    uuid?: string;
+    label?: string;
+    path?: Array<string>;
+    x?: number;
+    y?: number;
+    valid?: boolean;
+    readonly operations?: Array<SyntacticOperationDTO>;
+    _class: string;
 }
 
