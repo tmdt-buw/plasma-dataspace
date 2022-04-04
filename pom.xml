@@ -24,6 +24,7 @@
         <module>auxiliary_services/ARS-L-label-matching</module>
         <module>auxiliary_services/ARS-M-standard-matching</module>
         <module>auxiliary_services/ARS-R-recommendation</module>
+        <module>components/converter</module>
     </modules>
 
     <properties>
