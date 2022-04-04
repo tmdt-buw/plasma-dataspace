@@ -10,7 +10,8 @@ import { ModelingControllerService, ObjectProperty } from '../../../api/generate
 })
 export class PlsNewRelationDialogComponent {
 
-  @Input() dataSource: string;
+  @Input() modelId: string;
+  @Input() defaultNamespace: string = 'local';
 
   form = new FormGroup({
     label: new FormControl('', [Validators.required]),
@@ -20,7 +21,6 @@ export class PlsNewRelationDialogComponent {
   });
 
   error;
-  defaultPrefix = 'plasma:';
   relationType: 'ObjectProperty' | 'DataProperty';
 
   constructor(private modalRef: NzModalRef, private modelingService: ModelingControllerService) {
@@ -29,10 +29,10 @@ export class PlsNewRelationDialogComponent {
   submit(): void {
     this.error = null;
     if (this.form.get('uri').value === '') {
-      const defaultUri = this.cleanURI(this.defaultPrefix + this.form.get('label').value);
+      const defaultUri = this.cleanURI(this.defaultNamespace + this.form.get('label').value);
       this.form.get('uri').setValue(defaultUri);
     } else if (this.form.get('uri').value.startsWith(':')) {
-      const defaultUri = this.cleanURI(this.defaultPrefix + this.form.get('label').value);
+      const defaultUri = this.cleanURI(this.defaultNamespace + this.form.get('label').value);
       this.form.get('uri').setValue(defaultUri);
     } else {
       this.form.get('uri').setValue(this.cleanURI(this.form.get('uri').value));
@@ -43,7 +43,7 @@ export class PlsNewRelationDialogComponent {
       label: this.form.get('label').value
     };
     console.log(rel);
-    this.modelingService.cacheRelation(this.dataSource, rel).subscribe(() => this.modalRef.close(true), error => this.error = error.error.message);
+    this.modelingService.cacheRelation(this.modelId, rel).subscribe(() => this.modalRef.close(true), error => this.error = error.error.message);
   }
 
   cancel(): void {
@@ -52,7 +52,7 @@ export class PlsNewRelationDialogComponent {
   }
 
   generateURI(): string {
-    return this.cleanURI(this.defaultPrefix + this.form.get('label').value);
+    return this.cleanURI(this.defaultNamespace + ':' + this.form.get('label').value);
   }
 
   cleanURI(input: string): string {

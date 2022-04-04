@@ -10,6 +10,7 @@ public class Ontology {
     public static final String PREFIX_PROPERTY = "prefix";
     public static final String URI_PROPERTY = "uri";
     public static final String DESCRIPTION_PROPERTY = "description";
+    public static final String LOCAL_PROPERTY = "local";
 
     private String label;
 
@@ -19,16 +20,27 @@ public class Ontology {
 
     private String uri;
 
+    private boolean local = false;
+
+    public Ontology(String label, String filePath, String prefix, String uri) {
+        this.label = label;
+        this.filePath = filePath;
+        this.prefix = prefix;
+        this.uri = uri;
+    }
+
     @JsonCreator
     public Ontology(
             @JsonProperty(LABEL_PROPERTY) String label,
             @JsonProperty(FILEPATH_PROPERTY) String filePath,
             @JsonProperty(PREFIX_PROPERTY) String prefix,
-            @JsonProperty(URI_PROPERTY) String uri) {
+            @JsonProperty(URI_PROPERTY) String uri,
+            @JsonProperty(LOCAL_PROPERTY) boolean local) {
         this.label = label;
         this.filePath = filePath;
         this.prefix = prefix;
         this.uri = uri;
+        this.local = local;
     }
 
     public String getLabel() {
@@ -61,5 +73,13 @@ public class Ontology {
 
     public void setUri(String uri) {
         this.uri = uri;
+    }
+
+    public boolean isLocal() {
+        return local;
+    }
+
+    public void setLocal(boolean local) {
+        this.local = local;
     }
 }

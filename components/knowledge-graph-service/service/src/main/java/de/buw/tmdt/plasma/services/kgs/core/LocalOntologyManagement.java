@@ -32,11 +32,11 @@ public class LocalOntologyManagement {
 
     private final Ontologies ontologies;
 
-    @Value("${plasma.kgs.localontology.prefix:plasma}")
+    @Value("${plasma.kgs.localontology.prefix:local}")
     private String LOCAL_ONTOLOGY_PREFIX;
-    @Value("${plasma.kgs.localontology.uri:https://plasma.uni-wuppertal.de/ontology#}")
+    @Value("${plasma.kgs.localontology.uri:https://local.ontology#}")
     private String LOCAL_ONTOLOGY_URI;
-    @Value("${plasma.kgs.localontology.prefix:PLASMA}")
+    @Value("${plasma.kgs.localontology.prefix:LOCAL}")
     private String LOCAL_ONTOLOGY_LABEL;
 
 
@@ -57,7 +57,7 @@ public class LocalOntologyManagement {
             Resource r = m.createResource(m.expandPrefix(resource.getURI()));
             if (resource instanceof NamedEntity) {
                 NamedEntity ne = (NamedEntity) resource;
-                m.add(new StatementImpl(r, RDF.type, PLASMA.NamedEntity));
+                m.add(new StatementImpl(r, RDF.type, PLCM.NamedEntity));
                 if (!resource.getLabel().isBlank()) {
                     m.add(new StatementImpl(r, RDFS.label, m.createLiteral(resource.getLabel())));
                 }
@@ -102,7 +102,7 @@ public class LocalOntologyManagement {
     }
 
     public OntModel getInternalOntology() {
-        Optional<OntModel> localModel = ontologies.getOntologyModelByLabel("PLASMA");
+        Optional<OntModel> localModel = ontologies.getOntologyModelByLabel(LOCAL_ONTOLOGY_LABEL);
         if (localModel.isEmpty()) {
             // create a new local ontology
             return ontologies.createLocalOntology(LOCAL_ONTOLOGY_LABEL, LOCAL_ONTOLOGY_PREFIX, LOCAL_ONTOLOGY_URI);
@@ -116,7 +116,7 @@ public class LocalOntologyManagement {
         describeBuilder.addPrefixes(PREFIXES)
                 .addVar("?class")
                 .addWhere("?class", RDF.type, "?type")
-                .addFilter(describeBuilder.getExprFactory().in("?type", OWL.Class, PLASMA.NamedEntity))
+                .addFilter(describeBuilder.getExprFactory().in("?type", OWL.Class, PLCM.NamedEntity))
                 .addFilter(describeBuilder.getExprFactory().eq("?class", ResourceFactory.createResource(PREFIXES.expandPrefix(uri))))
         //.addFilter(describeBuilder.getExprFactory().eq("?class", uri))
         ;
@@ -133,7 +133,7 @@ public class LocalOntologyManagement {
                 .addVar("?class")
                 .addWhere("?class", RDF.type, "?type")
                 .addWhere("?class", RDFS.label, "?o")
-                .addFilter(describeBuilder.getExprFactory().in("?type", OWL.Class, PLASMA.NamedEntity))
+                .addFilter(describeBuilder.getExprFactory().in("?type", OWL.Class, PLCM.NamedEntity))
                     .addFilter(describeBuilder.getExprFactory().strstarts("?o", prefix));
 
         QueryExecution query = QueryExecutionFactory.create(describeBuilder.build(), getInternalOntology());
@@ -145,11 +145,11 @@ public class LocalOntologyManagement {
 
     public List<SemanticModelNode> findElementsByLabelInfix(String infix) {
             DescribeBuilder describeBuilder = new DescribeBuilder();
-            describeBuilder.addPrefixes(PREFIXES)
-                    .addVar("?class")
-                    .addWhere("?class", RDF.type, "?type")
-                    .addWhere("?class", RDFS.label, "?o")
-                    .addFilter(describeBuilder.getExprFactory().in("?type", OWL.Class, PLASMA.NamedEntity))
+        describeBuilder.addPrefixes(PREFIXES)
+                .addVar("?class")
+                .addWhere("?class", RDF.type, "?type")
+                .addWhere("?class", RDFS.label, "?o")
+                .addFilter(describeBuilder.getExprFactory().in("?type", OWL.Class, PLCM.NamedEntity))
                     .addFilter(describeBuilder.getExprFactory().regex("?o", infix, "i"));
 
         QueryExecution query = QueryExecutionFactory.create(describeBuilder.build(), getInternalOntology());
@@ -160,11 +160,11 @@ public class LocalOntologyManagement {
 
     public List<SemanticModelNode> findElementsByNamespace(String namespace) {
             DescribeBuilder describeBuilder = new DescribeBuilder();
-            describeBuilder.addPrefixes(PREFIXES)
-                    .addVar("?class")
-                    .addWhere("?class", RDF.type, "?type")
-                    .addWhere("?class", RDFS.label, "?o")
-                    .addFilter(describeBuilder.getExprFactory().in("?type", OWL.Class, PLASMA.NamedEntity))
+        describeBuilder.addPrefixes(PREFIXES)
+                .addVar("?class")
+                .addWhere("?class", RDF.type, "?type")
+                .addWhere("?class", RDFS.label, "?o")
+                .addFilter(describeBuilder.getExprFactory().in("?type", OWL.Class, PLCM.NamedEntity))
                     .addFilter(describeBuilder.getExprFactory().strstarts("?class", namespace));
 
         QueryExecution query = QueryExecutionFactory.create(describeBuilder.build(), getInternalOntology());

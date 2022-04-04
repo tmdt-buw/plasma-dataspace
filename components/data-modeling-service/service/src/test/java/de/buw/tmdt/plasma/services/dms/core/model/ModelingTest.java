@@ -1,4 +1,4 @@
-package de.buw.tmdt.plasma.services.dms.core.model.datasource;
+package de.buw.tmdt.plasma.services.dms.core.model;
 
 import de.buw.tmdt.plasma.datamodel.CombinedModel;
 import de.buw.tmdt.plasma.datamodel.modification.operation.DataType;

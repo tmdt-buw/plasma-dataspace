@@ -8,10 +8,19 @@ public class OntologyInfo {
 
     private final String label;
 
+    private boolean local = false;
+
     public OntologyInfo(String label, String prefix, String uri) {
         this.prefix = prefix;
         this.uri = uri;
         this.label = label;
+    }
+
+    public OntologyInfo(String label, String prefix, String uri, boolean local) {
+        this.prefix = prefix;
+        this.uri = uri;
+        this.label = label;
+        this.local = local;
     }
 
     public String getPrefix() {
@@ -24,5 +33,9 @@ public class OntologyInfo {
 
     public String getLabel() {
         return label;
+    }
+
+    public boolean isLocal() {
+        return local;
     }
 }

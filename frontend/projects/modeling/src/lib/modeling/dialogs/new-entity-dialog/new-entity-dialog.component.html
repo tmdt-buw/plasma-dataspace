@@ -4,7 +4,7 @@
     <nz-form-label [nzSpan]="5" nzRequired nzFor="label">Label</nz-form-label>
     <nz-form-control nzErrorTip="Label is required"
                      nzExtra="This will identify the concept in multiple sources, so it should be independent from your current data set.">
-      <input nz-input formControlName="label"/>
+      <input formControlName="label" nz-input/>
     </nz-form-control>
   </nz-form-item>
 
@@ -19,7 +19,7 @@
   <nz-form-item>
     <nz-form-label [nzSpan]="5" nzFor="uri">URI</nz-form-label>
     <nz-form-control nzExtra="URI of the concept from an ontology.">
-      <input formControlName="uri" nz-input placeholder="{{generateURI()}}"/>
+      <input (change)="onURIEdited($event)" formControlName="uri" nz-input placeholder="{{generateURI()}}"/>
     </nz-form-control>
   </nz-form-item>
 

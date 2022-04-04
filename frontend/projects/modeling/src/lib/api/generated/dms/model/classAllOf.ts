@@ -19,7 +19,6 @@ export interface ClassAllOf {
   syntaxLabel?: string;
   syntaxPath?: string;
   instance?: Instance;
-  mapped?: boolean;
   template?: boolean;
 }
 

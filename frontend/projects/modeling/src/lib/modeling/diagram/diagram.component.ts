@@ -645,33 +645,8 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
     }
   }
 
-  /**
-   * Filters the given list of recommendations to those which have the anchorId set as an anchor.
-   * @param anchorId The id to check
-   * @return Sublist of matching recommendations for the given node. Empty if none match
-   */
-  filterRecommendationsForAnchor(anchorId: string): DeltaModification[] {
-    return this.combinedModel.recommendations.filter(rec => rec.anchors.includes(anchorId));
-  }
-
-  /**
-   * Creates nodes and edges for recommendations and adds them to global variable
-   * @param recommendations the recommendations
-   */
-  private showRecommendations(recommendations: DeltaModification[]): void {
-    recommendations.forEach(rec => this.showRecommendation(rec));
-  }
-
   public isViewerMode(): boolean {
     return this.viewerMode || this.combinedModel?.finalized;
-  }
-
-  /**
-   * Removes recommendations from graph
-   */
-  private hideRecommendations(): void {
-    this.graph.removeCells(this.recommendations);
-    this.recommendations = [];
   }
 
   /**
@@ -1155,6 +1130,32 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
       default:
         console.error('Unsupported node type');
     }
+  }
+
+  /* RECOMMENDATIONS */
+  /**
+   * Filters the given list of recommendations to those which have the anchorId set as an anchor.
+   * @param anchorId The id to check
+   * @return Sublist of matching recommendations for the given node. Empty if none match
+   */
+  filterRecommendationsForAnchor(anchorId: string): DeltaModification[] {
+    return this.combinedModel.recommendations.filter(rec => rec.anchors.includes(anchorId));
+  }
+
+  /**
+   * Creates nodes and edges for recommendations and adds them to global variable
+   * @param recommendations the recommendations
+   */
+  private showRecommendations(recommendations: DeltaModification[]): void {
+    recommendations.forEach(rec => this.showRecommendation(rec));
+  }
+
+  /**
+   * Removes recommendations from graph
+   */
+  private hideRecommendations(): void {
+    this.graph.removeCells(this.recommendations);
+    this.recommendations = [];
   }
 
 }

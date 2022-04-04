@@ -1,4 +1,4 @@
-package de.buw.tmdt.plasma.services.dms.core.model.datasource;
+package de.buw.tmdt.plasma.services.dms.core.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import de.buw.tmdt.plasma.datamodel.CombinedModel;

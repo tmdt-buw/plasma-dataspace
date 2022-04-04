@@ -16,6 +16,7 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -27,6 +28,9 @@ public class OntologyHandler {
 
     private static final Logger log = LoggerFactory.getLogger(OntologyHandler.class);
     private final Ontologies ontologies;
+
+    @Value("${plasma.kgs.localontology.prefix:LOCAL}")
+    private String LOCAL_ONTOLOGY_LABEL;
 
     @Autowired
     public OntologyHandler(
@@ -40,7 +44,7 @@ public class OntologyHandler {
                                                @Nullable String infix,
                                                @Nullable String uri
     ) {
-        List<OntModel> localOntologyList = ontologies.getFilteredOntologyModels(Collections.singletonList("PLASMA"));
+        List<OntModel> localOntologyList = ontologies.getFilteredOntologyModels(Collections.singletonList(LOCAL_ONTOLOGY_LABEL));
 
         List<OntModel> filteredOntologyModels = ontologies.getFilteredOntologyModels(ontologyLabels);
         List<SemanticModelNode> nodes = new ArrayList<>();
@@ -74,6 +78,10 @@ public class OntologyHandler {
         } else {
             findClasses(filteredOntologyModels, clazz -> true).stream()
                     .map(CMToRDFMapper::convertOntologyClassToClass)
+                    .forEach(nodes::add);
+            findNamedEntities(localOntologyList, ne -> true).stream()
+                    .map(CMToRDFMapper::convertOntologyResourceToSemanticModelNode)
+                    .filter(Objects::nonNull)
                     .forEach(nodes::add);
         }
         nodes.sort(Comparator.comparing(CombinedModelElement::getLabel));
@@ -132,7 +140,7 @@ public class OntologyHandler {
     private List<Resource> findNamedEntities(List<OntModel> models, Predicate<Resource> filterFunction) {
         return models.stream()
                 .flatMap(model -> model.listSubjects().toList().stream()
-                        .filter(subj -> subj.hasProperty(RDF.type, PLASMA.NamedEntity))
+                        .filter(subj -> subj.hasProperty(RDF.type, PLCM.NamedEntity))
                         .filter(filterFunction)
                 )
                 .collect(Collectors.toList());

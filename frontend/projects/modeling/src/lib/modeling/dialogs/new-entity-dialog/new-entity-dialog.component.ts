@@ -10,7 +10,8 @@ import { Class, ModelingControllerService, NamedEntity } from '../../../api/gene
 })
 export class PlsNewEntityDialogComponent {
 
-  @Input() dataSource: string;
+  @Input() modelId: string;
+  @Input() defaultNamespace: string = 'local';
 
   form = new FormGroup({
     label: new FormControl('', [Validators.required]),
@@ -20,7 +21,6 @@ export class PlsNewEntityDialogComponent {
   });
 
   error;
-  defaultPrefix = 'plasma:';
   isNamedEntity = false;
 
   constructor(private modalRef: NzModalRef, private modelingService: ModelingControllerService) {
@@ -34,10 +34,10 @@ export class PlsNewEntityDialogComponent {
       return;
     }
     if (this.form.get('uri').value === '') {
-      const defaultUri = this.cleanURI(this.defaultPrefix + this.form.get('label').value);
+      const defaultUri = this.cleanURI(this.defaultNamespace + ':' + this.form.get('label').value);
       this.form.get('uri').setValue(defaultUri);
     } else if (this.form.get('uri').value.startsWith(':')) {
-      const defaultUri = this.cleanURI(this.defaultPrefix + this.form.get('label').value);
+      const defaultUri = this.cleanURI(this.defaultNamespace + ':' + this.form.get('label').value);
       this.form.get('uri').setValue(defaultUri);
     } else {
       this.form.get('uri').setValue(this.cleanURI(this.form.get('uri').value));
@@ -58,7 +58,7 @@ export class PlsNewEntityDialogComponent {
         label: this.form.get('label').value
       };
     }
-    this.modelingService.cacheElement(this.dataSource, node).subscribe(() => this.modalRef.close(true), error => this.error = error.error.message);
+    this.modelingService.cacheElement(this.modelId, node).subscribe(() => this.modalRef.close(true), error => this.error = error.error.message);
   }
 
   cancel(): void {
@@ -67,10 +67,14 @@ export class PlsNewEntityDialogComponent {
   }
 
   generateURI(): string {
-    return this.cleanURI('plasma:' + this.form.get('label').value);
+    return this.cleanURI(this.defaultNamespace + ':' + this.form.get('label').value);
   }
 
   cleanURI(input: string): string {
     return input.trim().split(' ').join('_');
+  }
+
+  onURIEdited(event: Event): void {
+    console.log('uri edited', event);
   }
 }

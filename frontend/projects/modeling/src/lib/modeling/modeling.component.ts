@@ -65,6 +65,7 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
   // ontologies
   availableOntologies: Array<OntologyInfo>;
   selectedOntologies: Array<string>;
+  defaultNamespace: string = 'local:';
 
   // search bar
   searchControl = new FormControl();
@@ -97,6 +98,10 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.ontologyService.listOntologies().subscribe((ontologies: Array<OntologyInfo>) => {
       this.availableOntologies = ontologies;
+      this.defaultNamespace = ontologies.find(ont => ont.local)?.prefix;
+      if (!this.defaultNamespace) {
+        this.defaultNamespace = '';
+      }
     });
     this.modelingService.getSelectedOntologies(this.modelId).subscribe((ontologies: Array<string>) => {
       this.selectedOntologies = ontologies;
@@ -300,7 +305,7 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
 
   // DIALOGS
 
-  showAddConceptDialog(): void {
+  showAddElementsDialog(): void {
     if (this.isFinalized()) {
       return;
     }
@@ -317,7 +322,8 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
       nzTitle: '',
       nzContent: PlsConceptDialogComponent,
       nzComponentParams: {
-        dataSource: this.modelId
+        modelId: this.modelId,
+        defaultNamespace: this.defaultNamespace
       }
     };
     this.addConceptDialogRef = this.modal.create(Object.assign(config, ModalMouseEnabledConfig));

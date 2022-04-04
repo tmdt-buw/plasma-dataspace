@@ -19,7 +19,8 @@ import { NzNotificationService } from 'ng-zorro-antd/notification';
 })
 export class PlsConceptDialogComponent implements OnInit, OnDestroy {
 
-  @Input() dataSource: string;
+  @Input() modelId: string;
+  @Input() defaultNamespace: string;
 
   @ViewChild('colorEl') color;
 
@@ -32,7 +33,7 @@ export class PlsConceptDialogComponent implements OnInit, OnDestroy {
   semanticModelNodes: SemanticModelNode[] = [];
   relations: Relation[] = [];
 
-  // TODO find useful recommendation view
+
   constructor(private modeling: ModelingService, private modelingService: ModelingControllerService,
               private modal: NzModalService, private notification: NzNotificationService) {
 
@@ -58,7 +59,7 @@ export class PlsConceptDialogComponent implements OnInit, OnDestroy {
 
   getSemanticNodeTemplates(): void {
     this.loadingEntityConcepts = true;
-    this.modelingService.getElements(this.dataSource, this.entitySearchControl.value).subscribe((res) => {
+    this.modelingService.getElements(this.modelId, this.entitySearchControl.value).subscribe((res) => {
       this.semanticModelNodes = res;
       this.loadingEntityConcepts = false;
     });
@@ -66,7 +67,7 @@ export class PlsConceptDialogComponent implements OnInit, OnDestroy {
 
   getRelationTemplates(): void {
     this.loadingRelationConcepts = true;
-    this.modelingService.getRelations(this.dataSource, this.relationSearchControl.value).subscribe((res) => {
+    this.modelingService.getRelations(this.modelId, this.relationSearchControl.value).subscribe((res) => {
       this.relations = res;
       this.loadingRelationConcepts = false;
     }, error => this.notification.error('Error during fetch of concept and relations', 'Could not retrieve data from the modeling service. '));
@@ -97,7 +98,8 @@ export class PlsConceptDialogComponent implements OnInit, OnDestroy {
       nzTitle: 'Add new modeling element',
       nzContent: PlsNewEntityDialogComponent,
       nzComponentParams: {
-        dataSource: this.dataSource
+        modelId: this.modelId,
+        defaultNamespace: this.defaultNamespace
       }
     };
     const ref = this.modal.create(Object.assign(config, ModalBaseConfig));
@@ -113,7 +115,8 @@ export class PlsConceptDialogComponent implements OnInit, OnDestroy {
       nzTitle: 'Add new relation',
       nzContent: PlsNewRelationDialogComponent,
       nzComponentParams: {
-        dataSource: this.dataSource
+        modelId: this.modelId,
+        defaultNamespace: this.defaultNamespace
       }
     };
     const ref = this.modal.create(Object.assign(config, ModalBaseConfig));

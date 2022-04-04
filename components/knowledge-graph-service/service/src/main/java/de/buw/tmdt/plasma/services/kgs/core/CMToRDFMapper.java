@@ -13,6 +13,7 @@ import org.apache.jena.vocabulary.RDF;
 import org.apache.jena.vocabulary.RDFS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.util.HtmlUtils;
 
 import java.util.*;
 import java.util.function.Function;
@@ -34,13 +35,13 @@ public class CMToRDFMapper {
             throw new IllegalArgumentException("Semantic model id must not be empty or null");
         }
         Map<String, RDFNode> uuidtoResource = new HashMap<>();
-        String semanticModelId = semanticModel.getId();
+        String semanticModelId = semanticModel.getId().substring(0, 6);
         Model m = ModelFactory.createDefaultModel();
         m.setNsPrefixes(PREFIXES);
         String SM_Prefix = PREFIXES.getNsPrefixURI("plsm");
         Resource rdfModel = m.createResource(SM_Prefix + semanticModelId);
         rdfModel.addProperty(RDF.type, PLCM.SemanticModel);
-        rdfModel.addProperty(PLCM.cmUuid, semanticModelId);
+        rdfModel.addProperty(PLCM.cmUuid, semanticModel.getId());
         semanticModel.getNodes().forEach(node -> {
             RDFNode rdfNode = null;
             if (node instanceof Class) {
@@ -82,7 +83,7 @@ public class CMToRDFMapper {
                 // create a resource which describes the named entity
                 // this will later be elevated to the ontology
                 Resource neResource = m.createResource(m.expandPrefix(ne.getURI()));
-                neResource.addProperty(RDF.type, PLASMA.NamedEntity);
+                neResource.addProperty(RDF.type, PLCM.NamedEntity);
                 neResource.addProperty(PLCM.label, m.createLiteral(ne.getLabel()));
                 if (ne.getDescription() != null && !ne.getDescription().isBlank()) {
                     neResource.addProperty(PLCM.description, m.createLiteral(ne.getDescription()));
@@ -268,7 +269,7 @@ public class CMToRDFMapper {
                         PREFIXES.shortForm(resource.getURI()),
                         label,
                         description);
-            } else if (resource.hasProperty(RDF.type, PLASMA.NamedEntity)) {
+            } else if (resource.hasProperty(RDF.type, PLCM.NamedEntity)) {
                 return new NamedEntity(
                         PREFIXES.shortForm(resource.getURI()),
                         label,
@@ -291,6 +292,11 @@ public class CMToRDFMapper {
 
     public static String convertToInstanceId(String label) {
         String formatted = label.trim().toLowerCase().replace(" ", "_");
+        formatted = HtmlUtils.htmlEscape(formatted);
+        formatted = formatted.replaceAll("\\[", "_");
+        formatted = formatted.replaceAll("\\]", "_");
+        formatted = formatted.replaceAll("\\)", "_");
+        formatted = formatted.replaceAll("\\(", "_");
         return formatted;
     }
 
@@ -307,7 +313,7 @@ public class CMToRDFMapper {
                                     PREFIXES.shortForm(resource.getURI()),
                                     label,
                                     description);
-                        } else if (resource.hasProperty(RDF.type, PLASMA.NamedEntity)) {
+                        } else if (resource.hasProperty(RDF.type, PLCM.NamedEntity)) {
                             return new ObjectProperty(
                                     null,
                                     null,

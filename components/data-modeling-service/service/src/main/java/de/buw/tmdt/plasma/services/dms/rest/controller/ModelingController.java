@@ -8,7 +8,7 @@ import de.buw.tmdt.plasma.datamodel.modification.operation.SyntacticOperationDTO
 import de.buw.tmdt.plasma.datamodel.semanticmodel.Relation;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.SemanticModelNode;
 import de.buw.tmdt.plasma.services.dms.core.handler.ModelingHandler;
-import de.buw.tmdt.plasma.services.dms.core.model.datasource.Modeling;
+import de.buw.tmdt.plasma.services.dms.core.model.Modeling;
 import de.buw.tmdt.plasma.services.dms.core.repository.ModelingRepository;
 import de.buw.tmdt.plasma.services.dms.shared.api.ModelingAPI;
 import de.buw.tmdt.plasma.services.dms.shared.api.ModelingInfo;

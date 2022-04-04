@@ -17,7 +17,6 @@ export interface Literal extends PositionedCombinedModelElement {
   syntaxNodeUuid?: string;
   syntaxLabel?: string;
   syntaxPath?: string;
-  mapped?: boolean;
   template?: boolean;
   uri?: string;
 }

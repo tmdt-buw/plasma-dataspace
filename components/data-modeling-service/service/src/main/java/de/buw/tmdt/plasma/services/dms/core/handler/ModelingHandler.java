@@ -11,7 +11,7 @@ import de.buw.tmdt.plasma.datamodel.semanticmodel.*;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.SchemaNode;
 import de.buw.tmdt.plasma.services.config.ConfigServiceClient;
 import de.buw.tmdt.plasma.services.dms.core.converter.SchemaOperationDTOConverter;
-import de.buw.tmdt.plasma.services.dms.core.model.datasource.Modeling;
+import de.buw.tmdt.plasma.services.dms.core.model.Modeling;
 import de.buw.tmdt.plasma.services.dms.core.operations.Operation;
 import de.buw.tmdt.plasma.services.dms.core.operations.OperationLookUp;
 import de.buw.tmdt.plasma.services.dms.core.operations.exceptions.ParameterParsingException;
@@ -27,6 +27,7 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -50,6 +51,9 @@ public class ModelingHandler {
     private final OperationLookUp operationLookUp;
     private HashMap<SchemaNode, Set<Operation.Handle>> parameterDefinitionLookup;
     private final ConfigServiceClient configServiceClient;
+
+    @Value("${plasma.kgs.localontology.prefix:LOCAL}")
+    private String LOCAL_ONTOLOGY_LABEL;
 
     @Autowired
     public ModelingHandler(
@@ -80,7 +84,7 @@ public class ModelingHandler {
         }
         ZonedDateTime created = ZonedDateTime.now();
         Modeling modeling = new Modeling(modelId, name, description, created, dataId);
-        modeling.getSelectedOntologies().add("PLASMA");
+        modeling.getSelectedOntologies().add(LOCAL_ONTOLOGY_LABEL);
         // save initial version of submitted model
         modeling.pushCombinedModel(combinedModel);
         modeling = persistModeling(modeling);

@@ -34,25 +34,23 @@ public class Ontologies {
     static String SM_URI = "http://plasma.uni-wuppertal.de/sm/";
 
     private Map<Ontology, OntModel> ontologyModels = new HashMap<>();
-    private static final PrefixMapping DEFAULT_PREFIXES = new PrefixMappingImpl()
-            .setNsPrefixes(PrefixMapping.Standard)
-            .setNsPrefix("plcm", PLCM.getURI())
-            .setNsPrefix("plsm", SM_URI)
-            .setNsPrefix("plasma", PLASMA.getURI());
+    public static final PrefixMapping PREFIXES = new PrefixMappingImpl();
     @Value("${plasma.kgs.ontologies.metadata.suffix:.ontology}")
     private final String ONTOLOGY_SUFFIX = ".ontology";
 
     private final ObjectMapper mapper;
     @Value("${plasma.kgs.ontologies.folder:./ontologies}")
     private String ontologyFolder;
-
-    public static final PrefixMapping PREFIXES = DEFAULT_PREFIXES;
+    private static final PrefixMapping DEFAULT_PREFIXES = new PrefixMappingImpl()
+            .setNsPrefixes(PrefixMapping.Standard)
+            .setNsPrefix("plcm", PLCM.getURI())
+            .setNsPrefix("plsm", SM_URI);
 
     @Autowired
     public Ontologies() {
         mapper = new ObjectMapper()
                 .registerModule(new ParameterNamesModule());
-
+        DEFAULT_PREFIXES.getNsPrefixMap().forEach(PREFIXES::setNsPrefix);
     }
 
     @PostConstruct
@@ -167,7 +165,7 @@ public class Ontologies {
             createdOnto.write(out, "TURTLE");
             log.info("Written ontology file to " + ontologyFilePath);
 
-            Ontology onto = new Ontology(label, ontologyFilePath.toString(), prefix, namespace);
+            Ontology onto = new Ontology(label, ontologyFilePath.toString(), prefix, namespace, true);
             mapper.writeValue(metadataFilePath.toFile(), onto);
         } catch (IOException e) {
             log.error("Error while writing ontology or metadata file", e);
@@ -211,7 +209,7 @@ public class Ontologies {
 
     public List<OntologyInfo> listOntologies() {
         return ontologyModels.keySet().stream()
-                .map(om -> new OntologyInfo(om.getLabel(), om.getPrefix(), om.getUri()))
+                .map(om -> new OntologyInfo(om.getLabel(), om.getPrefix(), om.getUri(), om.isLocal()))
                 .collect(Collectors.toList());
     }
 

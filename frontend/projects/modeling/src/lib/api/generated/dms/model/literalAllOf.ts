@@ -16,7 +16,6 @@ export interface LiteralAllOf {
   syntaxNodeUuid?: string;
   syntaxLabel?: string;
   syntaxPath?: string;
-  mapped?: boolean;
   template?: boolean;
   uri?: string;
 }
