@@ -13,13 +13,13 @@ import java.util.List;
 
 public class CSVConverter {
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private static final ObjectMapper objectMapper = new ObjectMapper();
 
-    public String convert(String input, int headerHeight) throws ConversionException {
+    public static String convert(String input, int headerHeight) throws ConversionException {
         return convert(input, ',', headerHeight);
     }
 
-    public String convert(String input, char delimiter, int headerHeight) throws ConversionException {
+    public static String convert(String input, char delimiter, int headerHeight) throws ConversionException {
         Reader dataReader;
         dataReader = new StringReader(input);
         com.opencsv.CSVReader reader = new com.opencsv.CSVReader(dataReader, delimiter);

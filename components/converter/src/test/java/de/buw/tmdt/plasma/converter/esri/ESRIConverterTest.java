@@ -27,8 +27,10 @@ public class ESRIConverterTest {
 
     @BeforeEach
     public void setUp() {
-        URL resource = ESRIConverter.class.getClassLoader().getResource("esri/Stadtgebiet_EPSG25832_SHAPE.zip");
+        URL resource = ESRIConverter.class.getClassLoader().getResource(INPUT_SHAPE_FILE_ZIP);
         assertNotNull(resource);
+        URL resource2 = ESRIConverter.class.getClassLoader().getResource(EXPECTED_OUTPUT_FILE);
+        assertNotNull(resource2);
     }
 
 
@@ -39,13 +41,14 @@ public class ESRIConverterTest {
         Path path = Path.of(resource.toURI());
 
         String result = ESRIConverter.convertToJSON(path);
-        InputStream inputStream = ESRIConverter.class.getResourceAsStream(EXPECTED_OUTPUT_FILE);
+        InputStream inputStream = ESRIConverter.class.getClassLoader().getResourceAsStream(EXPECTED_OUTPUT_FILE);
         assertNotNull(inputStream);
         String expected = IOUtils.toString(inputStream, StandardCharsets.UTF_8);
 
         JsonNode jsonFileExpected = mapper.readTree(expected);
         JsonNode jsonFileActual = mapper.readTree(result);
 
+        //assertTrue(JSONComparator.areEqualElements(jsonFileExpected, jsonFileActual));
         assertEquals(jsonFileExpected, jsonFileActual);
     }
 

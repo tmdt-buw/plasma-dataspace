@@ -60,7 +60,7 @@
         <org.mariadb.version>2.5.2</org.mariadb.version>
 
         <!-- Apache Commons -->
-        <org.apache.commons.lang3.version>3.6</org.apache.commons.lang3.version>
+        <org.apache.commons.lang3.version>3.12.0</org.apache.commons.lang3.version>
 
         <!-- Testing -->
         <org.testcontainers.version>1.15.1</org.testcontainers.version>

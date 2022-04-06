@@ -1,8 +1,8 @@
 package de.buw.tmdt.plasma.converter.esri;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import de.buw.tmdt.plasma.converter.ConversionException;
 import de.buw.tmdt.plasma.converter.geojson.GeoJSONConverter;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.geotools.data.DataStoreFinder;
 import org.geotools.data.FeatureSource;
@@ -13,8 +13,6 @@ import org.geotools.geojson.geom.GeometryJSON;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.filter.Filter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.nio.charset.Charset;
@@ -30,8 +28,6 @@ public class ESRIConverter {
 
     public static final int DECIMALS = 15;
     public static final int BUFFER_SIZE = 1024;
-    private static Logger log = LoggerFactory.getLogger(ESRIConverter.class);
-    private static ObjectMapper mapper = new ObjectMapper();
 
     public static String convertToGeoJSON(Path filePath) throws ConversionException {
         return convertToGeoJSON(filePath, StandardCharsets.ISO_8859_1);
@@ -47,7 +43,7 @@ public class ESRIConverter {
     }
 
     public static String convertToGeoJSON(Path filePath, Charset charset) throws ConversionException {
-        String tmpDirectory = "./" + UUID.randomUUID().toString();
+        String tmpDirectory = "./" + UUID.randomUUID();
         InputStream inputStream = null;
         File destDir = null;
         ShapefileDataStore dataStore = null;
@@ -101,7 +97,7 @@ public class ESRIConverter {
 
             fj.writeFeatureCollection(collection, sw);
             dataStore.dispose();
-            return null;
+            return sw.toString();
         } catch (IOException e) {
             throw new ConversionException("Failed to read shape file properly.", e);
 
@@ -114,6 +110,15 @@ public class ESRIConverter {
             }
             if (dataStore != null) {
                 dataStore.dispose();
+            }
+
+            if (destDir != null) {
+                try {
+                    FileUtils.deleteDirectory(destDir);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
             }
 
         }
