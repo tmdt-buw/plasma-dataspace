@@ -23,12 +23,20 @@
     </nz-form-control>
   </nz-form-item>
 
-  <nz-form-item>
-    <nz-form-label [nzSpan]="5" nzFor="uri">URI</nz-form-label>
-    <nz-form-control nzExtra="URI of the concept from an ontology.">
-      <input formControlName="uri" nz-input placeholder="{{generateURI()}}"/>
-    </nz-form-control>
-  </nz-form-item>
+  <div fxLayout="row">
+    <nz-form-item fxFlex>
+      <nz-form-label>URI</nz-form-label>
+      <nz-form-control nzExtra="Namespace" nz-tooltip="Namespace of the class or named entity. Should be either a prefix like 'rdfs:' or a HTTP URL">
+        <input (change)="onNamespaceEdited($event)" formControlName="namespace" nz-input/>
+      </nz-form-control>
+    </nz-form-item>
+
+    <nz-form-item fxFlex>
+      <nz-form-control nz-tooltip="Identifier of the class or named entity. Any identifier is valid. Special characters and whitespaces are converted to '_'." nzExtra="Identifier">
+        <input (change)="onIdentifierEdited($event)" formControlName="identifier" nz-input placeholder="{{generateIdentifier()}}"/>
+      </nz-form-control>
+    </nz-form-item>
+  </div>
 
 </form>
 

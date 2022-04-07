@@ -16,7 +16,8 @@ export class PlsNewEntityDialogComponent {
   form = new FormGroup({
     label: new FormControl('', [Validators.required]),
     description: new FormControl('', [Validators.required]),
-    uri: new FormControl(''),
+    namespace: new FormControl(this.defaultNamespace + ':', [Validators.required]),
+    identifier: new FormControl(''),
     namedEntity: new FormControl(false)
   });
 
@@ -33,27 +34,18 @@ export class PlsNewEntityDialogComponent {
       this.error = 'Empty label is not allowed';
       return;
     }
-    if (this.form.get('uri').value === '') {
-      const defaultUri = this.cleanURI(this.defaultNamespace + ':' + this.form.get('label').value);
-      this.form.get('uri').setValue(defaultUri);
-    } else if (this.form.get('uri').value.startsWith(':')) {
-      const defaultUri = this.cleanURI(this.defaultNamespace + ':' + this.form.get('label').value);
-      this.form.get('uri').setValue(defaultUri);
-    } else {
-      this.form.get('uri').setValue(this.cleanURI(this.form.get('uri').value));
-    }
     let node: Class | NamedEntity;
     if (this.form.get('namedEntity').value) {
       node = {
         _class: 'NamedEntity',
-        uri: this.form.get('uri').value,
+        uri: this.constructURI(),
         description: this.form.get('description').value,
         label: this.form.get('label').value
       };
     } else {
       node = {
         _class: 'Class',
-        uri: this.form.get('uri').value,
+        uri: this.constructURI(),
         description: this.form.get('description').value,
         label: this.form.get('label').value
       };
@@ -66,15 +58,39 @@ export class PlsNewEntityDialogComponent {
     this.modalRef.close();
   }
 
-  generateURI(): string {
-    return this.cleanURI(this.defaultNamespace + ':' + this.form.get('label').value);
+  generateIdentifier(): string {
+    return this.convertLabelToIdentifier(this.form.get('label').value);
   }
 
-  cleanURI(input: string): string {
-    return input.trim().split(' ').join('_');
+  convertLabelToIdentifier(input: string): string {
+    return input.trim().replace(/[^a-zA-Z0-9]/g, '_');
   }
 
-  onURIEdited(event: Event): void {
-    console.log('uri edited', event);
+  constructURI(): string {
+    let namespace = this.form.get('namespace').value;
+    let identifier = this.form.get('identifier').value;
+
+    if (!namespace.includes(':')) {
+      namespace = namespace + ':';
+    }
+    if (!identifier) {
+      identifier = this.generateIdentifier();
+    }
+    return namespace + identifier;
+  }
+
+  onIdentifierEdited(event: Event): void {
+  }
+
+  onNamespaceEdited(event: Event): void {
+    let namespace = this.form.get('namespace').value;
+
+    if (!namespace.includes(':')) {
+      namespace = namespace + ':';
+    }
+    this.form.get('namespace').setValue(namespace);
+  }
+
+  onLabelEdited(event: Event): void {
   }
 }

@@ -16,7 +16,8 @@ export class PlsNewRelationDialogComponent {
   form = new FormGroup({
     label: new FormControl('', [Validators.required]),
     description: new FormControl('', [Validators.required]),
-    uri: new FormControl(''),
+    namespace: new FormControl(this.defaultNamespace + ':', [Validators.required]),
+    identifier: new FormControl(''),
     type: new FormControl('', [Validators.required])
   });
 
@@ -28,18 +29,9 @@ export class PlsNewRelationDialogComponent {
 
   submit(): void {
     this.error = null;
-    if (this.form.get('uri').value === '') {
-      const defaultUri = this.cleanURI(this.defaultNamespace + this.form.get('label').value);
-      this.form.get('uri').setValue(defaultUri);
-    } else if (this.form.get('uri').value.startsWith(':')) {
-      const defaultUri = this.cleanURI(this.defaultNamespace + this.form.get('label').value);
-      this.form.get('uri').setValue(defaultUri);
-    } else {
-      this.form.get('uri').setValue(this.cleanURI(this.form.get('uri').value));
-    }
     const rel: ObjectProperty = {
       _class: this.form.get('type').value,
-      uri: this.form.get('uri').value,
+      uri: this.constructURI(),
       label: this.form.get('label').value
     };
     console.log(rel);
@@ -51,12 +43,40 @@ export class PlsNewRelationDialogComponent {
     this.modalRef.close();
   }
 
-  generateURI(): string {
-    return this.cleanURI(this.defaultNamespace + ':' + this.form.get('label').value);
+  generateIdentifier(): string {
+    return this.convertLabelToIdentifier(this.form.get('label').value);
   }
 
-  cleanURI(input: string): string {
-    return input.trim().split(' ').join('_');
+  convertLabelToIdentifier(input: string): string {
+    return input.trim().replace(/[^a-zA-Z0-9]/g, '_');
+  }
+
+  constructURI(): string {
+    let namespace = this.form.get('namespace').value;
+    let identifier = this.form.get('identifier').value;
+
+    if (!namespace.includes(':')) {
+      namespace = namespace + ':';
+    }
+    if (!identifier) {
+      identifier = this.generateIdentifier();
+    }
+    return namespace + identifier;
+  }
+
+  onIdentifierEdited(event: Event): void {
+  }
+
+  onNamespaceEdited(event: Event): void {
+    let namespace = this.form.get('namespace').value;
+
+    if (!namespace.includes(':')) {
+      namespace = namespace + ':';
+    }
+    this.form.get('namespace').setValue(namespace);
+  }
+
+  onLabelEdited(event: Event): void {
   }
 
 }
