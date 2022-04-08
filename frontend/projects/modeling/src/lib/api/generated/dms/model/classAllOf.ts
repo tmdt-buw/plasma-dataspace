@@ -19,6 +19,7 @@ export interface ClassAllOf {
   syntaxLabel?: string;
   syntaxPath?: string;
   instance?: Instance;
+  provisional?: boolean;
   template?: boolean;
 }
 

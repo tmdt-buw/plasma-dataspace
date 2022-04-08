@@ -9,19 +9,18 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import { ObjectProperty } from './objectProperty';
-import { DataProperty } from './dataProperty';
 
 
-export interface Relation { 
-    uuid?: string;
-    from?: string;
-    to?: string;
-    uri?: string;
-    label?: string;
-    description?: string;
-    properties?: Array<string>;
-    template?: boolean;
-    _class: string;
+export interface Relation {
+  uuid?: string;
+  from?: string;
+  to?: string;
+  uri?: string;
+  label?: string;
+  description?: string;
+  properties?: Array<string>;
+  provisional?: boolean;
+  template?: boolean;
+  _class: string;
 }
 

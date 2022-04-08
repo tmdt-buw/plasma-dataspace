@@ -93,7 +93,8 @@ public class CombinedModelSemanticModificationTest {
                 iataCodeClass.getMappedSyntaxNodeUuid(),
                 iataCodeClass.getMappedSyntaxNodeLabel(),
                 iataCodeClass.getMappedSyntaxNodePath(),
-                null
+                null,
+                iataCodeClass.isProvisional()
         );
         Instance codeInstance = new Instance(
                 null,

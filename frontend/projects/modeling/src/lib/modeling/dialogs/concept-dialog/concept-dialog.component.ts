@@ -130,4 +130,32 @@ export class PlsConceptDialogComponent implements OnInit, OnDestroy {
   setRecommendation(recommendation: DeltaModification): void {
     this.modeling.recommendation.next(recommendation);
   }
+
+  deleteProvisionalNode(e: MouseEvent, node: SemanticModelNode): void {
+    this.modal.confirm({
+      nzTitle: 'Remove provisional element?',
+      nzContent: `Do you want to remove the provisional node '${node.uri}'?`,
+      nzOnOk: () => {
+        this.modelingService.deleteCachedElement(this.modelId, node.uri).subscribe(() => {
+          this.getSemanticNodeTemplates();
+        }, error => {
+          this.notification.error('Error deleting provisional node', error.error?.message);
+        });
+      }
+    });
+  }
+
+  deleteProvisionalRelation(e: MouseEvent, rel: Relation): void {
+    this.modal.confirm({
+      nzTitle: 'Remove provisional element?',
+      nzContent: `Do you want to remove the provisional relation '${rel.uri}'?`,
+      nzOnOk: () => {
+        this.modelingService.deleteCachedRelation(this.modelId, rel.uri).subscribe(() => {
+          this.getRelationTemplates();
+        }, error => {
+          this.notification.error('Error deleting provisional relation', error.error?.message);
+        });
+      }
+    });
+  }
 }

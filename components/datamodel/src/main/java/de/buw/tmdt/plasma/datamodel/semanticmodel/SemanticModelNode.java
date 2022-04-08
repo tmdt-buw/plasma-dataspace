@@ -19,8 +19,11 @@ import java.util.Objects;
 public abstract class SemanticModelNode extends PositionedCombinedModelElement implements NodeTemplate {
 
     public static final String URI_PROPERTY = "uri";
+    public static final String PROVISIONAL_PROPERTY = "provisional";
 
     private final String uri;
+
+    private boolean provisional = false;
 
     public SemanticModelNode(@Nullable String uri, @NotNull String label) {
         this(null, uri, label, null, null);
@@ -52,6 +55,15 @@ public abstract class SemanticModelNode extends PositionedCombinedModelElement i
         return uri;
     }
 
+    @JsonProperty(PROVISIONAL_PROPERTY)
+    public boolean isProvisional() {
+        return provisional;
+    }
+
+    public void setProvisional(boolean provisional) {
+        this.provisional = provisional;
+    }
+
     public abstract SemanticModelNode copy();
 
     public abstract SemanticModelNode instanciate();
@@ -74,4 +86,5 @@ public abstract class SemanticModelNode extends PositionedCombinedModelElement i
     public boolean isMapped() {
         return false;
     }
+
 }

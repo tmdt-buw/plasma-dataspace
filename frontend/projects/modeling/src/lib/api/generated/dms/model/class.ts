@@ -20,6 +20,7 @@ export interface Class extends PositionedCombinedModelElement {
   syntaxLabel?: string;
   syntaxPath?: string;
   instance?: Instance;
+  provisional?: boolean;
   template?: boolean;
 }
 

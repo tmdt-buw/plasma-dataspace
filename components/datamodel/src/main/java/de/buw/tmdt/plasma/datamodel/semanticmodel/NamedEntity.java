@@ -27,15 +27,22 @@ public class NamedEntity extends SemanticModelNode implements Serializable, Node
         this.description = description;
     }
 
+    public NamedEntity(String uuid, @NotNull String uri, @NotNull String label, @NotNull String description, @Nullable Double xCoordinate, @Nullable Double yCoordinate) {
+        super(uuid, uri, label, xCoordinate, yCoordinate);
+        this.description = description;
+    }
+
     @JsonCreator
     public NamedEntity(@Nullable @JsonProperty(UUID_PROPERTY) String uuid,
                        @NotNull @JsonProperty(URI_PROPERTY) String uri,
                        @NotNull @JsonProperty(LABEL_PROPERTY) String label,
                        @NotNull @JsonProperty(DESCRIPTION_PROPERTY) String description,
                        @Nullable @JsonProperty(XCOORDINATE_PROPERTY) Double xCoordinate,
-                       @Nullable @JsonProperty(YCOORDINATE_PROPERTY) Double yCoordinate
-                      ) {
+                       @Nullable @JsonProperty(YCOORDINATE_PROPERTY) Double yCoordinate,
+                       @JsonProperty(PROVISIONAL_PROPERTY) boolean provisional
+    ) {
         super(uuid, uri, label, xCoordinate, yCoordinate);
+        this.setProvisional(provisional);
         this.description = description;
     }
 
@@ -50,7 +57,7 @@ public class NamedEntity extends SemanticModelNode implements Serializable, Node
 
     @Override
     public NamedEntity copy() {
-        return new NamedEntity(getUuid(), getURI(), getLabel(), getDescription(), getXCoordinate(), getYCoordinate());
+        return new NamedEntity(getUuid(), getURI(), getLabel(), getDescription(), getXCoordinate(), getYCoordinate(), isProvisional());
     }
 
     @Override

@@ -22,7 +22,7 @@ public interface ModelingAPI {
 
     @PostMapping(value = "/", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     ModelingInfo createNewModeling(
-			@Nullable @RequestParam(value = "modelId", required = false) String modelId,
+            @Nullable @RequestParam(value = "modelId", required = false) String modelId,
             @NotNull @RequestBody CombinedModel combinedModel,
             @RequestParam(defaultValue = "true") boolean performInitialModeling,
             @RequestParam(required = false) String name,
@@ -77,6 +77,11 @@ public interface ModelingAPI {
     @PostMapping(value = "/{modelId}/cache/relations", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     CombinedModelElement cacheRelation(@NotNull @PathVariable("modelId") String modelId, @NotNull @RequestBody Relation relation);
 
+    @DeleteMapping(value = "/{modelId}/cache/nodes")
+    void deleteCachedElement(@NotNull @PathVariable("modelId") String modelId, @RequestParam(value = "uri") @NotNull String uri);
+
+    @DeleteMapping(value = "/{modelId}/cache/relations")
+    void deleteCachedRelation(@NotNull @PathVariable("modelId") String modelId, @RequestParam(value = "uri") @NotNull String uri);
 
     @NotNull
     @PatchMapping(value = "/{modelId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -105,10 +110,10 @@ public interface ModelingAPI {
     @DeleteMapping(value = "/{modelId}")
     void deleteModel(@NotNull @PathVariable("modelId") String modelId);
 
-    @GetMapping(value= "/{modelId}/selectedOntologies", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/{modelId}/selectedOntologies", produces = MediaType.APPLICATION_JSON_VALUE)
     List<String> getSelectedOntologies(@NotNull @PathVariable("modelId") String modelId);
 
-    @PutMapping(value= "/{modelId}/selectedOntologies")
+    @PutMapping(value = "/{modelId}/selectedOntologies")
     void updateSelectedOntologies(@NotNull @PathVariable("modelId") String modelId,
                                   @NotNull @RequestParam(value = "labels", defaultValue = "") List<String> selectedOntologyLabels);
 }

@@ -45,7 +45,7 @@
   <div fxLayout="row" fxLayoutGap="5px" fxLayoutAlign="end">
     <button nz-button (click)="cancel()">Cancel</button>
     <button (click)="submit()"
-            [disabled]="!form.valid || form.get('uri').value.length === 1 || form.get('uri').value.length === 2"
+            [disabled]="!form.valid"
             nz-button nzType="primary">Save
     </button>
   </div>

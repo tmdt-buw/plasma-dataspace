@@ -150,6 +150,18 @@ public class ModelingController implements ModelingAPI {
         return modelingHandler.cacheRelation(modelId, relation);
     }
 
+    @Override
+    @Operation(description = "Removes a cached element identified by the given URI")
+    public void deleteCachedElement(@NotNull String modelId, @NotNull String uri) {
+        modelingHandler.uncacheElement(modelId, uri);
+    }
+
+    @Override
+    @Operation(description = "Removes a cached relation identified by the given URI")
+    public void deleteCachedRelation(@NotNull String modelId, @NotNull String uri) {
+        modelingHandler.uncacheRelation(modelId, uri);
+    }
+
     @NotNull
     @Operation(description = "Accepts a recommendation and adds the contents to the semantic model.")
     public CombinedModel acceptRecommendation(@NotNull String modelId, @NotNull DeltaModification recommendation) {

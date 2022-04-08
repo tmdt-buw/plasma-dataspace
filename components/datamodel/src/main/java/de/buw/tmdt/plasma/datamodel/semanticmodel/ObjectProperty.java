@@ -22,6 +22,10 @@ public class ObjectProperty extends Relation {
         super(fromId, toId, uri, label, description);
     }
 
+    public ObjectProperty(String uuid, String fromId, String toId, @NotNull String uri, String label, String description, Set<String> properties) {
+        this(uuid, fromId, toId, uri, label, description, properties, false);
+    }
+
     @JsonCreator
     public ObjectProperty(
             @Nullable @JsonProperty(UUID_PROPERTY) String uuid,
@@ -30,9 +34,10 @@ public class ObjectProperty extends Relation {
             @NotNull @JsonProperty(URI_PROPERTY) String uri,
             @Nullable @JsonProperty(LABEL_PROPERTY) String label,
             @Nullable @JsonProperty(DESCRIPTION_PROPERTY) String description,
-            @Nullable @JsonProperty(PROPERTIES_PROPERTY) Set<String> properties
+            @Nullable @JsonProperty(PROPERTIES_PROPERTY) Set<String> properties,
+            @JsonProperty(PROVISIONAL_PROPERTY) boolean provisional
     ) {
-        super(uuid,from,to,uri,label,description,properties);
+        super(uuid, from, to, uri, label, description, properties, provisional);
     }
 
     @Override

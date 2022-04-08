@@ -246,6 +246,7 @@ public class ModelingHandler {
                 })
                 // ... and add them to the ones from the KGS while ensuring that there are no conflicts
                 .filter(element -> availableElements.stream().noneMatch(ae -> ae.sameAs(element)))
+                .peek(element -> element.setProvisional(true))
                 .forEach(availableElements::add);
 
         return availableElements.stream()
@@ -280,6 +281,7 @@ public class ModelingHandler {
                 })
                 // ... and add them to the ones from the KGS while ensuring that there are no conflicts
                 .filter(relationConcept -> availableRelations.stream().noneMatch(ar -> ar.sameAs(relationConcept)))
+                .peek(element -> element.setProvisional(true))
                 .forEach(availableRelations::add);
 
         return availableRelations.stream()
@@ -467,6 +469,10 @@ public class ModelingHandler {
     public void uncacheElement(@NotNull String modelId, String uri) {
         Modeling modeling = findModelingOrThrow(modelId);
         CombinedModel combinedModel = getCombinedModel(modeling, true);
+        boolean inUse = combinedModel.getSemanticModel().getNodes().stream().anyMatch(node -> node.getURI().equals(uri));
+        if (inUse) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Element with URI " + uri + " is in use in this model. Please remove all instances before deleting.");
+        }
 
         boolean change = combinedModel.getProvisionalElements().removeIf(o -> o.getURI().equals(uri));
         if (change) {
@@ -495,11 +501,16 @@ public class ModelingHandler {
 
     }
 
-    public void uncacheRelationConcept(@NotNull String modelId, String relationConceptUuid) {
+    public void uncacheRelation(@NotNull String modelId, String uri) {
         Modeling modeling = findModelingOrThrow(modelId);
         CombinedModel combinedModel = getCombinedModel(modeling, true);
 
-        boolean change = combinedModel.getProvisionalRelations().removeIf(o -> o.getUuid().equals(relationConceptUuid));
+        boolean inUse = combinedModel.getSemanticModel().getEdges().stream().anyMatch(rel -> rel.getURI().equals(uri));
+        if (inUse) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Element with URI " + uri + " is in use in this model. Please remove all instances before deleting.");
+        }
+
+        boolean change = combinedModel.getProvisionalRelations().removeIf(o -> o.getURI().equals(uri));
         if (change) {
             persistModeling(modeling);
         }

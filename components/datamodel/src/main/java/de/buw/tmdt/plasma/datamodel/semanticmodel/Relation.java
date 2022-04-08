@@ -28,6 +28,8 @@ public abstract class Relation extends CombinedModelElement implements Serializa
     public static final String URI_PROPERTY = "uri";
     public static final String DESCRIPTION_PROPERTY = "description";
     public static final String PROPERTIES_PROPERTY = "properties";
+    public static final String PROVISIONAL_PROPERTY = "provisional";
+
 
     /**
      * The uuid of the origin element, identified by CombinedModelElement#uuid.
@@ -39,18 +41,18 @@ public abstract class Relation extends CombinedModelElement implements Serializa
      */
     private String to;
 
-
     @NotNull
     private final String uri;
     private final String description;
     private final Set<String> properties;
+    private boolean provisional;
 
     public Relation(
             String from,
             String to,
             @NotNull String uri
     ) {
-        this(null, from, to, uri, null, null, null);
+        this(null, from, to, uri, null, null, null, false);
     }
 
     public Relation(
@@ -59,7 +61,7 @@ public abstract class Relation extends CombinedModelElement implements Serializa
             @NotNull String uri,
             @NotNull String label
     ) {
-        this(null, from, to, uri, label, null, null);
+        this(null, from, to, uri, label, null, null, false);
     }
 
     public Relation(
@@ -69,7 +71,7 @@ public abstract class Relation extends CombinedModelElement implements Serializa
             @NotNull String label,
             @Nullable String description
     ) {
-        this(null, from, to, uri, label, description, null);
+        this(null, from, to, uri, label, description, null, false);
     }
 
     @JsonCreator
@@ -80,7 +82,8 @@ public abstract class Relation extends CombinedModelElement implements Serializa
             @NotNull @JsonProperty(URI_PROPERTY) String uri,
             @Nullable @JsonProperty(LABEL_PROPERTY) String label,
             @Nullable @JsonProperty(DESCRIPTION_PROPERTY) String description,
-            @Nullable @JsonProperty(PROPERTIES_PROPERTY) Set<String> properties
+            @Nullable @JsonProperty(PROPERTIES_PROPERTY) Set<String> properties,
+            @JsonProperty(PROVISIONAL_PROPERTY) boolean provisional
     ) {
         super(uuid, label == null ? "" : label);
         this.from = from;
@@ -88,6 +91,7 @@ public abstract class Relation extends CombinedModelElement implements Serializa
         this.description = description;
         this.uri = uri;
         this.properties = properties == null ? new HashSet<>() : new HashSet<>(properties);
+        this.setProvisional(provisional);
     }
 
     @JsonProperty(FROM_PROPERTY)
@@ -121,6 +125,15 @@ public abstract class Relation extends CombinedModelElement implements Serializa
     @JsonProperty(PROPERTIES_PROPERTY)
     public Set<String> getProperties() {
         return Collections.unmodifiableSet(this.properties);
+    }
+
+    @JsonProperty(PROVISIONAL_PROPERTY)
+    public boolean isProvisional() {
+        return provisional;
+    }
+
+    public void setProvisional(boolean provisional) {
+        this.provisional = provisional;
     }
 
     @Override

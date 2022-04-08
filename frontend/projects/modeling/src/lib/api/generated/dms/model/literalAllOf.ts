@@ -18,5 +18,6 @@ export interface LiteralAllOf {
   syntaxPath?: string;
   template?: boolean;
   uri?: string;
+  provisional?: boolean;
 }
 

@@ -22,6 +22,10 @@ public class DataProperty extends Relation {
         super(fromId, toId, uri, label, description);
     }
 
+    public DataProperty(String uuid, String fromId, String toId, @NotNull String uri, String label, String description, Set<String> properties) {
+        this(uuid, fromId, toId, uri, label, description, properties, false);
+    }
+
     @JsonCreator
     public DataProperty(
             @Nullable @JsonProperty(UUID_PROPERTY) String uuid,
@@ -30,9 +34,10 @@ public class DataProperty extends Relation {
             @NotNull @JsonProperty(URI_PROPERTY) String uri,
             @Nullable @JsonProperty(LABEL_PROPERTY) String label,
             @Nullable @JsonProperty(DESCRIPTION_PROPERTY) String description,
-            @Nullable @JsonProperty(PROPERTIES_PROPERTY) Set<String> properties
+            @Nullable @JsonProperty(PROPERTIES_PROPERTY) Set<String> properties,
+            @JsonProperty(PROVISIONAL_PROPERTY) boolean provisional
     ) {
-        super(uuid,from,to,uri,label,description,properties);
+        super(uuid, from, to, uri, label, description, properties, provisional);
     }
 
     @Override
@@ -57,7 +62,8 @@ public class DataProperty extends Relation {
                 getURI(),
                 getLabel(),
                 getDescription(),
-                getProperties()
+                getProperties(),
+                isProvisional()
         );
     }
 

@@ -3,7 +3,6 @@ package de.buw.tmdt.plasma.datamodel.semanticmodel;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import de.buw.tmdt.plasma.datamodel.CombinedModelIntegrityException;
-import de.buw.tmdt.plasma.datamodel.syntaxmodel.PrimitiveNode;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -29,18 +28,12 @@ public class Class extends MappableSemanticModelNode implements Serializable, Cu
             @NotNull String label,
             @Nullable String description
     ) {
-        this(null, uri, label, description, null, null, null, null, null, null);
+        this(null, uri, label, description, null, null, null, null, null, null, false);
     }
 
     public Class(String uuid, String uri, String label, String description, Double xCoordinate, Double yCoordinate) {
-        this(uuid, uri, label, description, xCoordinate, yCoordinate, null, null, null, null);
+        this(uuid, uri, label, description, xCoordinate, yCoordinate, null, null, null, null, false);
     }
-
-    /**
-     * @param mappedSyntaxNodeUuid  The syntax node id to be mapped to.
-     *                              Should be equal to a {@link PrimitiveNode#getUuid()}
-     * @param mappedSyntaxNodeLabel The original attributes label
-     */
 
     @JsonCreator
     public Class(
@@ -53,11 +46,13 @@ public class Class extends MappableSemanticModelNode implements Serializable, Cu
             @Nullable @JsonProperty(MAPPED_SYNTAX_NODE_UUID_PROPERTY) String mappedSyntaxNodeUuid,
             @Nullable @JsonProperty(MAPPED_SYNTAX_NODE_LABEL_PROPERTY) String mappedSyntaxNodeLabel,
             @Nullable @JsonProperty(MAPPED_SYNTAX_NODE_PATH_PROPERTY) String mappedSyntaxNodePath,
-            @Nullable @JsonProperty(INSTANCE_PROPERTY) Instance instance
+            @Nullable @JsonProperty(INSTANCE_PROPERTY) Instance instance,
+            @JsonProperty(PROVISIONAL_PROPERTY) boolean provisional
     ) {
         super(uuid, uri, label, xCoordinate, yCoordinate, mappedSyntaxNodeUuid, mappedSyntaxNodeLabel, mappedSyntaxNodePath);
         this.description = description;
         this.instance = instance;
+        this.setProvisional(provisional);
     }
 
     @JsonProperty(DESCRIPTION_PROPERTY)
@@ -93,7 +88,8 @@ public class Class extends MappableSemanticModelNode implements Serializable, Cu
                 getMappedSyntaxNodeUuid(),
                 getMappedSyntaxNodeLabel(),
                 getMappedSyntaxNodePath(),
-                getInstance());
+                getInstance(),
+                isProvisional());
     }
 
     @Override

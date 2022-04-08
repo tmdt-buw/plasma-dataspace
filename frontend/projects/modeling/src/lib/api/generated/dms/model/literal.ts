@@ -19,5 +19,6 @@ export interface Literal extends PositionedCombinedModelElement {
   syntaxPath?: string;
   template?: boolean;
   uri?: string;
+  provisional?: boolean;
 }
 

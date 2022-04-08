@@ -15,6 +15,7 @@ import { PositionedCombinedModelElement } from './positionedCombinedModelElement
 export interface NamedEntity extends PositionedCombinedModelElement {
   uri?: string;
   description?: string;
+  provisional?: boolean;
   template?: boolean;
   mapped?: boolean;
 }

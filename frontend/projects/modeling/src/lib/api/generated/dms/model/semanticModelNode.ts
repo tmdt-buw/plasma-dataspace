@@ -17,6 +17,7 @@ export interface SemanticModelNode {
   uuid?: string;
   label?: string;
   uri?: string;
+  provisional?: boolean;
   x?: number;
   y?: number;
   _class: string;
