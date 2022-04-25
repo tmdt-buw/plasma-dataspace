@@ -44,7 +44,10 @@ public class OntologyHandler {
                                                @Nullable String infix,
                                                @Nullable String uri
     ) {
-        List<OntModel> localOntologyList = ontologies.getFilteredOntologyModels(Collections.singletonList(LOCAL_ONTOLOGY_LABEL));
+        List<OntModel> localOntologyList = new ArrayList<>();
+        if (ontologyLabels.contains(LOCAL_ONTOLOGY_LABEL)) {
+            localOntologyList = ontologies.getFilteredOntologyModels(Collections.singletonList(LOCAL_ONTOLOGY_LABEL));
+        }
 
         List<OntModel> filteredOntologyModels = ontologies.getFilteredOntologyModels(ontologyLabels);
         List<SemanticModelNode> nodes = new ArrayList<>();
