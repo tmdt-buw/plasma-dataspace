@@ -14,6 +14,8 @@ import org.apache.jena.rdf.model.impl.StatementImpl;
 import org.apache.jena.vocabulary.OWL;
 import org.apache.jena.vocabulary.RDF;
 import org.apache.jena.vocabulary.RDFS;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -30,6 +32,7 @@ import static de.buw.tmdt.plasma.services.kgs.core.OntologyManagement.PREFIXES;
 @Service
 public class LocalOntologyManagement {
 
+    private static final Logger log = LoggerFactory.getLogger(LocalOntologyManagement.class);
     private final OntologyManagement ontologyManagement;
 
     @Value("${plasma.kgs.localontology.prefix:local}")
@@ -84,8 +87,13 @@ public class LocalOntologyManagement {
         }
         for (Relation relation : relations) {
             Resource r = m.createResource(m.expandPrefix(relation.getURI()));
-
-            m.add(new StatementImpl(r, RDF.type, relation instanceof ObjectProperty ? OWL.ObjectProperty : OWL.DatatypeProperty));
+            if (relation instanceof ObjectProperty) {
+                m.add(new StatementImpl(r, RDF.type, OWL.ObjectProperty));
+            } else if (relation instanceof DataProperty) {
+                m.add(new StatementImpl(r, RDF.type, OWL.DatatypeProperty));
+            } else {
+                log.warn("Unknown relation type for {}", relation);
+            }
             if (relation.getDescription() != null && !relation.getDescription().isBlank()) {
                 m.add(new StatementImpl(r, RDFS.comment, m.createLiteral(relation.getDescription())));
             }
@@ -186,7 +194,7 @@ public class LocalOntologyManagement {
 
         QueryExecution query = QueryExecutionFactory.create(describeBuilder.build(), getInternalOntology());
         Model model1 = query.execDescribe();
-        List<Relation> elements = CMToRDFMapper.convertOntologyRelationsToRelations(model1.listSubjects().toList());
+        List<Relation> elements = CMToRDFMapper.convertResourceRelationsToRelations(model1.listSubjects().toList());
         return elements.stream().findFirst().orElse(null);
     }
 
@@ -202,7 +210,7 @@ public class LocalOntologyManagement {
 
         QueryExecution query = QueryExecutionFactory.create(describeBuilder.build(), getInternalOntology());
         Model model1 = query.execDescribe();
-        List<Relation> elements = CMToRDFMapper.convertOntologyRelationsToRelations(model1.listSubjects().toList());
+        List<Relation> elements = CMToRDFMapper.convertResourceRelationsToRelations(model1.listSubjects().toList());
         return elements;
     }
 
@@ -217,7 +225,7 @@ public class LocalOntologyManagement {
 
         QueryExecution query = QueryExecutionFactory.create(describeBuilder.build(), getInternalOntology());
         Model model1 = query.execDescribe();
-        List<Relation> elements = CMToRDFMapper.convertOntologyRelationsToRelations(model1.listSubjects().toList());
+        List<Relation> elements = CMToRDFMapper.convertResourceRelationsToRelations(model1.listSubjects().toList());
         return elements;
     }
 
@@ -232,7 +240,7 @@ public class LocalOntologyManagement {
 
         QueryExecution query = QueryExecutionFactory.create(describeBuilder.build(), getInternalOntology());
         Model model1 = query.execDescribe();
-        List<Relation> elements = CMToRDFMapper.convertOntologyRelationsToRelations(model1.listSubjects().toList());
+        List<Relation> elements = CMToRDFMapper.convertResourceRelationsToRelations(model1.listSubjects().toList());
         return elements;
     }
 

@@ -70,7 +70,10 @@ public class SemanticModelHandler {
         if (retrievedModel.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No model available for id " + id);
         }
-        SemanticModel restoredSM = CMToRDFMapper.convertToSemanticModel(retrievedModel, this::lookupNodeByURI, this::lookupRelationByURI);
+        SemanticModel restoredSM = CMToRDFMapper.convertToSemanticModel(
+                retrievedModel,
+                this::lookupElementByURI,
+                this::lookupRelationByURI);
         return restoredSM;
     }
 

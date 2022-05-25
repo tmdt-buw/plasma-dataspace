@@ -86,11 +86,22 @@ public class CMToRDFMapper {
                 if (clazz.getYCoordinate() != null) {
                     resource.addProperty(PLCM.yCoordinate, m.createLiteral(String.valueOf(clazz.getYCoordinate())));
                 }
-                resource.addProperty(PLCM.cmUuid, m.createLiteral(clazz.getUuid()));
+                // resource.addProperty(PLCM.cmUuid, m.createLiteral(clazz.getUuid()));
                 rdfNode = resource;
             } else if (node instanceof Literal) {
                 Literal l = (Literal) node;
                 rdfNode = m.createLiteral(l.getValue());
+                // specify position information
+                // this is done in a more complicated way as we cannot use the literal as a triple subject
+                // TOFO RDF-star
+                Resource bNode = m.createResource();
+                if (l.getXCoordinate() != null) {
+                    bNode.addProperty(PLCM.xCoordinate, m.createLiteral(String.valueOf(l.getXCoordinate())));
+                }
+                if (l.getYCoordinate() != null) {
+                    bNode.addProperty(PLCM.yCoordinate, m.createLiteral(String.valueOf(l.getYCoordinate())));
+                }
+                bNode.addProperty(PLCM.definesLiteral, rdfNode);
             } else if (node instanceof NamedEntity) {
                 NamedEntity ne = (NamedEntity) node;
                 // create a resource which describes the named entity
@@ -106,7 +117,7 @@ public class CMToRDFMapper {
                 // this stores local information like the CM uuid and model position
                 Resource resource = m.createResource();
                 resource.addProperty(RDF.type, neResource);
-                resource.addProperty(PLCM.cmUuid, ne.getUuid());
+                // resource.addProperty(PLCM.cmUuid, ne.getUuid());
                 if (ne.getXCoordinate() != null) {
                     resource.addProperty(PLCM.xCoordinate, m.createLiteral(String.valueOf(ne.getXCoordinate())));
                 }
@@ -151,6 +162,9 @@ public class CMToRDFMapper {
             }
 
             // handle subject
+            if (s.isAnon() && s.hasProperty(PLCM.definesLiteral)) {
+                continue;
+            }
             SemanticNode convertedSubject = mappedNodes.get(s);
 
             if (convertedSubject == null) {
@@ -182,10 +196,10 @@ public class CMToRDFMapper {
                     nodes.add(convertedObject);
                     mappedNodes.put(object, convertedObject);
                 }
-
             } else if (o.isLiteral()) {
                 // create a literal
-                convertedObject = createLiteral(o.asLiteral());
+                List<Resource> bNodesForLiteral = model.listResourcesWithProperty(PLCM.definesLiteral, o).toList();
+                convertedObject = createLiteral(o.asLiteral(), bNodesForLiteral.isEmpty() ? null : bNodesForLiteral.get(0));
                 nodes.add(convertedObject);
             } else {
                 throw new CombinedModelIntegrityException("Could not determine type for object " + o);
@@ -267,11 +281,14 @@ public class CMToRDFMapper {
         return ne;
     }
 
-    private static Literal createLiteral(org.apache.jena.rdf.model.Literal res) {
-        // TODO manage literal positions
-        //Double xCoordinate = getPropertyAsDoubleOrNull(res, PLCM.xCoordinate);
-        //Double yCoordinate = getPropertyAsDoubleOrNull(res, PLCM.yCoordinate);
-        Literal l = new Literal(res.getString());
+    private static Literal createLiteral(org.apache.jena.rdf.model.Literal res, Resource metaInfoNode) {
+        Double xCoordinate = null;
+        Double yCoordinate = null;
+        if (metaInfoNode != null) {
+            xCoordinate = getPropertyAsDoubleOrNull(metaInfoNode, PLCM.xCoordinate);
+            yCoordinate = getPropertyAsDoubleOrNull(metaInfoNode, PLCM.yCoordinate);
+        }
+        Literal l = new Literal(res.getString(), xCoordinate, yCoordinate);
         return l;
     }
 
@@ -332,11 +349,11 @@ public class CMToRDFMapper {
         return formatted;
     }
 
-    public static List<Relation> convertOntologyRelationsToRelations(List<Resource> resources) {
+    public static List<Relation> convertResourceRelationsToRelations(List<Resource> resources) {
         return resources.stream()
                 .map(resource -> {
                     try {
-                        String label = resource.getRequiredProperty(RDFS.label).getString();
+                        String label = resource.getRequiredProperty(PLCM.label).getString();
                         String description = getPropertyOrNull(resource, RDFS.comment);
                         if (resource.hasProperty(RDF.type, OWL.DatatypeProperty)) {
                             return new DataProperty(
@@ -345,7 +362,7 @@ public class CMToRDFMapper {
                                     resource.getURI(),
                                     label,
                                     description);
-                        } else if (resource.hasProperty(RDF.type, PLCM.NamedEntity)) {
+                        } else if (resource.hasProperty(RDF.type, OWL.ObjectProperty)) {
                             return new ObjectProperty(
                                     null,
                                     null,
