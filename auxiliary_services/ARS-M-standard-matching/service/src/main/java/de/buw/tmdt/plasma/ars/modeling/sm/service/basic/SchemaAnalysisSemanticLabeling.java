@@ -103,14 +103,15 @@ public class SchemaAnalysisSemanticLabeling {
 
         if (fixedRulebasedMappings.containsKey(label)) {
             Class clazz = fixedRulebasedMappings.get(label);
+            clazz = (Class) clazz.instanciate();
             String requiredPredecessor = requiredPredecessors.get(clazz.getLabel());
             if (requiredPredecessor == null ||
                     requiredPredecessor.equals(parentPath.get(parentPath.size() - 1))) {
+                clazz.setMappedSyntaxNodePath(String.join("->", primitiveNode.getPath()));
+                clazz.setMappedSyntaxNodeLabel(primitiveNode.getLabel());
+                clazz.setMappedSyntaxNodeUuid(primitiveNode.getUuid());
 
-                Instance instance = new Instance(null,
-                        null,
-                        primitiveNode.getLabel(),
-                        primitiveNode.getUuid(),
+                Instance instance = new Instance(
                         primitiveNode.getLabel(),
                         ""
                 );
