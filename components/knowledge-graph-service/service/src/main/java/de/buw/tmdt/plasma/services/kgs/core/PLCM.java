@@ -16,7 +16,6 @@ public class PLCM {
     public static final Property hasNode = Init.hasNode();
     public static final Property label = Init.label();
     public static final Property description = Init.description();
-    public static final Property definesLiteral = Init.definesLiteral();
     public static final Resource SemanticModel = Init.semanticModel();
     public static final Resource NamedEntity = Init.namedEntity();
 
@@ -67,10 +66,6 @@ public class PLCM {
 
         public static Property description() {
             return property("description");
-        }
-
-        public static Property definesLiteral() {
-            return property("definesLiteral");
         }
 
         public static Resource semanticModel() {

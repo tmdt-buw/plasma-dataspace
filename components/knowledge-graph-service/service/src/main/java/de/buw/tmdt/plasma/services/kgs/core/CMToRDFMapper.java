@@ -136,7 +136,25 @@ public class CMToRDFMapper {
             SemanticNode to = semanticModel.getNode(r.getTo());
             RDFNode fromNode = uuidtoResource.get(from.getUuid());
             RDFNode toNode = uuidtoResource.get(to.getUuid());
-            fromNode.asResource().addProperty(ResourceFactory.createProperty(m.expandPrefix(r.getURI())), toNode);
+
+            Property property = ResourceFactory.createProperty(m.expandPrefix(r.getURI()));
+            fromNode.asResource().addProperty(property, toNode);
+
+
+            if (to instanceof Literal) {
+                // specify position information for literals
+                // use RDF-star to annotate the DatatypeProperty
+                Statement stmt = m.listStatements(fromNode.asResource(), property, toNode).nextStatement();
+                Resource stmtResource = m.createResource(stmt);
+                if (to.getXCoordinate() != null) {
+                    stmtResource.addProperty(PLCM.xCoordinate, m.createLiteral(String.valueOf(to.getXCoordinate())));
+                }
+                if (to.getYCoordinate() != null) {
+                    stmtResource.addProperty(PLCM.yCoordinate, m.createLiteral(String.valueOf(to.getYCoordinate())));
+                }
+
+            }
+
         });
         return m;
     }
@@ -162,7 +180,7 @@ public class CMToRDFMapper {
             }
 
             // handle subject
-            if (s.isAnon() && s.hasProperty(PLCM.definesLiteral)) {
+            if (s.isStmtResource()) {
                 continue;
             }
             SemanticNode convertedSubject = mappedNodes.get(s);
