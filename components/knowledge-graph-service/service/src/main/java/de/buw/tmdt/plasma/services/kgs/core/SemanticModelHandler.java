@@ -86,13 +86,13 @@ public class SemanticModelHandler {
         return out.toString();
     }
 
-    public @NotNull ResponseEntity<String> exportSemanticModel(@NotNull String id, @NotNull ExportFormat format) {
+    public @NotNull ResponseEntity<String> exportSemanticModel(@NotNull String id, @NotNull ExportFormat format, boolean includeMappings) {
         Model retrievedModel = ops.queryModel(id);
 
         if (retrievedModel.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No model available for id " + id);
         }
-        return new ResponseEntity<>(prepareForExport(retrievedModel, format), HttpStatus.OK);
+        return new ResponseEntity<>(prepareForExport(retrievedModel, format, includeMappings), HttpStatus.OK);
     }
 
     public @NotNull ResponseEntity<String> convertSemanticModel(@NotNull CombinedModel combinedModel, @NotNull ExportFormat format) {
@@ -100,20 +100,23 @@ public class SemanticModelHandler {
             combinedModel.getSemanticModel().setId(UUID.randomUUID().toString().substring(0,5));
         }
         Model cmModel = CMToRDFMapper.convertToRDFModel(combinedModel.getSemanticModel());
-        return new ResponseEntity<>(prepareForExport(cmModel, format), HttpStatus.OK);
+        return new ResponseEntity<>(prepareForExport(cmModel, format, false), HttpStatus.OK);
     }
 
-    private String prepareForExport(Model model, ExportFormat format){
+    private String prepareForExport(Model model, ExportFormat format, boolean includeMappings) {
         // remove all relations that are from the PLCM namespace
         Model cleansedModel = ModelFactory.createDefaultModel();
         cleansedModel.setNsPrefixes(model.getNsPrefixMap());
         StmtIterator stmtIterator = model.listStatements();
-        while(stmtIterator.hasNext()){
+        while (stmtIterator.hasNext()) {
             Statement stmt = stmtIterator.nextStatement();
             Property predicate = stmt.getPredicate();
             RDFNode object = stmt.getObject();
-            if(predicate.getNameSpace().equals(PLCM.getURI())){
-                continue;
+            if (predicate.getNameSpace().equals(PLCM.getURI())) {
+                if (includeMappings && predicate.equals(PLCM.syntaxNodeId)) {
+                } else {
+                    continue;
+                }
             }
             if(object.isResource() && Objects.equals(object.asResource(),PLCM.SemanticModel)){
                 continue;

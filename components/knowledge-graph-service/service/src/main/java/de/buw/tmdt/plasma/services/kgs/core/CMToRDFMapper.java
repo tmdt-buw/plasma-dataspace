@@ -224,7 +224,7 @@ public class CMToRDFMapper {
         String originalLabel = getPropertyOrNull(res, PLCM.originalLabel);
         String syntaxNodePath = getPropertyOrNull(res, PLCM.syntaxNodePath);
         Class sClass = new Class(uuid, PREFIXES.shortForm(superclass.getURI()), superclass.getLabel(),
-                superclass.getDescription(), xCoordinate, yCoordinate, syntaxNodeId, originalLabel, syntaxNodePath, null);
+                superclass.getDescription(), xCoordinate, yCoordinate, syntaxNodeId, originalLabel, syntaxNodePath, null, false);
 
         if (!res.isAnon()) {
             // this is an actual instance

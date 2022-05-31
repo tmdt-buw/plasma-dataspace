@@ -32,15 +32,16 @@ public interface SemanticModelApi {
     /**
      * Converts a stored semantic model into a specified format.
      *
-     * @param id     The id of the semantic model in the knowledge graph.
-     * @param format The format of the output
-     *
+     * @param id              The id of the semantic model in the knowledge graph.
+     * @param format          The format of the output
+     * @param includeMappings Include mapping annotations in the exported models
      * @return A semantic model in RDF Turtle format
      */
     @GetMapping(value = "/{id}/export", produces = MediaType.TEXT_PLAIN_VALUE)
     @NotNull ResponseEntity<String> exportStoredSemanticModel(
             @NotNull @PathVariable("id") String id,
-            @NotNull @RequestParam(name = "format", defaultValue = "TURTLE") ExportFormat format
+            @NotNull @RequestParam(name = "format", defaultValue = "TURTLE") ExportFormat format,
+            @NotNull @RequestParam(name = "includeMappings", defaultValue = "false") boolean includeMappings
     );
 
     /**
