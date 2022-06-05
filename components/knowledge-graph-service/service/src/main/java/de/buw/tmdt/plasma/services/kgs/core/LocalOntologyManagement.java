@@ -36,8 +36,10 @@ public class LocalOntologyManagement {
     private String LOCAL_ONTOLOGY_PREFIX;
     @Value("${plasma.kgs.localontology.uri:https://local.ontology#}")
     private String LOCAL_ONTOLOGY_URI;
-    @Value("${plasma.kgs.localontology.prefix:LOCAL}")
+    @Value("${plasma.kgs.localontology.label:LOCAL}")
     private String LOCAL_ONTOLOGY_LABEL;
+    @Value("${plasma.kgs.localontology.description:A local ontology maintained by this instance.}")
+    private String LOCAL_ONTOLOGY_DESCRIPTION;
 
 
     public LocalOntologyManagement(Ontologies ontologies) {
@@ -105,7 +107,7 @@ public class LocalOntologyManagement {
         Optional<OntModel> localModel = ontologies.getOntologyModelByLabel(LOCAL_ONTOLOGY_LABEL);
         if (localModel.isEmpty()) {
             // create a new local ontology
-            return ontologies.createLocalOntology(LOCAL_ONTOLOGY_LABEL, LOCAL_ONTOLOGY_PREFIX, LOCAL_ONTOLOGY_URI);
+            return ontologies.createLocalOntology(LOCAL_ONTOLOGY_LABEL, LOCAL_ONTOLOGY_PREFIX, LOCAL_ONTOLOGY_URI, LOCAL_ONTOLOGY_DESCRIPTION);
         }
 
         return localModel.get();

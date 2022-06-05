@@ -145,9 +145,9 @@ public class Ontologies {
         reloadOntologies();
     }
 
-    public OntModel createLocalOntology(String label, String prefix, String namespace) {
+    public OntModel createLocalOntology(String label, String prefix, String namespace, String description) {
         label = label.replaceAll(" ", "_");
-        String filename = label + "_local.ttl";
+        String filename = label + ".ttl";
 
         if (Files.exists(Paths.get(getOntologyFolder(), filename))) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "This ontology already exists.");
@@ -165,7 +165,7 @@ public class Ontologies {
             createdOnto.write(out, "TURTLE");
             log.info("Written ontology file to " + ontologyFilePath);
 
-            Ontology onto = new Ontology(label, ontologyFilePath.toString(), prefix, namespace, true);
+            Ontology onto = new Ontology(label, ontologyFilePath.toString(), prefix, namespace, description, true);
             mapper.writeValue(metadataFilePath.toFile(), onto);
         } catch (IOException e) {
             log.error("Error while writing ontology or metadata file", e);

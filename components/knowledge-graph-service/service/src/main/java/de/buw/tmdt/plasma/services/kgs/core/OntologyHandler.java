@@ -29,7 +29,7 @@ public class OntologyHandler {
     private static final Logger log = LoggerFactory.getLogger(OntologyHandler.class);
     private final Ontologies ontologies;
 
-    @Value("${plasma.kgs.localontology.prefix:LOCAL}")
+    @Value("${plasma.kgs.localontology.label:LOCAL}")
     private String LOCAL_ONTOLOGY_LABEL;
 
     @Autowired
@@ -148,6 +148,4 @@ public class OntologyHandler {
                 )
                 .collect(Collectors.toList());
     }
-
-
 }
