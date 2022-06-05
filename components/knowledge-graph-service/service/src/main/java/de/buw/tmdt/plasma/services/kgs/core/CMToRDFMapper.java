@@ -35,7 +35,7 @@ public class CMToRDFMapper {
             throw new IllegalArgumentException("Semantic model id must not be empty or null");
         }
         Map<String, RDFNode> uuidtoResource = new HashMap<>();
-        String semanticModelId = semanticModel.getId().substring(0, 6);
+        String semanticModelId = semanticModel.getId().substring(0, 5);
         Model m = ModelFactory.createDefaultModel();
         m.setNsPrefixes(PREFIXES);
         String SM_Prefix = PREFIXES.getNsPrefixURI("plsm");

@@ -95,25 +95,27 @@ public class SemanticModelHandler {
         return new ResponseEntity<>(prepareForExport(retrievedModel, format, includeMappings), HttpStatus.OK);
     }
 
-    public @NotNull ResponseEntity<String> convertSemanticModel(@NotNull CombinedModel combinedModel, @NotNull ExportFormat format) {
+    public @NotNull ResponseEntity<String> convertSemanticModel(@NotNull CombinedModel combinedModel, @NotNull ExportFormat format, boolean includeMappings) {
         if(combinedModel.getSemanticModel().getId() == null){
             combinedModel.getSemanticModel().setId(UUID.randomUUID().toString().substring(0,5));
         }
         Model cmModel = CMToRDFMapper.convertToRDFModel(combinedModel.getSemanticModel());
-        return new ResponseEntity<>(prepareForExport(cmModel, format, false), HttpStatus.OK);
+        return new ResponseEntity<>(prepareForExport(cmModel, format, includeMappings), HttpStatus.OK);
     }
 
     private String prepareForExport(Model model, ExportFormat format, boolean includeMappings) {
         // remove all relations that are from the PLCM namespace
         Model cleansedModel = ModelFactory.createDefaultModel();
         cleansedModel.setNsPrefixes(model.getNsPrefixMap());
+
         StmtIterator stmtIterator = model.listStatements();
         while (stmtIterator.hasNext()) {
             Statement stmt = stmtIterator.nextStatement();
             Property predicate = stmt.getPredicate();
             RDFNode object = stmt.getObject();
             if (predicate.getNameSpace().equals(PLCM.getURI())) {
-                if (includeMappings && predicate.equals(PLCM.syntaxNodeId)) {
+                if (includeMappings && predicate.equals(PLCM.originalLabel)) {
+                    // exception if we want to include the mapping information
                 } else {
                     continue;
                 }
@@ -133,43 +135,10 @@ public class SemanticModelHandler {
 
 
     @NotNull
-    public Set<SemanticModel> searchByEntityConcept(@NotNull String searchTerm) {
+    public Set<SemanticModel> searchByElementLabel(@NotNull String searchTerm) {
         List<String> ids = ops.findByElementLabel(searchTerm);
         return ids.stream()
                 .map(this::getSemanticModel)
                 .collect(Collectors.toSet());
     }
-/*
-    @NotNull
-    public Set<SemanticModelDTO> searchByEntityType(@NotNull String searchTerm) {
-        return graphDBDriverFactory.getGraphDBDriver().searchSemanticModelsForEntityType(searchTerm)
-                .stream()
-                .map(modelDTOConverter::mapSemanticModel)
-                .collect(Collectors.toSet());
-    }
-
-    @NotNull
-    public Set<SemanticModelDTO> searchBySynonym(@NotNull String searchTerm) {
-        return graphDBDriverFactory.getGraphDBDriver().searchSemanticModelsForEntityConceptSynonymLabel(searchTerm)
-                .stream()
-                .map(modelDTOConverter::mapSemanticModel)
-                .collect(Collectors.toSet());
-    }
-
-    @NotNull
-    public Set<SemanticModelDTO> searchAllByLabel(@NotNull String searchTerm) {
-        GraphDBDriver graphDBDriver = graphDBDriverFactory.getGraphDBDriver();
-        Set<SemanticModel> allModels = new HashSet<>(graphDBDriver.searchSemanticModelsForEntityConceptAnyLabel(searchTerm));
-        return allModels.stream().map(modelDTOConverter::mapSemanticModel).collect(Collectors.toSet());
-    }
-
-    @NotNull
-    public Set<SemanticModelDTO> searchByEntityTypeOrEntityConceptContainingLabel(@NotNull String searchTerm) {
-        return graphDBDriverFactory.getGraphDBDriver().searchSemanticModelByEntityTypeOrEntityConceptContainingLabel(searchTerm)
-                .stream()
-                .map(modelDTOConverter::mapSemanticModel)
-                .collect(Collectors.toSet());
-    }
-
-     */
 }

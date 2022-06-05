@@ -47,14 +47,14 @@ public class SemanticModelController implements SemanticModelApi {
     }
 
     @Operation(description = "Returns the given semantic model in a specified format.")
-    public @NotNull ResponseEntity<String> convertSemanticModel(@NotNull CombinedModel combinedModel, @NotNull ExportFormat format) {
-        return semanticModelHandler.convertSemanticModel(combinedModel, format);
+    public @NotNull ResponseEntity<String> convertSemanticModel(@NotNull CombinedModel combinedModel, @NotNull ExportFormat format, boolean includeMappings ) {
+        return semanticModelHandler.convertSemanticModel(combinedModel, format, includeMappings);
     }
 
     @Override
     @Operation(description = "Returns Semantic Models if the search term matches a contained element")
     public @NotNull Set<SemanticModel> searchByElementLabel(@NotNull String searchTerm) {
-        return semanticModelHandler.searchByEntityConcept(searchTerm);
+        return semanticModelHandler.searchByElementLabel(searchTerm);
     }
 
     @Override

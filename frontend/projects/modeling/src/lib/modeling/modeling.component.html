@@ -12,8 +12,6 @@
               nzTooltipTitle="Add entity or relation" nzType="primary"><i
         nz-icon nzType="deployment-unit"></i>Add concepts and relations
       </button>
-      <!--      ontology selection and upload-->
-      <div fxLayout="row" fxLayoutAlign="start center">
 
         <nz-select
           (ngModelChange)="onOntologySelectionChanged($event)"
@@ -24,15 +22,20 @@
           nzPlaceHolder="Select ontologies"
           [(ngModel)]="selectedOntologies"
           [nzDisabled]="isFinalized()"
+          [nzDropdownRender]="addOntologyTemplate"
+          [nzShowSearch]="false"
         >
           <nz-option *ngFor="let item of availableOntologies" [nz-tooltip]="item.uri" [nzLabel]="item.label"
                      [nzValue]="item.label"></nz-option>
         </nz-select>
         <ng-template #tagPlaceHolder let-selectedList>+{{ selectedList.length }}</ng-template>
-        <button nz-button nzType="default" nz-tooltip nzTooltipTitle="Upload a new ontology" (click)="showUploadOntologyDialog()" [disabled]="isFinalized()"><i
-          nz-icon nzType="upload"></i>Add ontology
-        </button>
-      </div>
+        <ng-template #addOntologyTemplate>
+          <button nz-button nzType="text" nz-tooltip nzTooltipTitle="Upload a new ontology" (click)="showUploadOntologyDialog()" [disabled]="isFinalized()"><i
+            nz-icon nzType="upload"></i>Add ontology
+          </button>
+        </ng-template>
+
+
 
 
       <!-- URI mode toggle -->
@@ -42,24 +45,25 @@
                    [nz-tooltip]="'Select to show either the label or the URI of semantic elements'"></nz-switch>
         <span nz-typography>URI</span>
       </div>
+    </div>
 
+    <div class="modeling-search-bar-container">
       <!-- (Magic) assistance functions -->
       <button [disabled]="isViewerMode()" [nz-tooltip]="'Generate new elements using automated operations'"
               [nzDropdownMenu]="assistanceFunctionsMenu"
               nz-button nz-dropdown nzPlacement="bottomLeft" nzTrigger="click"
               nzType="text">
-        <i [nzTheme]="'twotone'" [nzTwotoneColor]="'orange'" [nzType]="'thunderbolt'" nz-icon></i>
+        <i [nzType]="'tool'" nz-icon></i>
       </button>
       <nz-dropdown-menu #assistanceFunctionsMenu="nzDropdownMenu">
         <ul nz-menu>
-          <li (click)="openSemanticModelCopyDialog()" nz-menu-item><a class="dropdown-icon" nz-icon nzType="copy"></a>Copy
-            semantic model
+          <li (click)="openSemanticModelCopyDialog()" nz-menu-item>
+            <a class="dropdown-icon" nz-icon nzType="copy"
+              nz-tooltip="Import a semantic model from another existing modeling."></a>
+              Import semantic model
           </li>
         </ul>
       </nz-dropdown-menu>
-    </div>
-
-    <div class="modeling-search-bar-container">
       <!--      search -->
       <button (click)="toggleSearch()" *ngIf="false" nz-button nz-tooltip nzShape="circle" nzTooltipTitle="Search"
               nzType="text"><i
@@ -91,7 +95,16 @@
         <i *ngIf="isFullscreen" nz-icon nzType="fullscreen-exit"></i>
         <i *ngIf="!isFullscreen" nz-icon nzType="fullscreen"></i>
       </button>
-      <button *ngIf="!hideExportButton" nz-button nzType="text" (click)="exportModel()" nz-tooltip="Export model as TTL"><i nz-icon nzType="download"></i></button>
+      <button *ngIf="!hideExportButton" nz-button nz-dropdown nzType="text" nz-tooltip="Export model as TTL"
+              [nzDropdownMenu]="exportDropdown" nzTrigger="click"  nzPlacement="bottomRight">
+        <i nz-icon nzType="download"></i>
+      </button>
+      <nz-dropdown-menu #exportDropdown="nzDropdownMenu">
+        <div fxLayout="column" class="export-dropdown" nz-menu>
+          <label nz-checkbox [(ngModel)]="exportIncludeMappings">Include Mappings</label>
+          <button (click)="exportModel()" nz-menu-item><a class="dropdown-icon" nz-icon nzType="download"></a>Export model          </button>
+        </div>
+      </nz-dropdown-menu>
     </div>
   </div>
 

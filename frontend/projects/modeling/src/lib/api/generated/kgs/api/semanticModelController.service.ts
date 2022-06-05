@@ -91,13 +91,14 @@ export class SemanticModelControllerService {
      * Returns the given semantic model in a specified format.
      * @param combinedModel
      * @param format
+     * @param includeMappings
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public convertSemanticModel(combinedModel: CombinedModel, format?: 'RDFXML' | 'RDFXMLABBRV' | 'NTRIPLE' | 'TURTLE' | 'N3', observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain', context?: HttpContext}): Observable<string>;
-    public convertSemanticModel(combinedModel: CombinedModel, format?: 'RDFXML' | 'RDFXMLABBRV' | 'NTRIPLE' | 'TURTLE' | 'N3', observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain', context?: HttpContext}): Observable<HttpResponse<string>>;
-    public convertSemanticModel(combinedModel: CombinedModel, format?: 'RDFXML' | 'RDFXMLABBRV' | 'NTRIPLE' | 'TURTLE' | 'N3', observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain', context?: HttpContext}): Observable<HttpEvent<string>>;
-    public convertSemanticModel(combinedModel: CombinedModel, format?: 'RDFXML' | 'RDFXMLABBRV' | 'NTRIPLE' | 'TURTLE' | 'N3', observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain', context?: HttpContext}): Observable<any> {
+    public convertSemanticModel(combinedModel: CombinedModel, format?: 'RDFXML' | 'RDFXMLABBRV' | 'NTRIPLE' | 'TURTLE' | 'N3', includeMappings?: boolean, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain', context?: HttpContext}): Observable<string>;
+    public convertSemanticModel(combinedModel: CombinedModel, format?: 'RDFXML' | 'RDFXMLABBRV' | 'NTRIPLE' | 'TURTLE' | 'N3', includeMappings?: boolean, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain', context?: HttpContext}): Observable<HttpResponse<string>>;
+    public convertSemanticModel(combinedModel: CombinedModel, format?: 'RDFXML' | 'RDFXMLABBRV' | 'NTRIPLE' | 'TURTLE' | 'N3', includeMappings?: boolean, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain', context?: HttpContext}): Observable<HttpEvent<string>>;
+    public convertSemanticModel(combinedModel: CombinedModel, format?: 'RDFXML' | 'RDFXMLABBRV' | 'NTRIPLE' | 'TURTLE' | 'N3', includeMappings?: boolean, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain', context?: HttpContext}): Observable<any> {
         if (combinedModel === null || combinedModel === undefined) {
             throw new Error('Required parameter combinedModel was null or undefined when calling convertSemanticModel.');
         }
@@ -106,6 +107,10 @@ export class SemanticModelControllerService {
         if (format !== undefined && format !== null) {
           localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
             <any>format, 'format');
+        }
+        if (includeMappings !== undefined && includeMappings !== null) {
+          localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
+            <any>includeMappings, 'includeMappings');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -289,13 +294,14 @@ export class SemanticModelControllerService {
      * Returns a stored semantic model in a specified format.
      * @param id
      * @param format
+     * @param includeMappings
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public exportStoredSemanticModel(id: string, format?: 'RDFXML' | 'RDFXMLABBRV' | 'NTRIPLE' | 'TURTLE' | 'N3', observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain', context?: HttpContext}): Observable<string>;
-    public exportStoredSemanticModel(id: string, format?: 'RDFXML' | 'RDFXMLABBRV' | 'NTRIPLE' | 'TURTLE' | 'N3', observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain', context?: HttpContext}): Observable<HttpResponse<string>>;
-    public exportStoredSemanticModel(id: string, format?: 'RDFXML' | 'RDFXMLABBRV' | 'NTRIPLE' | 'TURTLE' | 'N3', observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain', context?: HttpContext}): Observable<HttpEvent<string>>;
-    public exportStoredSemanticModel(id: string, format?: 'RDFXML' | 'RDFXMLABBRV' | 'NTRIPLE' | 'TURTLE' | 'N3', observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain', context?: HttpContext}): Observable<any> {
+    public exportStoredSemanticModel(id: string, format?: 'RDFXML' | 'RDFXMLABBRV' | 'NTRIPLE' | 'TURTLE' | 'N3', includeMappings?: boolean, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain', context?: HttpContext}): Observable<string>;
+    public exportStoredSemanticModel(id: string, format?: 'RDFXML' | 'RDFXMLABBRV' | 'NTRIPLE' | 'TURTLE' | 'N3', includeMappings?: boolean, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain', context?: HttpContext}): Observable<HttpResponse<string>>;
+    public exportStoredSemanticModel(id: string, format?: 'RDFXML' | 'RDFXMLABBRV' | 'NTRIPLE' | 'TURTLE' | 'N3', includeMappings?: boolean, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain', context?: HttpContext}): Observable<HttpEvent<string>>;
+    public exportStoredSemanticModel(id: string, format?: 'RDFXML' | 'RDFXMLABBRV' | 'NTRIPLE' | 'TURTLE' | 'N3', includeMappings?: boolean, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain', context?: HttpContext}): Observable<any> {
         if (id === null || id === undefined) {
             throw new Error('Required parameter id was null or undefined when calling exportStoredSemanticModel.');
         }
@@ -304,6 +310,10 @@ export class SemanticModelControllerService {
         if (format !== undefined && format !== null) {
           localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
             <any>format, 'format');
+        }
+        if (includeMappings !== undefined && includeMappings !== null) {
+          localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
+            <any>includeMappings, 'includeMappings');
         }
 
         let localVarHeaders = this.defaultHeaders;

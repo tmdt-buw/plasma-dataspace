@@ -13,7 +13,7 @@ import { ObjectProperty } from './objectProperty';
 import { DataProperty } from './dataProperty';
 
 
-export interface Relation { 
+export interface Relation {
     uuid?: string;
     from?: string;
     to?: string;
@@ -21,6 +21,7 @@ export interface Relation {
     label?: string;
     description?: string;
     properties?: Array<string>;
+    provisional?: boolean;
     template?: boolean;
     _class: string;
 }

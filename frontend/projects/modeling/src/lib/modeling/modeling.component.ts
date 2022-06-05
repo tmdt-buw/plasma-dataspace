@@ -16,7 +16,9 @@ import { OntologyControllerService, OntologyInfo, SemanticModelControllerService
 import { ContextMenuService } from './context-menu/context-menu.service';
 import { ModalBaseConfig, ModalMouseEnabledConfig } from './dialogs/common/modal.base-config';
 import { PlsConceptDialogComponent } from './dialogs/concept-dialog/concept-dialog.component';
-import { PlsOperationsDialogComponent } from './dialogs/operations-dialog/operations-dialog/operations-dialog.component';
+import {
+  PlsOperationsDialogComponent
+} from './dialogs/operations-dialog/operations-dialog/operations-dialog.component';
 import { Filter } from './model/common/filter';
 import { Nodes } from './model/configuration/node';
 import { ContextMenuEvent, ContextMenuEventType } from './model/events/context-menu-event';
@@ -76,6 +78,8 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
   $layout = new Subject<any>();
   $filter = new BehaviorSubject<Filter>(Filter.ALL);
   $URIMode = new BehaviorSubject<boolean>(false);
+
+  exportIncludeMappings: boolean = true;
 
   // schema
   combinedModel: CombinedModel;
@@ -293,9 +297,13 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
 
   exportModel(): void {
     if (this.combinedModel.semanticModel.id) {
-      this.semanticModelService.exportStoredSemanticModel(this.combinedModel.semanticModel.id, 'TURTLE').subscribe((res) => Util.download('model.ttl', res));
+      this.semanticModelService.exportStoredSemanticModel(this.combinedModel.semanticModel.id, 'TURTLE')
+        .subscribe((res) => Util.download('model.ttl', res),
+          () => this.notification.error('Could not export model', 'An error occurred during model export. Please try again in a few seconds.')
+        );
     } else {
-      this.semanticModelService.convertSemanticModel(this.combinedModel, 'TURTLE').subscribe((res) => Util.download('model.ttl', res));
+      this.semanticModelService.convertSemanticModel(this.combinedModel, 'TURTLE', this.exportIncludeMappings)
+        .subscribe((res) => Util.download('model.ttl', res), () => this.notification.error('Could not export model', 'An error occurred during model export. Please try again in a few seconds.'));
     }
   }
 
@@ -304,7 +312,6 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
   }
 
   // DIALOGS
-
   showAddElementsDialog(): void {
     if (this.isFinalized()) {
       return;
