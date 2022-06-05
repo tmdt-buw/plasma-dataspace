@@ -1,3 +1,5 @@
+@import "src/style/themes/default";
+
 /* Paper */
 .joint-paper {
   background-color: @modeling-background-color;
@@ -12,7 +14,7 @@
 
 .joint-type-custom-objectpropertylink {
   path[joint-selector="line"] {
-    stroke: @modeling-object-property-color;
+    stroke: @modeling-objectproperty-color;
   }
 
   .label {
@@ -27,7 +29,7 @@
 
 .joint-type-custom-datapropertylink {
   path[joint-selector="line"] {
-    stroke: @modeling-data-property-color;
+    stroke: @modeling-datatypeproperty-color;
   }
 
   .label {
@@ -106,7 +108,7 @@ marker {
   }
 
   text[joint-selector="bodyText"]{
-    fill: @modeling-text-color;
+    fill: @modeling-named-entity-text-color;
   }
 }
 
@@ -120,13 +122,14 @@ marker {
   }
 
   text[joint-selector="bodyText"]{
-    fill: @modeling-text-color;
+    fill: @modeling-literal-color;
   }
 }
 
 .joint-highlight-stroke {
   stroke: @modeling-highlight-color;
 }
+
 
 .semantic-node-input {
 
@@ -143,3 +146,5 @@ marker {
     margin-bottom: 0;
   }
 }
+
+
