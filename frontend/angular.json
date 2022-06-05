@@ -180,34 +180,6 @@
           }
         }
       }
-    },
-    "schema-analysis": {
-      "projectType": "library",
-      "root": "projects/schema-analysis",
-      "sourceRoot": "projects/schema-analysis/src",
-      "prefix": "pls",
-      "architect": {
-        "build": {
-          "builder": "@angular-devkit/build-angular:ng-packagr",
-          "options": {
-            "tsConfig": "projects/schema-analysis/tsconfig.lib.json",
-            "project": "projects/schema-analysis/ng-package.json"
-          },
-          "configurations": {
-            "production": {
-              "tsConfig": "projects/schema-analysis/tsconfig.lib.prod.json"
-            }
-          }
-        },
-        "test": {
-          "builder": "@angular-devkit/build-angular:karma",
-          "options": {
-            "main": "projects/schema-analysis/src/test.ts",
-            "tsConfig": "projects/schema-analysis/tsconfig.spec.json",
-            "karmaConfig": "projects/schema-analysis/karma.conf.js"
-          }
-        }
-      }
     }
   },
   "defaultProject": "plasma-app",
