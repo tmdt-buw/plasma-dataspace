@@ -46,9 +46,17 @@ public class SemanticModelController implements SemanticModelApi {
         return semanticModelHandler.exportSemanticModel(id, format, includeMappings);
     }
 
+    public @NotNull ResponseEntity<String> exportStoredSemanticModel(@NotNull String id, @NotNull ExportFormat format) {
+        return semanticModelHandler.exportSemanticModel(id, format, false);
+    }
+
     @Operation(description = "Returns the given semantic model in a specified format.")
-    public @NotNull ResponseEntity<String> convertSemanticModel(@NotNull CombinedModel combinedModel, @NotNull ExportFormat format, boolean includeMappings ) {
+    public @NotNull ResponseEntity<String> convertSemanticModel(@NotNull CombinedModel combinedModel, @NotNull ExportFormat format, boolean includeMappings) {
         return semanticModelHandler.convertSemanticModel(combinedModel, format, includeMappings);
+    }
+
+    public @NotNull ResponseEntity<String> convertSemanticModel(@NotNull CombinedModel combinedModel, @NotNull ExportFormat format) {
+        return semanticModelHandler.convertSemanticModel(combinedModel, format, false);
     }
 
     @Override

@@ -31,7 +31,7 @@ public class Class extends MappableSemanticModelNode implements Serializable, Cu
         this(null, uri, label, description, null, null, null, null, null, null, false);
     }
 
-    public Class(String uuid, String uri, String label, String description, Double xCoordinate, Double yCoordinate) {
+    public Class(String uri, String label, String description, Double xCoordinate, Double yCoordinate, String uuid) {
         this(uuid, uri, label, description, xCoordinate, yCoordinate, null, null, null, null, false);
     }
 
@@ -49,7 +49,7 @@ public class Class extends MappableSemanticModelNode implements Serializable, Cu
             @Nullable @JsonProperty(INSTANCE_PROPERTY) Instance instance,
             @JsonProperty(PROVISIONAL_PROPERTY) boolean provisional
     ) {
-        super(uuid, uri, label, xCoordinate, yCoordinate, mappedSyntaxNodeUuid, mappedSyntaxNodeLabel, mappedSyntaxNodePath);
+        super(uri, label, xCoordinate, yCoordinate, mappedSyntaxNodeUuid, mappedSyntaxNodeLabel, mappedSyntaxNodePath, uuid);
         this.description = description;
         this.instance = instance;
         this.setProvisional(provisional);

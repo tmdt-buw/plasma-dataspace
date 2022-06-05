@@ -21,7 +21,7 @@ public class Literal extends MappableSemanticModelNode {
     }
 
     public Literal(@Nullable String uuid, @NotNull String label, @Nullable Double xCoordinate, @Nullable Double yCoordinate) {
-        super(uuid, null, label, xCoordinate, yCoordinate);
+        super(null, label, xCoordinate, yCoordinate, uuid);
     }
 
     @JsonCreator
@@ -32,7 +32,7 @@ public class Literal extends MappableSemanticModelNode {
                    @Nullable @JsonProperty(MAPPED_SYNTAX_NODE_UUID_PROPERTY) String mappedSyntaxNodeUuid,
                    @Nullable @JsonProperty(MAPPED_SYNTAX_NODE_LABEL_PROPERTY) String mappedSyntaxNodeLabel,
                    @Nullable @JsonProperty(MAPPED_SYNTAX_NODE_PATH_PROPERTY) String mappedSyntaxNodePath) {
-        super(uuid, null, value, xCoordinate, yCoordinate, mappedSyntaxNodeUuid, mappedSyntaxNodeLabel, mappedSyntaxNodePath);
+        super(null, value, xCoordinate, yCoordinate, mappedSyntaxNodeUuid, mappedSyntaxNodeLabel, mappedSyntaxNodePath, uuid);
     }
 
     @Override
@@ -83,6 +83,12 @@ public class Literal extends MappableSemanticModelNode {
             return false;
         }
     }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
+
 
     @Override
     public String toString() {

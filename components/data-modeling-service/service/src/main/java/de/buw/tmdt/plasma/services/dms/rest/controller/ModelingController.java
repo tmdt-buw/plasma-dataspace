@@ -49,7 +49,7 @@ public class ModelingController implements ModelingAPI {
                                           String name,
                                           String description,
                                           String dataId) {
-        if(modelId == null){
+        if (modelId == null) {
             modelId = UUID.randomUUID().toString();
         }
         Modeling modeling = modelingHandler.initializeModeling(modelId, combinedModel, name, description, dataId);
@@ -124,7 +124,7 @@ public class ModelingController implements ModelingAPI {
     @Override
     @Operation(description = "Returns all relations either persistent in the knowledge base or cached for the referenced model sorted alphabetically.")
     public List<Relation> getRelations(@NotNull String modelId, @Nullable String prefix, @Nullable String infix) {
-        return modelingHandler.getRelations(modelId, prefix,infix);
+        return modelingHandler.getRelations(modelId, prefix, infix);
     }
 
     @NotNull
@@ -217,12 +217,12 @@ public class ModelingController implements ModelingAPI {
     }
 
     @Override
-    public List<String> getSelectedOntologies(@NotNull String modelId){
+    public List<String> getSelectedOntologies(@NotNull String modelId) {
         return modelingHandler.getSelectedOntologies(modelId);
     }
 
     @Override
-    public void updateSelectedOntologies(@NotNull String modelId, @NotNull List<String> selectedOntologyLabels){
+    public void updateSelectedOntologies(@NotNull String modelId, @NotNull List<String> selectedOntologyLabels) {
         modelingHandler.updateSelectedOntologies(modelId, selectedOntologyLabels);
     }
 }

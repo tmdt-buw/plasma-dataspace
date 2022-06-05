@@ -27,13 +27,8 @@ public class PLCM {
         return ResourceFactory.createProperty(uri, local);
     }
 
-    /**
-     * returns the URI for this schema
-     *
-     * @return the URI for this schema
-     */
-    public static String getURI() {
-        return uri;
+    private PLCM() {
+
     }
 
     public static class Init {
@@ -81,5 +76,14 @@ public class PLCM {
             return resource("NamedEntity");
         }
 
+    }
+
+    /**
+     * Returns the URI for this schema.
+     *
+     * @return the URI for this schema
+     */
+    public static String getURI() {
+        return uri;
     }
 }

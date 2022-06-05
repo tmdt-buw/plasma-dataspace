@@ -4,8 +4,10 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import de.buw.tmdt.plasma.datamodel.semanticmodel.*;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.Class;
+import de.buw.tmdt.plasma.datamodel.semanticmodel.Instance;
+import de.buw.tmdt.plasma.datamodel.semanticmodel.Literal;
+import de.buw.tmdt.plasma.datamodel.semanticmodel.NamedEntity;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -62,7 +64,8 @@ public abstract class PositionedCombinedModelElement extends CombinedModelElemen
             @Nullable @JsonProperty(XCOORDINATE_PROPERTY) Double xCoordinate,
             @Nullable @JsonProperty(YCOORDINATE_PROPERTY) Double yCoordinate
     ) {
-        super(uuid, label);
+        super(label);
+        setUuid(uuid);
         this.xCoordinate = xCoordinate;
         this.yCoordinate = yCoordinate;
     }

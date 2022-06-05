@@ -63,15 +63,15 @@ public class SemanticModelHandler {
         Model retrievedModel = ops.queryModel(id);
         log.info(asTurtle(retrievedModel));
 
-        if(retrievedModel.isEmpty()){
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No model available for id "+ id);
+        if (retrievedModel.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No model available for id " + id);
         }
         SemanticModel restoredSM = CMToRDFMapper.convertToSemanticModel(retrievedModel, this::lookupElementByURI);
         return restoredSM;
     }
 
     private SemanticModelNode lookupElementByURI(String uri) {
-        return ontologyHandler.getElements(Collections.emptyList(),null, null,uri ).stream()
+        return ontologyHandler.getElements(Collections.emptyList(), null, null, uri).stream()
                 .findFirst()
                 .orElse(null);
     }
@@ -96,8 +96,8 @@ public class SemanticModelHandler {
     }
 
     public @NotNull ResponseEntity<String> convertSemanticModel(@NotNull CombinedModel combinedModel, @NotNull ExportFormat format, boolean includeMappings) {
-        if(combinedModel.getSemanticModel().getId() == null){
-            combinedModel.getSemanticModel().setId(UUID.randomUUID().toString().substring(0,5));
+        if (combinedModel.getSemanticModel().getId() == null) {
+            combinedModel.getSemanticModel().setId(UUID.randomUUID().toString().substring(0, 5));
         }
         Model cmModel = CMToRDFMapper.convertToRDFModel(combinedModel.getSemanticModel());
         return new ResponseEntity<>(prepareForExport(cmModel, format, includeMappings), HttpStatus.OK);
@@ -120,7 +120,7 @@ public class SemanticModelHandler {
                     continue;
                 }
             }
-            if(object.isResource() && Objects.equals(object.asResource(),PLCM.SemanticModel)){
+            if (object.isResource() && Objects.equals(object.asResource(), PLCM.SemanticModel)) {
                 continue;
             }
             cleansedModel.add(stmt);
@@ -130,7 +130,7 @@ public class SemanticModelHandler {
         cleansedModel.write(out, format.getFormatString());
         String result = out.toString();
         log.info(result);
-       return result;
+        return result;
     }
 
 

@@ -3,6 +3,7 @@ package de.buw.tmdt.plasma.services.kgs.core;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import de.buw.tmdt.plasma.services.kgs.shared.model.OntologyInfo;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.jena.ontology.OntModel;
 import org.apache.jena.rdf.model.Model;
@@ -27,6 +28,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
+@SuppressFBWarnings("PATH_TRAVERSAL_IN")
 public class Ontologies {
 
     private static final Logger log = LoggerFactory.getLogger(Ontologies.class);
@@ -36,7 +38,7 @@ public class Ontologies {
     private Map<Ontology, OntModel> ontologyModels = new HashMap<>();
     public static final PrefixMapping PREFIXES = new PrefixMappingImpl();
     @Value("${plasma.kgs.ontologies.metadata.suffix:.ontology}")
-    private final String ONTOLOGY_SUFFIX = ".ontology";
+    private final String ontologySuffix = ".ontology";
 
     private final ObjectMapper mapper;
     @Value("${plasma.kgs.ontologies.folder:./ontologies}")
@@ -62,12 +64,14 @@ public class Ontologies {
         Map<Ontology, OntModel> reloadedModels = new HashMap<>();
         Path ontologiesFolder = Paths.get(getOntologyFolder());
         if (!Files.exists(ontologiesFolder)) {
-            ontologiesFolder.toFile().mkdirs();
+            if (!ontologiesFolder.toFile().mkdirs()) {
+                log.warn("Could not create ontologies folder.");
+            }
         }
         try {
             Files.list(ontologiesFolder)
                     .forEach(filePath -> {
-                        if (!ONTOLOGY_SUFFIX.equals("." + FilenameUtils.getExtension(filePath.toString()))) {
+                        if (!("." + FilenameUtils.getExtension(filePath.toString())).equals(ontologySuffix)) {
                             return;
                         }
                         try {
@@ -79,7 +83,7 @@ public class Ontologies {
                                 log.error("Could not read {}:", filePath, fnfe);
                                 return;
                             }
-                            reloadedModels.put(ontology,loadedOnto);
+                            reloadedModels.put(ontology, loadedOnto);
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
@@ -105,7 +109,7 @@ public class Ontologies {
         if (filename == null || filename.isBlank()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "File must have a filename.");
         }
-        if (Files.exists(Paths.get(getOntologyFolder(),filename))) {
+        if (Files.exists(Paths.get(getOntologyFolder(), filename))) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "This ontology already exists.");
         }
         label = label.replaceAll(" ", "_");
@@ -121,7 +125,7 @@ public class Ontologies {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Could not read the received ontology: " + e.getMessage());
             }
 
-            Path metadataFilePath = Paths.get(getOntologyFolder(), label + ONTOLOGY_SUFFIX);
+            Path metadataFilePath = Paths.get(getOntologyFolder(), label + ontologySuffix);
             if (Files.exists(metadataFilePath)) {
                 throw new ResponseStatusException(HttpStatus.CONFLICT, "Ontology for this label already exists");
             }
@@ -129,10 +133,10 @@ public class Ontologies {
             log.info("Uploading ontology file");
             Path ontologyFilePath = Paths.get(getOntologyFolder(), filename);
             byte[] bytes = ontologyFile.getBytes();
-            Files.write(Paths.get(getOntologyFolder(),filename), bytes);
+            Files.write(Paths.get(getOntologyFolder(), filename), bytes);
             log.info("Written ontology file to " + ontologyFilePath);
 
-            Ontology onto = new Ontology(label, ontologyFilePath.toString(), prefix, namespace );
+            Ontology onto = new Ontology(label, ontologyFilePath.toString(), prefix, namespace);
             mapper.writeValue(metadataFilePath.toFile(), onto);
         } catch (IOException e) {
             log.error("Error while writing ontology or metadata file", e);
@@ -154,17 +158,17 @@ public class Ontologies {
         }
         OntModel createdOnto = ModelFactory.createOntologyModel();
         try {
-            Path metadataFilePath = Paths.get(getOntologyFolder(), label + ONTOLOGY_SUFFIX);
+            Path metadataFilePath = Paths.get(getOntologyFolder(), label + ontologySuffix);
             if (Files.exists(metadataFilePath)) {
                 throw new ResponseStatusException(HttpStatus.CONFLICT, "Ontology for this label already exists");
             }
 
             log.info("Creating local ontology file");
             Path ontologyFilePath = Paths.get(getOntologyFolder(), filename);
-            OutputStream out = new FileOutputStream(ontologyFilePath.toFile());
-            createdOnto.write(out, "TURTLE");
-            log.info("Written ontology file to " + ontologyFilePath);
-
+            try (OutputStream out = new FileOutputStream(ontologyFilePath.toFile())) {
+                createdOnto.write(out, "TURTLE");
+                log.info("Written ontology file to " + ontologyFilePath);
+            }
             Ontology onto = new Ontology(label, ontologyFilePath.toString(), prefix, namespace, description, true);
             mapper.writeValue(metadataFilePath.toFile(), onto);
         } catch (IOException e) {
@@ -192,9 +196,10 @@ public class Ontologies {
         try {
 
             Path ontologyFilePath = Paths.get(filepath);
-            OutputStream out = new FileOutputStream(ontologyFilePath.toFile());
-            model.write(out, "TURTLE");
-            log.info("Written updated model to " + ontologyFilePath);
+            try (OutputStream out = new FileOutputStream(ontologyFilePath.toFile())) {
+                model.write(out, "TURTLE");
+                log.info("Written updated model to " + ontologyFilePath);
+            }
 
         } catch (IOException e) {
             log.error("Error while writing updated ontology", e);

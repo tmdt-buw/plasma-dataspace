@@ -33,7 +33,7 @@ public class Instance extends CombinedModelElement implements Serializable {
      */
     public Instance(@NotNull String label,
                     @Nullable String description) {
-        super(null, label);
+        super(label);
         this.description = description;
     }
 
@@ -52,7 +52,8 @@ public class Instance extends CombinedModelElement implements Serializable {
             @NotNull @JsonProperty(LABEL_PROPERTY) String label,
             @Nullable @JsonProperty(DESCRIPTION_PROPERTY) String description
     ) {
-        super(uuid, label);
+        super(label);
+        setUuid(uuid);
         this.uri = uri;
         this.description = description;
     }

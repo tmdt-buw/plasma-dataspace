@@ -39,19 +39,19 @@ public abstract class MappableSemanticModelNode extends SemanticModelNode {
     private String mappedSyntaxNodePath;
 
     public MappableSemanticModelNode(@Nullable String uri, @NotNull String label) {
-        super(null, uri, label, null, null);
+        super(uri, label, null, null, null);
     }
 
     public MappableSemanticModelNode(@Nullable String uri, @NotNull String label, @Nullable Double xCoordinate, @Nullable Double yCoordinate) {
-        super(null, uri, label, xCoordinate, yCoordinate);
+        super(uri, label, xCoordinate, yCoordinate, null);
     }
 
-    public MappableSemanticModelNode(@Nullable String uuid, @Nullable String uri, @NotNull String label, @Nullable Double xCoordinate, @Nullable Double yCoordinate) {
-        super(uuid, uri, label, xCoordinate, yCoordinate);
+    public MappableSemanticModelNode(@Nullable String uri, @NotNull String label, @Nullable Double xCoordinate, @Nullable Double yCoordinate, @Nullable String uuid) {
+        super(uri, label, xCoordinate, yCoordinate, uuid);
     }
 
-    public MappableSemanticModelNode(@Nullable String uuid, @Nullable String uri, @NotNull String label, @Nullable Double xCoordinate, @Nullable Double yCoordinate, String mappedSyntaxNodeUuid, String mappedSyntaxNodeLabel, String mappedSyntaxNodePath) {
-        super(uuid, uri, label, xCoordinate, yCoordinate);
+    public MappableSemanticModelNode(@Nullable String uri, @NotNull String label, @Nullable Double xCoordinate, @Nullable Double yCoordinate, String mappedSyntaxNodeUuid, String mappedSyntaxNodeLabel, String mappedSyntaxNodePath, @Nullable String uuid) {
+        super(uri, label, xCoordinate, yCoordinate, uuid);
         setMappedSyntaxNodeUuid(mappedSyntaxNodeUuid);
         setMappedSyntaxNodeLabel(mappedSyntaxNodeLabel);
         setMappedSyntaxNodePath(mappedSyntaxNodePath);

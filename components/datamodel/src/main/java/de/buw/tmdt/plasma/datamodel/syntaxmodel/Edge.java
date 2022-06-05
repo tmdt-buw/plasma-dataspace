@@ -62,7 +62,8 @@ public class Edge extends CombinedModelElement {
             @NotNull @JsonProperty(TO_PROPERTY) String toId,
             @Nullable @JsonProperty(ANNOTATIONS_PROPERTY) String annotation
     ) {
-        super(uuid, label);
+        super(label);
+        setUuid(uuid);
         this.fromId = fromId;
         this.toId = toId;
         this.annotation = annotation;

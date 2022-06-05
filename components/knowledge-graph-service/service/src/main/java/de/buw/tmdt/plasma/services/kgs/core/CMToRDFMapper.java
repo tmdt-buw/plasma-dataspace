@@ -30,6 +30,10 @@ public class CMToRDFMapper {
 
     private static final Logger log = LoggerFactory.getLogger(CMToRDFMapper.class);
 
+    private CMToRDFMapper() {
+
+    }
+
     public static Model convertToRDFModel(SemanticModel semanticModel) {
         if (semanticModel.getId() == null) {
             throw new IllegalArgumentException("Semantic model id must not be empty or null");
@@ -38,8 +42,8 @@ public class CMToRDFMapper {
         String semanticModelId = semanticModel.getId().substring(0, 5);
         Model m = ModelFactory.createDefaultModel();
         m.setNsPrefixes(PREFIXES);
-        String SM_Prefix = PREFIXES.getNsPrefixURI("plsm");
-        Resource rdfModel = m.createResource(SM_Prefix + semanticModelId);
+        String smPrefix = PREFIXES.getNsPrefixURI("plsm");
+        Resource rdfModel = m.createResource(smPrefix + semanticModelId);
         rdfModel.addProperty(RDF.type, PLCM.SemanticModel);
         rdfModel.addProperty(PLCM.cmUuid, semanticModel.getId());
         semanticModel.getNodes().forEach(node -> {
@@ -50,7 +54,7 @@ public class CMToRDFMapper {
                 Resource resource;
                 if (i != null) {
                     resource =
-                            m.createResource(SM_Prefix + semanticModelId + "-" + convertToInstanceId(i.getLabel())); // will reuse if already existent
+                            m.createResource(smPrefix + semanticModelId + "-" + convertToInstanceId(i.getLabel())); // will reuse if already existent
                     resource.addProperty(PLCM.label, m.createLiteral(i.getLabel()));
                     if (i.getDescription() != null && !i.getDescription().isBlank()) {
                         resource.addProperty(PLCM.description, m.createLiteral(i.getDescription()));
@@ -142,7 +146,7 @@ public class CMToRDFMapper {
             if (convertedSubject == null) {
                 // we have to create a new one
                 Resource superclass = s.getRequiredProperty(RDF.type).getObject().asResource();
-                SemanticModelNode supernode =  elementRetrieverByURI.apply(superclass.getURI());
+                SemanticModelNode supernode = elementRetrieverByURI.apply(superclass.getURI());
                 convertedSubject = createSemanticModelNode(s, supernode);
                 nodes.add(convertedSubject);
                 mappedNodes.put(s, convertedSubject);
@@ -200,7 +204,7 @@ public class CMToRDFMapper {
     private static SemanticModelNode createSemanticModelNode(Resource res, SemanticModelNode entityFromOntology) {
         if (entityFromOntology instanceof NamedEntity) {
             try {
-                return createNamedEntity(res, ((NamedEntity) entityFromOntology));
+                return createNamedEntity(res, (NamedEntity) entityFromOntology);
             } catch (PropertyNotFoundException pnfe) {
                 log.error("Error occurred building named entity from {}", res.getURI(), pnfe);
             }
@@ -332,7 +336,7 @@ public class CMToRDFMapper {
     }
 
     public static Relation convertOntologyPropertyToRelation(OntProperty property) {
-        if(property == null){
+        if (property == null) {
             return null;
         }
         if (property.isDatatypeProperty()) {
@@ -344,7 +348,7 @@ public class CMToRDFMapper {
     }
 
     public static Class convertOntologyClassToClass(OntClass ontClass) {
-        return new Class(PREFIXES.shortForm(ontClass.getURI()),PREFIXES.shortForm(ontClass.getLabel(null) == null ? ontClass.getURI() : ontClass.getLabel(null)),ontClass.getComment(null));
+        return new Class(PREFIXES.shortForm(ontClass.getURI()), PREFIXES.shortForm(ontClass.getLabel(null) == null ? ontClass.getURI() : ontClass.getLabel(null)), ontClass.getComment(null));
     }
 
 }

@@ -30,7 +30,7 @@ public class OntologyHandler {
     private final Ontologies ontologies;
 
     @Value("${plasma.kgs.localontology.label:LOCAL}")
-    private String LOCAL_ONTOLOGY_LABEL;
+    private String localOntologyLabel;
 
     @Autowired
     public OntologyHandler(
@@ -45,8 +45,8 @@ public class OntologyHandler {
                                                @Nullable String uri
     ) {
         List<OntModel> localOntologyList = new ArrayList<>();
-        if (ontologyLabels.contains(LOCAL_ONTOLOGY_LABEL)) {
-            localOntologyList = ontologies.getFilteredOntologyModels(Collections.singletonList(LOCAL_ONTOLOGY_LABEL));
+        if (ontologyLabels.contains(localOntologyLabel)) {
+            localOntologyList = ontologies.getFilteredOntologyModels(Collections.singletonList(localOntologyLabel));
         }
 
         List<OntModel> filteredOntologyModels = ontologies.getFilteredOntologyModels(ontologyLabels);
@@ -102,7 +102,7 @@ public class OntologyHandler {
                     .forEach(relations::add);
         } else if (prefix != null && !prefix.isBlank()) {
             findProperties(filteredOntologyModels,
-                    prop -> StringUtils.startsWithIgnoreCase(prop.getLabel(null), prefix)||
+                    prop -> StringUtils.startsWithIgnoreCase(prop.getLabel(null), prefix) ||
                             StringUtils.startsWithIgnoreCase(prop.getURI(), prefix)).stream()
                     .map(CMToRDFMapper::convertOntologyPropertyToRelation)
                     .filter(Objects::nonNull)
@@ -110,7 +110,7 @@ public class OntologyHandler {
         } else if (infix != null && !infix.isBlank()) {
             findProperties(filteredOntologyModels,
                     prop -> StringUtils.containsIgnoreCase(prop.getLabel(null), infix) ||
-                    StringUtils.containsIgnoreCase(prop.getURI(), infix)).stream()
+                            StringUtils.containsIgnoreCase(prop.getURI(), infix)).stream()
                     .map(CMToRDFMapper::convertOntologyPropertyToRelation)
                     .filter(Objects::nonNull)
                     .forEach(relations::add);

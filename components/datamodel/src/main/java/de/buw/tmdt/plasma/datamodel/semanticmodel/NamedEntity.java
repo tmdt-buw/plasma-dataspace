@@ -17,18 +17,18 @@ public class NamedEntity extends SemanticModelNode implements Serializable, Node
 
     private String description;
 
-    public NamedEntity(@NotNull String uri, @NotNull String label, @NotNull String description) {
+    public NamedEntity(@Nullable String uri, @NotNull String label, @NotNull String description) {
         super(uri, label);
         this.description = description;
     }
 
-    public NamedEntity(@NotNull String uri, @NotNull String label, @NotNull String description, @Nullable Double xCoordinate, @Nullable Double yCoordinate) {
+    public NamedEntity(@Nullable String uri, @NotNull String label, @NotNull String description, @Nullable Double xCoordinate, @Nullable Double yCoordinate) {
         super(uri, label, xCoordinate, yCoordinate);
         this.description = description;
     }
 
-    public NamedEntity(String uuid, @NotNull String uri, @NotNull String label, @NotNull String description, @Nullable Double xCoordinate, @Nullable Double yCoordinate) {
-        super(uuid, uri, label, xCoordinate, yCoordinate);
+    public NamedEntity(@Nullable String uri, @NotNull String label, @NotNull String description, @Nullable Double xCoordinate, @Nullable Double yCoordinate, @Nullable String uuid) {
+        super(uri, label, xCoordinate, yCoordinate, uuid);
         this.description = description;
     }
 
@@ -41,7 +41,7 @@ public class NamedEntity extends SemanticModelNode implements Serializable, Node
                        @Nullable @JsonProperty(YCOORDINATE_PROPERTY) Double yCoordinate,
                        @JsonProperty(PROVISIONAL_PROPERTY) boolean provisional
     ) {
-        super(uuid, uri, label, xCoordinate, yCoordinate);
+        super(uri, label, xCoordinate, yCoordinate, uuid);
         this.setProvisional(provisional);
         this.description = description;
     }
@@ -91,6 +91,11 @@ public class NamedEntity extends SemanticModelNode implements Serializable, Node
                     sameAs(that);
         }
         return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
     }
 
     @Override

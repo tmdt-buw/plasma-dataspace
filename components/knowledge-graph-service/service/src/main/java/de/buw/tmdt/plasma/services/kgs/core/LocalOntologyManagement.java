@@ -25,7 +25,7 @@ import java.util.Optional;
 import static de.buw.tmdt.plasma.services.kgs.core.Ontologies.PREFIXES;
 
 /**
- * Handles the connection to the ontology build by manually adding objects and relations
+ * Handles the connection to the ontology build by manually adding objects and relations.
  */
 @Service
 public class LocalOntologyManagement {
@@ -33,13 +33,13 @@ public class LocalOntologyManagement {
     private final Ontologies ontologies;
 
     @Value("${plasma.kgs.localontology.prefix:local}")
-    private String LOCAL_ONTOLOGY_PREFIX;
+    private String localOntologyPrefix;
     @Value("${plasma.kgs.localontology.uri:https://local.ontology#}")
-    private String LOCAL_ONTOLOGY_URI;
+    private String localOntologyUri;
     @Value("${plasma.kgs.localontology.label:LOCAL}")
-    private String LOCAL_ONTOLOGY_LABEL;
+    private String localOntologyLabel;
     @Value("${plasma.kgs.localontology.description:A local ontology maintained by this instance.}")
-    private String LOCAL_ONTOLOGY_DESCRIPTION;
+    private String localOntologyDescription;
 
 
     public LocalOntologyManagement(Ontologies ontologies) {
@@ -104,10 +104,10 @@ public class LocalOntologyManagement {
     }
 
     public OntModel getInternalOntology() {
-        Optional<OntModel> localModel = ontologies.getOntologyModelByLabel(LOCAL_ONTOLOGY_LABEL);
+        Optional<OntModel> localModel = ontologies.getOntologyModelByLabel(localOntologyLabel);
         if (localModel.isEmpty()) {
             // create a new local ontology
-            return ontologies.createLocalOntology(LOCAL_ONTOLOGY_LABEL, LOCAL_ONTOLOGY_PREFIX, LOCAL_ONTOLOGY_URI, LOCAL_ONTOLOGY_DESCRIPTION);
+            return ontologies.createLocalOntology(localOntologyLabel, localOntologyPrefix, localOntologyUri, localOntologyDescription);
         }
 
         return localModel.get();
@@ -239,6 +239,6 @@ public class LocalOntologyManagement {
     private void putModel(Model model) {
         OntModel internalOntology = getInternalOntology();
         internalOntology.add(model);
-        ontologies.updateOntology(LOCAL_ONTOLOGY_LABEL, internalOntology);
+        ontologies.updateOntology(localOntologyLabel, internalOntology);
     }
 }

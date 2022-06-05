@@ -53,7 +53,7 @@ public class ModelingHandler {
     private final ConfigServiceClient configServiceClient;
 
     @Value("${plasma.kgs.localontology.prefix:LOCAL}")
-    private String LOCAL_ONTOLOGY_LABEL;
+    private String localOntologyLabel;
 
     @Autowired
     public ModelingHandler(
@@ -84,7 +84,7 @@ public class ModelingHandler {
         }
         ZonedDateTime created = ZonedDateTime.now();
         Modeling modeling = new Modeling(modelId, name, description, created, dataId);
-        modeling.getSelectedOntologies().add(LOCAL_ONTOLOGY_LABEL);
+        modeling.getSelectedOntologies().add(localOntologyLabel);
         // save initial version of submitted model
         modeling.pushCombinedModel(combinedModel);
         modeling = persistModeling(modeling);
@@ -148,12 +148,12 @@ public class ModelingHandler {
                     uuidMapping.put(node.getUuid(), newUuid);
                     if (node instanceof Class) {
                         Class source = (Class) node;
-                        return new Class(newUuid, source.getURI(), source.getLabel(),
-                                source.getDescription(), source.getXCoordinate(), source.getYCoordinate());
+                        return new Class(source.getURI(), source.getLabel(),
+                                source.getDescription(), source.getXCoordinate(), source.getYCoordinate(), newUuid);
                     } else if (node instanceof NamedEntity) {
                         NamedEntity source = (NamedEntity) node;
-                        return new NamedEntity(newUuid, source.getURI(), source.getLabel(),
-                                source.getDescription(), source.getXCoordinate(), source.getYCoordinate());
+                        return new NamedEntity(source.getURI(), source.getLabel(),
+                                source.getDescription(), source.getXCoordinate(), source.getYCoordinate(), newUuid);
                     } else if (node instanceof Literal) {
                         Literal source = (Literal) node;
                         return new Literal(newUuid, source.getValue(), source.getXCoordinate(), source.getYCoordinate());
@@ -191,10 +191,10 @@ public class ModelingHandler {
             try {
                 return getCombinedModel(modeling.get(), modelWillBeModified);
             } catch (Exception e) {
-
+                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error retrieving combined model for modeling");
             }
         }
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Model was not found");
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Modeling was not found");
     }
 
     @NotNull
@@ -329,7 +329,7 @@ public class ModelingHandler {
     /**
      * Apply a syntactic operation to the model.
      *
-     * @param modelId        The modeling to modify
+     * @param modelId               The modeling to modify
      * @param syntacticOperationDTO The operation to invoke
      * @return The updated model
      * @deprecated Legacy function, use {@link #applyModification(String, DeltaModification)} instead
@@ -382,7 +382,7 @@ public class ModelingHandler {
      * Applies all modifications stored in the modification object to the {@link CombinedModel} for the modeling
      * identified by modelId.
      *
-     * @param modelId The modeling uuid identifying the model
+     * @param modelId      The modeling uuid identifying the model
      * @param modification The modifications. All modifications are applied in one step
      * @return The updated {@link CombinedModel}
      */
@@ -412,7 +412,7 @@ public class ModelingHandler {
      * This function updates the positions of the given movedElements.
      * All other changes are ignored, only the position information is updated.
      *
-     * @param modelId The modeling uuid identifying the {@link CombinedModel} to update
+     * @param modelId       The modeling uuid identifying the {@link CombinedModel} to update
      * @param movedElements A list of elements with updated positions, can be syntactic and semantic elements
      */
     public void updatePositions(@NotNull String modelId, @NotNull List<PositionedCombinedModelElement> movedElements) {

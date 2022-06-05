@@ -1,14 +1,7 @@
 package de.buw.tmdt.plasma.datamodel;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import de.buw.tmdt.plasma.datamodel.semanticmodel.Instance;
-import de.buw.tmdt.plasma.datamodel.semanticmodel.SemanticModelNode;
-import de.buw.tmdt.plasma.datamodel.syntaxmodel.*;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.Serializable;
 import java.util.Objects;
@@ -40,21 +33,17 @@ public abstract class CombinedModelElement implements Serializable {
     public CombinedModelElement(
             @NotNull String label
     ) {
-        this(UUID.randomUUID().toString(), label);
-    }
-
-    @JsonCreator
-    public CombinedModelElement(
-            @Nullable @JsonProperty(UUID_PROPERTY) String uuid,
-            @NotNull @JsonProperty(LABEL_PROPERTY) String label
-    ) {
-        this.uuid = uuid == null ? UUID.randomUUID().toString() : uuid;
         this.label = label;
+        this.uuid = UUID.randomUUID().toString();
     }
 
     @JsonProperty(UUID_PROPERTY)
     public String getUuid() {
         return uuid;
+    }
+
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
     }
 
     protected void removeUuid() {

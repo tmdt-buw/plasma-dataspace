@@ -85,7 +85,8 @@ public abstract class Relation extends CombinedModelElement implements Serializa
             @Nullable @JsonProperty(PROPERTIES_PROPERTY) Set<String> properties,
             @JsonProperty(PROVISIONAL_PROPERTY) boolean provisional
     ) {
-        super(uuid, label == null ? "" : label);
+        super(label == null ? "" : label);
+        setUuid(uuid);
         this.from = from;
         this.to = to;
         this.description = description;

@@ -26,14 +26,14 @@ public abstract class SemanticModelNode extends PositionedCombinedModelElement i
     private boolean provisional = false;
 
     public SemanticModelNode(@Nullable String uri, @NotNull String label) {
-        this(null, uri, label, null, null);
+        this(uri, label, null, null, null);
     }
 
     public SemanticModelNode(@Nullable String uri, @NotNull String label, @Nullable Double xCoordinate, @Nullable Double yCoordinate) {
-        this(null, uri, label, xCoordinate, yCoordinate);
+        this(uri, label, xCoordinate, yCoordinate, null);
     }
 
-    public SemanticModelNode(@Nullable String uuid, @Nullable String uri, @NotNull String label, @Nullable Double xCoordinate, @Nullable Double yCoordinate) {
+    public SemanticModelNode(@Nullable String uri, @NotNull String label, @Nullable Double xCoordinate, @Nullable Double yCoordinate, @Nullable String uuid) {
         super(uuid, label, xCoordinate, yCoordinate);
         this.uri = uri;
     }
