@@ -43,7 +43,7 @@ public abstract class CombinedModelElement implements Serializable {
     }
 
     public void setUuid(String uuid) {
-        this.uuid = uuid;
+        this.uuid = uuid == null ? UUID.randomUUID().toString() : uuid;
     }
 
     protected void removeUuid() {
