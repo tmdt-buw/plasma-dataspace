@@ -82,7 +82,6 @@ export class PlsSemanticNodeDetailsComponent implements OnInit {
   }
 
   startEdit(): void {
-    console.log('start edit');
     switch (this.data.node._class) {
       case 'Class':
         const instance = this.getInstance();
@@ -104,7 +103,6 @@ export class PlsSemanticNodeDetailsComponent implements OnInit {
 
   acceptEdit(): void {
     this.$edit.next(EditState.confirm);
-    console.log('accepted', this.form.controls.label);
     if (this.isClass()) {
       const clazz = this.data.node as Class;
       clazz.instance.label = this.form.controls.label.value;

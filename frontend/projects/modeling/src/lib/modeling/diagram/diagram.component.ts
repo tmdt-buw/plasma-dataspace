@@ -756,6 +756,18 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
   }
 
   /**
+   * Calculates the total dimensions for a graph element
+   * @param header The header label to render
+   * @param body The body label to render
+   * @param icon True if an icon should be considered
+   */
+  private calcDimensionsForElement(header: string, body: string, icon: boolean): [number, number] {
+    const headerDims = header ? this.calcDimensionsForLabel(header, false) : [0, 0];
+    const bodyDims = body ? this.calcDimensionsForLabel(body, icon) : [0, 0];
+    return [Math.max(headerDims[0], bodyDims[0]), headerDims[1] + bodyDims[1]];
+  }
+
+  /**
    * Creates nodes and edges from semantic model
    * @param semanticModel the semantic model
    * @param showURI maps labels to URIs where possible
@@ -819,7 +831,6 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
    * Fit and center graph
    */
   private center(): void {
-    console.log('centering...');
     // update bounding box in case user dragged stuff
     this.panAndZoom.updateBBox();
     // fit and center
@@ -883,6 +894,15 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
    * Adds a semantic class node to the graph
    */
   private addClassNode(id: string, uri: string, x?: number, y?: number, opacity?: number, instancelabel?: string, icon?: string): dia.Element {
+    const node = this.buildClassNode(id, uri, x, y, opacity, instancelabel, icon);
+    this.graph.addCell(node);
+    return node;
+  }
+
+  /**
+   * Builds a semantic class node
+   */
+  private buildClassNode(id: string, uri: string, x?: number, y?: number, opacity?: number, instancelabel?: string, icon?: string): dia.Element {
     const classDims = this.calcDimensionsForLabel(uri, false);
     let instanceDims = [0, 0];
     if (instancelabel) {
@@ -896,7 +916,6 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
     } else {
       node = Nodes.createSemanticClassNode(id, uri, position, dim[0], dim[1], opacity);
     }
-    this.graph.addCell(node);
     return node;
   }
 
@@ -1084,9 +1103,16 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
         });
         nodeDialogRef.nodeEdited.subscribe((node: SemanticModelNode) => {
           const element = this.graph.getElements().find(el => el.attributes.id === id);
-          if ((node as Class).instance) {
-            element.attr('bodyText/text', (node as Class).instance.label);
+          let icon;
+          if ((node as Class).syntaxNodeUuid) {
+            icon = Icons.getIcon(this.findSyntaxNodeById((node as Class).syntaxNodeUuid));
           }
+          const newNode = this.buildClassNode(node.uuid, this.$URIMode.value ? node.uri : node.label, node.x, node.y, 1, (node as Class).instance?.label, icon);
+          let links = this.graph.getLinks();
+          links = links.filter(link => link.getTargetElement() === element || link.getSourceElement() === element);
+          this.graph.removeCells([element]);
+          this.graph.addCell(newNode);
+          this.graph.addCell(links);
         });
         break;
       case Nodes.namedEntityName:
