@@ -14,6 +14,7 @@
       </button>
 
         <nz-select
+          [nz-tooltip]="'Selected ontologies. Concepts and relations for modeling are obtained only from selected ontologies.'"
           (ngModelChange)="onOntologySelectionChanged($event)"
           class="modeling-ontology-selection"
           [nzMaxTagCount]="3"
