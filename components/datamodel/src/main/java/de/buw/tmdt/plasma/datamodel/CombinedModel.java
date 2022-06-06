@@ -402,9 +402,16 @@ public class CombinedModel implements Serializable {
 
         // check consistency of semantic model in case elements have been removed
         if (delta.isDeletion()) {
-            List<String> deletedTypeIds = delta.getEntities().stream().map(CombinedModelElement::getUuid).collect(Collectors.toList());
+            List<String> deletedNodeIds = delta.getEntities().stream().map(CombinedModelElement::getUuid).collect(Collectors.toList());
             // remove dangling edges
-            semanticModel.getEdges().removeIf(relation -> deletedTypeIds.contains(relation.getFrom()) || deletedTypeIds.contains(relation.getTo()));
+            semanticModel.getEdges().removeIf(relation -> deletedNodeIds.contains(relation.getFrom()) || deletedNodeIds.contains(relation.getTo()));
+            // remove dangling literals
+            semanticModel.getNodes().removeIf(node ->
+                    node instanceof Literal &&
+                            semanticModel.getEdges().stream()
+                                    .noneMatch(rel -> rel instanceof DataProperty && rel.getTo().equals(node.getUuid()))
+
+            );
         }
         // now validate the model state
         validate();
