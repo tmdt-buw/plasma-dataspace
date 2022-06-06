@@ -215,9 +215,17 @@ public class CMToRDFMapper {
                     mappedNodes.put(object, convertedObject);
                 }
             } else if (o.isLiteral()) {
-                // create a literal
-                List<Resource> bNodesForLiteral = model.listResourcesWithProperty(PLCM.definesLiteral, o).toList();
-                convertedObject = createLiteral(o.asLiteral(), bNodesForLiteral.isEmpty() ? null : bNodesForLiteral.get(0));
+                // obtain meta information statement resource (modeled using rdf-star)
+                Resource stmtResource = null;
+                ResIterator resIterator = model.listSubjectsWithProperty(PLCM.xCoordinate);
+                while (resIterator.hasNext()) {
+                    Resource next = resIterator.next();
+                    if (next.isStmtResource() && next.getStmtTerm().equals(stmt)) {
+                        stmtResource = next;
+                        break;
+                    }
+                }
+                convertedObject = createLiteral(o.asLiteral(), stmtResource);
                 nodes.add(convertedObject);
             } else {
                 throw new CombinedModelIntegrityException("Could not determine type for object " + o);
