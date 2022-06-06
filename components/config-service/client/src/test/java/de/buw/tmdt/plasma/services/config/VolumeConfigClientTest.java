@@ -35,7 +35,7 @@ class VolumeConfigClientTest {
     ObjectMapper mapper;
 
     @AfterAll
-    static void cleanup() {
+    static void cleanup(){
         FileSystemUtils.deleteRecursively(storageLocationFileRef);
     }
 
