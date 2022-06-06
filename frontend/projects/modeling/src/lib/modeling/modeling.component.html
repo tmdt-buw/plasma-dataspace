@@ -24,6 +24,7 @@
           [nzDisabled]="isFinalized()"
           [nzDropdownRender]="addOntologyTemplate"
           [nzShowSearch]="false"
+          [nzDropdownMatchSelectWidth]="false"
         >
           <nz-option *ngFor="let item of availableOntologies" [nz-tooltip]="item.uri" [nzLabel]="item.label"
                      [nzValue]="item.label"></nz-option>
