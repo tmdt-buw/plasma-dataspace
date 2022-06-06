@@ -50,7 +50,6 @@ export abstract class Nodes {
           refX: '50%',
           refY: 15,
           fontSize: 14,
-          fill: '#333333',
           'font-family': 'Roboto',
           cursor: 'default',
           pointerEvents: 'none'
@@ -89,7 +88,6 @@ export abstract class Nodes {
           refX: '50%',
           refY: 15,
           fontSize: 14,
-          fill: '#333333',
           'font-family': 'Roboto',
           cursor: 'default',
           pointerEvents: 'none'
@@ -101,7 +99,6 @@ export abstract class Nodes {
           refY: '58%',
           refY2: 15,
           fontSize: 24,
-          fill: '#333333',
           'font-family': 'Material Icons',
           cursor: 'default',
           pointerEvents: 'none'
@@ -113,7 +110,6 @@ export abstract class Nodes {
           refY: '50%',
           refY2: 15,
           fontSize: 14,
-          fill: '#333333',
           'font-family': 'Roboto',
           cursor: 'default',
           pointerEvents: 'none'
@@ -148,13 +144,12 @@ export abstract class Nodes {
           strokeWidth: 2,
           magnet: true
         },
-        bodyText: {
+        label: {
           textVerticalAnchor: 'middle',
           textAnchor: 'left',
           refX: '35',
           refY: '50%',
           fontSize: 14,
-          fill: '#FFFFFF',
           'font-family': 'Roboto',
           cursor: 'default',
           pointerEvents: 'none'
@@ -166,7 +161,7 @@ export abstract class Nodes {
         selector: 'body'
       }, {
         tagName: 'text',
-        selector: 'bodyText'
+        selector: 'label'
       }]
     }
   );
@@ -187,7 +182,6 @@ export abstract class Nodes {
           refX: '5',
           refY: '65%',
           fontSize: 24,
-          fill: '#333333',
           'font-family': 'Material Icons',
           cursor: 'default',
           pointerEvents: 'none'
@@ -198,7 +192,6 @@ export abstract class Nodes {
           refX: '35',
           refY: '50%',
           fontSize: 14,
-          // fill: '#FFFFFF',
           'font-family': 'Roboto',
           cursor: 'default',
           pointerEvents: 'none'
@@ -396,8 +389,7 @@ export abstract class Nodes {
         body: {
           opacity: opacity ? opacity : 1,
         },
-        bodyText: {
-          // adjust text for icon
+        label: {
           refX: '50%',
           textAnchor: 'middle',
           text: label,
@@ -423,18 +415,15 @@ export abstract class Nodes {
         body: {
           opacity: opacity ? opacity : 1
         },
-        bodyText: {
-          // adjust text for icon
-          refX: '50%',
-          textAnchor: 'middle',
-          text: label,
-          opacity: opacity ? opacity : 1
-        },
         icon: {
           text: icon,
         },
         label: {
+          // adjust text for icon
+          refX: '35',
+          textAnchor: 'left',
           text: label,
+          opacity: opacity ? opacity : 1
         }
       }
     });

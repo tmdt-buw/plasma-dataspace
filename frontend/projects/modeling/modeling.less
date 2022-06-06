@@ -14,7 +14,7 @@
 
 .joint-type-custom-objectpropertylink {
   path[joint-selector="line"] {
-    stroke: @modeling-objectproperty-color;
+    stroke: @modeling-object-property-color;
   }
 
   .label {
@@ -29,7 +29,7 @@
 
 .joint-type-custom-datapropertylink {
   path[joint-selector="line"] {
-    stroke: @modeling-datatypeproperty-color;
+    stroke: @modeling-datatype-property-color;
   }
 
   .label {
@@ -107,7 +107,7 @@ marker {
     fill: @modeling-named-entity-color;
   }
 
-  text[joint-selector="bodyText"]{
+  text[joint-selector="label"]{
     fill: @modeling-named-entity-text-color;
   }
 }
@@ -121,8 +121,12 @@ marker {
     fill: @modeling-literal-color;
   }
 
-  text[joint-selector="bodyText"]{
-    fill: @modeling-literal-color;
+  text[joint-selector="label"]{
+    fill: @modeling-literal-text-color;
+  }
+
+  text[joint-selector="icon"]{
+    fill: @modeling-literal-text-color;
   }
 }
 
