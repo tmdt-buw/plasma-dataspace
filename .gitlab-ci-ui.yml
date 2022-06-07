@@ -5,10 +5,7 @@ ui-build:
     - cd frontend
     - npm install
   script:
-    - npm run build:common
-    - npm run build:dss
     - npm run build:dms
-    - npm run build:sas
     - npm run build
   artifacts:
     expire_in: 30 days
@@ -34,25 +31,10 @@ ui-build:
   except: #equivalent to /^(?!release-).*$/ the longer version is needed since negative look-ahead is deactivated because of catastrophic backtracking
     - /^((.{0,7}$)|[^r]|.{1}[^e]|.{2}[^l]|.{3}[^e]|.{4}[^a]|.{5}[^s]|.{6}[^e]|.{7}[^-]).*$/
 
-ui-publish-common:
-  extends: .ui-publish
-  variables:
-    LIB_PATH: frontend/dist/common
-
 ui-publish-dms:
   extends: .ui-publish
   variables:
     LIB_PATH: frontend/dist/@tmdt/dms
-
-ui-publish-dss:
-  extends: .ui-publish
-  variables:
-    LIB_PATH: frontend/dist/data-sources
-
-ui-publish-sas:
-  extends: .ui-publish
-  variables:
-    LIB_PATH: frontend/dist/schema-analysis
 
 ui-dockerize:
   stage: docker_deploy
