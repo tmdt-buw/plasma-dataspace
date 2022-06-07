@@ -16,7 +16,7 @@ public class CSVConverterTest extends TestCase {
         assertNotNull(is);
         String input = IOUtils.toString(is, StandardCharsets.UTF_8);
         String result = CSVConverter.convert(input, 1);
-        is = CSVConverter.class.getClassLoader().getResourceAsStream(prefix + "result.csv");
+        is = CSVConverter.class.getClassLoader().getResourceAsStream(prefix + "result.json");
         assertNotNull(is);
         String expected = IOUtils.toString(is, StandardCharsets.UTF_8);
         assertEquals(expected, result);
@@ -28,7 +28,7 @@ public class CSVConverterTest extends TestCase {
         assertNotNull(is);
         String input = IOUtils.toString(is, StandardCharsets.UTF_8);
         String result = CSVConverter.convert(input, '\t', 1);
-        is = CSVConverter.class.getClassLoader().getResourceAsStream(prefix + "result.csv");
+        is = CSVConverter.class.getClassLoader().getResourceAsStream(prefix + "result.json");
         assertNotNull(is);
         String expected = IOUtils.toString(is, StandardCharsets.UTF_8);
         assertEquals(expected, result);
