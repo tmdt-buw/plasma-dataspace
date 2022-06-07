@@ -52,8 +52,8 @@ public class ModelingHandler {
     private HashMap<SchemaNode, Set<Operation.Handle>> parameterDefinitionLookup;
     private final ConfigServiceClient configServiceClient;
 
-    @Value("${plasma.kgs.localontology.prefix:LOCAL}")
-    private String localOntologyLabel;
+    @Value("${plasma.dms.feature.syntacticoperations.enabled:false}")
+    private Boolean syntacticOperationsEnabled;
 
     @Autowired
     public ModelingHandler(
@@ -84,7 +84,6 @@ public class ModelingHandler {
         }
         ZonedDateTime created = ZonedDateTime.now();
         Modeling modeling = new Modeling(modelId, name, description, created, dataId);
-        modeling.getSelectedOntologies().add(localOntologyLabel);
         // save initial version of submitted model
         modeling.pushCombinedModel(combinedModel);
         modeling = persistModeling(modeling);
@@ -357,13 +356,14 @@ public class ModelingHandler {
     }
 
     public void prepareForFrontend(CombinedModel combinedModel) {
-        // add syntactic operations
-        parameterDefinitionLookup = operationLookUp.getOperationHandles(combinedModel);
-
-        combinedModel.getSyntaxModel().getNodes().forEach(schemaNode -> {
-            schemaNode.getOperations().clear();
-            schemaNode.getOperations().addAll(getOperationDTOs(schemaNode, parameterDefinitionLookup));
-        });
+        if (syntacticOperationsEnabled) {
+            // add syntactic operations
+            parameterDefinitionLookup = operationLookUp.getOperationHandles(combinedModel);
+            combinedModel.getSyntaxModel().getNodes().forEach(schemaNode -> {
+                schemaNode.getOperations().clear();
+                schemaNode.getOperations().addAll(getOperationDTOs(schemaNode, parameterDefinitionLookup));
+            });
+        }
     }
 
     @SuppressFBWarnings("NP_NONNULL_RETURN_VIOLATION") // .toList() never returns null, SB cant validate
