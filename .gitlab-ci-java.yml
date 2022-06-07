@@ -6,11 +6,13 @@ variables:
   MAVEN_IMAGE: maven:3.6.3-jdk-11
 
 # Checkstyle source code standard review.
-checkstyle:
+.checkstyle:
   stage: verification
   image: $MAVEN_IMAGE
   tags:
     - docker
+  only:
+    - merge_requests
   script:
     - mvn $MAVEN_CLI_OPTS checkstyle:check
   artifacts:
@@ -18,18 +20,44 @@ checkstyle:
     paths:
       - "*/target/checkstyle-result.xml"
 
+checkstyle:
+  extends: .checkstyle
+  only:
+    - merge_requests
+  except:
+    - web
+
+checkstyle_manual:
+  extends: .checkstyle
+  only:
+    - web
+
 # SpotBugs code quality analysis.
-spotbugs:
+.spotbugs:
   stage: verification
   image: $MAVEN_IMAGE
   tags:
     - docker
+  only:
+    - merge-requests
   script:
     - mvn $MAVEN_CLI_OPTS clean compile spotbugs:check
   artifacts:
     when: always
     paths:
       - "*/target/spotbugsXml.xml"
+
+spotbugs:
+  extends: .spotbugs
+  only:
+    - merge_requests
+  except:
+    - web
+
+spotbugs_manual:
+  extends: .spotbugs
+  only:
+    - web
 
 ##### Unit Test ###############################################################################################################################################
 unit_test:
