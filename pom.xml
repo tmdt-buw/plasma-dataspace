@@ -25,6 +25,7 @@
         <module>auxiliary_services/ARS-M-standard-matching</module>
         <module>auxiliary_services/ARS-R-recommendation</module>
         <module>components/converter</module>
+        <module>components/data-processing-service</module>
     </modules>
 
     <properties>
