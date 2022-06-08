@@ -30,7 +30,9 @@ public class CSVConverter {
             String[] line;
             while ((line = reader.readNext()) != null) {
                 ObjectNode jsonNode = tabularProcessor.processRow(line);
-                nodes.add(jsonNode);
+                if (jsonNode != null) {
+                    nodes.add(jsonNode);
+                }
             }
             reader.close();
         } catch (IOException e) {

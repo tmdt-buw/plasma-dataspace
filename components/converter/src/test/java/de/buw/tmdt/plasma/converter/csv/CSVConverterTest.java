@@ -34,5 +34,53 @@ public class CSVConverterTest extends TestCase {
         assertEquals(expected, result);
     }
 
+    public void testMultiHeader() throws IOException, ConversionException {
+        String prefix = "csv/multiHeader/";
+        InputStream is = CSVConverter.class.getClassLoader().getResourceAsStream(prefix + "test.csv");
+        assertNotNull(is);
+        String input = IOUtils.toString(is, StandardCharsets.UTF_8);
+        String result = CSVConverter.convert(input, ',', 3);
+        is = CSVConverter.class.getClassLoader().getResourceAsStream(prefix + "result.json");
+        assertNotNull(is);
+        String expected = IOUtils.toString(is, StandardCharsets.UTF_8);
+        assertEquals(expected, result);
+    }
+
+    public void testWithoutHeader() throws IOException, ConversionException {
+        String prefix = "csv/withoutHeader/";
+        InputStream is = CSVConverter.class.getClassLoader().getResourceAsStream(prefix + "test.csv");
+        assertNotNull(is);
+        String input = IOUtils.toString(is, StandardCharsets.UTF_8);
+        String result = CSVConverter.convert(input, 0);
+        is = CSVConverter.class.getClassLoader().getResourceAsStream(prefix + "result.json");
+        assertNotNull(is);
+        String expected = IOUtils.toString(is, StandardCharsets.UTF_8);
+        assertEquals(expected, result);
+    }
+
+    public void testInvalidDataRows() throws IOException, ConversionException {
+        String prefix = "csv/invalidDataRows/";
+        InputStream is = CSVConverter.class.getClassLoader().getResourceAsStream(prefix + "test.csv");
+        assertNotNull(is);
+        String input = IOUtils.toString(is, StandardCharsets.UTF_8);
+        String result = CSVConverter.convert(input, 1);
+        is = CSVConverter.class.getClassLoader().getResourceAsStream(prefix + "result.json");
+        assertNotNull(is);
+        String expected = IOUtils.toString(is, StandardCharsets.UTF_8);
+        assertEquals(expected, result);
+    }
+
+    public void testUnequalHeader() throws IOException, ConversionException {
+        String prefix = "csv/unequalHeader/";
+        InputStream is = CSVConverter.class.getClassLoader().getResourceAsStream(prefix + "test.csv");
+        assertNotNull(is);
+        String input = IOUtils.toString(is, StandardCharsets.UTF_8);
+        String result = CSVConverter.convert(input, 5);
+        is = CSVConverter.class.getClassLoader().getResourceAsStream(prefix + "result.json");
+        assertNotNull(is);
+        String expected = IOUtils.toString(is, StandardCharsets.UTF_8);
+        assertEquals(expected, result);
+    }
+
 
 }
