@@ -15,8 +15,6 @@ public class Feature implements Serializable {
     private static final String PROPERTIES_PROPERTY = "properties";
     private static final long serialVersionUID = -254604510094717558L;
 
-    @JsonProperty(ID_PROPERTY)
-    private String id;
     private final String type;
     private final Geometry geometry;
     private final Map<String, String> properties;
@@ -30,16 +28,6 @@ public class Feature implements Serializable {
         this.type = type;
         this.geometry = geometry;
         this.properties = properties;
-    }
-
-    @JsonIgnore
-    public String getId() {
-        return id;
-    }
-
-    @JsonIgnore
-    public void setId(String id) {
-        this.id = id;
     }
 
     @JsonProperty(TYPE_PROPERTY)
