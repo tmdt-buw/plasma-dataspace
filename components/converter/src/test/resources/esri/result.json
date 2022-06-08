@@ -1,6 +1,5 @@
 [
   {
-    "id": null,
     "type": "Feature",
     "geometry": {
       "type": "MultiPolygon",

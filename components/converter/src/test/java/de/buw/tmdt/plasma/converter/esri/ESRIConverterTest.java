@@ -20,9 +20,9 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 public class ESRIConverterTest {
 
     @SuppressWarnings("HardcodedFileSeparator")
-    private static final String INPUT_SHAPE_FILE_ZIP = "esri/Stadtgebiet_EPSG25832_SHAPE.zip";
+    private static final String INPUT_SHAPE_FILE_ZIP = "esri/test.zip";
     @SuppressWarnings("HardcodedFileSeparator")
-    private static final String EXPECTED_OUTPUT_FILE = "esri/expected_output.json";
+    private static final String EXPECTED_OUTPUT_FILE = "esri/result.json";
     private ObjectMapper mapper = new ObjectMapper();
 
     @BeforeEach
@@ -48,7 +48,6 @@ public class ESRIConverterTest {
         JsonNode jsonFileExpected = mapper.readTree(expected);
         JsonNode jsonFileActual = mapper.readTree(result);
 
-        //assertTrue(JSONComparator.areEqualElements(jsonFileExpected, jsonFileActual));
         assertEquals(jsonFileExpected, jsonFileActual);
     }
 
