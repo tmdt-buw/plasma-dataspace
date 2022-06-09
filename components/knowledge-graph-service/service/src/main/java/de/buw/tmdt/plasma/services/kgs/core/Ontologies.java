@@ -1,6 +1,7 @@
 package de.buw.tmdt.plasma.services.kgs.core;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import de.buw.tmdt.plasma.services.kgs.shared.model.OntologyInfo;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -51,7 +52,8 @@ public class Ontologies {
     @Autowired
     public Ontologies() {
         mapper = new ObjectMapper()
-                .registerModule(new ParameterNamesModule());
+                .registerModule(new ParameterNamesModule())
+                .enable(SerializationFeature.INDENT_OUTPUT);
         DEFAULT_PREFIXES.getNsPrefixMap().forEach(PREFIXES::setNsPrefix);
     }
 
@@ -66,7 +68,11 @@ public class Ontologies {
         if (!Files.exists(ontologiesFolder)) {
             if (!ontologiesFolder.toFile().mkdirs()) {
                 log.warn("Could not create ontologies folder.");
+            } else {
+                log.info("Created ontologies folder on " + ontologiesFolder);
             }
+        } else {
+            log.info("Loading ontologies from " + ontologiesFolder);
         }
         try {
             Files.list(ontologiesFolder)

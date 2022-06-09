@@ -70,7 +70,7 @@ export class PlsConceptDialogComponent implements OnInit, OnDestroy {
     this.modelingService.getRelations(this.modelId, this.relationSearchControl.value).subscribe((res) => {
       this.relations = res;
       this.loadingRelationConcepts = false;
-    }, error => this.notification.error('Error during fetch of concept and relations', 'Could not retrieve data from the modeling service. '));
+    }, error => this.notification.error('Error during fetch of concept and relations', 'Could not retrieve data from service. '));
   }
 
   onIndexChange(event: NzTabChangeEvent): void {
@@ -80,7 +80,6 @@ export class PlsConceptDialogComponent implements OnInit, OnDestroy {
   }
 
   toggleRelation(index: number, relation: Relation): void {
-    // console.log('toggle relation', index, relation);
     if (this.isSelected(relation)) {
       this.modeling.relation.next(null);
     } else {

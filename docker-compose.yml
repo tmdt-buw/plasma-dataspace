@@ -105,14 +105,17 @@ services:
   kgs:
     image: "plasma/kgs:${PLASMA_VERSION}"
     hostname: plasma-kgs
+    user: root
     restart: unless-stopped
     depends_on:
       - discovery
       - fuseki
     ports:
       - 8181:8181
+    environment:
+      - plasma.kgs.ontologies.folder=/var/ontologies
     volumes:
-      - kgs_ontologies:/ontologies
+      - kgs_ontologies:/var/ontologies
 
   sas:
     image: "plasma/sas:${PLASMA_VERSION}"
