@@ -1,6 +1,6 @@
 package de.buw.tmdt.plasma.services.dps.shared.feignclient;
 
-import de.buw.tmdt.plasma.services.sas.shared.api.AnalysisApi;
+import de.buw.tmdt.plasma.services.dps.api.DataProcessingApi;
 import org.springframework.cloud.openfeign.FeignClient;
 
 @FeignClient(
@@ -8,5 +8,5 @@ import org.springframework.cloud.openfeign.FeignClient;
 		contextId = "data-processing-client",
 		configuration = DataProcessingFeignConfiguration.class
 )
-public interface DataProcessingApiClient extends AnalysisApi {
+public interface DataProcessingApiClient extends DataProcessingApi {
 }
