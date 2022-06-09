@@ -19,6 +19,7 @@ import org.apache.jena.vocabulary.RDFS;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import java.util.List;
 import java.util.Optional;
 
@@ -44,6 +45,11 @@ public class LocalOntologyManagement {
 
     public LocalOntologyManagement(Ontologies ontologies) {
         this.ontologies = ontologies;
+    }
+
+    @PostConstruct
+    public void initialize(){
+        getInternalOntology();
     }
 
     public void addResourcesToOntology(List<SemanticModelNode> resources) {
@@ -136,104 +142,104 @@ public class LocalOntologyManagement {
                 .addWhere("?class", RDF.type, "?type")
                 .addWhere("?class", RDFS.label, "?o")
                 .addFilter(describeBuilder.getExprFactory().in("?type", OWL.Class, PLCM.NamedEntity))
-                    .addFilter(describeBuilder.getExprFactory().strstarts("?o", prefix));
+                .addFilter(describeBuilder.getExprFactory().strstarts("?o", prefix));
 
         QueryExecution query = QueryExecutionFactory.create(describeBuilder.build(), getInternalOntology());
         Model model1 = query.execDescribe();
 
-            List<SemanticModelNode> elements = CMToRDFMapper.convertOntologyResourcesToSemanticModelNodes(model1.listSubjects().toList());
-            return elements;
+        List<SemanticModelNode> elements = CMToRDFMapper.convertOntologyResourcesToSemanticModelNodes(model1.listSubjects().toList());
+        return elements;
     }
 
     public List<SemanticModelNode> findElementsByLabelInfix(String infix) {
-            DescribeBuilder describeBuilder = new DescribeBuilder();
+        DescribeBuilder describeBuilder = new DescribeBuilder();
         describeBuilder.addPrefixes(PREFIXES)
                 .addVar("?class")
                 .addWhere("?class", RDF.type, "?type")
                 .addWhere("?class", RDFS.label, "?o")
                 .addFilter(describeBuilder.getExprFactory().in("?type", OWL.Class, PLCM.NamedEntity))
-                    .addFilter(describeBuilder.getExprFactory().regex("?o", infix, "i"));
+                .addFilter(describeBuilder.getExprFactory().regex("?o", infix, "i"));
 
         QueryExecution query = QueryExecutionFactory.create(describeBuilder.build(), getInternalOntology());
         Model model1 = query.execDescribe();
-            List<SemanticModelNode> elements = CMToRDFMapper.convertOntologyResourcesToSemanticModelNodes(model1.listSubjects().toList());
-            return elements;
+        List<SemanticModelNode> elements = CMToRDFMapper.convertOntologyResourcesToSemanticModelNodes(model1.listSubjects().toList());
+        return elements;
     }
 
     public List<SemanticModelNode> findElementsByNamespace(String namespace) {
-            DescribeBuilder describeBuilder = new DescribeBuilder();
+        DescribeBuilder describeBuilder = new DescribeBuilder();
         describeBuilder.addPrefixes(PREFIXES)
                 .addVar("?class")
                 .addWhere("?class", RDF.type, "?type")
                 .addWhere("?class", RDFS.label, "?o")
                 .addFilter(describeBuilder.getExprFactory().in("?type", OWL.Class, PLCM.NamedEntity))
-                    .addFilter(describeBuilder.getExprFactory().strstarts("?class", namespace));
+                .addFilter(describeBuilder.getExprFactory().strstarts("?class", namespace));
 
         QueryExecution query = QueryExecutionFactory.create(describeBuilder.build(), getInternalOntology());
         Model model1 = query.execDescribe();
-            List<SemanticModelNode> elements = CMToRDFMapper.convertOntologyResourcesToSemanticModelNodes(model1.listSubjects().toList());
-            return elements;
+        List<SemanticModelNode> elements = CMToRDFMapper.convertOntologyResourcesToSemanticModelNodes(model1.listSubjects().toList());
+        return elements;
     }
 
     public Relation findRelationByURI(String uri) {
-            DescribeBuilder describeBuilder = new DescribeBuilder();
-            describeBuilder.addPrefixes(PREFIXES)
-                    .addVar("?relation")
-                    .addWhere("?relation", RDF.type, "?type")
-                    .addFilter(describeBuilder.getExprFactory().in("?type", OWL.ObjectProperty, OWL.DatatypeProperty))
-                    .addFilter(describeBuilder.getExprFactory().eq("?relation", ResourceFactory.createProperty(uri)))
-            ;
+        DescribeBuilder describeBuilder = new DescribeBuilder();
+        describeBuilder.addPrefixes(PREFIXES)
+                .addVar("?relation")
+                .addWhere("?relation", RDF.type, "?type")
+                .addFilter(describeBuilder.getExprFactory().in("?type", OWL.ObjectProperty, OWL.DatatypeProperty))
+                .addFilter(describeBuilder.getExprFactory().eq("?relation", ResourceFactory.createProperty(uri)))
+        ;
 
         QueryExecution query = QueryExecutionFactory.create(describeBuilder.build(), getInternalOntology());
         Model model1 = query.execDescribe();
-            List<Relation> elements = CMToRDFMapper.convertOntologyRelationsToRelations(model1.listSubjects().toList());
-            return elements.stream().findFirst().orElse(null);
+        List<Relation> elements = CMToRDFMapper.convertOntologyRelationsToRelations(model1.listSubjects().toList());
+        return elements.stream().findFirst().orElse(null);
     }
 
 
     public List<Relation> findRelationsByLabelPrefix(String prefix) {
-            DescribeBuilder describeBuilder = new DescribeBuilder();
-            describeBuilder.addPrefixes(PREFIXES)
-                    .addVar("?relation")
-                    .addWhere("?relation", RDFS.label, "?o")
-                    .addWhere("?relation", RDF.type, "?type")
-                    .addFilter(describeBuilder.getExprFactory().in("?type", OWL.ObjectProperty, OWL.DatatypeProperty))
-                    .addFilter(describeBuilder.getExprFactory().strstarts("?o", prefix));
+        DescribeBuilder describeBuilder = new DescribeBuilder();
+        describeBuilder.addPrefixes(PREFIXES)
+                .addVar("?relation")
+                .addWhere("?relation", RDFS.label, "?o")
+                .addWhere("?relation", RDF.type, "?type")
+                .addFilter(describeBuilder.getExprFactory().in("?type", OWL.ObjectProperty, OWL.DatatypeProperty))
+                .addFilter(describeBuilder.getExprFactory().strstarts("?o", prefix));
 
         QueryExecution query = QueryExecutionFactory.create(describeBuilder.build(), getInternalOntology());
         Model model1 = query.execDescribe();
-            List<Relation> elements = CMToRDFMapper.convertOntologyRelationsToRelations(model1.listSubjects().toList());
-            return elements;
+        List<Relation> elements = CMToRDFMapper.convertOntologyRelationsToRelations(model1.listSubjects().toList());
+        return elements;
     }
 
     public List<Relation> findRelationsByLabelInfix(String infix) {
-            DescribeBuilder describeBuilder = new DescribeBuilder();
-            describeBuilder.addPrefixes(PREFIXES)
-                    .addVar("?relation")
-                    .addWhere("?relation", RDFS.label, "?o")
-                    .addWhere("?relation", RDF.type, "?type")
-                    .addFilter(describeBuilder.getExprFactory().in("?type", OWL.ObjectProperty, OWL.DatatypeProperty))
-                    .addFilter(describeBuilder.getExprFactory().strstarts("?o", infix));
+        DescribeBuilder describeBuilder = new DescribeBuilder();
+        describeBuilder.addPrefixes(PREFIXES)
+                .addVar("?relation")
+                .addWhere("?relation", RDFS.label, "?o")
+                .addWhere("?relation", RDF.type, "?type")
+                .addFilter(describeBuilder.getExprFactory().in("?type", OWL.ObjectProperty, OWL.DatatypeProperty))
+                .addFilter(describeBuilder.getExprFactory().strstarts("?o", infix));
 
         QueryExecution query = QueryExecutionFactory.create(describeBuilder.build(), getInternalOntology());
         Model model1 = query.execDescribe();
-            List<Relation> elements = CMToRDFMapper.convertOntologyRelationsToRelations(model1.listSubjects().toList());
-            return elements;
+        List<Relation> elements = CMToRDFMapper.convertOntologyRelationsToRelations(model1.listSubjects().toList());
+        return elements;
     }
 
     public List<Relation> findRelationsByNamespace(String namespace) {
-            DescribeBuilder describeBuilder = new DescribeBuilder();
-            describeBuilder.addPrefixes(PREFIXES)
-                    .addVar("?relation")
-                    .addWhere("?relation", RDFS.label, "?o")
-                    .addWhere("?relation", RDF.type, "?type")
-                    .addFilter(describeBuilder.getExprFactory().in("?type", OWL.ObjectProperty, OWL.DatatypeProperty))
-                    .addFilter(describeBuilder.getExprFactory().strstarts("?relation", namespace));
+        DescribeBuilder describeBuilder = new DescribeBuilder();
+        describeBuilder.addPrefixes(PREFIXES)
+                .addVar("?relation")
+                .addWhere("?relation", RDFS.label, "?o")
+                .addWhere("?relation", RDF.type, "?type")
+                .addFilter(describeBuilder.getExprFactory().in("?type", OWL.ObjectProperty, OWL.DatatypeProperty))
+                .addFilter(describeBuilder.getExprFactory().strstarts("?relation", namespace));
 
         QueryExecution query = QueryExecutionFactory.create(describeBuilder.build(), getInternalOntology());
         Model model1 = query.execDescribe();
-            List<Relation> elements = CMToRDFMapper.convertOntologyRelationsToRelations(model1.listSubjects().toList());
-            return elements;
+        List<Relation> elements = CMToRDFMapper.convertOntologyRelationsToRelations(model1.listSubjects().toList());
+        return elements;
     }
 
     private void putModel(Model model) {
