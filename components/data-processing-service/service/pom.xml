@@ -90,6 +90,25 @@
             <version>${project.parent.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>de.buw.tmdt.plasma.services.kgs</groupId>
+            <artifactId>feign-client</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+
+        <!-- RDF -->
+        <dependency>
+            <groupId>org.apache.jena</groupId>
+            <artifactId>apache-jena-libs</artifactId>
+            <version>${org.apache.jena.version}</version>
+            <type>pom</type>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.jena</groupId>
+            <artifactId>jena-querybuilder</artifactId>
+            <version>${org.apache.jena.version}</version>
+        </dependency>
+
         <!-- MariaDB -->
         <dependency>
             <groupId>org.mariadb.jdbc</groupId>

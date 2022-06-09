@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -59,6 +60,11 @@ public class OntologyController implements OntologyApi {
     @Override
     public List<OntologyInfo> listOntologies() {
         return ontologies.listOntologies();
+    }
+
+    @Override
+    public Map<String,String> getPrefixes() {
+        return Ontologies.PREFIXES.getNsPrefixMap();
     }
 
 

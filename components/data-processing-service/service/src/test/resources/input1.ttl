@@ -1,0 +1,41 @@
+@prefix schema: <http://schema.org/> .
+@prefix plsm:  <http://plasma.uni-wuppertal.de/sm/> .
+@prefix plcm:  <http://plasma.uni-wuppertal.de/cm#> .
+@prefix owl:   <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix vcslam: <http://www.tmdt.uni-wuppertal.de/vcslam#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix local: <https://local.ontology#> .
+@prefix foaf:  <http://xmlns.com/foaf/0.1/> .
+@prefix dc:    <http://purl.org/dc/elements/1.1/> .
+@prefix sosa:  <http://www.w3.org/ns/sosa/> .
+@prefix sifrai: <http://sifrai.siemens.com/> .
+
+_:b0    a                     sifrai:inverter ;
+        sifrai:attached_to  [ a                        sifrai:driving_belt ;
+                                sifrai:operation_mode  [ a  sifrai:varying_speed ] ;
+                                sifrai:operation_mode  [ a  sifrai:varying_tension ]
+                              ] .
+
+plsm:c8a41-x__ms_  a                  sifrai:Timestamp ;
+        plcm:syntaxNodeId "ts" ;
+        sifrai:unit_of_measurement  [ a  sifrai:milisecond ] .
+
+[ a                            sifrai:measurement ;
+  sifrai:consists_of         plsm:c8a41-c1:servo_02.r63 , plsm:c8a41-c0:servo_02.r80 ;
+  sifrai:measuredAt          plsm:c8a41-x__ms_ ;
+  sifrai:sampling_frequency  "500Hz"
+] .
+
+plsm:c8a41-c0:servo_02.r80
+        a                   sifrai:Torque ;
+        plcm:syntaxNodeId "value1" ;
+        sifrai:denotedAs  "r80" ;
+        sifrai:takenAt    _:b0 .
+
+plsm:c8a41-c1:servo_02.r63
+        a                   sifrai:Speed ;
+        plcm:syntaxNodeId "value2" ;
+        sifrai:denotedAs  "r62" ;
+        sifrai:takenAt    _:b0 .

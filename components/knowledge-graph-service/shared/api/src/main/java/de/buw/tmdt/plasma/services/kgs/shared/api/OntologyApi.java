@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
 
 @SuppressWarnings("HardcodedFileSeparator")
 @RequestMapping("/api/plasma-kgs/ontologies")
@@ -60,6 +61,18 @@ public interface OntologyApi {
                      @RequestParam(value = "uri") String uri,
                      @RequestParam("file") MultipartFile ontologyFile);
 
+    /**
+     * Get a list of all available ontologies.
+     * This call returns ontologies to be provided to the GUI.
+     */
     @GetMapping(value = "/ontologies", produces = MediaType.APPLICATION_JSON_VALUE)
     List<OntologyInfo> listOntologies();
+
+    /**
+     * Get prefix map.
+     * This endpoint returns a mapping of all prefixes to their namespaces currently known to the service.
+     */
+    @GetMapping(value = "/prefixes", produces = MediaType.APPLICATION_JSON_VALUE)
+    Map<String, String> getPrefixes();
+
 }
