@@ -18,7 +18,6 @@
         <module>components/discovery-service</module>
         <module>components/gateway-service</module>
         <module>components/semantic-recommendation-service</module>
-        <module>components/semantic-database-service</module>
         <module>components/utilities</module>
         <module>components/datamodel</module>
         <module>components/config-service</module>
