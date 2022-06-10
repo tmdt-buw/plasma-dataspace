@@ -10,7 +10,6 @@ PLASMA is a modular framework for developing and evaluating semantic labeling, m
 * Schema Analysis Service
 * Data Modeling Service 
 * Semantic Recommendation Service
-* Data Source Service 
 * ARS-L Exact Label Matching
 
 Each of these services takes over a specific task as described in our corresponding ESWC Paper. 

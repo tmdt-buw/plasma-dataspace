@@ -21,7 +21,6 @@
         <module>components/semantic-database-service</module>
         <module>components/utilities</module>
         <module>components/datamodel</module>
-        <module>components/datasource-service</module>
         <module>components/config-service</module>
         <module>auxiliary_services/ARS-L-label-matching</module>
         <module>auxiliary_services/ARS-M-standard-matching</module>
