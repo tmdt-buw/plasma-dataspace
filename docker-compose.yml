@@ -150,7 +150,7 @@ services:
 
   ui:
     build: ./frontend
-    image: "frontend:${PLASMA_VERSION}"
+    image: "plasma/frontend:${PLASMA_VERSION}"
     hostname: plasma-ui
     restart: unless-stopped
     ports:
