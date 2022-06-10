@@ -19,20 +19,28 @@ public class RDFConverter {
     public static final Logger log = LoggerFactory.getLogger(RDFConverter.class);
 
     private final PrefixMapping prefixes;
+    int counter = 0;
+
 
     /**
      * Initialize a new {@link RDFConverter}.
      */
-    public RDFConverter(PrefixMapping prefixes){
+    public RDFConverter(PrefixMapping prefixes) {
         this.prefixes = prefixes;
     }
 
+    private int getCounter(){
+        return counter++;
+    }
+
     public Model convertToRDF(SemanticModel semanticModel) {
+        counter = 0;
         Map<String, RDFNode> uuidtoResource = new HashMap<>();
         String semanticModelId = semanticModel.getId().substring(0, 5);
         Model m = ModelFactory.createDefaultModel();
         m.setNsPrefixes(prefixes);
         String smPrefix = prefixes.getNsPrefixURI("plsm");
+
         semanticModel.getNodes().forEach(node -> {
             RDFNode rdfNode = null;
             if (node instanceof Class) {
@@ -47,24 +55,10 @@ public class RDFConverter {
                         resource.addProperty(PLCM.description, m.createLiteral(i.getDescription()));
                     }
                 } else {
-                    resource = m.createResource();
-                }
-                if (clazz.getMappedSyntaxNodeUuid() != null) {
-                    resource.addProperty(PLCM.syntaxNodeId, m.createLiteral(clazz.getMappedSyntaxNodeUuid()));
-                }
-                if (clazz.getMappedSyntaxNodeLabel() != null && !clazz.getMappedSyntaxNodeLabel().isBlank()) {
-                    resource.addProperty(PLCM.originalLabel, m.createLiteral(clazz.getMappedSyntaxNodeLabel()));
+                    resource = m.createResource(smPrefix+ semanticModelId + "-"  + getCounter());
                 }
 
                 resource.addProperty(RDF.type, m.createResource(m.expandPrefix(clazz.getURI())));
-
-                if (clazz.getXCoordinate() != null) {
-                    resource.addProperty(PLCM.xCoordinate, m.createLiteral(String.valueOf(clazz.getXCoordinate())));
-                }
-                if (clazz.getYCoordinate() != null) {
-                    resource.addProperty(PLCM.yCoordinate, m.createLiteral(String.valueOf(clazz.getYCoordinate())));
-                }
-                resource.addProperty(PLCM.cmUuid, m.createLiteral(clazz.getUuid()));
                 rdfNode = resource;
             } else if (node instanceof Literal) {
                 Literal l = (Literal) node;
@@ -75,22 +69,9 @@ public class RDFConverter {
                 // this will later be elevated to the ontology
                 Resource neResource = m.createResource(m.expandPrefix(ne.getURI()));
                 neResource.addProperty(RDF.type, PLCM.NamedEntity);
-                neResource.addProperty(PLCM.label, m.createLiteral(ne.getLabel()));
-                if (ne.getDescription() != null && !ne.getDescription().isBlank()) {
-                    neResource.addProperty(PLCM.description, m.createLiteral(ne.getDescription()));
-                }
 
-                // now create an anonymous representation of the named entity in this model
-                // this stores local information like the CM uuid and model position
                 Resource resource = m.createResource();
                 resource.addProperty(RDF.type, neResource);
-                resource.addProperty(PLCM.cmUuid, ne.getUuid());
-                if (ne.getXCoordinate() != null) {
-                    resource.addProperty(PLCM.xCoordinate, m.createLiteral(String.valueOf(ne.getXCoordinate())));
-                }
-                if (ne.getYCoordinate() != null) {
-                    resource.addProperty(PLCM.yCoordinate, m.createLiteral(String.valueOf(ne.getYCoordinate())));
-                }
                 // use the b-node as reference
                 rdfNode = resource;
             }
@@ -98,7 +79,7 @@ public class RDFConverter {
 
         });
         semanticModel.getEdges().forEach(r -> {
-            SemanticModelNode from =semanticModel.getNode(r.getFrom());
+            SemanticModelNode from = semanticModel.getNode(r.getFrom());
             SemanticModelNode to = semanticModel.getNode(r.getTo());
             RDFNode fromNode = uuidtoResource.get(from.getUuid());
             RDFNode toNode = uuidtoResource.get(to.getUuid());
@@ -106,7 +87,6 @@ public class RDFConverter {
         });
         return m;
     }
-
 
 
     public static String convertToInstanceId(String label) {

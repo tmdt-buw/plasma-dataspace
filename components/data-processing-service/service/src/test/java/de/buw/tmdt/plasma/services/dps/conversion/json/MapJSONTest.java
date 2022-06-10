@@ -1,4 +1,4 @@
-package de.buw.tmdt.plasma.services.dps.core;
+package de.buw.tmdt.plasma.services.dps.conversion.json;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
