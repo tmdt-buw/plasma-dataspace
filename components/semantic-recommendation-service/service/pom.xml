@@ -50,6 +50,10 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-log4j2</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-webflux</artifactId>
+        </dependency>
 
         <!-- Spring Cloud -->
         <dependency>
@@ -69,18 +73,13 @@
             <artifactId>springdoc-openapi-ui</artifactId>
         </dependency>
 
+
         <!-- PLASMA Dependencies -->
         <dependency>
             <groupId>${project.parent.groupId}</groupId>
             <artifactId>api</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
-        <dependency>
-            <groupId>de.buw.tmdt.plasma.ars.labeling.labelmatching</groupId>
-            <artifactId>feign-client</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-
         <dependency>
             <groupId>de.buw.tmdt.plasma.ars.modeling.standardmatching</groupId>
             <artifactId>feign-client</artifactId>

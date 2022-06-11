@@ -27,12 +27,8 @@ public class LabelMatchingHandler {
 
     final OntologyApi ontologyApi;
 
-    private ConfigServiceClient configClient;
-
-    public LabelMatchingHandler(OntologyApi ontologyApi,
-                                @NotNull ConfigServiceClient configService) {
+    public LabelMatchingHandler(OntologyApi ontologyApi) {
         this.ontologyApi = ontologyApi;
-        this.configClient = configService;
     }
 
     public CombinedModel performLabeling(String dataSourceUUID, String configId, String configToken, CombinedModel combined) {
