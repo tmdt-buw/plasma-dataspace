@@ -55,6 +55,9 @@ public class ModelingHandler {
     @Value("${plasma.dms.feature.syntacticoperations.enabled:false}")
     private Boolean syntacticOperationsEnabled;
 
+    @Value("${plasma.dms.feature.recommendations.enabled:false}")
+    private Boolean recommendationsEnabled;
+
     @Autowired
     public ModelingHandler(
             @SuppressWarnings({"SpringJavaInjectionPointsAutowiringInspection"})
@@ -720,10 +723,12 @@ public class ModelingHandler {
 
     @NotNull
     public CombinedModel requestRecommendations(@NotNull String modelId, @NotNull CombinedModel combinedModel) {
-        try {
-            return semanticRecommendationApiClient.performSemanticRefinement(modelId, null, null, combinedModel);
-        } catch (Exception e) {
-            //log.warn("Could not reach SRS");
+        if(recommendationsEnabled){
+            try {
+                return semanticRecommendationApiClient.performSemanticRefinement(modelId, null, null, combinedModel);
+            } catch (Exception e) {
+                log.warn("Could not reach SRS for recommendations");
+            }
         }
         return combinedModel;
     }
