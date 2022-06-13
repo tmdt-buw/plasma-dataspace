@@ -2,6 +2,7 @@ package de.buw.tmdt.plasma.ars.labeling.lm.service.handler;
 
 import de.buw.tmdt.plasma.datamodel.CombinedModel;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.Class;
+import de.buw.tmdt.plasma.datamodel.semanticmodel.MappableSemanticModelNode;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.SemanticModelNode;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.PrimitiveNode;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.SchemaNode;
@@ -35,13 +36,16 @@ public class LabelMatchingHandler {
     }
 
     public CombinedModel performLabeling(String dataSourceUUID, String configId, String configToken, CombinedModel combined) {
-
-        SyntaxModel syntaxModelDTO = combined.getSyntaxModel();
-        for (SchemaNode node : syntaxModelDTO.getNodes()) {
-            if (!(node instanceof PrimitiveNode)) {
+        List<String> mappedPrimitiveNodeIds = combined.getSemanticModel().getNodes().stream()
+                .filter(SemanticModelNode::isMapped)
+                .map(n -> (MappableSemanticModelNode) n)
+                .map(MappableSemanticModelNode::getMappedSyntaxNodeUuid)
+                .collect(Collectors.toList());
+        SyntaxModel syntaxModel = combined.getSyntaxModel();
+        for (SchemaNode node : syntaxModel.getNodes()) {
+            if (!(node instanceof PrimitiveNode) || mappedPrimitiveNodeIds.contains(node.getUuid())) {
                 continue;
             }
-
             String label = node.getLabel();
             Collection<SemanticModelNode> candidates = ontologyApi.getElements(null,label, null, null);
             List<Class> classes = candidates.stream()
@@ -50,7 +54,7 @@ public class LabelMatchingHandler {
                     .collect(Collectors.toList());
 
 
-            Optional<Class> matching = classes.stream().filter(entityConceptDTO -> entityConceptDTO.getLabel().equals(label)).findFirst();
+            Optional<Class> matching = classes.stream().filter(clazz -> clazz.getLabel().equalsIgnoreCase(label)).findFirst();
             if (matching.isPresent()) {  // we only match on exact equality
                 // we found one
                 // create an Instance
