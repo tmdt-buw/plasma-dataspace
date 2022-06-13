@@ -91,6 +91,9 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
   private uploadOntologyDialogRef: NzModalRef<any, any>;
   private copySemanticModelDialogRef: NzModalRef<any, any>;
 
+  // tools
+  recommendationsEnabled = true;
+
   get isFullscreen(): boolean {
     return !!this.main?.fullScreenIsActive;
   }
@@ -401,6 +404,28 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
 
   closeSemanticModelCopyDialog(): void {
     this.copySemanticModelDialogRef?.close();
+  }
+
+  performSemanticLabeling(): void{
+    if(!this.recommendationsEnabled){
+      return;
+    }
+    this.modelingService.performSemanticLabeling(this.modelId).subscribe(combinedModel => {
+      this.combinedModel = combinedModel;
+    }, error => {
+      this.notification.error('Could not perform semantic labeling', 'Error performing semantic labeling, check if ARS are configured correctly.');
+    });
+  }
+
+  performSemanticModeling(): void{
+    if(!this.recommendationsEnabled){
+      return;
+    }
+    this.modelingService.performSemanticModeling(this.modelId).subscribe(combinedModel => {
+      this.combinedModel = combinedModel;
+    }, error => {
+      this.notification.error('Could not perform semantic modeling', 'Error performing semantic modeling, check if ARS are configured correctly.');
+    });
   }
 
   isViewerMode(): boolean {

@@ -24,7 +24,7 @@ public interface ModelingAPI {
     ModelingInfo createNewModeling(
             @Nullable @RequestParam(value = "modelId", required = false) String modelId,
             @NotNull @RequestBody CombinedModel combinedModel,
-            @RequestParam(defaultValue = "true") boolean performInitialModeling,
+            @RequestParam(defaultValue = "false") boolean performInitialModeling,
             @RequestParam(required = false) String name,
             @RequestParam(required = false) String description,
             @RequestParam(required = false) String dataId);

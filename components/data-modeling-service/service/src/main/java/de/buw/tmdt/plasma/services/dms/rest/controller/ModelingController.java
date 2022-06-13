@@ -54,7 +54,6 @@ public class ModelingController implements ModelingAPI {
         }
         Modeling modeling = modelingHandler.initializeModeling(modelId, combinedModel, name, description, dataId);
         if (performInitialModeling) {
-            // TODO async?
             modelingHandler.performSemanticLabeling(modelId);
             modelingHandler.performSemanticModeling(modelId);
         }

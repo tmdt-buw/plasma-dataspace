@@ -96,6 +96,9 @@ public class ModelingHandler {
     }
 
     public CombinedModel performSemanticLabeling(String modelId) {
+        if(!recommendationsEnabled){
+            throw new ResponseStatusException(HttpStatus.NOT_IMPLEMENTED, "Recommendations are currently disabled.");
+        }
         Modeling modeling = findModelingOrThrow(modelId);
         try {
             CombinedModel labeledCombinedModel;
@@ -112,6 +115,9 @@ public class ModelingHandler {
     }
 
     public CombinedModel performSemanticModeling(String modelId) {
+        if(!recommendationsEnabled){
+            throw new ResponseStatusException(HttpStatus.NOT_IMPLEMENTED, "Recommendations are currently disabled.");
+        }
         Modeling modeling = findModelingOrThrow(modelId);
         try {
             CombinedModel labeledCombinedModel;

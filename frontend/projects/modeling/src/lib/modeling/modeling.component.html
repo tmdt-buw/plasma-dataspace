@@ -64,6 +64,16 @@
               nz-tooltip="Import a semantic model from another existing modeling."></a>
               Import semantic model
           </li>
+          <li (click)="performSemanticLabeling()" [nzDisabled]="!recommendationsEnabled" nz-menu-item>
+            <a class="dropdown-icon" nz-icon nzType="node-index"
+               nz-tooltip="Use an ARS to perform a semantic labeling step."></a>
+            Semantic Labeling
+          </li>
+          <li (click)="performSemanticModeling()" [nzDisabled]="!recommendationsEnabled" nz-menu-item>
+            <a class="dropdown-icon" nz-icon nzType="share-alt"
+               nz-tooltip="Use an ARS to perform a semantic modeling step."></a>
+            Semantic Modeling
+          </li>
         </ul>
       </nz-dropdown-menu>
       <!--      search -->
