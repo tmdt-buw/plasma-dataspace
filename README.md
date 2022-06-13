@@ -53,9 +53,9 @@ For an explanation of most parameters, check the individual README files of thos
 
 
 ## Development Setup
-If components are run locally, e.g. for debugging purposes, the entries have to be added to the /etc/hosts file.
+If components are run locally, e.g. for debugging purposes, entries for each service have to be added to the /etc/hosts file.
 Setting those lookups enables a local component to communicate with other components that may still run in Docker.
-This is required due to a limitation of docker. 
+This is required due to a limitation of docker. Example:
 ```
 127.0.0.1 plasma-discovery-service
 127.0.0.1 plasma-admin-service
