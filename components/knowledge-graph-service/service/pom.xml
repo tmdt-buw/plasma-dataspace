@@ -18,22 +18,6 @@
         <com.steelbridgelabs.oss.version>0.4.5</com.steelbridgelabs.oss.version>
     </properties>
 
-    <dependencyManagement>
-        <dependencies>
-            <!-- Neo4J -->
-            <dependency>
-                <groupId>org.neo4j</groupId>
-                <artifactId>neo4j-graphdb-api</artifactId>
-                <version>${neo4j.graphdb.api}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.steelbridgelabs.oss</groupId>
-                <artifactId>neo4j-gremlin-bolt</artifactId>
-                <version>${com.steelbridgelabs.oss.version}</version>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
-
     <dependencies>
         <!-- Spring Boot -->
         <dependency>
@@ -94,11 +78,6 @@
         <dependency>
             <groupId>${project.parent.groupId}</groupId>
             <artifactId>api</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>de.buw.tmdt.plasma.services.sds</groupId>
-            <artifactId>feign-client</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
 

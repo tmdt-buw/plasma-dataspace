@@ -35,22 +35,22 @@ The included web-based frontend is written using Angular 13.
 
 ### Docker Setup
 * Checkout the repository
-* To build the services execute ```mvn package``` on the parent module in the ```components``` folder
-* To build the Docker containers execute ```mvn install jib:dockerBuild -DskipTests``` on the parent module
+* To build the services execute `mvn package` on the parent module in the `components` folder
+* To build the Docker containers execute mvn install jib:dockerBuild -DskipTests on the parent module
 
 **Note**: Ensure that your docker is running on the local machine and can be reached
 
-* Build the docker container for the UI using the corresponding ```Dockerfile``` in ```frontend```
-* This is also included when building the whole system via docker-compose
+* Build the UI by running `npm build:dms` and `npm build` in `frontend` directory
+* Build the docker container for the UI using the corresponding `Dockerfile` in `frontend`
 
 ### Starting PLASMA
 * Optional: Adjust environment variables in the docker-compose.yml file. 
 For an explanation of most parameters, check the individual README files of those services
-* To start, execute the ```docker-compose``` script, e.g. ```docker-compose up -d```
-* Access the UI at ```localhost:80```
+* To start, execute the `docker-compose` script, e.g. `docker-compose up -d`
+* Access the UI at `localhost:80`
 
 ### Stopping PLASMA
-* PLASMA can be stopped by halting all Docker containers, e.g. ```docker-compose down```
+* PLASMA can be stopped by halting all Docker containers, e.g. docker-compose down
 
 
 ## Development Setup
