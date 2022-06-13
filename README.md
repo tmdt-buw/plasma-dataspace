@@ -31,11 +31,12 @@ The included web-based frontend is written using Angular 13.
 * Install OpenJDK 11
 * Install Docker for executing each service
 * You require Maven to build the services
+* The frontend uses npm to build. Check the dedicated frontend README for more information.
 
 ### Docker Setup
 * Checkout the repository
-* To build the services execute ```maven package``` on the parent module in the ```components``` folder
-* To build the Docker containers execute ```maven install jib:dockerBuild -DskipTests``` on the parent module
+* To build the services execute ```mvn package``` on the parent module in the ```components``` folder
+* To build the Docker containers execute ```mvn install jib:dockerBuild -DskipTests``` on the parent module
 
 **Note**: Ensure that your docker is running on the local machine and can be reached
 
