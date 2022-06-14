@@ -5,6 +5,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { NzNotificationService } from 'ng-zorro-antd/notification';
 import { Router} from '@angular/router';
 import { appRoutesNames } from '../../app.routes.names';
+import { DataProcessingControllerService } from '../../dataprocessing/api/generated';
 
 @Component({
   selector: 'app-create-modeling',
@@ -28,9 +29,10 @@ export class CreateModelingComponent {
   @Output() modelingCreated = new EventEmitter();
 
 
-  constructor(private modelingController: ModelingControllerService, private notification: NzNotificationService, private router: Router) {
+  constructor(private modelingController: ModelingControllerService, private dataprocessingController: DataProcessingControllerService, private notification: NzNotificationService, private router: Router) {
     this.dataId = uuidv4();
     this.modelId = this.dataId;
+    this.dataprocessingController.isAvailable().subscribe(() => console.log('ok'), () => console.log("nok"));
   }
 
 
