@@ -19,6 +19,7 @@ import { NzTypographyModule } from 'ng-zorro-antd/typography';
 import { NzModalModule } from 'ng-zorro-antd/modal';
 import { NzPopconfirmModule } from 'ng-zorro-antd/popconfirm';
 import { NzPageHeaderModule } from 'ng-zorro-antd/page-header';
+import { DataprocessingModule } from '../dataprocessing/dataprocessing.module';
 import { Configuration } from '@tmdt/dms';
 import { environment } from '../../environments/environment';
 
@@ -43,6 +44,7 @@ import { environment } from '../../environments/environment';
         NzFormModule,
         NzInputModule,
         SchemaAnalysisModule,
+        DataprocessingModule,
         FormsModule,
         ReactiveFormsModule,
         NzNotificationModule,

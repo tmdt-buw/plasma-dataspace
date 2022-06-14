@@ -10,7 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 
-@RequestMapping(value = "/api/files")
+@RequestMapping(value = "/api/plasma-dps/files")
 public interface DataProcessingApi {
 
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -20,7 +20,7 @@ public interface DataProcessingApi {
     List<String> listFiles(@NotNull @PathVariable("dataId") String dataId);
 
 
-    @GetMapping(value = "/available", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/available", produces = MediaType.TEXT_PLAIN_VALUE)
     ResponseEntity<String> isAvailable();
 
 }
