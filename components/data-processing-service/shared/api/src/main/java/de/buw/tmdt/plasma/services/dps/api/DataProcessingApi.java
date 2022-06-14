@@ -3,6 +3,7 @@ package de.buw.tmdt.plasma.services.dps.api;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -17,5 +18,9 @@ public interface DataProcessingApi {
 
     @GetMapping(value = "/{dataId}", produces = MediaType.APPLICATION_JSON_VALUE)
     List<String> listFiles(@NotNull @PathVariable("dataId") String dataId);
+
+
+    @GetMapping(value = "/available", produces = MediaType.APPLICATION_JSON_VALUE)
+    ResponseEntity<String> isAvailable();
 
 }

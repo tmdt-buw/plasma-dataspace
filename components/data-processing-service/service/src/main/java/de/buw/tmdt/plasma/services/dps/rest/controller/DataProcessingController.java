@@ -6,6 +6,8 @@ import de.buw.tmdt.plasma.services.dps.core.DataProcessingHandler;
 import io.swagger.v3.oas.annotations.Operation;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -31,5 +33,11 @@ public class DataProcessingController implements DataProcessingApi {
 	@Operation(description = "List all files of an dataId.")
 	public List<String> listFiles(@NotNull String dataId) {
 		return dataProcessingHandler.listFiles(dataId);
+	}
+
+	@Override
+	@Operation(description = "Check if service available.")
+	public ResponseEntity<String> isAvailable() {
+		return new ResponseEntity<>("OK", HttpStatus.OK);
 	}
 }
