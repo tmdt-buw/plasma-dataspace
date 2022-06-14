@@ -20,6 +20,7 @@ import { NzModalModule } from 'ng-zorro-antd/modal';
 import { NzPopconfirmModule } from 'ng-zorro-antd/popconfirm';
 import { NzPageHeaderModule } from 'ng-zorro-antd/page-header';
 import { DataprocessingModule } from '../dataprocessing/dataprocessing.module';
+import {NzUploadModule} from 'ng-zorro-antd/upload';
 import { Configuration } from '@tmdt/dms';
 import { environment } from '../../environments/environment';
 
@@ -51,7 +52,8 @@ import { environment } from '../../environments/environment';
         NzTypographyModule,
         NzModalModule,
         NzPopconfirmModule,
-        NzPageHeaderModule
+        NzPageHeaderModule,
+        NzUploadModule
     ],
   providers: [
     DatePipe

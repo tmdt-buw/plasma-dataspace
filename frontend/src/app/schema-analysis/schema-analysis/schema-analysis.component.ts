@@ -10,6 +10,7 @@ import { AnalysisControllerService, SchemaAnalysisDataProvisionDTO, SyntaxModel 
 export class SchemaAnalysisComponent implements OnInit, OnDestroy {
 
   @Input() dataId: string;
+  @Input() usingFiles = false;
   initializing: boolean = true;
   lastDataPoints: string[] = [];
 

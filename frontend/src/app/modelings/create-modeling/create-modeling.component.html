@@ -23,8 +23,31 @@
     </nz-form-item>
   </form>
 
+  <div *ngIf="dpsAvailable">
+    <h5 nz-typography>Upload File</h5>
+    <nz-upload
+      nzType="drag"
+      [nzMultiple]="false"
+      (nzChange)="onFileAdded($event)"
+      [(nzFileList)]="files"
+    >
+
+      <p class="ant-upload-drag-icon">
+      <i nz-icon nzType="inbox"></i>
+    </p>
+      <p class="ant-upload-text">Click or drag file to this area to upload</p>
+      <p class="ant-upload-hint">
+        Only files with format csv, json, geojson and esri (zip) are supported
+      </p>
+    </nz-upload>
+  </div>
+
+
+  <span id=outerline *ngIf="dpsAvailable"><span id=linetext>or</span></span>
+
+
   <app-schema-analysis [dataId]="dataId" (schemaAvailable)="onSchemaAvailable($event)"
-                       (errorOccurred)="onSchemaAnalysisError($event)"></app-schema-analysis>
+                       (errorOccurred)="onSchemaAnalysisError($event)" [usingFiles]="usingFiles"></app-schema-analysis>
 
   <!-- error and submit button -->
   <div fxLayoutAlign="space-between" fxLayout="row" fxLayoutGap="30px">

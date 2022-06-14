@@ -6,6 +6,10 @@ import { NzNotificationService } from 'ng-zorro-antd/notification';
 import { Router} from '@angular/router';
 import { appRoutesNames } from '../../app.routes.names';
 import { DataProcessingControllerService } from '../../dataprocessing/api/generated';
+import { NzUploadFile } from 'ng-zorro-antd/upload';
+import { AnalysisControllerService } from '../../schema-analysis/api/generated';
+import { graphlib } from 'dagre';
+import json = graphlib.json;
 
 @Component({
   selector: 'app-create-modeling',
@@ -17,6 +21,13 @@ export class CreateModelingComponent {
   dataId: string;
   modelId: string;
   syntaxModel: SyntaxModel;
+  dpsAvailable = false;
+  usingFiles = false;
+
+  sampleData = '';
+  sampleCounter = 0;
+
+  files: File[] = [];
 
   // form
   form = new FormGroup({
@@ -29,10 +40,14 @@ export class CreateModelingComponent {
   @Output() modelingCreated = new EventEmitter();
 
 
-  constructor(private modelingController: ModelingControllerService, private dataprocessingController: DataProcessingControllerService, private notification: NzNotificationService, private router: Router) {
+  constructor(private modelingController: ModelingControllerService,
+              private dataprocessingController: DataProcessingControllerService,
+              private schemaAnalysisController: AnalysisControllerService,
+              private notification: NzNotificationService,
+              private router: Router) {
     this.dataId = uuidv4();
     this.modelId = this.dataId;
-    this.dataprocessingController.isAvailable().subscribe(() => console.log('ok'), () => console.log("nok"));
+    this.dataprocessingController.isAvailable().subscribe(() => this.dpsAvailable = true, () => console.log('DPS not available'));
   }
 
 
@@ -53,7 +68,7 @@ export class CreateModelingComponent {
   }
 
   /**
-   * Returns true of from is valid and a schema is available
+   * Returns true if form is valid or dps was used and a schema is available
    */
   isValid(): boolean {
     return this.form.valid && !!this.syntaxModel;
@@ -65,5 +80,21 @@ export class CreateModelingComponent {
 
   onSchemaAnalysisError(errorMessage: string): void {
     this.syntaxModel = undefined;
+  }
+
+  onFileAdded(info: {file: NzUploadFile }): void {
+    this.usingFiles = true;
+    this.dataprocessingController.uploadFile(info.file.originFileObj, this.dataId)
+      .subscribe((response ) => {
+        this.schemaAnalysisController.initAnalysis(this.dataId).subscribe(() => {
+          response.sample.forEach(sample => {
+            if (this.sampleCounter < 10) {
+              this.schemaAnalysisController.addDataPoint(this.dataId, {data: JSON.stringify(JSON.parse(sample))});
+              this.sampleCounter++;
+            }
+          });
+        });
+
+      });
   }
 }
