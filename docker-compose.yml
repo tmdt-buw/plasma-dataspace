@@ -141,6 +141,20 @@ services:
     environment:
       - plasma.dms.feature.recommendations.enabled=true
 
+  dps:
+    image: "plasma/dps:${PLASMA_VERSION}"
+    hostname: plasma-dps
+    user: root
+    restart: unless-stopped
+    depends_on:
+      - discovery
+    ports:
+      - 8193:8193
+    environment:
+      - plasma.localstorage.directory=/var/plasma/localstorage
+    volumes:
+      - dps_storage:/var/plasma/localstorage
+
   srs:
     image: "plasma/srs:${PLASMA_VERSION}"
     hostname: plasma-srs
@@ -204,12 +218,12 @@ services:
 
   ########################### External Services ######################################
 
-  semantic-recommender:
-    image: plasma/recommender:${RECOMMENDER_VERSION}
-    hostname: semantic-recommender
-    restart: unless-stopped
-    ports:
-      - 8000:8000
+#  semantic-recommender:
+#    image: plasma/recommender:${RECOMMENDER_VERSION}
+#    hostname: semantic-recommender
+#    restart: unless-stopped
+#    ports:
+#      - 8000:8000
 
 
 volumes:
@@ -219,3 +233,4 @@ volumes:
   mariadb_ars_m_sm:
   configs:
   kgs_ontologies:
+  dps_storage:
