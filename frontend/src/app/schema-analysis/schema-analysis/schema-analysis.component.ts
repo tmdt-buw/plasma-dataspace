@@ -13,7 +13,7 @@ export class SchemaAnalysisComponent implements OnInit, OnDestroy {
   initializing: boolean = true;
   lastDataPoints: string[] = [];
 
-  currentDataPoint = '{"stringValue": "34 PLASMA Street", "numberValue": 3.1337, "object": { "stringValue":"nested", "numberValue": 6.266 }}';
+  currentDataPoint = '{"adress":{"street": "PLASMA Street", "number":"34"}, "speed": 38.56, "allowed": 30, "tolerance": 3, "exceeded": 5.56}';
   result: any;
   isReady: boolean;
   initSubscription: Subscription;

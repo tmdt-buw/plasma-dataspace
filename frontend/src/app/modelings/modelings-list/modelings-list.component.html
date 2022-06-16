@@ -1,7 +1,7 @@
 <nz-page-header class="content-header">
   <nz-page-header-title>Modelings</nz-page-header-title>
   <nz-page-header-extra>
-    <button fxFlex="nogrow" nz-button nzType="primary" [routerLink]="['create']"><i nz-icon nzType="plus"></i>Create new
+    <button [disabled]="error" fxFlex="nogrow" nz-button nzType="primary" [routerLink]="['create']"><i nz-icon nzType="plus"></i>Create new
       modeling
     </button>
   </nz-page-header-extra>

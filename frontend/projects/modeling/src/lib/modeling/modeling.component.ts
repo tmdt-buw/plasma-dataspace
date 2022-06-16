@@ -406,25 +406,28 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
     this.copySemanticModelDialogRef?.close();
   }
 
-  performSemanticLabeling(): void{
-    if(!this.recommendationsEnabled){
+  performSemanticLabeling(): void {
+    if (!this.recommendationsEnabled) {
       return;
     }
     this.modelingService.performSemanticLabeling(this.modelId).subscribe(combinedModel => {
       this.combinedModel = combinedModel;
+      this.notification.success('Semantic Labeling', 'Requested a semantic labeling. The result has been applied.');
     }, error => {
-      this.notification.error('Could not perform semantic labeling', 'Error performing semantic labeling, check if ARS are configured correctly.');
+      this.notification.error('Could not perform semantic labeling', error.error.message);
     });
   }
 
-  performSemanticModeling(): void{
-    if(!this.recommendationsEnabled){
+  performSemanticModeling(): void {
+    if (!this.recommendationsEnabled) {
       return;
     }
     this.modelingService.performSemanticModeling(this.modelId).subscribe(combinedModel => {
       this.combinedModel = combinedModel;
+      this.notification.success('Semantic Modeling', 'Requested a semantic modeling. The result has been applied.');
     }, error => {
-      this.notification.error('Could not perform semantic modeling', 'Error performing semantic modeling, check if ARS are configured correctly.');
+      console.log(error);
+      this.notification.error('Could not perform semantic modeling', error.error.message);
     });
   }
 

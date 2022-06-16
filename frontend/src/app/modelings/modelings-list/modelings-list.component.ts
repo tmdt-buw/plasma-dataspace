@@ -4,6 +4,8 @@ import { ModelingControllerService, ModelingInfo } from '@tmdt/dms';
 import { DatePipe } from '@angular/common';
 import { NzModalService } from 'ng-zorro-antd/modal';
 import { appRoutesNames } from '../../app.routes.names';
+import { NzNotificationService } from 'ng-zorro-antd/notification';
+import { HttpStatusCode } from '@angular/common/http';
 
 @Component({
   selector: 'app-modelings-list',
@@ -22,7 +24,7 @@ export class ModelingsListComponent implements OnInit {
   @Output() modelingSelected = new EventEmitter<ModelingInfo>();
 
   constructor(private modelingController: ModelingControllerService, private router: Router, private date: DatePipe,
-              private modal: NzModalService) {
+              private modal: NzModalService, private notification: NzNotificationService) {
   }
 
   /**
@@ -40,9 +42,16 @@ export class ModelingsListComponent implements OnInit {
     this.error = null;
     this.modelingController.listModelings().subscribe(
       (modelings) => {
+        this.error = null;
         this.modelings = modelings;
         this.isLoading = false;
       }, error => {
+        if (error.status === HttpStatusCode.ServiceUnavailable){
+          this.notification.error('Modeling Service Not Available', 'The modeling service could not be reached. Please try again in a few minutes or contact support.');
+        }
+        else{
+          this.notification.error('Unexpected error occurred', 'The modeling service returned: ' + error.statusText + ': ' + error.message);
+        }
         this.error = error;
         this.isLoading = false;
       });
