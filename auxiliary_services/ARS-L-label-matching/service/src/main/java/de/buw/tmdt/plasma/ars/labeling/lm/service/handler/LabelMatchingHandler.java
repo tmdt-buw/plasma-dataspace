@@ -7,9 +7,7 @@ import de.buw.tmdt.plasma.datamodel.semanticmodel.SemanticModelNode;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.PrimitiveNode;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.SchemaNode;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.SyntaxModel;
-import de.buw.tmdt.plasma.services.config.ConfigServiceClient;
 import de.buw.tmdt.plasma.services.kgs.shared.api.OntologyApi;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -51,19 +49,18 @@ public class LabelMatchingHandler {
 
 
             Optional<Class> matching = classes.stream().filter(clazz -> clazz.getLabel().equalsIgnoreCase(label)).findFirst();
-            if (matching.isPresent()) {  // we only match on exact equality
-                // we found one
-                // create an Instance
+            if (matching.isPresent()) {  // we only match on exact equality but case-insensitive
+                // we found one or more, create a mapping
                 Class clazz = matching.get();
                 clazz.createInstance();
                 clazz.setMappedSyntaxNodeLabel(node.getLabel());
                 clazz.setMappedSyntaxNodeUuid(node.getUuid());
                 clazz.setMappedSyntaxNodePath(String.join("->", node.getPath()));
+                clazz.setXCoordinate(node.getXCoordinate());
+                clazz.setYCoordinate(node.getYCoordinate());
                 if (clazz.getInstance() != null) {
                     clazz.getInstance().setLabel(node.getLabel());
-
                 }
-
                 combined.getSemanticModel().getNodes().add(clazz);
             }
         }
