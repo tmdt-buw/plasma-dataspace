@@ -36,7 +36,7 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
 	@NotNull
 	@ExceptionHandler(value = {ResponseStatusException.class})
 	public ResponseEntity<Object> handleResponseStatusException(@NotNull ResponseStatusException ex) {
-        logger.warn("A response Status Exception occurred", ex);
+        logger.warn("A ResponseStatusException occurred: {}:{}", ex.getStatus(), ex.getMessage());
         ModelError modelError = new ModelError(ex.getStatus().value(), ex.getReason(), ex.getMessage());
         return new ResponseEntity<>(modelError, HttpStatus.valueOf(modelError.getStatus()));
     }
