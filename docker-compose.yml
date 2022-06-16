@@ -138,6 +138,8 @@ services:
       - mariadb-dms
     ports:
       - 8186:8186
+    environment:
+      - plasma.dms.feature.recommendations.enabled=true
 
   srs:
     image: "plasma/srs:${PLASMA_VERSION}"
@@ -146,7 +148,11 @@ services:
     depends_on:
       - discovery   
     ports:
-     - 8190:8190 
+     - 8190:8190
+    environment:
+      - plasma.ars.labeling.url=http://plasma-ars-l-lm:8201/api/plasma-ars-l-lm
+      - plasma.ars.modeling.url=
+      - plasma.ars.refinement.url=
 
   ui:
     build: ./frontend
