@@ -19,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Comparator;
 import java.util.List;
@@ -54,8 +55,12 @@ public class ModelingController implements ModelingAPI {
         }
         Modeling modeling = modelingHandler.initializeModeling(modelId, combinedModel, name, description, dataId);
         if (performInitialModeling) {
-            modelingHandler.performSemanticLabeling(modelId);
-            modelingHandler.performSemanticModeling(modelId);
+            try {
+                modelingHandler.performSemanticLabeling(modelId);
+                modelingHandler.performSemanticModeling(modelId);
+            } catch (ResponseStatusException ignore){
+                // do nothing here as we still want to return the model
+            }
         }
         return new ModelingInfo(
                 modeling.getId(),

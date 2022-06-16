@@ -95,7 +95,7 @@ public class ModelingHandler {
         return modeling;
     }
 
-    public CombinedModel performSemanticLabeling(String modelId) {
+    public CombinedModel performSemanticLabeling(String modelId) throws ResponseStatusException {
         if (!recommendationsEnabled) {
             throw new ResponseStatusException(HttpStatus.NOT_IMPLEMENTED, "Recommendations are currently disabled.");
         }
@@ -105,31 +105,37 @@ public class ModelingHandler {
             labeledCombinedModel = semanticRecommendationApiClient.performSemanticLabeling(
                     modelId, null, null, modeling.getCurrentModel());
             modeling.pushCombinedModel(labeledCombinedModel);
-
+            // store the model after recommendations have been added
+            modeling = persistModeling(modeling);
         } catch (Exception e) {
             log.warn("Semantic labeling did not succeed: ", e);
+            if( e instanceof  FeignException.NotImplemented){
+                throw new ResponseStatusException(HttpStatus.NOT_IMPLEMENTED, "No labeling services are defined to process this request.");
+            }
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Unexpected error during labeling: "+ e.getMessage());
         }
-        //store the model after recommendations have been added
-        modeling = persistModeling(modeling);
         return modeling.getCurrentModel();
     }
 
-    public CombinedModel performSemanticModeling(String modelId) {
+    public CombinedModel performSemanticModeling(String modelId) throws ResponseStatusException{
         if (!recommendationsEnabled) {
             throw new ResponseStatusException(HttpStatus.NOT_IMPLEMENTED, "Recommendations are currently disabled.");
         }
         Modeling modeling = findModelingOrThrow(modelId);
         try {
-            CombinedModel labeledCombinedModel;
-            labeledCombinedModel = semanticRecommendationApiClient.performSemanticLabeling(
+            CombinedModel modeledCombinedModel;
+            modeledCombinedModel = semanticRecommendationApiClient.performSemanticModeling(
                     modelId, null, null, modeling.getCurrentModel());
-            modeling.pushCombinedModel(labeledCombinedModel);
-
-        } catch (Exception e) {
-            log.warn("Semantic labeling did not succeed: ", e);
+            modeling.pushCombinedModel(modeledCombinedModel);
+            // store the model after recommendations have been added
+            modeling = persistModeling(modeling);
+        } catch (FeignException e) {
+            log.warn("Semantic modeling did not succeed: ", e);
+            if( e instanceof  FeignException.NotImplemented){
+                throw new ResponseStatusException(HttpStatus.NOT_IMPLEMENTED, "No modeling services are defined to process this request.");
+            }
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Unexpected error during modeling: "+ e.getMessage());
         }
-        //store the model after recommendations have been added
-        modeling = persistModeling(modeling);
         return modeling.getCurrentModel();
     }
 
