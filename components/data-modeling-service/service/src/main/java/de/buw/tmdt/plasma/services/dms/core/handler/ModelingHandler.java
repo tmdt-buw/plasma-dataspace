@@ -109,15 +109,15 @@ public class ModelingHandler {
             modeling = persistModeling(modeling);
         } catch (Exception e) {
             log.warn("Semantic labeling did not succeed: ", e);
-            if( e instanceof  FeignException.NotImplemented){
+            if (e instanceof FeignException.NotImplemented) {
                 throw new ResponseStatusException(HttpStatus.NOT_IMPLEMENTED, "No labeling services are defined to process this request.");
             }
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Unexpected error during labeling: "+ e.getMessage());
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Unexpected error during labeling: " + e.getMessage());
         }
         return modeling.getCurrentModel();
     }
 
-    public CombinedModel performSemanticModeling(String modelId) throws ResponseStatusException{
+    public CombinedModel performSemanticModeling(String modelId) throws ResponseStatusException {
         if (!recommendationsEnabled) {
             throw new ResponseStatusException(HttpStatus.NOT_IMPLEMENTED, "Recommendations are currently disabled.");
         }
@@ -131,10 +131,10 @@ public class ModelingHandler {
             modeling = persistModeling(modeling);
         } catch (FeignException e) {
             log.warn("Semantic modeling did not succeed: ", e);
-            if( e instanceof  FeignException.NotImplemented){
+            if (e instanceof FeignException.NotImplemented) {
                 throw new ResponseStatusException(HttpStatus.NOT_IMPLEMENTED, "No modeling services are defined to process this request.");
             }
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Unexpected error during modeling: "+ e.getMessage());
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Unexpected error during modeling: " + e.getMessage());
         }
         return modeling.getCurrentModel();
     }

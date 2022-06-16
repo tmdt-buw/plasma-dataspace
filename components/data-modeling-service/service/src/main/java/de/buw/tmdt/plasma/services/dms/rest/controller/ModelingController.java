@@ -58,7 +58,7 @@ public class ModelingController implements ModelingAPI {
             try {
                 modelingHandler.performSemanticLabeling(modelId);
                 modelingHandler.performSemanticModeling(modelId);
-            } catch (ResponseStatusException ignore){
+            } catch (ResponseStatusException ignore) {
                 // do nothing here as we still want to return the model
             }
         }
