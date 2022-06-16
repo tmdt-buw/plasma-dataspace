@@ -1,4 +1,5 @@
-# PLASMA: Platform for Auxiliary Semantic Modeling Approaches
+# PLASMA
+## Platform for Auxiliary Semantic Modeling Approaches
 
 PLASMA is a modular framework for semantic model creation. It features a GUI that allows users to create semantic models
 without requiring deep knowledge about technologies and formalisms.
