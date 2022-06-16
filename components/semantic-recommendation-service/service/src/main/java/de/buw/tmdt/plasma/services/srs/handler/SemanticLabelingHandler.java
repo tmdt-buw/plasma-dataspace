@@ -5,10 +5,10 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.env.Environment;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -19,7 +19,7 @@ public class SemanticLabelingHandler {
 
     private static final Logger log = LoggerFactory.getLogger(SemanticLabelingHandler.class);
 
-    @Value("${plasma.ars.labeling.url}")
+    @Value("${plasma.ars.labeling.url:}")
     private List<String> labelingServiceURLs;
 
     public SemanticLabelingHandler() {
@@ -32,7 +32,7 @@ public class SemanticLabelingHandler {
                 .collect(Collectors.toList());
         if (labelingServiceURLs.isEmpty()) {
             log.debug("No labeling services defined");
-            return combinedModel;
+            throw new ResponseStatusException(HttpStatus.NOT_IMPLEMENTED, "No labeling services are defined to process your request.");
         }
         // we only get the first for now
         String url = labelingServiceURLs.get(0);
