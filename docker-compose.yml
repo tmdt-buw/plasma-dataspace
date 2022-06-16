@@ -208,7 +208,6 @@ services:
 
 volumes:
   fuseki_data:
-  mariadb_dss: 
   mariadb_sas:   
   mariadb_dms:
   mariadb_ars_m_sm:
