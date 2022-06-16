@@ -48,7 +48,7 @@ public class LocalOntologyManagement {
     }
 
     @PostConstruct
-    public void initialize(){
+    public void initialize() {
         getInternalOntology();
     }
 

@@ -96,7 +96,7 @@ public class ModelingHandler {
     }
 
     public CombinedModel performSemanticLabeling(String modelId) {
-        if(!recommendationsEnabled){
+        if (!recommendationsEnabled) {
             throw new ResponseStatusException(HttpStatus.NOT_IMPLEMENTED, "Recommendations are currently disabled.");
         }
         Modeling modeling = findModelingOrThrow(modelId);
@@ -115,7 +115,7 @@ public class ModelingHandler {
     }
 
     public CombinedModel performSemanticModeling(String modelId) {
-        if(!recommendationsEnabled){
+        if (!recommendationsEnabled) {
             throw new ResponseStatusException(HttpStatus.NOT_IMPLEMENTED, "Recommendations are currently disabled.");
         }
         Modeling modeling = findModelingOrThrow(modelId);
@@ -729,7 +729,7 @@ public class ModelingHandler {
 
     @NotNull
     public CombinedModel requestRecommendations(@NotNull String modelId, @NotNull CombinedModel combinedModel) {
-        if(recommendationsEnabled){
+        if (recommendationsEnabled) {
             try {
                 return semanticRecommendationApiClient.performSemanticRefinement(modelId, null, null, combinedModel);
             } catch (Exception e) {
