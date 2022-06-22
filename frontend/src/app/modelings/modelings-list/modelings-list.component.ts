@@ -46,11 +46,14 @@ export class ModelingsListComponent implements OnInit {
         this.modelings = modelings;
         this.isLoading = false;
       }, error => {
-        if (error.status === HttpStatusCode.ServiceUnavailable){
+        if (error.status === 0){
+          this.notification.error('Connection error occurred', 'This is most likely caused by a CORS error. Check the system setup.');
+        }
+        else if (error.status === HttpStatusCode.ServiceUnavailable){
           this.notification.error('Modeling Service Not Available', 'The modeling service could not be reached. Please try again in a few minutes or contact support.');
         }
         else{
-          this.notification.error('Unexpected error occurred', 'The modeling service returned: ' + error.statusText + ': ' + error.message);
+          this.notification.error('Unexpected error occurred', 'The modeling service returned:<br>' + error.statusText + ': ' + error.message);
         }
         this.error = error;
         this.isLoading = false;
