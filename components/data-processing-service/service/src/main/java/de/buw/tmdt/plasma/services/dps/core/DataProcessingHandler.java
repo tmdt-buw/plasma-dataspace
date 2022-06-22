@@ -75,7 +75,10 @@ public class DataProcessingHandler {
             RDFConverter converter = new RDFConverter(prefixMapping);
             Model combined = ModelFactory.createDefaultModel();
             combined.setNsPrefixes(prefixes);
-            injected.stream().map(converter::convertToRDF).forEach(combined::add);
+            injected.stream()
+                    .peek(sm -> sm.setId(UUID.randomUUID().toString()))
+                    .map(converter::convertToRDF)
+                    .forEach(combined::add);
             return asTurtle(combined);
         } catch (ConversionException e) {
             e.printStackTrace();
