@@ -27,6 +27,8 @@ public class DataInjector {
     private static final int NODE_LABEL_LENGTH = 254;
     private static final String ROOT_ELEMENT_NAME = "ROOT";
 
+    private static final String MISSING_DATA_LITERAL = "##ValueNotAvailable##";
+
     private Map<PrimitiveNode, String> valueMapTemplate;
     private Map<PrimitiveNode, String> primitiveValueMap;
 
@@ -45,7 +47,7 @@ public class DataInjector {
         }
         buildValueMap(datum);
 
-        try {
+        //try {
             // map syntax UUID -> value
             Map<String, String> uuidValueMap = primitiveValueMap.entrySet().stream()
                     .collect(Collectors.toMap(entry -> entry.getKey().getUuid(), Map.Entry::getValue));
@@ -58,10 +60,14 @@ public class DataInjector {
                         continue;
                     }
                     String syntaxNodeUuid = clazz.getMappedSyntaxNodeUuid();
+                    Literal literal;
                     if(!uuidValueMap.containsKey(syntaxNodeUuid)){
-                        throw new ConversionException("Could not find value for syntaxId " + syntaxNodeUuid + " on model " + combinedModel.getId());
+                        // throw new ConversionException("Could not find value for syntaxId " + syntaxNodeUuid + " on model " + combinedModel.getId());
+                        literal = new Literal(MISSING_DATA_LITERAL);
+                    } else {
+                        literal = new Literal(uuidValueMap.get(syntaxNodeUuid));
                     }
-                    Literal literal = new Literal(uuidValueMap.get(syntaxNodeUuid));
+
                     DataProperty prop =new DataProperty(clazz.getUuid(), literal.getUuid(), "http://plasma.uni-wuppertal.de/ontology#hasValue");
                     delta.getEntities().add(literal);
                     delta.getRelations().add(prop);
@@ -74,18 +80,21 @@ public class DataInjector {
                     }
                     String syntaxNodeUuid = lit.getMappedSyntaxNodeUuid();
                     if(!uuidValueMap.containsKey(syntaxNodeUuid)){
-                        throw new ConversionException("Could not find value for syntaxId " + syntaxNodeUuid + " on model " + combinedModel.getId());
+                        // throw new ConversionException("Could not find value for syntaxId " + syntaxNodeUuid + " on model " + combinedModel.getId());
+                        lit.setLabel(MISSING_DATA_LITERAL);
+                    } else {
+                        lit.setLabel(uuidValueMap.get(syntaxNodeUuid));
                     }
-                    lit.setLabel(uuidValueMap.get(syntaxNodeUuid));
+
                     delta.getEntities().add(lit);
                 }
             }
 
             combinedModel.apply(delta);
 
-        } catch (ConversionException te){
-            log.warn("Error during parsing of datum", te);
-        }
+        //} catch (ConversionException te){
+        //    log.warn("Error during parsing of datum", te);
+        //}
 
         return combinedModel.getSemanticModel();
     }
