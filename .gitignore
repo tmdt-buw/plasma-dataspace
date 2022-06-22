@@ -15,6 +15,7 @@ target/
 *.iml
 
 ontologies/
+storage/
 
 ### Logging ###
 logs/*

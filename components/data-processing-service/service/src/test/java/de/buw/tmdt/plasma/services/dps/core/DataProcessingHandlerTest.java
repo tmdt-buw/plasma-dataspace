@@ -9,6 +9,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -23,6 +25,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
 class DataProcessingHandlerTest {
+
+    private static final Logger log = LoggerFactory.getLogger(DataProcessingHandlerTest.class);
 
     private DataProcessingHandler processingHandler;
     private DataStorageHandler storageHandler;
@@ -48,9 +52,10 @@ class DataProcessingHandlerTest {
         SampleDTO sample = storageHandler.storeFile(null, mpf);
         String dataId = sample.getDataId();
         assertNotNull(dataId);
+        log.info("DataId: {}", dataId);
 
         CombinedModel flightModel = CombinedModelGenerator.getFlightModel();
         String result = processingHandler.processFile(flightModel, dataId, null);
-        assertEquals("abc",result );
+        assertEquals("abc",result , "Expected result for dataId " + dataId + " did not match");
     }
 }

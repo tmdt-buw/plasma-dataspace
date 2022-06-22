@@ -46,7 +46,7 @@ import java.util.stream.Collectors;
 @Service
 public class DataStorageHandler {
 
-    @Value("${plasma.dps.storage.directory}")
+    @Value("${plasma.dps.storage.directory:./storage}")
     String storageDirectoryString;
 
     ObjectMapper objectMapper = new ObjectMapper();
