@@ -6,11 +6,11 @@ public class SampleDTO {
 
     private final String dataId;
 
-    private final List<String> sample;
+    private final List<String> samples;
 
-    public SampleDTO(String dataId, List<String> sample) {
+    public SampleDTO(String dataId, List<String> samples) {
         this.dataId = dataId;
-        this.sample = sample;
+        this.samples = samples;
     }
 
     public String getDataId() {
@@ -18,6 +18,6 @@ public class SampleDTO {
     }
 
     public List<String> getSample() {
-        return sample;
+        return samples;
     }
 }
