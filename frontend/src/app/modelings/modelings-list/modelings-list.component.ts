@@ -1,11 +1,14 @@
 import { Component, EventEmitter, OnInit, Output} from '@angular/core';
 import { Router } from '@angular/router';
-import { ModelingControllerService, ModelingInfo } from '@tmdt/dms';
+import { ModelingControllerService, ModelingInfo, PlsModelingComponent } from '@tmdt/dms';
 import { DatePipe } from '@angular/common';
-import { NzModalService } from 'ng-zorro-antd/modal';
+import { ModalOptions, NzModalService } from 'ng-zorro-antd/modal';
 import { appRoutesNames } from '../../app.routes.names';
 import { NzNotificationService } from 'ng-zorro-antd/notification';
 import { HttpStatusCode } from '@angular/common/http';
+import { DataProcessingControllerService } from '../../dataprocessing/api/generated';
+import { ModalBaseConfig } from '../../../../projects/modeling/src/lib/modeling/dialogs/common/modal.base-config';
+import { ConversionDialogComponent } from '../../dataprocessing/conversion-dialog/conversion-dialog.component';
 
 @Component({
   selector: 'app-modelings-list',
@@ -22,9 +25,10 @@ export class ModelingsListComponent implements OnInit {
 
   // output to emit created event
   @Output() modelingSelected = new EventEmitter<ModelingInfo>();
+  dpsAvailable: boolean;
 
   constructor(private modelingController: ModelingControllerService, private router: Router, private date: DatePipe,
-              private modal: NzModalService, private notification: NzNotificationService) {
+              private modal: NzModalService, private notification: NzNotificationService, private processingService: DataProcessingControllerService) {
   }
 
   /**
@@ -32,6 +36,8 @@ export class ModelingsListComponent implements OnInit {
    */
   ngOnInit(): void {
     this.getModelings();
+    this.processingService.isAvailable().subscribe(() => this.dpsAvailable = true,
+      () => this.dpsAvailable = false);
   }
 
   /**
@@ -89,4 +95,18 @@ export class ModelingsListComponent implements OnInit {
       nzOkText: 'Close'
     });
   }
+
+  openConversionModal(model: ModelingInfo): void {
+    const config: ModalOptions = {
+      nzTitle: 'Convert ' + model.name,
+      nzStyle: {position: 'absolute', top: `20%`, left: `25%`, width: '50%', bottom: '20%'},
+      nzContent: ConversionDialogComponent,
+      nzComponentParams: {
+        model
+      }
+    };
+    const ref = this.modal.create(Object.assign(config, ModalBaseConfig));
+  }
+
+
 }

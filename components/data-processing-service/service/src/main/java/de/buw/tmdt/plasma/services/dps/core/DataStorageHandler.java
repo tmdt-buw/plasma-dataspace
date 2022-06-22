@@ -161,7 +161,7 @@ public class DataStorageHandler {
             );
         }
 
-        return new SampleDTO(dataId, jsonSampleList);
+        return new SampleDTO(dataId,newFilePath.getFileName().toString(), jsonSampleList);
     }
 
     /**

@@ -38,7 +38,7 @@ public class DataProcessingController implements DataProcessingApi {
 	@Override
 	@Operation(description = "List all files of a dataId.")
 	public List<String> listFiles(@NotNull String dataId) {
-		return dataStorageHandler.listFiles(dataId).stream().map(File::getName).collect(Collectors.toList());
+		return dataStorageHandler.listFiles(dataId).stream().map(File::getName).sorted().collect(Collectors.toList());
 	}
 
 	@Override

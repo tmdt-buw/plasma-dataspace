@@ -13,6 +13,7 @@
 
 export interface SampleDTO { 
     dataId?: string;
-    sample?: Array<string>;
+    samples?: Array<string>;
+    filename?: string;
 }
 

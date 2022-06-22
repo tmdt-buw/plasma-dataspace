@@ -28,10 +28,9 @@
     <nz-upload
       nzType="drag"
       [nzMultiple]="false"
-      (nzChange)="onFileAdded($event)"
+      [nzCustomRequest]="uploadFile"
       [(nzFileList)]="files"
     >
-
       <p class="ant-upload-drag-icon">
       <i nz-icon nzType="inbox"></i>
     </p>
@@ -46,7 +45,7 @@
   <span id=outerline *ngIf="dpsAvailable"><span id=linetext>or</span></span>
 
 
-  <app-schema-analysis [dataId]="dataId" (schemaAvailable)="onSchemaAvailable($event)"
+  <app-schema-analysis #schemaAnalysis [dataId]="dataId" (schemaAvailable)="onSchemaAvailable($event)"
                        (errorOccurred)="onSchemaAnalysisError($event)" [usingFiles]="usingFiles"></app-schema-analysis>
 
   <!-- error and submit button -->

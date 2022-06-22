@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output} from '@angular/core';
+import { Component, EventEmitter, Output, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { CombinedModel, ModelingControllerService, ModelingInfo, SyntaxModel } from '@tmdt/dms';
 import { v4 as uuidv4 } from 'uuid';
@@ -6,10 +6,9 @@ import { NzNotificationService } from 'ng-zorro-antd/notification';
 import { Router} from '@angular/router';
 import { appRoutesNames } from '../../app.routes.names';
 import { DataProcessingControllerService } from '../../dataprocessing/api/generated';
-import { NzUploadFile } from 'ng-zorro-antd/upload';
 import { AnalysisControllerService } from '../../schema-analysis/api/generated';
-import { graphlib } from 'dagre';
-import json = graphlib.json;
+import { Subscription } from 'rxjs';
+import { SchemaAnalysisComponent } from '../../schema-analysis/schema-analysis/schema-analysis.component';
 
 @Component({
   selector: 'app-create-modeling',
@@ -17,6 +16,9 @@ import json = graphlib.json;
   styleUrls: ['./create-modeling.component.less'],
 })
 export class CreateModelingComponent {
+
+  @ViewChild('schemaAnalysis')
+  schemaAnalysisComponent: SchemaAnalysisComponent;
 
   dataId: string;
   modelId: string;
@@ -41,13 +43,13 @@ export class CreateModelingComponent {
 
 
   constructor(private modelingController: ModelingControllerService,
-              private dataprocessingController: DataProcessingControllerService,
+              private processingService: DataProcessingControllerService,
               private schemaAnalysisController: AnalysisControllerService,
               private notification: NzNotificationService,
               private router: Router) {
     this.dataId = uuidv4();
     this.modelId = this.dataId;
-    this.dataprocessingController.isAvailable().subscribe(() => this.dpsAvailable = true, () => console.log('DPS not available'));
+    this.processingService.isAvailable().subscribe(() => this.dpsAvailable = true, () => console.log('DPS not available'));
   }
 
 
@@ -82,19 +84,20 @@ export class CreateModelingComponent {
     this.syntaxModel = undefined;
   }
 
-  onFileAdded(info: {file: NzUploadFile }): void {
-    this.usingFiles = true;
-    this.dataprocessingController.uploadFile(info.file.originFileObj, this.dataId)
-      .subscribe((response ) => {
+  uploadFile = (item): Subscription => {
+    return this.processingService.uploadFile(item.file, this.dataId)
+      .subscribe(response => {
+        this.notification.success('File uploaded', 'File has been uploaded');
+        this.usingFiles = true;
         this.schemaAnalysisController.initAnalysis(this.dataId).subscribe(() => {
-          response.sample.forEach(sample => {
+          response.samples.forEach(sample => {
             if (this.sampleCounter < 10) {
-              this.schemaAnalysisController.addDataPoint(this.dataId, {data: JSON.stringify(JSON.parse(sample))});
+              this.schemaAnalysisComponent.addSample(JSON.parse(sample));
+              // this.schemaAnalysisController.addDataPoint(this.dataId, {data: JSON.stringify(JSON.parse(sample))});
               this.sampleCounter++;
             }
           });
-        });
-
-      });
+        }, error => this.notification.error('Error during schema analysis', error.status + ':' + error));
+      }, error => this.notification.error('Error during file upload', error.status + ':' + error));
   }
 }

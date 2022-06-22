@@ -21,6 +21,8 @@ import { NzPopconfirmModule } from 'ng-zorro-antd/popconfirm';
 import { NzPageHeaderModule } from 'ng-zorro-antd/page-header';
 import { DataprocessingModule } from '../dataprocessing/dataprocessing.module';
 import {NzUploadModule} from 'ng-zorro-antd/upload';
+import { NzDropDownModule } from 'ng-zorro-antd/dropdown';
+import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
 import { Configuration } from '@tmdt/dms';
 import { environment } from '../../environments/environment';
 
@@ -29,32 +31,34 @@ import { environment } from '../../environments/environment';
     ModelingsListComponent,
     CreateModelingComponent
   ],
-    imports: [
-        CommonModule,
-        NzTableModule,
-        FlexModule,
-        NzButtonModule,
-        NzIconModule,
+  imports: [
+    CommonModule,
+    NzTableModule,
+    FlexModule,
+    NzButtonModule,
+    NzIconModule,
         ApiModule.forRoot(() => {
           return new Configuration({
             basePath: environment.baseUrl,
           });
         }),
-        RouterModule.forChild(MODELINGS_ROUTES),
-        NzAlertModule,
-        NzFormModule,
-        NzInputModule,
-        SchemaAnalysisModule,
-        DataprocessingModule,
-        FormsModule,
-        ReactiveFormsModule,
-        NzNotificationModule,
-        NzTypographyModule,
-        NzModalModule,
-        NzPopconfirmModule,
-        NzPageHeaderModule,
-        NzUploadModule
-    ],
+    RouterModule.forChild(MODELINGS_ROUTES),
+    NzAlertModule,
+    NzFormModule,
+    NzInputModule,
+    SchemaAnalysisModule,
+    DataprocessingModule,
+    FormsModule,
+    ReactiveFormsModule,
+    NzNotificationModule,
+    NzTypographyModule,
+    NzModalModule,
+    NzPopconfirmModule,
+    NzPageHeaderModule,
+    NzUploadModule,
+    NzDropDownModule,
+    NzToolTipModule
+  ],
   providers: [
     DatePipe
   ]

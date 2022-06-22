@@ -26,9 +26,12 @@
         <td> {{model.created | date:'medium' }}</td>
         <td>
           <div fxLayout="row" fxLayoutGap="4px">
-            <button nz-button nzShape="circle" (click)="showDescriptionModal(model.name, model.description)"><i nz-icon nzType="info"></i></button>
-            <button nz-button nzShape="circle" [routerLink]="['..',modelsRoute,model.id]"><i nz-icon nzType="appstore-add"></i></button>
-            <button nz-button nzShape="circle"
+            <button nz-button nzShape="circle" (click)="showDescriptionModal(model.name, model.description)" nz-tooltip="Display detail information"><i nz-icon nzType="info"></i></button>
+            <button nz-button nzShape="circle" [routerLink]="['..',modelsRoute,model.id]" nz-tooltip="Edit the semantic model"><i nz-icon nzType="appstore-add"></i></button>
+            <button *ngIf="dpsAvailable" nz-button nzShape="circle" (click)="openConversionModal(model)" [nz-tooltip]="'Convert data using defined model'" [disabled]="!dpsAvailable">
+                            <i nz-icon nzType="file-text"></i>
+            </button>
+            <button nz-button nzShape="circle" nz-tooltip="Delete this modeling"
                     nz-popconfirm
                     nzPopconfirmTitle="Are you sure to delete this model?"
                     (nzOnConfirm)="deleteModeling(model)"
