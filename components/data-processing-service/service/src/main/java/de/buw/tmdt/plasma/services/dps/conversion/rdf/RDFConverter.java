@@ -37,7 +37,7 @@ public class RDFConverter {
         counter = 0;
         Map<String, RDFNode> uuidtoResource = new HashMap<>();
 
-        String semanticModelId = semanticModel.getId().substring(0, 10);
+        String semanticModelId = semanticModel.getId().substring(0, 13);
         Model m = ModelFactory.createDefaultModel();
         m.setNsPrefixes(prefixes);
         String smPrefix = prefixes.getNsPrefixURI("plsm");

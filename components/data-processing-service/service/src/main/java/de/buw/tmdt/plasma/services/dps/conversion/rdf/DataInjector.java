@@ -36,7 +36,7 @@ public class DataInjector {
     public List<SemanticModel> inject(CombinedModel combinedModel, List<JsonNode> data) throws ConversionException {
         List<SemanticModel> results = new ArrayList<>(data.size());
         for (JsonNode datum : data) {
-            results.add(inject(combinedModel, datum));
+            results.add(inject(combinedModel.copy(), datum));
         }
         return results;
     }

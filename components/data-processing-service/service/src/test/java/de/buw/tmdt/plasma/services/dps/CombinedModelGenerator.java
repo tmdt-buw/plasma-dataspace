@@ -14,7 +14,7 @@ import java.util.UUID;
 
 public class CombinedModelGenerator {
 
-    public static final String namespace = "http://local.ontology#";
+    public static final String namespace = "http://local.host/ontology#";
 
 
     public static CombinedModel getFlightModel() {
