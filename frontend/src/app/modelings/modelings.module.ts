@@ -19,6 +19,8 @@ import { NzTypographyModule } from 'ng-zorro-antd/typography';
 import { NzModalModule } from 'ng-zorro-antd/modal';
 import { NzPopconfirmModule } from 'ng-zorro-antd/popconfirm';
 import { NzPageHeaderModule } from 'ng-zorro-antd/page-header';
+import { Configuration } from '@tmdt/dms';
+import { environment } from '../../environments/environment';
 
 @NgModule({
   declarations: [
@@ -31,7 +33,11 @@ import { NzPageHeaderModule } from 'ng-zorro-antd/page-header';
         FlexModule,
         NzButtonModule,
         NzIconModule,
-        ApiModule,
+        ApiModule.forRoot(() => {
+          return new Configuration({
+            basePath: environment.baseUrl,
+          });
+        }),
         RouterModule.forChild(MODELINGS_ROUTES),
         NzAlertModule,
         NzFormModule,

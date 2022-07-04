@@ -21,7 +21,7 @@ import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
 import { NzTypographyModule } from 'ng-zorro-antd/typography';
 import { NzUploadModule } from 'ng-zorro-antd/upload';
 import { ApiModule, BASE_PATH } from './api/generated/dms';
-import { ApiModule as KGSApiModule } from './api/generated/kgs';
+import { ApiModule as KGSApiModule, BASE_PATH as KGS_BASE_PATH } from './api/generated/kgs';
 import { PlsSemanticClassMenuComponent } from './modeling/context-menu/semantic-class-menu/semantic-class-menu.component';
 import { PlsRelationConceptMenuComponent } from './modeling/context-menu/relation-menu/relation-menu.component';
 import { PlsDiagramComponent } from './modeling/diagram/diagram.component';
@@ -98,6 +98,7 @@ export class PlsModelingModule {
       ngModule: PlsModelingModule,
       providers: [
         {provide: BASE_PATH, useValue: basePath},
+        {provide: KGS_BASE_PATH, useValue: basePath},
         // enable correct display of cdk overlay elements like dialogs in fullscreen mode
         {provide: OverlayContainer, useClass: FullscreenOverlayContainer}
       ]
