@@ -81,9 +81,11 @@ public class Ontologies {
                             return;
                         }
                         try {
+
                             Ontology ontology = mapper.readValue(filePath.toFile(), Ontology.class);
                             OntModel loadedOnto = ModelFactory.createOntologyModel();
-                            try (FileInputStream fis = new FileInputStream(ontology.getFilePath())) {
+                            Path ontologyFilePath = Path.of(getOntologyFolder(), ontology.getFilename());
+                             try (FileInputStream fis = new FileInputStream(ontologyFilePath.toFile())) {
                                 loadedOnto.read(fis, "", "TURTLE"); // TODO handle different formats or homogenize
                             } catch (IOException fnfe) {
                                 log.error("Could not read {}:", filePath, fnfe);
@@ -142,7 +144,7 @@ public class Ontologies {
             Files.write(Paths.get(getOntologyFolder(), filename), bytes);
             log.info("Written ontology file to " + ontologyFilePath);
 
-            Ontology onto = new Ontology(label, ontologyFilePath.toString(), prefix, namespace);
+            Ontology onto = new Ontology(label, filename, prefix, namespace);
             mapper.writeValue(metadataFilePath.toFile(), onto);
         } catch (IOException e) {
             log.error("Error while writing ontology or metadata file", e);
@@ -175,7 +177,7 @@ public class Ontologies {
                 createdOnto.write(out, "TURTLE");
                 log.info("Written ontology file to " + ontologyFilePath);
             }
-            Ontology onto = new Ontology(label, ontologyFilePath.toString(), prefix, namespace, description, true);
+            Ontology onto = new Ontology(label, filename, prefix, namespace, description, true);
             mapper.writeValue(metadataFilePath.toFile(), onto);
         } catch (IOException e) {
             log.error("Error while writing ontology or metadata file", e);
@@ -196,7 +198,7 @@ public class Ontologies {
         }
         String filepath = ontologyModels.keySet().stream()
                 .filter(ont -> ont.getLabel().equals(label))
-                .map(Ontology::getFilePath)
+                .map(Ontology::getFilename)
                 .findFirst()
                 .orElseThrow();
         try {
