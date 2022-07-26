@@ -3,11 +3,13 @@ package de.buw.tmdt.plasma.services.dps.conversion.rdf;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.ValueNode;
 import de.buw.tmdt.plasma.datamodel.CombinedModel;
 import de.buw.tmdt.plasma.datamodel.modification.DeltaModification;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.Class;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.*;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.PrimitiveNode;
+import de.buw.tmdt.plasma.datamodel.syntaxmodel.SetNode;
 import de.buw.tmdt.plasma.services.dps.conversion.ConversionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,12 +27,13 @@ public class DataInjector {
     private static final Logger log = LoggerFactory.getLogger(DataInjector.class);
 
     private static final int NODE_LABEL_LENGTH = 254;
-    private static final String ROOT_ELEMENT_NAME = "ROOT";
+    private static final String ROOT_ELEMENT_NAME = "$";
 
     private static final String MISSING_DATA_LITERAL = "##ValueNotAvailable##";
 
     private Map<PrimitiveNode, String> valueMapTemplate;
     private Map<PrimitiveNode, String> primitiveValueMap;
+    private Map<SetNode, List<String>> arrayValueMap;
 
 
     public List<SemanticModel> inject(CombinedModel combinedModel, List<JsonNode> data) throws ConversionException {
@@ -100,6 +103,7 @@ public class DataInjector {
     }
 
     private Map<PrimitiveNode, String> buildValueMapTemplate(CombinedModel combinedModel) {
+        log.debug("Building new value map template");
         Map<PrimitiveNode, String> valueMapTemplate = new HashMap<>();
         // initialize template with all mapped primitive nodes
         combinedModel.getSemanticModel().getNodes().stream()
@@ -154,7 +158,7 @@ public class DataInjector {
             String value = jsonNode.asText();
             primitiveValueMap.put(match.get(), value);
         } else {
-            log.warn("ValueNode '{}' {} is not mapped", label, path);
+            log.debug("ValueNode '{}' {} is not mapped", label, path);
         }
     }
 
@@ -173,8 +177,32 @@ public class DataInjector {
     private void traverseJsonArray(ArrayNode array, String label, List<String> path) throws ConversionException {
         path = new ArrayList<>(path);
         path.add(label);
-        for (JsonNode node : array) {
-            traverseJsonElement(node, "[]", path);
+        if(!array.isEmpty()){
+            if(array.get(0) instanceof ValueNode){
+                // we assume this is all value nodes TODO check?
+                String result = readJSONArray(array);
+
+            }
+        } else {
+            for (JsonNode node : array) {
+                traverseJsonElement(node, label + "[]", path);
+            }
         }
+    }
+
+    private String readJSONArray(ArrayNode arrayNode) {
+        List<String> values = new ArrayList<>();
+        arrayNode.elements().forEachRemaining(el -> {
+            ValueNode v = (ValueNode) el;
+            values.add(v.asText());
+        });
+        return values.stream()
+                .map(v -> {
+                    if(!v.startsWith("\"") || ! v.endsWith("\"")){
+                        v = "\"" + v + "\"";
+                    }
+                    return v;
+                })
+                .collect(Collectors.joining(","));
     }
 }

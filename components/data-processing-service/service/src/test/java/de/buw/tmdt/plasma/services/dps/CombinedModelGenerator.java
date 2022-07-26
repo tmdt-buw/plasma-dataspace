@@ -15,30 +15,30 @@ import java.util.UUID;
 public class CombinedModelGenerator {
 
     public static final String namespace = "http://local.host/ontology#";
-
+    public static final String ROOT_INDICATOR = "$";
 
     public static CombinedModel getFlightModel() {
 
         List<SchemaNode> nodes = new ArrayList<>();
         List<Edge> edges = new ArrayList<>();
-        SchemaNode root = new ObjectNode("ROOT", true);
+        SchemaNode root = new ObjectNode(ROOT_INDICATOR, true);
         nodes.add(root);
         PrimitiveNode identifierNode = new PrimitiveNode("id", true, DataType.String, List.of("AL0025-20201123-1456-1634"), null);
-        identifierNode.setPath(List.of("ROOT"));
+        identifierNode.setPath(List.of(ROOT_INDICATOR));
         Edge rootIdentifierEdge = new Edge(root.getUuid(), identifierNode.getUuid());
         nodes.add(identifierNode);
         edges.add(rootIdentifierEdge);
 
         ObjectNode vesselNode = new ObjectNode("vessel", true);
-        vesselNode.setPath(List.of("ROOT"));
+        vesselNode.setPath(List.of(ROOT_INDICATOR));
         PrimitiveNode vesselNameNode = new PrimitiveNode("vessel_name", true, DataType.String, List.of("Airbus A350 XPB"), null);
-        vesselNameNode.setPath(List.of("ROOT","vessel"));
+        vesselNameNode.setPath(List.of(ROOT_INDICATOR,"vessel"));
         ObjectNode ownerNode = new ObjectNode("owner", true);
-        ownerNode.setPath(List.of("ROOT","vessel"));
+        ownerNode.setPath(List.of(ROOT_INDICATOR,"vessel"));
         PrimitiveNode carrierNode = new PrimitiveNode("carrier", true, DataType.String, List.of("Lufthansa"), null);
-        carrierNode.setPath(List.of("ROOT","vessel","owner"));
+        carrierNode.setPath(List.of(ROOT_INDICATOR,"vessel","owner"));
         PrimitiveNode carrierCodeNode = new PrimitiveNode("carrier_code", true, DataType.String, List.of("LH"), null);
-        carrierCodeNode.setPath(List.of("ROOT","vessel","owner"));
+        carrierCodeNode.setPath(List.of(ROOT_INDICATOR,"vessel","owner"));
         Edge rootVesselEdge = new Edge(root.getUuid(), vesselNode.getUuid());
         Edge vesselNameEdge = new Edge(vesselNode.getUuid(), vesselNameNode.getUuid());
         Edge vesselOwnerEdge = new Edge(vesselNode.getUuid(), ownerNode.getUuid());
@@ -50,7 +50,7 @@ public class CombinedModelGenerator {
 
         ObjectNode originNode = new ObjectNode("origin", true);
         PrimitiveNode nameNode = new PrimitiveNode("name", true, DataType.String, null, null);
-        SetNode numbersNode = new SetNode(UUID.randomUUID().toString(), "identification_numbers", List.of("ROOT"), null, null, true);
+        SetNode numbersNode = new SetNode(UUID.randomUUID().toString(), "identification_numbers", List.of(ROOT_INDICATOR), null, null, true);
         PrimitiveNode numberNode = new PrimitiveNode("number0", true, DataType.Number, null, null);
         Edge rootOriginEdge = new Edge(root.getUuid(), originNode.getUuid());
         Edge originNameEdge = new Edge(originNode.getUuid(), nameNode.getUuid());
@@ -59,10 +59,10 @@ public class CombinedModelGenerator {
         nodes.addAll(List.of(originNode,nameNode,numbersNode,numberNode));
         edges.addAll(List.of(rootOriginEdge,originNameEdge,originNumberEdge,numbersNumberEdge));
 
-        SetNode staffNode = new SetNode(UUID.randomUUID().toString(), "staff", List.of("ROOT"), null, null, true);
-        ObjectNode staffObjectNode = new ObjectNode(UUID.randomUUID().toString(), "object1", List.of("ROOT", "staff"), null, null, true);
-        PrimitiveNode staffNameNode = new PrimitiveNode("name", true, DataType.Number, List.of("ROOT", "staff", "{}"), null);
-        PrimitiveNode staffSeatNode = new PrimitiveNode("seat", true, DataType.Number, List.of("ROOT", "staff", "{}"), null);
+        SetNode staffNode = new SetNode(UUID.randomUUID().toString(), "staff", List.of(ROOT_INDICATOR), null, null, true);
+        ObjectNode staffObjectNode = new ObjectNode(UUID.randomUUID().toString(), "object1", List.of(ROOT_INDICATOR, "staff"), null, null, true);
+        PrimitiveNode staffNameNode = new PrimitiveNode("name", true, DataType.Number, List.of(ROOT_INDICATOR, "staff", "{}"), null);
+        PrimitiveNode staffSeatNode = new PrimitiveNode("seat", true, DataType.Number, List.of(ROOT_INDICATOR, "staff", "{}"), null);
         Edge rootStaffEdge = new Edge(root.getUuid(), staffNode.getUuid());
         Edge staffObjectEdge = new Edge(staffNode.getUuid(), staffObjectNode.getUuid());
         Edge staffNameEdge = new Edge(staffObjectNode.getUuid(),staffNameNode.getUuid());
