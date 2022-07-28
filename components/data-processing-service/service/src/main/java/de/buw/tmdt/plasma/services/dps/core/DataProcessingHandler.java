@@ -8,6 +8,7 @@ import de.buw.tmdt.plasma.services.dps.conversion.ConversionException;
 import de.buw.tmdt.plasma.services.dps.conversion.rdf.DataInjector;
 import de.buw.tmdt.plasma.services.dps.conversion.rdf.RDFConverter;
 import de.buw.tmdt.plasma.services.kgs.shared.feignclient.OntologyApiClient;
+import feign.FeignException;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.shared.PrefixMapping;
@@ -83,6 +84,9 @@ public class DataProcessingHandler {
         } catch (ConversionException e) {
             e.printStackTrace();
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Could not parse file content(s)");
+        } catch (FeignException e){
+            e.printStackTrace();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Could not obtain prefixes from KGS.");
         }
     }
 

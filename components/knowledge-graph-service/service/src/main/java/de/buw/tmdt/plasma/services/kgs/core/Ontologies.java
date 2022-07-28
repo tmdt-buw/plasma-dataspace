@@ -47,7 +47,8 @@ public class Ontologies {
     private static final PrefixMapping DEFAULT_PREFIXES = new PrefixMappingImpl()
             .setNsPrefixes(PrefixMapping.Standard)
             .setNsPrefix("plcm", PLCM.getURI())
-            .setNsPrefix("plsm", SM_URI);
+            .setNsPrefix("plsm", SM_URI)
+            .setNsPrefix("plasma", "http://plasma.uni-wuppertal.de/ontology#");
 
     @Autowired
     public Ontologies() {
