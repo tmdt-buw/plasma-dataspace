@@ -32,7 +32,7 @@ import {
   Relation,
   SchemaNode,
   SemanticModel,
-  SemanticModelNode,
+  SemanticModelNode, SetNode,
   SyntaxModel
 } from '../../api/generated/dms';
 import { ContextMenuService } from '../context-menu/context-menu.service';
@@ -264,7 +264,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
       // Highlights for modeling
       'element:mouseover': (elementView: dia.ElementView) => {
         // console.log('element:mouseover');
-        if (this.modelNode?._class === 'Class' && this.getIfLeafNode(elementView)) {
+        if (this.modelNode?._class === 'Class' && this.getIfMappableNode(elementView)) {
           elementView.highlight();
           this.hoveredElement = elementView;
         }
@@ -531,7 +531,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
    */
   entityDropped(event): void {
     // test if valid target
-    const node = this.hoveredElement ? this.getIfLeafNode(this.hoveredElement) : null;
+    const node = this.hoveredElement ? this.getIfMappableNode(this.hoveredElement) : null;
     // create new semantic model node
     if (node) {
       const position = this.hoveredElement.model.attributes.position;
@@ -986,6 +986,20 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
     if (Nodes.isSyntaxNode(elementView)) {
       const node = this.findSyntaxNodeById(elementView.model.id.toString());
       if (node._class === 'PrimitiveNode') {
+        return node;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Returns a node as a MappableSyntaxNode if the given node is of that type
+   * @param elementView search element
+   */
+  private getIfMappableNode(elementView: dia.ElementView): (PrimitiveNode | SetNode) {
+    if (Nodes.isSyntaxNode(elementView)) {
+      const node = this.findSyntaxNodeById(elementView.model.id.toString());
+      if (node._class === 'PrimitiveNode' || node._class === 'SetNode') {
         return node;
       }
     }

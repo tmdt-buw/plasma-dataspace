@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Objects;
 
 @JsonTypeName("PrimitiveNode")
-public class PrimitiveNode extends SchemaNode {
+public class PrimitiveNode extends MappableSyntaxNode {
 
     private static final long serialVersionUID = -144653268470507986L;
 

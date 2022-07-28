@@ -5,13 +5,14 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.PrimitiveNode;
+import de.buw.tmdt.plasma.datamodel.syntaxmodel.SetNode;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "_class")
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = Literal.class, name = "Literal"),
-        @JsonSubTypes.Type(value = Class.class, name = "Class"),
+        @JsonSubTypes.Type(value = PrimitiveNode.class, name = "PrimitiveNode"),
+        @JsonSubTypes.Type(value = SetNode.class, name = "SetNode"),
 })
 public abstract class MappableSemanticModelNode extends SemanticModelNode {
 
@@ -20,7 +21,7 @@ public abstract class MappableSemanticModelNode extends SemanticModelNode {
     public static final String MAPPED_SYNTAX_NODE_PATH_PROPERTY = "syntaxPath";
 
     /**
-     * The id of the syntax {@link PrimitiveNode} this object is mapped to.
+     * The id of the syntax {@link de.buw.tmdt.plasma.datamodel.syntaxmodel.MappableSyntaxNode} this object is mapped to.
      * Will be null if not mapped.
      */
     private String mappedSyntaxNodeUuid;
