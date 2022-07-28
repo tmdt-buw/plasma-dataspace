@@ -20,5 +20,5 @@ storage/
 ### Logging ###
 logs/*
 **.log
-**.log.zip!/
+**.log.zip
 
