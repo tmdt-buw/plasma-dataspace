@@ -136,9 +136,9 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
                     <additionalProperties> <!-- Overwrite this configuration in the corresponding service -->
-                        <description>Conducts a schema analaysis for given JSON data points</description>
-                        <developerName>Andreas Burgdorf</developerName>
-                        <developerEMail>burgdorf@uni-wuppertal.de</developerEMail>
+                        <description>Provides data processing capabilities to PLASMA</description>
+                        <developerName>Alexander Paulus</developerName>
+                        <developerEMail>paulus@uni-wuppertal.de</developerEMail>
                     </additionalProperties>
                 </configuration>
             </plugin>
@@ -164,15 +164,8 @@
                     </container>
                 </configuration>
             </plugin>
-
-            <!-- Git Commit Plugin -->
-            <plugin>
-                <groupId>pl.project13.maven</groupId>
-                <artifactId>git-commit-id-plugin</artifactId>
-            </plugin>
         </plugins>
-        <!-- Git Commit ID is obtained from the Git Commit Plugin -->
         <!--suppress UnresolvedMavenProperty -->
-        <finalName>${project.artifactId}-${git.commit.id.abbrev}-${project.version}</finalName>
+        <finalName>${project.artifactId}-${project.version}</finalName>
     </build>
 </project>
