@@ -1,3 +1,4 @@
+export * from './cacheRelationRequest';
 export * from './class';
 export * from './classAllOf';
 export * from './collisionSchema';
@@ -30,3 +31,4 @@ export * from './splitting';
 export * from './syntacticOperationDTO';
 export * from './syntaxModel';
 export * from './typeDefinitionDTOObject';
+export * from './updatePositionsRequestInner';

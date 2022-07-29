@@ -9,10 +9,9 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import { ObjectProperty } from './objectProperty';
 import { SchemaNode } from './schemaNode';
+import { CacheRelationRequest } from './cacheRelationRequest';
 import { SemanticModelNode } from './semanticModelNode';
-import { DataProperty } from './dataProperty';
 import { Edge } from './edge';
 
 
@@ -20,7 +19,7 @@ export interface DeltaModification {
     reference?: string;
     deletion?: boolean;
     entities?: Array<SemanticModelNode>;
-    relations?: Array<DataProperty | ObjectProperty>;
+    relations?: Array<CacheRelationRequest>;
     nodes?: Array<SchemaNode>;
     edges?: Array<Edge>;
     anchors?: Array<string>;

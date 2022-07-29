@@ -13,43 +13,31 @@
 
 import { Inject, Injectable, Optional }                      from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams,
-         HttpResponse, HttpEvent, HttpParameterCodec, HttpContext
+         HttpResponse, HttpEvent, HttpParameterCodec, HttpContext 
         }       from '@angular/common/http';
 import { CustomHttpParameterCodec }                          from '../encoder';
 import { Observable }                                        from 'rxjs';
 
 // @ts-ignore
-import { Class } from '../model/class';
-// @ts-ignore
-import { CollisionSchema } from '../model/collisionSchema';
+import { CacheRelationRequest } from '../model/cacheRelationRequest';
 // @ts-ignore
 import { CombinedModel } from '../model/combinedModel';
 // @ts-ignore
 import { CombinedModelElement } from '../model/combinedModelElement';
 // @ts-ignore
-import { CompositeNode } from '../model/compositeNode';
-// @ts-ignore
 import { DataProperty } from '../model/dataProperty';
 // @ts-ignore
 import { DeltaModification } from '../model/deltaModification';
 // @ts-ignore
-import { Literal } from '../model/literal';
-// @ts-ignore
 import { ModelingInfo } from '../model/modelingInfo';
-// @ts-ignore
-import { NamedEntity } from '../model/namedEntity';
-// @ts-ignore
-import { ObjectNode } from '../model/objectNode';
 // @ts-ignore
 import { ObjectProperty } from '../model/objectProperty';
 // @ts-ignore
-import { PrimitiveNode } from '../model/primitiveNode';
-// @ts-ignore
 import { SemanticModelNode } from '../model/semanticModelNode';
 // @ts-ignore
-import { SetNode } from '../model/setNode';
-// @ts-ignore
 import { SyntacticOperationDTO } from '../model/syntacticOperationDTO';
+// @ts-ignore
+import { UpdatePositionsRequestInner } from '../model/updatePositionsRequestInner';
 
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
@@ -57,7 +45,9 @@ import { Configuration }                                     from '../configurat
 
 
 
-@Injectable()
+@Injectable({
+  providedIn: 'root'
+})
 export class ModelingControllerService {
 
     protected basePath = 'http://plasma-gateway-service:8888';
@@ -79,6 +69,7 @@ export class ModelingControllerService {
     }
 
 
+    // @ts-ignore
     private addToHttpParams(httpParams: HttpParams, value: any, key?: string): HttpParams {
         if (typeof value === "object" && value instanceof Date === false) {
             httpParams = this.addToHttpParamsRecursive(httpParams, value);
@@ -98,8 +89,7 @@ export class ModelingControllerService {
                 (value as any[]).forEach( elem => httpParams = this.addToHttpParamsRecursive(httpParams, elem, key));
             } else if (value instanceof Date) {
                 if (key != null) {
-                    httpParams = httpParams.append(key,
-                        (value as Date).toISOString().substr(0, 10));
+                    httpParams = httpParams.append(key, (value as Date).toISOString().substr(0, 10));
                 } else {
                    throw Error("key may not be null if value is Date");
                 }
@@ -117,8 +107,8 @@ export class ModelingControllerService {
 
     /**
      * Accepts a recommendation and adds the contents to the semantic model.
-     * @param modelId
-     * @param deltaModification
+     * @param modelId 
+     * @param deltaModification 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
@@ -188,8 +178,8 @@ export class ModelingControllerService {
 
     /**
      * Adds a new provisional node to the cache of the model.
-     * @param modelId
-     * @param semanticModelNode
+     * @param modelId 
+     * @param semanticModelNode 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
@@ -259,8 +249,8 @@ export class ModelingControllerService {
 
     /**
      * Adds a new provisional relation to the cache of the model.
-     * @param modelId
-     * @param dataPropertyObjectProperty
+     * @param modelId 
+     * @param dataPropertyObjectProperty 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
@@ -330,8 +320,8 @@ export class ModelingControllerService {
 
     /**
      * Copy the semantic model from source model to target model
-     * @param modelId
-     * @param sourceModelId
+     * @param modelId 
+     * @param sourceModelId 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
@@ -398,12 +388,12 @@ export class ModelingControllerService {
 
     /**
      * Initializes a new modeling.
-     * @param combinedModel
-     * @param modelId
-     * @param performInitialModeling
-     * @param name
-     * @param description
-     * @param dataId
+     * @param combinedModel 
+     * @param modelId 
+     * @param performInitialModeling 
+     * @param name 
+     * @param description 
+     * @param dataId 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
@@ -493,8 +483,8 @@ export class ModelingControllerService {
 
     /**
      * Removes a cached element identified by the given URI
-     * @param modelId
-     * @param uri
+     * @param modelId 
+     * @param uri 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
@@ -560,8 +550,8 @@ export class ModelingControllerService {
 
     /**
      * Removes a cached relation identified by the given URI
-     * @param modelId
-     * @param uri
+     * @param modelId 
+     * @param uri 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
@@ -627,7 +617,7 @@ export class ModelingControllerService {
 
     /**
      * Deletes an existing modeling
-     * @param modelId
+     * @param modelId 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
@@ -683,7 +673,7 @@ export class ModelingControllerService {
 
     /**
      * End modelling process and finalize model.
-     * @param modelId
+     * @param modelId 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
@@ -741,7 +731,7 @@ export class ModelingControllerService {
 
     /**
      * Returns the current schema of the specified model.
-     * @param modelId
+     * @param modelId 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
@@ -798,9 +788,9 @@ export class ModelingControllerService {
 
     /**
      * Returns all elements either persistent in the knowledge base or cached for the referenced model sorted alphabetically.
-     * @param modelId
-     * @param prefix
-     * @param infix
+     * @param modelId 
+     * @param prefix 
+     * @param infix 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
@@ -868,15 +858,15 @@ export class ModelingControllerService {
 
     /**
      * Returns all relations either persistent in the knowledge base or cached for the referenced model sorted alphabetically.
-     * @param modelId
-     * @param prefix
-     * @param infix
+     * @param modelId 
+     * @param prefix 
+     * @param infix 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public getRelations(modelId: string, prefix?: string, infix?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext}): Observable<Array<DataProperty | ObjectProperty>>;
-    public getRelations(modelId: string, prefix?: string, infix?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext}): Observable<HttpResponse<Array<DataProperty | ObjectProperty>>>;
-    public getRelations(modelId: string, prefix?: string, infix?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext}): Observable<HttpEvent<Array<DataProperty | ObjectProperty>>>;
+    public getRelations(modelId: string, prefix?: string, infix?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext}): Observable<Array<CacheRelationRequest>>;
+    public getRelations(modelId: string, prefix?: string, infix?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext}): Observable<HttpResponse<Array<CacheRelationRequest>>>;
+    public getRelations(modelId: string, prefix?: string, infix?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext}): Observable<HttpEvent<Array<CacheRelationRequest>>>;
     public getRelations(modelId: string, prefix?: string, infix?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext}): Observable<any> {
         if (modelId === null || modelId === undefined) {
             throw new Error('Required parameter modelId was null or undefined when calling getRelations.');
@@ -923,7 +913,7 @@ export class ModelingControllerService {
             }
         }
 
-        return this.httpClient.get<Array<DataProperty | ObjectProperty>>(`${this.configuration.basePath}/api/plasma-dms/modelings/${encodeURIComponent(String(modelId))}/relations`,
+        return this.httpClient.get<Array<CacheRelationRequest>>(`${this.configuration.basePath}/api/plasma-dms/modelings/${encodeURIComponent(String(modelId))}/relations`,
             {
                 context: localVarHttpContext,
                 params: localVarQueryParameters,
@@ -937,7 +927,7 @@ export class ModelingControllerService {
     }
 
     /**
-     * @param modelId
+     * @param modelId 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
@@ -1047,8 +1037,8 @@ export class ModelingControllerService {
 
     /**
      * Performs a modification of the CombinedModel.
-     * @param modelId
-     * @param deltaModification
+     * @param modelId 
+     * @param deltaModification 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
@@ -1118,8 +1108,8 @@ export class ModelingControllerService {
 
     /**
      * Modify the syntactic schema of model by invoking an operation.
-     * @param modelId
-     * @param syntacticOperationDTO
+     * @param modelId 
+     * @param syntacticOperationDTO 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
@@ -1188,7 +1178,7 @@ export class ModelingControllerService {
     }
 
     /**
-     * @param modelId
+     * @param modelId 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
@@ -1244,7 +1234,7 @@ export class ModelingControllerService {
     }
 
     /**
-     * @param modelId
+     * @param modelId 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
@@ -1301,7 +1291,7 @@ export class ModelingControllerService {
 
     /**
      * push last element from model stack
-     * @param modelId
+     * @param modelId 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
@@ -1359,7 +1349,7 @@ export class ModelingControllerService {
 
     /**
      * pop last element from model stack
-     * @param modelId
+     * @param modelId 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
@@ -1417,20 +1407,20 @@ export class ModelingControllerService {
 
     /**
      * Stores the position of all provided elements.
-     * @param modelId
-     * @param classCollisionSchemaCompositeNodeLiteralNamedEntityObjectNodePrimitiveNodeSetNode
+     * @param modelId 
+     * @param updatePositionsRequestInner 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public updatePositions(modelId: string, classCollisionSchemaCompositeNodeLiteralNamedEntityObjectNodePrimitiveNodeSetNode: Array<Class | CollisionSchema | CompositeNode | Literal | NamedEntity | ObjectNode | PrimitiveNode | SetNode>, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext}): Observable<any>;
-    public updatePositions(modelId: string, classCollisionSchemaCompositeNodeLiteralNamedEntityObjectNodePrimitiveNodeSetNode: Array<Class | CollisionSchema | CompositeNode | Literal | NamedEntity | ObjectNode | PrimitiveNode | SetNode>, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext}): Observable<HttpResponse<any>>;
-    public updatePositions(modelId: string, classCollisionSchemaCompositeNodeLiteralNamedEntityObjectNodePrimitiveNodeSetNode: Array<Class | CollisionSchema | CompositeNode | Literal | NamedEntity | ObjectNode | PrimitiveNode | SetNode>, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext}): Observable<HttpEvent<any>>;
-    public updatePositions(modelId: string, classCollisionSchemaCompositeNodeLiteralNamedEntityObjectNodePrimitiveNodeSetNode: Array<Class | CollisionSchema | CompositeNode | Literal | NamedEntity | ObjectNode | PrimitiveNode | SetNode>, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext}): Observable<any> {
+    public updatePositions(modelId: string, updatePositionsRequestInner: Array<UpdatePositionsRequestInner>, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext}): Observable<any>;
+    public updatePositions(modelId: string, updatePositionsRequestInner: Array<UpdatePositionsRequestInner>, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext}): Observable<HttpResponse<any>>;
+    public updatePositions(modelId: string, updatePositionsRequestInner: Array<UpdatePositionsRequestInner>, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext}): Observable<HttpEvent<any>>;
+    public updatePositions(modelId: string, updatePositionsRequestInner: Array<UpdatePositionsRequestInner>, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext}): Observable<any> {
         if (modelId === null || modelId === undefined) {
             throw new Error('Required parameter modelId was null or undefined when calling updatePositions.');
         }
-        if (classCollisionSchemaCompositeNodeLiteralNamedEntityObjectNodePrimitiveNodeSetNode === null || classCollisionSchemaCompositeNodeLiteralNamedEntityObjectNodePrimitiveNodeSetNode === undefined) {
-            throw new Error('Required parameter classCollisionSchemaCompositeNodeLiteralNamedEntityObjectNodePrimitiveNodeSetNode was null or undefined when calling updatePositions.');
+        if (updatePositionsRequestInner === null || updatePositionsRequestInner === undefined) {
+            throw new Error('Required parameter updatePositionsRequestInner was null or undefined when calling updatePositions.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -1473,7 +1463,7 @@ export class ModelingControllerService {
         }
 
         return this.httpClient.patch<any>(`${this.configuration.basePath}/api/plasma-dms/modelings/${encodeURIComponent(String(modelId))}/positions`,
-            classCollisionSchemaCompositeNodeLiteralNamedEntityObjectNodePrimitiveNodeSetNode,
+            updatePositionsRequestInner,
             {
                 context: localVarHttpContext,
                 responseType: <any>responseType_,
@@ -1486,8 +1476,8 @@ export class ModelingControllerService {
     }
 
     /**
-     * @param modelId
-     * @param labels
+     * @param modelId 
+     * @param labels 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */

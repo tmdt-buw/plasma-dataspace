@@ -9,14 +9,13 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import { ObjectProperty } from './objectProperty';
+import { CacheRelationRequest } from './cacheRelationRequest';
 import { SemanticModelNode } from './semanticModelNode';
-import { DataProperty } from './dataProperty';
 
 
 export interface SemanticModel { 
     id?: string;
     nodes?: Array<SemanticModelNode>;
-    edges?: Array<DataProperty | ObjectProperty>;
+    edges?: Array<CacheRelationRequest>;
 }
 

@@ -9,11 +9,10 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import { ObjectProperty } from './objectProperty';
+import { CacheRelationRequest } from './cacheRelationRequest';
 import { SemanticModel } from './semanticModel';
 import { SemanticModelNode } from './semanticModelNode';
 import { SyntaxModel } from './syntaxModel';
-import { DataProperty } from './dataProperty';
 import { DeltaModification } from './deltaModification';
 import { ModelMapping } from './modelMapping';
 
@@ -26,7 +25,7 @@ export interface CombinedModel {
     lastModification?: DeltaModification;
     finalized?: boolean;
     provisionalElements?: Array<SemanticModelNode>;
-    provisionalRelations?: Array<DataProperty | ObjectProperty>;
+    provisionalRelations?: Array<CacheRelationRequest>;
     readonly modelMappings?: Array<ModelMapping>;
 }
 
