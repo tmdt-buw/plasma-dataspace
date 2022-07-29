@@ -18,6 +18,8 @@ export interface PrimitiveNodeAllOf {
     datatype?: PrimitiveNodeAllOf.DatatypeEnum;
     examples?: Array<string>;
     pattern?: string;
+    visible?: boolean;
+    disabled?: boolean;
     readonly operations?: Array<SyntacticOperationDTO>;
 }
 export namespace PrimitiveNodeAllOf {

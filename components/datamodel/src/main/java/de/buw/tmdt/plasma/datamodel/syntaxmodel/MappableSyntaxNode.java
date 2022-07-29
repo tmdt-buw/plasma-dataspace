@@ -17,7 +17,7 @@ public abstract class MappableSyntaxNode extends SchemaNode{
         super(label, isValid);
     }
 
-    public MappableSyntaxNode(@NotNull String uuid, @NotNull String label, @Nullable List<String> path, @Nullable Double xCoordinate, @Nullable Double yCoordinate, boolean isValid) {
-        super(uuid, label, path, xCoordinate, yCoordinate, isValid);
+    public MappableSyntaxNode(@NotNull String uuid, @NotNull String label, @Nullable List<String> path, @Nullable Double xCoordinate, @Nullable Double yCoordinate, boolean isValid, boolean visible, boolean disabled) {
+        super(uuid, label, path, xCoordinate, yCoordinate, isValid, visible, disabled);
     }
 }

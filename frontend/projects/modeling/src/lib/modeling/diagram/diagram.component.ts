@@ -70,10 +70,6 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
 
   @Input() viewerMode: boolean = false; // if set to true hides all input and interaction options that modify the model
 
-  get combinedModel(): CombinedModel {
-    return this._combinedModel;
-  }
-
   @Input() modelId: string;
   // external controls
   @Input() $center: Subject<any>;
@@ -100,6 +96,10 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
 
   // dialog
   private nodeDialogRef: NzModalRef<any>;
+
+  get combinedModel(): CombinedModel {
+    return this._combinedModel;
+  }
 
   // create graph if input schema changes and graph has already been initialized
   @Input() set combinedModel(combinedModel: CombinedModel) {
@@ -235,7 +235,8 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
         if (Nodes.isClass(elementView) && elementBelow) {
           const syntaxNode = this.findSyntaxNodeById(elementBelow.id as string);
           const classNode = this.findSemanticNodeById(clazzId as string) as Class;
-          if (syntaxNode._class === 'PrimitiveNode' && !classNode.syntaxNodeUuid) {
+
+          if ((syntaxNode._class === 'PrimitiveNode' || syntaxNode._class === 'SetNode') && !classNode.syntaxNodeUuid) {
             // TODO add a confirm here?
             if (!classNode.instance) {
               classNode.instance = {
@@ -640,8 +641,12 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
    */
   private createSyntaxGraph(syntaxModel: SyntaxModel): void {
     if (syntaxModel.nodes.length > 0) {
-      syntaxModel.nodes.forEach(node => this.addSyntaxNode(node.uuid, node.label, Icons.getIcon(node), node._class, node.x, node.y));
-      syntaxModel.edges.forEach(edge => this.addSyntaxLink(edge.from, edge.to));
+      syntaxModel.nodes
+        // .filter(value => value.visible)
+        .forEach(node => {
+          this.addSyntaxNode(node.uuid, node.label, Icons.getIcon(node), node._class, node.x, node.y, node.disabled);
+        });
+      syntaxModel.edges.forEach(edge => this.addSyntaxLink(edge.from, edge.to, edge.disabled));
     }
   }
 
@@ -662,31 +667,42 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
     switch (this.$filter.getValue()) {
       case Filter.ALL:
         // filter syntax nodes
-        const map = this.combinedModel.modelMappings;
+        const mappings = this.combinedModel.modelMappings;
         const mappedSyntaxNodes = this.combinedModel.syntaxModel.nodes
           .filter(node => this.combinedModel.modelMappings
             .some(mapping => mapping.schemaNodeUuid === node.uuid)
           );
         const hiddenSyntaxNodesIds = mappedSyntaxNodes.map(node => node.uuid);
+        // update all edge from or to uuids if one of the nodes has been replaced by a semantic node
+        const edges = this.combinedModel.syntaxModel.edges
+          //.filter(edge => edge.visible)
+          .map(edge => {
+            if (hiddenSyntaxNodesIds.includes(edge.from) || hiddenSyntaxNodesIds.includes(edge.to)) {
+              let mappedEdgeFrom = edge.from;
+              let mappedEdgeTo = edge.to;
+              if (hiddenSyntaxNodesIds.includes(edge.from)) {
+                mappedEdgeFrom = mappings.filter(mapping => mapping.schemaNodeUuid === edge.from).pop().semanticNodeUuid;
+              }
+              if (hiddenSyntaxNodesIds.includes(edge.to)) {
+                mappedEdgeTo = mappings.filter(mapping => mapping.schemaNodeUuid === edge.to).pop().semanticNodeUuid;
+              }
+              return {
+                from: mappedEdgeFrom,
+                to: mappedEdgeTo
+              };
+            }
+            return {
+              from: edge.from,
+              to: edge.to
+            };
+          });
+
         const reducedSyntaxModel = {
           root: this.combinedModel.syntaxModel.root,
           nodes: this.combinedModel.syntaxModel.nodes.filter(node => !mappedSyntaxNodes.includes(node)),
-          edges: map.map(mapping => {
-            return {
-              from: mapping.parentUuid,
-              to: mapping.semanticNodeUuid
-            };
-          }).concat(
-            this.combinedModel.syntaxModel.edges
-              .filter(edge => !hiddenSyntaxNodesIds.includes(edge.from) && !hiddenSyntaxNodesIds.includes(edge.to))
-              .map(edge => {
-                return {
-                  from: edge.from,
-                  to: edge.to
-                };
-              })
-          )
+          edges
         };
+
         this.createSyntaxGraph(reducedSyntaxModel);
 
         // show semantic nodes and links
@@ -711,10 +727,10 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
   /**
    * Add syntax node to graph
    */
-  private addSyntaxNode(id: string, label: string, icon: string, subtype: string, x?: number, y?: number): void {
+  private addSyntaxNode(id: string, label: string, icon: string, subtype: string, x?: number, y?: number, disabled?: boolean): void {
     const dim = this.calcDimensionsForLabel(label, !!icon);
     const position = {x, y};
-    const node = Nodes.createSyntaxNode(id, label, icon, position, dim[0], dim[1], subtype);
+    const node = Nodes.createSyntaxNode(id, label, icon, position, dim[0], dim[1], subtype, disabled);
     this.graph.addCell(node);
   }
 
@@ -722,8 +738,9 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
    * Add syntax link to graph
    * @param source of link
    * @param target of link
+   * @param disabled If this is a disabled link
    */
-  private addSyntaxLink(source: string, target: string): void {
+  private addSyntaxLink(source: string, target: string, disabled?: boolean): void {
     const link = Links.createSyntaxLink(source, target);
     this.graph.addCell(link);
   }
@@ -999,7 +1016,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
   private getIfMappableNode(elementView: dia.ElementView): (PrimitiveNode | SetNode) {
     if (Nodes.isSyntaxNode(elementView)) {
       const node = this.findSyntaxNodeById(elementView.model.id.toString());
-      if (node._class === 'PrimitiveNode' || node._class === 'SetNode') {
+      if ((node._class === 'PrimitiveNode' || node._class === 'SetNode') && !node.disabled) {
         return node;
       }
     }

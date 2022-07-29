@@ -51,9 +51,11 @@ public class ObjectNode extends SchemaNode {
             @Nullable @JsonProperty(PATH_PROPERTY) List<String> path,
             @Nullable @JsonProperty(XCOORDINATE_PROPERTY) Double xCoordinate,
             @Nullable @JsonProperty(YCOORDINATE_PROPERTY) Double yCoordinate,
-            @JsonProperty(VALID_PROPERTY) boolean isValid
+            @JsonProperty(VALID_PROPERTY) boolean isValid,
+            @JsonProperty(VISIBLE_PROPERTY) boolean visible,
+            @JsonProperty(DISABLED_PROPERTY) boolean disabled
     ) {
-        super(uuid, label, path, xCoordinate, yCoordinate, isValid);
+        super(uuid, label, path, xCoordinate, yCoordinate, isValid, visible, disabled);
     }
 
     @Override
@@ -63,7 +65,9 @@ public class ObjectNode extends SchemaNode {
                 getPath(),
                 getXCoordinate(),
                 getYCoordinate(),
-                isValid());
+                isValid(),
+                isVisible(),
+                isDisabled());
     }
 
     @Override

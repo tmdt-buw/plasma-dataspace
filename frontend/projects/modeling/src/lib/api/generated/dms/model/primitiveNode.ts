@@ -20,6 +20,8 @@ export interface PrimitiveNode extends PositionedCombinedModelElement {
     datatype?: PrimitiveNode.DatatypeEnum;
     examples?: Array<string>;
     pattern?: string;
+    visible?: boolean;
+    disabled?: boolean;
     readonly operations?: Array<SyntacticOperationDTO>;
 }
 export namespace PrimitiveNode {

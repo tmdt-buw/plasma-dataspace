@@ -96,7 +96,7 @@ public class ModelingController implements ModelingAPI {
 
     @Override
     @Operation(description = "Copy the semantic model from source model to target model")
-    public CombinedModel copySemanticModelFromOtherModel(@NotNull String modelId, @NotNull String sourceModelId) {
+    public @NotNull CombinedModel copySemanticModelFromOtherModel(@NotNull String modelId, @NotNull String sourceModelId) {
         return modelingHandler.copySemanticModelFromOtherModel(modelId, sourceModelId);
     }
 

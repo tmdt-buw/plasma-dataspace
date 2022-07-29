@@ -205,7 +205,6 @@ public class CombinedModel implements Serializable {
                     .collect(Collectors.toList());
             syntaxModel.getNodes().removeAll(nodesToBeReplaced);
 
-
             // now add the new ones with the same uuids but new content
             syntaxModel.getNodes().addAll(delta.getNodes());
         }
@@ -400,6 +399,38 @@ public class CombinedModel implements Serializable {
             }
         }
 
+        // disable primitive nodes below a mapped setnode
+        syntaxModel.getNodes().stream()
+                .filter(node -> node instanceof SetNode)
+                .map(node -> (SetNode) node)
+
+                .forEach(setNode -> {
+                    if(isMappedSchemaNode(setNode)){
+                        syntaxModel.getChildNodesForNode(setNode.getUuid()).stream()
+                                .filter(cNode -> cNode instanceof PrimitiveNode)
+                                .forEach(cNode -> {
+                                    syntaxModel.getEdges().stream()
+                                            .filter(e -> e.getFromId().equals(setNode.getUuid()) && e.getToId().equals(cNode.getUuid()))
+                                            .forEach(edge -> edge.setDisabled(true));
+                                    cNode.setDisabled(true);
+                                    MappableSemanticModelNode mappingNode = getMappingSemanticNode(cNode);
+                                    if(mappingNode != null){
+                                        mappingNode.unmap();
+                                    }
+                                });
+                    } else {
+                        syntaxModel.getChildNodesForNode(setNode.getUuid()).stream()
+                                .filter(cNode -> cNode instanceof PrimitiveNode)
+                                .forEach(cNode -> {
+                                    syntaxModel.getEdges().stream()
+                                            .filter(e -> e.getFromId().equals(setNode.getUuid()) && e.getToId().equals(cNode.getUuid()))
+                                            .forEach(edge -> edge.setDisabled(false));
+                                    cNode.setDisabled(false);
+                                });
+                    }
+
+                });
+
         // check consistency of semantic model in case elements have been removed
         if (delta.isDeletion()) {
             List<String> deletedNodeIds = delta.getEntities().stream().map(CombinedModelElement::getUuid).collect(Collectors.toList());
@@ -416,6 +447,19 @@ public class CombinedModel implements Serializable {
         // now validate the model state
         validate();
         lastModification = delta;
+    }
+
+    private boolean isMappedSchemaNode(SchemaNode sn){
+        return getMappingSemanticNode(sn) != null;
+    }
+
+    private MappableSemanticModelNode getMappingSemanticNode(SchemaNode sn){
+        return semanticModel.getNodes().stream()
+                .filter(smNode -> smNode instanceof MappableSemanticModelNode)
+                .map(smNode -> (MappableSemanticModelNode) smNode)
+                .filter(MappableSemanticModelNode::isMapped)
+                .filter(smNode -> smNode.getMappedSyntaxNodeUuid().equals(sn.getUuid()))
+                .findFirst().orElse(null);
     }
 
     @JsonProperty(value = "modelMappings", access = JsonProperty.Access.READ_ONLY)
@@ -447,7 +491,7 @@ public class CombinedModel implements Serializable {
                 .filter(schemaNode -> schemaNode.getUuid().equals(syntaxNodeId))
                 .findFirst()
                 .orElseThrow();
-        if (!(syntaxNode instanceof PrimitiveNode)) {
+        if (!(syntaxNode instanceof MappableSyntaxNode)) {
             throw new UnsupportedOperationException("Cannot map to syntax node " + syntaxNode.getUuid() + ". Not a primitive node.");
         }
         // now get parent
@@ -510,7 +554,7 @@ public class CombinedModel implements Serializable {
                     SchemaNode targetNode = getSyntaxModel().findNode(id);
                     if (targetNode == null) {
                         errors.add("Node references non-existing syntax node " + id);
-                    } else if (!(targetNode instanceof PrimitiveNode)) {
+                    } else if (!(targetNode instanceof PrimitiveNode) && !(targetNode instanceof SetNode)) {
                         errors.add("Node references non-primitive syntax node " + id);
                     }
 

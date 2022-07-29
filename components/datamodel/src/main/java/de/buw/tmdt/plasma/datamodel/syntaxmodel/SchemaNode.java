@@ -29,8 +29,12 @@ public abstract class SchemaNode extends PositionedCombinedModelElement {
     public static final String OPERATIONS_PROPERTY = "operations";
     public static final String VALID_PROPERTY = "valid";
     public static final String PATH_PROPERTY = "path";
+    public static final String VISIBLE_PROPERTY = "visible";
+    public static final String DISABLED_PROPERTY = "disabled";
 
     private final boolean isValid;
+    private boolean visible = true;
+    private boolean disabled = false;
 
     private List<String> path;
 
@@ -49,6 +53,22 @@ public abstract class SchemaNode extends PositionedCombinedModelElement {
         this.path = new ArrayList<>();
     }
 
+    public SchemaNode(
+            @NotNull String uuid,
+            @NotNull  String label,
+            @Nullable List<String> path,
+            @Nullable Double xCoordinate,
+            @Nullable Double yCoordinate,
+            boolean isValid
+    ) {
+        super(uuid, label, xCoordinate, yCoordinate);
+        this.isValid = isValid;
+        this.operations = new ArrayList<>();
+        this.path = path == null ? new ArrayList<>() : path;
+        this.visible = true;
+        this.disabled = false;
+    }
+
     @JsonCreator
     public SchemaNode(
             @NotNull @JsonProperty(UUID_PROPERTY) String uuid,
@@ -56,12 +76,16 @@ public abstract class SchemaNode extends PositionedCombinedModelElement {
             @Nullable @JsonProperty(PATH_PROPERTY) List<String> path,
             @Nullable @JsonProperty(XCOORDINATE_PROPERTY) Double xCoordinate,
             @Nullable @JsonProperty(YCOORDINATE_PROPERTY) Double yCoordinate,
-            @JsonProperty(VALID_PROPERTY) boolean isValid
+            @Nullable @JsonProperty(VALID_PROPERTY) Boolean isValid,
+            @Nullable @JsonProperty(VISIBLE_PROPERTY) Boolean visible,
+            @Nullable @JsonProperty(DISABLED_PROPERTY) Boolean disabled
     ) {
         super(uuid, label, xCoordinate, yCoordinate);
-        this.isValid = isValid;
+        this.isValid = isValid == null || isValid;
         this.operations = new ArrayList<>();
         this.path = path == null ? new ArrayList<>() : path;
+        this.visible = visible == null || visible;
+        this.disabled = disabled != null && disabled;
     }
 
     @JsonProperty(VALID_PROPERTY)
@@ -69,11 +93,22 @@ public abstract class SchemaNode extends PositionedCombinedModelElement {
         return isValid;
     }
 
+    @JsonProperty(VISIBLE_PROPERTY)
+    public boolean isVisible() {
+        return visible;
+    }
+
+    @JsonProperty(DISABLED_PROPERTY)
+    public boolean isDisabled() {
+        return disabled;
+    }
+
     @JsonProperty(value = OPERATIONS_PROPERTY, access = JsonProperty.Access.READ_ONLY)
     public List<SyntacticOperationDTO> getOperations() {
         return operations;
     }
 
+    @JsonProperty(PATH_PROPERTY)
     public List<String> getPath() {
         return path;
     }
@@ -86,6 +121,13 @@ public abstract class SchemaNode extends PositionedCombinedModelElement {
         this.path.add(component);
     }
 
+    public void setVisible(boolean visible){
+        this.visible = visible;
+    }
+
+    public void setDisabled(boolean disabled){
+        this.disabled = disabled;
+    }
     /**
      * Creates a deep clone of the current entity.
      *

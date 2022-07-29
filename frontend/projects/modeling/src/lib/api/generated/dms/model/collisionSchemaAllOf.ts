@@ -15,6 +15,8 @@ import { SyntacticOperationDTO } from './syntacticOperationDTO';
 export interface CollisionSchemaAllOf { 
     path?: Array<string>;
     valid?: boolean;
+    visible?: boolean;
+    disabled?: boolean;
     readonly operations?: Array<SyntacticOperationDTO>;
 }
 

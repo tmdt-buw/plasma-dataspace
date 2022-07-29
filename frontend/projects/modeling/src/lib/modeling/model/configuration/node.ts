@@ -432,7 +432,7 @@ export abstract class Nodes {
   /**
    * Calls constructor and returns instance of a new syntax node
    */
-  static createSyntaxNode(id: string, label: string, icon: string, position: { x: number, y: number }, width: number, height: number, subtype: string): dia.Element {
+  static createSyntaxNode(id: string, label: string, icon: string, position: { x: number, y: number }, width: number, height: number, subtype: string, disabled: boolean): dia.Element {
     return new Nodes.syntaxNode({
       id,
       subtype,
@@ -443,12 +443,16 @@ export abstract class Nodes {
         height
       },
       attrs: {
-        body: {},
+        body: {
+          opacity: disabled ? 0.1 : 1
+        },
         icon: {
           text: icon,
+          opacity: disabled ? 0.1 : 1
         },
         label: {
           text: label,
+          opacity: disabled ? 0.1 : 1
         }
       }
     });

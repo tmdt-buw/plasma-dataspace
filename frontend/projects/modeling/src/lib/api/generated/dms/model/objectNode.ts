@@ -17,6 +17,8 @@ import { SyntacticOperationDTO } from './syntacticOperationDTO';
 export interface ObjectNode extends PositionedCombinedModelElement { 
     path?: Array<string>;
     valid?: boolean;
+    visible?: boolean;
+    disabled?: boolean;
     readonly operations?: Array<SyntacticOperationDTO>;
 }
 

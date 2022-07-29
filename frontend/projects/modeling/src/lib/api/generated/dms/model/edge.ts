@@ -17,5 +17,7 @@ export interface Edge {
     from?: string;
     to?: string;
     annotations?: string;
+    disabled?: boolean;
+    visible?: boolean;
 }
 

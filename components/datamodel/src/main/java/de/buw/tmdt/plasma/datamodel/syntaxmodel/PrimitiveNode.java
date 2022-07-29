@@ -63,9 +63,11 @@ public class PrimitiveNode extends MappableSyntaxNode {
             @JsonProperty(VALID_PROPERTY) boolean isValid,
             @NotNull @JsonProperty(DATATYPE_PROPERTY) DataType dataType,
             @JsonProperty(EXAMPLES_PROPERTY) List<String> examples,
-            @JsonProperty(CLEANSING_PATTERN_PROPERTY) String cleansingPattern
+            @JsonProperty(CLEANSING_PATTERN_PROPERTY) String cleansingPattern,
+            @JsonProperty(VISIBLE_PROPERTY) boolean visible,
+            @JsonProperty(DISABLED_PROPERTY) boolean disabled
     ) {
-        super(uuid, label, path, xCoordinate, yCoordinate, isValid);
+        super(uuid, label, path, xCoordinate, yCoordinate, isValid, visible, disabled);
         this.dataType = dataType;
         this.examples = examples != null ? new ArrayList<>(examples) : new ArrayList<>();
         this.cleansingPattern = cleansingPattern;
@@ -109,7 +111,9 @@ public class PrimitiveNode extends MappableSyntaxNode {
                 isValid(),
                 getDataType(),
                 getExamples(),
-                getCleansingPattern());
+                getCleansingPattern(),
+                isVisible(),
+                isDisabled());
 
         return node;
     }

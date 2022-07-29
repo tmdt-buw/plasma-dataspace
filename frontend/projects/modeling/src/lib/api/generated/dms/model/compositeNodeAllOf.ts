@@ -19,6 +19,8 @@ export interface CompositeNodeAllOf {
     examples?: Array<string>;
     pattern?: string;
     splitter?: Array<Splitting>;
+    visible?: boolean;
+    disabled?: boolean;
     readonly operations?: Array<SyntacticOperationDTO>;
 }
 
