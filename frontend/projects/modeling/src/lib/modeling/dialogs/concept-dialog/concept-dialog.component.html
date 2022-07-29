@@ -74,7 +74,7 @@
         <div *ngFor="let relation of relations; let i = index"
             (click)="toggleRelation(i, relation)"
             [ngStyle]="{'background': isSelected(relation) ? 'lightgrey' : null, 'color': isSelected(relation) ? 'white' : null}"
-            class="concept-box" fxLayout="column">
+            class="relation-box" fxLayout="column">
 
           <div fxLayout="row" fxLayoutAlign="start center">
             <span nz-typography nzEllipsis>{{ relation.label }}</span>
