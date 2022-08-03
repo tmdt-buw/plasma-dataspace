@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import de.buw.tmdt.plasma.datamodel.CombinedModel;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.SemanticModel;
 import de.buw.tmdt.plasma.services.dps.conversion.ConversionException;
-import de.buw.tmdt.plasma.services.dps.conversion.rdf.DataInjector;
 import de.buw.tmdt.plasma.services.dps.conversion.rdf.RDFConverter;
 import de.buw.tmdt.plasma.services.kgs.shared.feignclient.OntologyApiClient;
 import feign.FeignException;
