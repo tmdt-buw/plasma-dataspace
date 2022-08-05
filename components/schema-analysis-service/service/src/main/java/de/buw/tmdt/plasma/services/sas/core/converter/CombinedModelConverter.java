@@ -21,14 +21,15 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * Converts between the shared {@link CombinedModel}
- * and the local {@link de.buw.tmdt.plasma.services.sas.core.model.syntaxmodel.Node} schema.
+ * Converts the local {@link de.buw.tmdt.plasma.services.sas.core.model.syntaxmodel.Node} tree to
+ * the shared {@link CombinedModel}, or {@link SyntaxModel} respectively.
  */
 @Service
 public class CombinedModelConverter {
 
 	private static final Logger logger = LoggerFactory.getLogger(CombinedModelConverter.class);
 	private static final String ROOT_ELEMENT_LABEL = "ROOT";
+	private static final String ROOT_PATH_TOKEN = "";
 	private static final String COLLISION_ELEMENT_LABEL = "COLLISION";
 
 	@Autowired
@@ -36,13 +37,17 @@ public class CombinedModelConverter {
 
 	}
 
-	/* Conversion methods internal model ===>  CombinedModel  */
-
+	/**
+	 * Conversion methods internal model ===>  CombinedModel
+	 * @param root The root element of the internal tree
+	 * @return The resulting {@link SyntaxModel}
+	 */
 	@NotNull
 	public SyntaxModel toCombinedModel(@NotNull Node root) {
 		@NotNull SerializationContext serializationContext = new SerializationContext();
 		SchemaNode syntaxRoot;
 		List<String> path = new ArrayList<>();
+		path.add(ROOT_PATH_TOKEN);
 		if (root instanceof SetNode) {
 			syntaxRoot = toCombinedModel((SetNode) root, ROOT_ELEMENT_LABEL, path, serializationContext);
 		} else if (root instanceof ObjectNode) {
@@ -60,32 +65,32 @@ public class CombinedModelConverter {
 
 	private void createChild(@NotNull SchemaNode parent, @NotNull Node node, @NotNull String label, List<String> path, @NotNull SerializationContext serializationContext) {
 		if (serializationContext.nodeLookUp.containsKey(node.getUuid().toString())) {
-			SchemaNode oldDTO = serializationContext.nodeLookUp.get(node.getUuid().toString());
-			logger.warn("Old Node: {}", oldDTO);
+			SchemaNode oldNode = serializationContext.nodeLookUp.get(node.getUuid().toString());
+			logger.warn("Old Node: {}", oldNode);
 			logger.warn("Replacing Node: {}", node);
-			throw new RuntimeException("Ambiguity in node keys detected while converting model to CombinedModel for node id `" + oldDTO.getUuid() + "`.");
+			throw new RuntimeException("Ambiguity in node keys detected while converting model to CombinedModel for node id `" + oldNode.getUuid() + "`.");
 		}
-		SchemaNode newDTO;
+		SchemaNode schemaNode;
 		if (node instanceof SetNode) {
-			newDTO = toCombinedModel((SetNode) node, label, path, serializationContext);
+			schemaNode = toCombinedModel((SetNode) node, label, path, serializationContext);
 		} else if (node instanceof ObjectNode) {
-			newDTO = toCombinedModel((ObjectNode) node, label, path, serializationContext);
+			schemaNode = toCombinedModel((ObjectNode) node, label, path, serializationContext);
 		} else if (node instanceof CompositeNode) {
-			newDTO = toCombinedModel((CompositeNode) node, label, path, serializationContext);
+			schemaNode = toCombinedModel((CompositeNode) node, label, path, serializationContext);
 		} else if (node instanceof CollisionNode) {
-			newDTO = toCombinedModel((CollisionNode) node, label, path, serializationContext);
+			schemaNode = toCombinedModel((CollisionNode) node, label, path, serializationContext);
 		} else if (node instanceof PrimitiveNode) {
-			newDTO = toCombinedModel((PrimitiveNode) node, label, path);
+			schemaNode = toCombinedModel((PrimitiveNode) node, label, path);
 		} else {
 			throw new IllegalArgumentException("Unsupported sub-type of " + Node.class + " found: " + node.getClass());
 		}
-		serializationContext.edges.add(new Edge(parent.getUuid(), newDTO.getUuid()));
-		serializationContext.nodeLookUp.put(node.getUuid().toString(), newDTO);
+		serializationContext.edges.add(new Edge(parent.getUuid(), schemaNode.getUuid()));
+		serializationContext.nodeLookUp.put(node.getUuid().toString(), schemaNode);
 	}
 
 	@NotNull
 	@SuppressFBWarnings(value = "NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE", justification = "Explicit check that value is not null")
-	private de.buw.tmdt.plasma.datamodel.syntaxmodel.SetNode toCombinedModel(@NotNull SetNode setNode, @NotNull String label, List<String> path, @NotNull SerializationContext serializationContext) {
+	private de.buw.tmdt.plasma.datamodel.syntaxmodel.SetNode toCombinedModel(@NotNull SetNode setNode, @NotNull String label, List<String> parentPath, @NotNull SerializationContext serializationContext) {
 
 		Double xCoordinate = null;
 		Double yCoordinate = null;
@@ -93,22 +98,22 @@ public class CombinedModelConverter {
 			xCoordinate = setNode.getPosition().getXCoordinate();
 			yCoordinate = setNode.getPosition().getYCoordinate();
 		}
-		path = new ArrayList<>(path);
-
+		List<String> nodePath = new ArrayList<>(parentPath);
+		nodePath.add(label);
 
 		de.buw.tmdt.plasma.datamodel.syntaxmodel.SetNode root =
 				new de.buw.tmdt.plasma.datamodel.syntaxmodel.SetNode(
 						UUID.randomUUID().toString(),
 						label,
-						path,
+						nodePath,
 						xCoordinate,
 						yCoordinate,
-						setNode.isValid());
+						setNode.isValid(), true, false);
 
-		path = new ArrayList<>(path);
-		path.add(label);
+		nodePath = new ArrayList<>(nodePath); // copy list again to ensure child does gut a new instance
+
 		for (SetNode.Child child : setNode.getChildren()) {
-			createChild(root, child.getNode(), toLabel(child.getSelector()), path, serializationContext);
+			createChild(root, child.getNode(), toLabel(child.getSelector()), nodePath, serializationContext);
 		}
 
 		return root;
@@ -130,7 +135,7 @@ public class CombinedModelConverter {
 
 	@NotNull
 	@SuppressFBWarnings(value = "NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE", justification = "Explicit check that value is not null")
-	private de.buw.tmdt.plasma.datamodel.syntaxmodel.ObjectNode toCombinedModel(@NotNull ObjectNode objectNode, @NotNull String label, List<String> path, @NotNull SerializationContext serializationContext) {
+	private de.buw.tmdt.plasma.datamodel.syntaxmodel.ObjectNode toCombinedModel(@NotNull ObjectNode objectNode, @NotNull String label, List<String> parentPath, @NotNull SerializationContext serializationContext) {
 
 		Double xCoordinate = null;
 		Double yCoordinate = null;
@@ -139,17 +144,17 @@ public class CombinedModelConverter {
 			yCoordinate = objectNode.getPosition().getYCoordinate();
 		}
 
-		path = new ArrayList<>(path);
+		List<String> nodePath = new ArrayList<>(parentPath);
+		nodePath.add(label);
 
 		de.buw.tmdt.plasma.datamodel.syntaxmodel.ObjectNode root =
 				new de.buw.tmdt.plasma.datamodel.syntaxmodel.ObjectNode(
-						label, path, xCoordinate, yCoordinate, objectNode.isValid());
+						label, nodePath, xCoordinate, yCoordinate, objectNode.isValid());
 
-		path = new ArrayList<>(path);
-		path.add(label);
+		nodePath = new ArrayList<>(nodePath); // copy list again to ensure child does gut a new instance
 
 		for (Map.Entry<String, Node> entry : objectNode.getChildren().entrySet()) {
-			createChild(root, entry.getValue(), entry.getKey(), path, serializationContext);
+			createChild(root, entry.getValue(), entry.getKey(), nodePath, serializationContext);
 		}
 
 		return root;
@@ -157,7 +162,7 @@ public class CombinedModelConverter {
 
 	@NotNull
 	@SuppressFBWarnings(value = "NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE", justification = "Explicit check that value is not null")
-	private de.buw.tmdt.plasma.datamodel.syntaxmodel.CompositeNode toCombinedModel(@NotNull CompositeNode compositeNode, @NotNull String label, List<String> path, @NotNull SerializationContext serializationContext) {
+	private de.buw.tmdt.plasma.datamodel.syntaxmodel.CompositeNode toCombinedModel(@NotNull CompositeNode compositeNode, @NotNull String label, List<String> parentPath, @NotNull SerializationContext serializationContext) {
 
 		Double xCoordinate = null;
 		Double yCoordinate = null;
@@ -166,12 +171,13 @@ public class CombinedModelConverter {
 			yCoordinate = compositeNode.getPosition().getYCoordinate();
 		}
 
-		path = new ArrayList<>(path);
+		List<String> nodePath = new ArrayList<>(parentPath);
+		nodePath.add(label);
 
 		de.buw.tmdt.plasma.datamodel.syntaxmodel.CompositeNode root = new de.buw.tmdt.plasma.datamodel.syntaxmodel.CompositeNode(
 				UUID.randomUUID().toString(),
 				label,
-				path,
+				nodePath,
 				xCoordinate,
 				yCoordinate,
 				compositeNode.isValid(),
@@ -180,12 +186,11 @@ public class CombinedModelConverter {
 				compositeNode.getSplitter().stream().map(this::splitterToDTO).collect(Collectors.toList())
 		);
 
-		path = new ArrayList<>(path);
-		path.add(label);
+		nodePath = new ArrayList<>(nodePath); // copy list again to ensure child does gut a new instance
 
 		List<PrimitiveNode> components = compositeNode.getComponents();
 		for (int i = 0; i < components.size(); i++) {
-			createChild(root, components.get(i), StringUtilities.integerToOrdinal(i, true), path, serializationContext);
+			createChild(root, components.get(i), StringUtilities.integerToOrdinal(i, true), nodePath, serializationContext);
 		}
 
 		final List<@NotNull SchemaNode> componentDTOs = serializationContext.edges.stream()
@@ -206,7 +211,7 @@ public class CombinedModelConverter {
 
 	@NotNull
 	@SuppressFBWarnings(value = "NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE", justification = "Explicit check that value is not null")
-	private de.buw.tmdt.plasma.datamodel.syntaxmodel.CollisionSchema toCombinedModel(@NotNull CollisionNode collisionNode, @NotNull String label, List<String> path, @NotNull SerializationContext serializationContext) {
+	private de.buw.tmdt.plasma.datamodel.syntaxmodel.CollisionSchema toCombinedModel(@NotNull CollisionNode collisionNode, @NotNull String label, List<String> parentPath, @NotNull SerializationContext serializationContext) {
 
 		Double xCoordinate = null;
 		Double yCoordinate = null;
@@ -215,22 +220,22 @@ public class CombinedModelConverter {
 			yCoordinate = collisionNode.getPosition().getYCoordinate();
 		}
 
-		path = new ArrayList<>(path);
+		List<String> nodePath = new ArrayList<>(parentPath);
+		nodePath.add(label);
 
 		de.buw.tmdt.plasma.datamodel.syntaxmodel.CollisionSchema root = new de.buw.tmdt.plasma.datamodel.syntaxmodel.CollisionSchema(
 				UUID.randomUUID().toString(),
 				COLLISION_ELEMENT_LABEL,
-				path,
+				nodePath,
 				xCoordinate,
 				yCoordinate,
 				collisionNode.isValid()
 		);
 
-		path = new ArrayList<>(path);
-		path.add(label);
+		nodePath = new ArrayList<>(nodePath); // copy list again to ensure child does gut a new instance
 
 		for (Node node : Arrays.asList(collisionNode.getPrimitiveNode(), collisionNode.getSetNode(), collisionNode.getSetNode())) {
-			createChild(root, node, label, path, serializationContext);
+			createChild(root, node, label, nodePath, serializationContext);
 		}
 
 		return root;
@@ -249,7 +254,7 @@ public class CombinedModelConverter {
 	private de.buw.tmdt.plasma.datamodel.syntaxmodel.PrimitiveNode toCombinedModel(
 			@NotNull PrimitiveNode primitiveNode,
 			@NotNull String label,
-			List<String> path
+			List<String> parentPath
 	) {
 
 		//transform position to coordinates
@@ -260,18 +265,19 @@ public class CombinedModelConverter {
 			yCoordinate = primitiveNode.getPosition().getYCoordinate();
 		}
 
-		path = new ArrayList<>(path);
+		List<String> nodePath = new ArrayList<>(parentPath);
+		nodePath.add(label);
 
 		return new de.buw.tmdt.plasma.datamodel.syntaxmodel.PrimitiveNode(
 				UUID.randomUUID().toString(),
 				label,
-				path,
+				nodePath,
 				xCoordinate,
 				yCoordinate,
 				primitiveNode.isValid(),
 				DataType.valueOf(primitiveNode.getDataType().identifier),
 				primitiveNode.getExamples(),
-				primitiveNode.getCleansingPattern()
+				primitiveNode.getCleansingPattern(),true, false
 		);
 	}
 

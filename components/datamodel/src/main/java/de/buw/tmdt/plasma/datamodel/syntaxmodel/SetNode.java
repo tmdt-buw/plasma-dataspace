@@ -16,6 +16,8 @@ public class SetNode extends MappableSyntaxNode {
 
     private static final long serialVersionUID = -5424468053886038114L;
 
+    public static final String ARRAY_INDICATOR = "0";
+
     public SetNode(
             boolean isValid
     ) {
