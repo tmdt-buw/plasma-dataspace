@@ -34,15 +34,13 @@ public class RDFConverter {
     private static final int NODE_LABEL_LENGTH = 254;
     private static final String ROOT_ELEMENT_NAME = "";
     private static final String ARRAY_ELEMENT_NAME = "0";
-
     private static final String MISSING_DATA_LITERAL = "##ValueNotAvailable##";
-    private static final String ARRAY_LITERAL = "##Array##";
 
     private final PrefixMapping prefixes;
-    private Map<MappableSyntaxNode, String> nodeValueMapTemplate;
-    private Map<SetNode, List<String>> arrayValueMap;
 
-    /* Runtime resources */
+    /* Runtime resources.
+    * Those are reset for every datum to parse.
+    */
     private CombinedModel combinedModel;
     private JsonNode datum;
     private Map<String, RDFNode> uuidtoResource = new HashMap<>();
@@ -51,8 +49,6 @@ public class RDFConverter {
     private String plasmaURI;
     private Property hasValueProperty;
     private String semanticModelId;
-    //private Map<String, String> uuidValueMap = new HashMap<>();
-    // private Map<MappableSyntaxNode, String> nodeValueMap = new HashMap<>();
     private Map<SemanticModelNode, List<RDFNode>> arrayExpansionMap = new HashMap<>();
     private int counter = 0;
     private boolean dirty = false;
@@ -66,9 +62,7 @@ public class RDFConverter {
 
     public void reset() {
         uuidtoResource = new HashMap<>();
-        //uuidValueMap = new HashMap<>();
         arrayExpansionMap = new HashMap<>();
-
         semanticModelId = null;
         combinedModel = null;
         datum = null;
@@ -93,9 +87,6 @@ public class RDFConverter {
 
     public Model convertToRDF(CombinedModel combinedModel, JsonNode datum) throws ConversionException {
         SemanticModel semanticModel = combinedModel.getSemanticModel();
-        if (nodeValueMapTemplate == null || nodeValueMapTemplate.isEmpty()) {
-            this.nodeValueMapTemplate = buildValueMapTemplate(combinedModel);
-        }
         if (dirty) {
             reset();
         }
@@ -117,7 +108,6 @@ public class RDFConverter {
 
         for (SemanticModelNode node : combinedModel.getSemanticModel().getNodes()) {
             convertNodeToRDF(node, false);
-
         }
         for (Relation r : semanticModel.getEdges()) {
             SemanticModelNode from = semanticModel.getNode(r.getFrom());
@@ -132,9 +122,7 @@ public class RDFConverter {
             } else {
                 fromNode.asResource().addProperty(m.createProperty(m.expandPrefix(r.getURI())), toNode);
             }
-
         }
-
         return m;
     }
 
@@ -254,39 +242,12 @@ public class RDFConverter {
                 } else {
                     nodes.add(m.createLiteral(node.asText()));
                 }
-
             } else {
                 // skipped for now
             }
         }
         return m.createList(nodes.iterator());
     }
-
-
-    /**
-     * Generates the template data storage used for each model conversion.
-     * Identifies all mapped {@link MappableSyntaxNode}s and reserves a storage place for the value.
-     * This includes {@link PrimitiveNode}s and primitive {@link SetNode}s.
-     * Non-primitive {@link SetNode}s are included but not filled later on.
-     *
-     * @param combinedModel The combined model to use
-     * @return The template
-     */
-    private Map<MappableSyntaxNode, String> buildValueMapTemplate(CombinedModel combinedModel) {
-        log.debug("Building new value map template");
-        Map<MappableSyntaxNode, String> valueMapTemplate = new HashMap<>();
-        // initialize template with all mapped primitive nodes
-        combinedModel.getSemanticModel().getNodes().stream()
-                .filter(SemanticModelNode::isMapped)
-                .map(node -> (MappableSemanticModelNode) node)
-                .map(MappableSemanticModelNode::getMappedSyntaxNodeUuid)
-                .map(id -> combinedModel.getSyntaxModel().getNode(id))
-                .filter(Objects::nonNull)
-                .map(node -> (MappableSyntaxNode) node)
-                .forEach(mappable -> valueMapTemplate.put(mappable, null));
-        return valueMapTemplate;
-    }
-
 
     public static String convertToInstanceId(String label) {
         String formatted = label.trim().toLowerCase().replace(" ", "_");
@@ -297,9 +258,6 @@ public class RDFConverter {
         formatted = formatted.replaceAll("\\(", "_");
         return formatted;
     }
-
-
-
 
     /**
      * Serializes a json array into a {@link String}
@@ -322,5 +280,4 @@ public class RDFConverter {
                 })
                 .collect(Collectors.joining(","));
     }
-
 }
