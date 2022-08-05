@@ -60,8 +60,8 @@ class DataProcessingHandlerTest {
         String dataId = sample.getDataId();
         assertNotNull(dataId);
         log.info("DataId: {}", dataId);
-
-        CombinedModel flightModel = CombinedModelGenerator.getFlightModel();
+        CombinedModelGenerator combinedModelGenerator = new CombinedModelGenerator();
+        CombinedModel flightModel = combinedModelGenerator.getFlightModel();
         String result = processingHandler.processFile(flightModel, dataId, null);
         InputStream convertedInputStream = DataProcessingHandlerTest.class.getClassLoader().getResourceAsStream("flight_converted.ttl");
         assert convertedInputStream != null;

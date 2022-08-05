@@ -53,6 +53,21 @@ public class PrimitiveNode extends MappableSyntaxNode {
         this.cleansingPattern = cleansingPattern;
     }
 
+    public PrimitiveNode(
+            @NotNull String label,
+            List<String> path,
+            boolean isValid,
+            @NotNull DataType dataType,
+            @Nullable List<String> examples,
+            @Nullable String cleansingPattern
+    ) {
+        super(label,  isValid);
+        this.dataType = dataType;
+        this.examples = examples != null ? new ArrayList<>(examples) : new ArrayList<>();
+        this.cleansingPattern = cleansingPattern;
+        this.setPath(path);
+    }
+
     @JsonCreator
     public PrimitiveNode(
             @NotNull @JsonProperty(UUID_PROPERTY) String uuid,
@@ -122,12 +137,7 @@ public class PrimitiveNode extends MappableSyntaxNode {
     @Override
     @SuppressWarnings("MagicCharacter")
     public String toString() {
-        return "{\"@class\":\"PrimitiveNode\""
-                + ", \"@super\":" + super.toString()
-                + ", \"cleansingPattern\":\"" + cleansingPattern + '"'
-                + ", \"examples\":" + StringUtilities.listToJson(examples)
-                + ", \"dataType\":\"" + dataType + '"'
-                + '}';
+        return "PrimitiveNode: " + getPathAsJSONPointer();
     }
 
     @Override

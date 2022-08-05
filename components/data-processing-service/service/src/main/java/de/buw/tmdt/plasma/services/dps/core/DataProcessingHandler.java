@@ -31,19 +31,19 @@ public class DataProcessingHandler {
     private static final Logger log = LoggerFactory.getLogger(DataProcessingHandler.class);
 
     @Autowired
-    public DataProcessingHandler(OntologyApiClient ontologyApiClient,
+    public DataProcessingHandler(@SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
+                                             OntologyApiClient ontologyApiClient,
                                  DataStorageHandler dataStorageHandler) {
         this.ontologyApiClient = ontologyApiClient;
         this.dataStorageHandler = dataStorageHandler;
     }
 
-    public String processFile(CombinedModel template, String dataId, String fileId){
+    public String processFile(CombinedModel template, String dataId, String fileId) {
         List<File> files = dataStorageHandler.listFiles(dataId);
         File file;
-        if(fileId == null){
-            file = files.get(files.size()-1);
-        }
-    else {
+        if (fileId == null) {
+            file = files.get(files.size() - 1);
+        } else {
             file = files.stream()
                     .filter(x -> fileId.equals(x.getName()))
                     .findFirst()
@@ -57,33 +57,31 @@ public class DataProcessingHandler {
             log.info("Could not read contents of file {}", file.getName(), e);
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Unable to read file.");
         }
-        List<JsonNode> nodes = new ArrayList<>();;
-        if (root.isArray()){
+        List<JsonNode> nodes = new ArrayList<>();
+        ;
+        if (root.isArray()) {
             root.elements().forEachRemaining(nodes::add);
         } else {
             nodes.add(root);
         }
 
-        DataInjector injector = new DataInjector();
-
-        List<SemanticModel> injected = null;
         try {
-            injected = injector.inject(template, nodes);
             Map<String, String> prefixes = ontologyApiClient.getPrefixes();
             PrefixMapping prefixMapping = new PrefixMappingImpl();
             prefixMapping.setNsPrefixes(prefixes);
             RDFConverter converter = new RDFConverter(prefixMapping);
             Model combined = ModelFactory.createDefaultModel();
             combined.setNsPrefixes(prefixes);
-            injected.stream()
-                    .peek(sm -> sm.setId(UUID.randomUUID().toString()))
-                    .map(converter::convertToRDF)
-                    .forEach(combined::add);
+            template.getSemanticModel().setId(UUID.randomUUID().toString());
+            for (JsonNode node : nodes) {
+                Model model = converter.convertToRDF(template, node);
+                combined.add(model);
+            }
             return asTurtle(combined);
         } catch (ConversionException e) {
             e.printStackTrace();
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Could not parse file content(s)");
-        } catch (FeignException e){
+        } catch (FeignException e) {
             e.printStackTrace();
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Could not obtain prefixes from KGS.");
         }

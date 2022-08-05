@@ -15,30 +15,34 @@ import java.util.UUID;
 public class CombinedModelGenerator {
 
     public static final String namespace = "http://local.host/ontology#";
-    public static final String ROOT_INDICATOR = "$";
+    public static final String ROOT_INDICATOR = "";
+    private static final String ARRAY_ELEMENT_NAME = "0";
 
-    public static CombinedModel getFlightModel() {
+    private boolean mapIdentificationNumbers = false;
+    private boolean mapIdentificationNumberInstance = false;
+
+
+    public CombinedModel getFlightModel() {
 
         List<SchemaNode> nodes = new ArrayList<>();
         List<Edge> edges = new ArrayList<>();
-        SchemaNode root = new ObjectNode(ROOT_INDICATOR, true);
+        SchemaNode root = new ObjectNode("root",List.of(ROOT_INDICATOR), null, null, true);
         nodes.add(root);
-        PrimitiveNode identifierNode = new PrimitiveNode("id", true, DataType.String, List.of("AL0025-20201123-1456-1634"), null);
-        identifierNode.setPath(List.of(ROOT_INDICATOR));
+        PrimitiveNode identifierNode = new PrimitiveNode("id", List.of(ROOT_INDICATOR, "id"),true, DataType.String, List.of("AL0025-20201123-1456-1634"), null);
         Edge rootIdentifierEdge = new Edge(root.getUuid(), identifierNode.getUuid());
         nodes.add(identifierNode);
         edges.add(rootIdentifierEdge);
 
         ObjectNode vesselNode = new ObjectNode("vessel", true);
-        vesselNode.setPath(List.of(ROOT_INDICATOR));
+        vesselNode.setPath(List.of(ROOT_INDICATOR, vesselNode.getLabel()));
         PrimitiveNode vesselNameNode = new PrimitiveNode("vessel_name", true, DataType.String, List.of("Airbus A350 XPB"), null);
-        vesselNameNode.setPath(List.of(ROOT_INDICATOR,"vessel"));
+        vesselNameNode.setPath(List.of(ROOT_INDICATOR,vesselNode.getLabel(), vesselNameNode.getLabel()));
         ObjectNode ownerNode = new ObjectNode("owner", true);
-        ownerNode.setPath(List.of(ROOT_INDICATOR,"vessel"));
+        ownerNode.setPath(List.of(ROOT_INDICATOR,vesselNode.getLabel(),ownerNode.getLabel()));
         PrimitiveNode carrierNode = new PrimitiveNode("carrier", true, DataType.String, List.of("Lufthansa"), null);
-        carrierNode.setPath(List.of(ROOT_INDICATOR,"vessel","owner"));
+        carrierNode.setPath(List.of(ROOT_INDICATOR,vesselNode.getLabel(),ownerNode.getLabel(), carrierNode.getLabel()));
         PrimitiveNode carrierCodeNode = new PrimitiveNode("carrier_code", true, DataType.String, List.of("LH"), null);
-        carrierCodeNode.setPath(List.of(ROOT_INDICATOR,"vessel","owner"));
+        carrierCodeNode.setPath(List.of(ROOT_INDICATOR,vesselNode.getLabel(),ownerNode.getLabel(), carrierCodeNode.getLabel()));
         Edge rootVesselEdge = new Edge(root.getUuid(), vesselNode.getUuid());
         Edge vesselNameEdge = new Edge(vesselNode.getUuid(), vesselNameNode.getUuid());
         Edge vesselOwnerEdge = new Edge(vesselNode.getUuid(), ownerNode.getUuid());
@@ -48,21 +52,29 @@ public class CombinedModelGenerator {
         edges.addAll(List.of(rootVesselEdge,vesselNameEdge,vesselOwnerEdge,vesselOwnerCarrierEdge,vesselOwnerCarrierCodeEdge));
 
 
-        ObjectNode originNode = new ObjectNode("origin", true);
-        PrimitiveNode nameNode = new PrimitiveNode("name", true, DataType.String, null, null);
-        SetNode numbersNode = new SetNode(UUID.randomUUID().toString(), "identification_numbers", List.of(ROOT_INDICATOR), null, null, true);
-        PrimitiveNode numberNode = new PrimitiveNode("number0", true, DataType.Number, null, null);
+        ObjectNode originNode = new ObjectNode("origin",List.of(ROOT_INDICATOR), null, null, true);
+        originNode.setPath(List.of(ROOT_INDICATOR, originNode.getLabel()));
+        PrimitiveNode nameNode = new PrimitiveNode("airport_name", true, DataType.String, null, null);
+        nameNode.setPath(List.of(ROOT_INDICATOR, originNode.getLabel(), nameNode.getLabel()));
+        SetNode identificationNumbersNode = new SetNode(UUID.randomUUID().toString(), "identification_numbers", List.of(ROOT_INDICATOR), null, null, true, true, false);
+        identificationNumbersNode.setPath(List.of(ROOT_INDICATOR, originNode.getLabel(), identificationNumbersNode.getLabel()));
+
+        PrimitiveNode identificationNumberNode = new PrimitiveNode("number0", true, DataType.Number, null, null);
+        identificationNumberNode.setPath(List.of(ROOT_INDICATOR, originNode.getLabel(), identificationNumbersNode.getLabel(), ARRAY_ELEMENT_NAME));
         Edge rootOriginEdge = new Edge(root.getUuid(), originNode.getUuid());
         Edge originNameEdge = new Edge(originNode.getUuid(), nameNode.getUuid());
-        Edge originNumberEdge = new Edge(originNode.getUuid(), numberNode.getUuid());
-        Edge numbersNumberEdge = new Edge(numbersNode.getUuid(), numberNode.getUuid());
-        nodes.addAll(List.of(originNode,nameNode,numbersNode,numberNode));
+        Edge originNumberEdge = new Edge(originNode.getUuid(), identificationNumberNode.getUuid());
+        Edge numbersNumberEdge = new Edge(identificationNumbersNode.getUuid(), identificationNumberNode.getUuid());
+        nodes.addAll(List.of(originNode,nameNode,identificationNumbersNode,identificationNumberNode));
         edges.addAll(List.of(rootOriginEdge,originNameEdge,originNumberEdge,numbersNumberEdge));
 
-        SetNode staffNode = new SetNode(UUID.randomUUID().toString(), "staff", List.of(ROOT_INDICATOR), null, null, true);
-        ObjectNode staffObjectNode = new ObjectNode(UUID.randomUUID().toString(), "object1", List.of(ROOT_INDICATOR, "staff"), null, null, true);
-        PrimitiveNode staffNameNode = new PrimitiveNode("name", true, DataType.Number, List.of(ROOT_INDICATOR, "staff", "{}"), null);
-        PrimitiveNode staffSeatNode = new PrimitiveNode("seat", true, DataType.Number, List.of(ROOT_INDICATOR, "staff", "{}"), null);
+        SetNode staffNode = new SetNode(UUID.randomUUID().toString(), "staff", List.of(ROOT_INDICATOR), null, null, true, true, false);
+        staffNode.setPath(List.of(ROOT_INDICATOR, staffNode.getLabel()));
+        ObjectNode staffObjectNode = new ObjectNode(UUID.randomUUID().toString(), "object1", List.of(ROOT_INDICATOR, staffNode.getLabel(), ARRAY_ELEMENT_NAME), null, null, true, true, false);
+        PrimitiveNode staffNameNode = new PrimitiveNode("name", true, DataType.Number, List.of(ROOT_INDICATOR, staffNode.getLabel(), ARRAY_ELEMENT_NAME), null);
+        staffNameNode.setPath(List.of(ROOT_INDICATOR, staffNode.getLabel(), ARRAY_ELEMENT_NAME, staffNameNode.getLabel()));
+        PrimitiveNode staffSeatNode = new PrimitiveNode("seat", true, DataType.Number, List.of(ROOT_INDICATOR, staffNode.getLabel(), ARRAY_ELEMENT_NAME), null);
+        staffSeatNode.setPath(List.of(ROOT_INDICATOR, staffNode.getLabel(), ARRAY_ELEMENT_NAME, staffSeatNode.getLabel()));
         Edge rootStaffEdge = new Edge(root.getUuid(), staffNode.getUuid());
         Edge staffObjectEdge = new Edge(staffNode.getUuid(), staffObjectNode.getUuid());
         Edge staffNameEdge = new Edge(staffObjectNode.getUuid(),staffNameNode.getUuid());
@@ -116,6 +128,20 @@ public class CombinedModelGenerator {
         relations.addAll(List.of(flightStaffRelation,staffFlightRelation,staffNameRelation,staffSeatRelation));
 
 
+        if(this.mapIdentificationNumbers){
+            Class identification_numbersClass = new Class(namespace + "ident_numbers", "identification numbers", "Some numbers");
+            mapSemanticNode(identification_numbersClass, identificationNumbersNode);
+            elements.add(identification_numbersClass);
+            ObjectProperty airportNumbersProperty = new ObjectProperty(airlineClass.getUuid(),identification_numbersClass.getUuid(), namespace + "identNumbers");
+            relations.add(airportNumbersProperty);
+        } else if (this.mapIdentificationNumberInstance){
+            Class identification_numbersInstanceClass = new Class(namespace + "ident_number", "identification number", "A single number");
+            mapSemanticNode(identification_numbersInstanceClass, identificationNumberNode);
+            elements.add(identification_numbersInstanceClass);
+            ObjectProperty airportNumberInstanceProperty = new ObjectProperty(airlineClass.getUuid(),identification_numbersInstanceClass.getUuid(), namespace + "identNum");
+            relations.add(airportNumberInstanceProperty);
+        }
+
         SemanticModel semanticModel = new SemanticModel(UUID.randomUUID().toString(), elements, relations);
         CombinedModel combinedModel = new CombinedModel(UUID.randomUUID().toString(), syntaxModel, semanticModel, new ArrayList<>(), false);
 
@@ -123,7 +149,7 @@ public class CombinedModelGenerator {
         return combinedModel;
     }
 
-    private static void mapSemanticNode(MappableSemanticModelNode semanticNode, PrimitiveNode schemaNode){
+    private static void mapSemanticNode(MappableSemanticModelNode semanticNode, MappableSyntaxNode schemaNode){
         semanticNode.setMappedSyntaxNodeLabel(schemaNode.getLabel());
         semanticNode.setMappedSyntaxNodeUuid(schemaNode.getUuid());
         semanticNode.setMappedSyntaxNodePath(String.join("->", schemaNode.getPath()));
@@ -142,4 +168,19 @@ public class CombinedModelGenerator {
         return out.toString();
     }
 
+    public boolean isMapIdentificationNumbers() {
+        return mapIdentificationNumbers;
+    }
+
+    public void setMapIdentificationNumbers(boolean mapIdentificationNumbers) {
+        this.mapIdentificationNumbers = mapIdentificationNumbers;
+    }
+
+    public boolean isMapIdentificationNumberInstance() {
+        return mapIdentificationNumberInstance;
+    }
+
+    public void setMapIdentificationNumberInstance(boolean mapIdentificationNumberInstance) {
+        this.mapIdentificationNumberInstance = mapIdentificationNumberInstance;
+    }
 }

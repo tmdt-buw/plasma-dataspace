@@ -13,6 +13,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "_class")
 @JsonSubTypes({
@@ -119,6 +120,18 @@ public abstract class SchemaNode extends PositionedCombinedModelElement {
 
     public void addPathComponent(String component) {
         this.path.add(component);
+    }
+
+    /**
+     * JSON Path (RFC6901) identifier of that node.
+     * Arrays will always be represented with index 0, e.g. /list/0/value in that path as the length of said list is
+     * not available at creation time.
+     */
+    public String getPathAsJSONPointer(){
+        return path.stream()
+                .map(component -> component.replaceAll("~", "~0"))
+                .map(component -> component.replaceAll("/", "~1"))
+                .collect(Collectors.joining("/"));
     }
 
     public void setVisible(boolean visible){

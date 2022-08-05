@@ -222,8 +222,7 @@ services:
 
 
 volumes:
-  neo4j_data:
-  mariadb_dss:
+  fuseki_data:
   mariadb_sas:
   mariadb_dms:
   mariadb_ars_m_sm:
