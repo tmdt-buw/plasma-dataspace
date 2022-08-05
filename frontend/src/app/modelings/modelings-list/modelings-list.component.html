@@ -4,6 +4,8 @@
     <button [disabled]="error" fxFlex="nogrow" nz-button nzType="primary" [routerLink]="['create']"><i nz-icon nzType="plus"></i>Create new
       modeling
     </button>
+    <button [disabled]="error" fxFlex="nogrow" nz-button nzType="default" (click)="downloadLocalOntology()"><i nz-icon nzType="download"></i>Download local ontology
+    </button>
   </nz-page-header-extra>
 </nz-page-header>
 

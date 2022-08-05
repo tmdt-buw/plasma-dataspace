@@ -1,4 +1,4 @@
-import { Component, EventEmitter, OnInit, Output} from '@angular/core';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { Router } from '@angular/router';
 import { ModelingControllerService, ModelingInfo, PlsModelingComponent } from '@tmdt/dms';
 import { DatePipe } from '@angular/common';
@@ -9,6 +9,8 @@ import { HttpStatusCode } from '@angular/common/http';
 import { DataProcessingControllerService } from '../../dataprocessing/api/generated';
 import { ModalBaseConfig } from '../../../../projects/modeling/src/lib/modeling/dialogs/common/modal.base-config';
 import { ConversionDialogComponent } from '../../dataprocessing/conversion-dialog/conversion-dialog.component';
+import { OntologyControllerService } from '../../../../projects/modeling/src/lib/api/generated/kgs';
+import { Util } from 'projects/modeling/src/lib/modeling/model/common/util';
 
 @Component({
   selector: 'app-modelings-list',
@@ -28,7 +30,7 @@ export class ModelingsListComponent implements OnInit {
   dpsAvailable: boolean;
 
   constructor(private modelingController: ModelingControllerService, private router: Router, private date: DatePipe,
-              private modal: NzModalService, private notification: NzNotificationService, private processingService: DataProcessingControllerService) {
+              private modal: NzModalService, private notification: NzNotificationService, private processingService: DataProcessingControllerService, private ontologyService: OntologyControllerService) {
   }
 
   /**
@@ -52,13 +54,11 @@ export class ModelingsListComponent implements OnInit {
         this.modelings = modelings;
         this.isLoading = false;
       }, error => {
-        if (error.status === 0){
+        if (error.status === 0) {
           this.notification.error('Connection error occurred', 'This is most likely caused by a CORS error. Check the system setup.');
-        }
-        else if (error.status === HttpStatusCode.ServiceUnavailable){
+        } else if (error.status === HttpStatusCode.ServiceUnavailable) {
           this.notification.error('Modeling Service Not Available', 'The modeling service could not be reached. Please try again in a few minutes or contact support.');
-        }
-        else{
+        } else {
           this.notification.error('Unexpected error occurred', 'The modeling service returned:<br>' + error.statusText + ': ' + error.message);
         }
         this.error = error;
@@ -109,4 +109,10 @@ export class ModelingsListComponent implements OnInit {
   }
 
 
+  downloadLocalOntology(): void {
+    this.ontologyService.downloadLocalOntology('TURTLE').subscribe(res => {
+        Util.download('local_ontology.ttl', res);
+      }
+      , err => this.notification.error('Download failed', 'Cannot download the local ontology: ' + err.message));
+  }
 }

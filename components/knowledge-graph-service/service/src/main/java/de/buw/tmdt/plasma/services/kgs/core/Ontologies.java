@@ -3,6 +3,7 @@ package de.buw.tmdt.plasma.services.kgs.core;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
+import de.buw.tmdt.plasma.services.kgs.shared.model.ExportFormat;
 import de.buw.tmdt.plasma.services.kgs.shared.model.OntologyInfo;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.io.FilenameUtils;
@@ -244,6 +245,9 @@ public class Ontologies {
     public Optional<OntModel> getOntologyModelByLabel(String label) {
         if (label == null || label.isBlank()) {
             return Optional.empty();
+        }
+        if(ontologyModels.isEmpty()){
+            reloadOntologies();
         }
         return ontologyModels.entrySet().stream()
                 .filter(entry -> label.equals(entry.getKey().getLabel()))

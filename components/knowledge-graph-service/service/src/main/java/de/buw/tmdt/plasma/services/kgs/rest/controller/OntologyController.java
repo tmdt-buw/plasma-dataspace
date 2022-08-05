@@ -6,11 +6,14 @@ import de.buw.tmdt.plasma.datamodel.semanticmodel.SemanticModelNode;
 import de.buw.tmdt.plasma.services.kgs.core.Ontologies;
 import de.buw.tmdt.plasma.services.kgs.core.OntologyHandler;
 import de.buw.tmdt.plasma.services.kgs.shared.api.OntologyApi;
+import de.buw.tmdt.plasma.services.kgs.shared.model.ExportFormat;
 import de.buw.tmdt.plasma.services.kgs.shared.model.OntologyInfo;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -60,6 +63,11 @@ public class OntologyController implements OntologyApi {
     @Override
     public List<OntologyInfo> listOntologies() {
         return ontologies.listOntologies();
+    }
+
+    @Override
+    public ResponseEntity<String> downloadLocalOntology(@NotNull ExportFormat format) {
+        return new ResponseEntity<>(ontologyHandler.downloadLocalOntology(format), HttpStatus.OK);
     }
 
     @Override

@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { PrimitiveNode } from '../../../api/generated/dms';
+import { PrimitiveNode, SchemaNode } from '../../../api/generated/dms';
 
 @Component({
   selector: 'pls-syntax-node-details',
@@ -8,7 +8,7 @@ import { PrimitiveNode } from '../../../api/generated/dms';
 })
 export class PlsSyntaxNodeDetailsComponent {
 
-  @Input() data: PrimitiveNode;
+  @Input() data: SchemaNode;
 
   constructor() {
   }

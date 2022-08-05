@@ -2,9 +2,11 @@ package de.buw.tmdt.plasma.services.kgs.shared.api;
 
 import de.buw.tmdt.plasma.datamodel.semanticmodel.Relation;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.SemanticModelNode;
+import de.buw.tmdt.plasma.services.kgs.shared.model.ExportFormat;
 import de.buw.tmdt.plasma.services.kgs.shared.model.OntologyInfo;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -67,6 +69,14 @@ public interface OntologyApi {
      */
     @GetMapping(value = "/ontologies", produces = MediaType.APPLICATION_JSON_VALUE)
     List<OntologyInfo> listOntologies();
+
+
+    /**
+     * Downloads the current local ontology.
+     */
+    @GetMapping(value = "/ontologies/local", produces = MediaType.TEXT_PLAIN_VALUE)
+    ResponseEntity<String> downloadLocalOntology(@NotNull @RequestParam(name = "format", defaultValue = "TURTLE") ExportFormat format);
+
 
     /**
      * Get prefix map.

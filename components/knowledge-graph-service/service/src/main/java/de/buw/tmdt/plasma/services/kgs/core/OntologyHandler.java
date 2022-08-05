@@ -3,6 +3,7 @@ package de.buw.tmdt.plasma.services.kgs.core;
 import de.buw.tmdt.plasma.datamodel.CombinedModelElement;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.Relation;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.SemanticModelNode;
+import de.buw.tmdt.plasma.services.kgs.shared.model.ExportFormat;
 import org.apache.commons.lang.StringUtils;
 import org.apache.jena.ontology.OntClass;
 import org.apache.jena.ontology.OntModel;
@@ -17,8 +18,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
+import java.io.StringWriter;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -147,5 +151,16 @@ public class OntologyHandler {
                         .filter(filterFunction)
                 )
                 .collect(Collectors.toList());
+    }
+
+    public String downloadLocalOntology(ExportFormat format) {
+        Optional<OntModel> ontologyModelByLabel = ontologies.getOntologyModelByLabel(localOntologyLabel);
+        if(ontologyModelByLabel.isEmpty()){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Could not find a local ontology. Check with system maintainer.");
+        }
+        OntModel localOntology = ontologyModelByLabel.get();
+        StringWriter out = new StringWriter();
+        localOntology.write(out, format.getFormatString());
+        return out.toString();
     }
 }
