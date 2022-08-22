@@ -40,7 +40,7 @@
             {{error}}
           </ng-container>
         </nz-modal>
-        <nz-modal [(nzVisible)]="displaySchemaModal" nzTitle="Schema Analysis Result" (nzOnOk)="closeModals()" [nzCancelDisabled]="true" [nzCancelText]="null"
+        <nz-modal [(nzVisible)]="displaySchemaModal" nzTitle="Schema Analysis Result" (nzOnOk)="closeModals()" [nzCancelDisabled]="true" [nzClosable]="false" [nzCancelText]="null"
         nzWidth="80%">
           <ng-container *nzModalContent>
               <app-json-viewer *ngIf="result" [json]="result"></app-json-viewer>
