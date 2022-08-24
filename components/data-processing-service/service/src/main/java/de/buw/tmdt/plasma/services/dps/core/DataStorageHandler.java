@@ -94,11 +94,12 @@ public class DataStorageHandler {
             } else if ("zip".equalsIgnoreCase(fileEnding)) {
                 // Convert ESRI to JSON
                 byte[] bytes = file.getBytes();
-                Files.write(newFilePath, bytes);
                 // Create temp file
                 Path newFilePathTemp = Paths.get(storageDirectoryString, dataId, dateString + "_upload_" + (numberOfFiles + 1) + "_temp"); //
-                result = ESRIConverter.convertToGeoJSON(newFilePathTemp);
-
+                Files.write(newFilePathTemp, bytes);
+                // extract contents from temp file
+                String geoJSON = ESRIConverter.convertToGeoJSON(newFilePathTemp);
+                result = GeoJSONConverter.convert(geoJSON);
                 Files.deleteIfExists(newFilePathTemp);
 
             } else if ("csv".equalsIgnoreCase(fileEnding)) {
