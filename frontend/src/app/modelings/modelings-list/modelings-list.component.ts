@@ -66,7 +66,6 @@ export class ModelingsListComponent implements OnInit {
       });
   }
 
-
   /**
    * Delete a modeling
    * @param modeling to delete
@@ -108,11 +107,10 @@ export class ModelingsListComponent implements OnInit {
     const ref = this.modal.create(Object.assign(config, ModalBaseConfig));
   }
 
-
   downloadLocalOntology(): void {
-    this.ontologyService.downloadLocalOntology('TURTLE').subscribe(res => {
-        Util.download('local_ontology.ttl', res);
-      }
-      , err => this.notification.error('Download failed', 'Cannot download the local ontology: ' + err.message));
+    this.ontologyService.downloadLocalOntology('TURTLE', 'response').subscribe(res => {
+      console.log(res.headers);
+      Util.download('local_ontology.ttl', res.body);
+    }, err => this.notification.error('Download failed', 'Cannot download the local ontology: ' + err.message));
   }
 }
