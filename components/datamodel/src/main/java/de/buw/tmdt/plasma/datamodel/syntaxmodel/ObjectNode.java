@@ -73,8 +73,6 @@ public class ObjectNode extends SchemaNode {
     @Override
     @SuppressWarnings("MagicCharacter")
     public String toString() {
-        return "{\"@class\":\"ObjectNodeDTO\""
-                + ", \"@super\":" + super.toString()
-                + '}';
+        return  "SetNode: " + getPathAsJSONPointer();
     }
 }
