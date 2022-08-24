@@ -875,14 +875,14 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
     return link;
   }
 
-  private createConfig(title: string, content: any, data: SyntaxNode | PlsSemanticNodeDetailsData): ModalOptions {
+  private createConfig(title: string, content: any, node: SyntaxNode | PlsSemanticNodeDetailsData): ModalOptions {
     const rect: DOMRect = this.viewContainerRef.element.nativeElement.getBoundingClientRect();
     return Object.assign({
       nzStyle: {position: 'absolute', top: `${rect.top + 15}px`, right: `15px`},
       nzTitle: title,
       nzContent: content,
       nzComponentParams: {
-        data
+        node
       }
     }, ModalMouseEnabledConfig);
   }

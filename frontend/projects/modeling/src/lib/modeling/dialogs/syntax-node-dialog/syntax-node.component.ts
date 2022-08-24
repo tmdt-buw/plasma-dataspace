@@ -8,9 +8,13 @@ import { PrimitiveNode, SchemaNode } from '../../../api/generated/dms';
 })
 export class PlsSyntaxNodeDetailsComponent {
 
-  @Input() data: SchemaNode;
+  @Input() node: SchemaNode;
 
   constructor() {
+  }
+
+  getExamples(): string[] {
+    return this.node?._class === 'PrimitiveNode' ? (this.node as PrimitiveNode).examples : [];
   }
 
 }
