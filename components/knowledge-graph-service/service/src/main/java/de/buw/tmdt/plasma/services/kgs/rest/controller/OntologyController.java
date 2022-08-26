@@ -12,11 +12,17 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
+import javax.servlet.http.HttpServletResponse;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -28,6 +34,9 @@ public class OntologyController implements OntologyApi {
     private static final Logger log = LoggerFactory.getLogger(OntologyController.class);
     private final OntologyHandler ontologyHandler;
     private final Ontologies ontologies;
+
+    @Value("${plasma.kgs.localontology.label:LOCAL}")
+    private String localOntologyLabel;
 
     @Autowired
     public OntologyController(@NotNull OntologyHandler ontologyHandler,
@@ -67,7 +76,16 @@ public class OntologyController implements OntologyApi {
 
     @Override
     public ResponseEntity<String> downloadLocalOntology(@NotNull ExportFormat format) {
-        return new ResponseEntity<>(ontologyHandler.downloadLocalOntology(format), HttpStatus.OK);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+        ContentDisposition contentDisposition = ContentDisposition.attachment()
+                .filename(localOntologyLabel + ".ttl")
+                .build();
+        headers.setContentDisposition(contentDisposition);
+        headers.set("filename", localOntologyLabel + ".ttl");
+        headers.setAccessControlExposeHeaders(List.of(HttpHeaders.CONTENT_DISPOSITION, "filename"));
+
+        return new ResponseEntity<>(ontologyHandler.downloadLocalOntology(format), headers,HttpStatus.OK);
     }
 
     @Override

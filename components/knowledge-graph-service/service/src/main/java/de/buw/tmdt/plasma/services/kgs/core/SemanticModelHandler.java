@@ -9,12 +9,13 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.StringWriter;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -26,6 +27,8 @@ public class SemanticModelHandler {
     private final SemanticModelManagement ops;
     private final LocalOntologyManagement onto;
     private final OntologyHandler ontologyHandler;
+
+    private final DateTimeFormatter exportTimestampFormatter = DateTimeFormatter.ofPattern("yMd-Hm");
 
     @Autowired
     public SemanticModelHandler(
@@ -92,7 +95,10 @@ public class SemanticModelHandler {
         if (retrievedModel.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No model available for id " + id);
         }
-        return new ResponseEntity<>(prepareForExport(retrievedModel, format, includeMappings), HttpStatus.OK);
+        String timestamp = LocalDate.now().format(exportTimestampFormatter);
+
+        HttpHeaders headers = generateFilenameHeader(timestamp + "-" + id + ".ttl");
+        return new ResponseEntity<>(prepareForExport(retrievedModel, format, includeMappings), headers, HttpStatus.OK);
     }
 
     public @NotNull ResponseEntity<String> convertSemanticModel(@NotNull CombinedModel combinedModel, @NotNull ExportFormat format, boolean includeMappings) {
@@ -100,7 +106,16 @@ public class SemanticModelHandler {
             combinedModel.getSemanticModel().setId(UUID.randomUUID().toString().substring(0, 5));
         }
         Model cmModel = CMToRDFMapper.convertToRDFModel(combinedModel.getSemanticModel());
-        return new ResponseEntity<>(prepareForExport(cmModel, format, includeMappings), HttpStatus.OK);
+
+        String modelId = combinedModel.getSemanticModel().getId();
+
+        if (modelId == null) {
+            modelId = "temp";
+        }
+        String timestamp = LocalDate.now().format(exportTimestampFormatter);
+
+        HttpHeaders headers = generateFilenameHeader(timestamp + "-" + modelId + ".ttl");
+        return new ResponseEntity<>(prepareForExport(cmModel, format, includeMappings), headers, HttpStatus.OK);
     }
 
     private String prepareForExport(Model model, ExportFormat format, boolean includeMappings) {
@@ -133,6 +148,17 @@ public class SemanticModelHandler {
         return result;
     }
 
+    private HttpHeaders generateFilenameHeader(String filename) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+        ContentDisposition contentDisposition = ContentDisposition.attachment()
+                .filename(filename)
+                .build();
+        headers.setContentDisposition(contentDisposition);
+        headers.set("filename", filename);
+        headers.setAccessControlExposeHeaders(List.of(HttpHeaders.CONTENT_DISPOSITION, "filename"));
+        return headers;
+    }
 
     @NotNull
     public Set<SemanticModel> searchByElementLabel(@NotNull String searchTerm) {
