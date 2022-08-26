@@ -55,7 +55,7 @@ public class LabelMatchingHandler {
                 clazz.createInstance();
                 clazz.setMappedSyntaxNodeLabel(node.getLabel());
                 clazz.setMappedSyntaxNodeUuid(node.getUuid());
-                clazz.setMappedSyntaxNodePath(String.join("->", node.getPath()));
+                clazz.setMappedSyntaxNodePath(node.getPathAsJSONPointer());
                 clazz.setXCoordinate(node.getXCoordinate());
                 clazz.setYCoordinate(node.getYCoordinate());
                 if (clazz.getInstance() != null) {

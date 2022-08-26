@@ -246,7 +246,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
             }
             classNode.syntaxNodeUuid = syntaxNode.uuid;
             classNode.syntaxLabel = syntaxNode.label;
-            classNode.syntaxPath = syntaxNode.path.join('->');
+            classNode.syntaxPath = syntaxNode.pathAsJSONPointer;
             classNode.instance.label = syntaxNode.label;
             classNode.x = syntaxNode.x;
             classNode.y = syntaxNode.y;
@@ -402,7 +402,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
               uuid: uuidv4(),
               syntaxNodeUuid: syntaxNode.uuid,
               syntaxLabel: syntaxNode.label,
-              syntaxPath: syntaxNode.path.join('->'),
+              syntaxPath: syntaxNode.pathAsJSONPointer,
             };
             const from = source;
             const to = literal.uuid;
@@ -550,7 +550,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
             x: position.x,
             y: position.y,
             syntaxLabel: node.label,
-            syntaxPath: node.path.join('->'),
+            syntaxPath: node.pathAsJSONPointer,
             syntaxNodeUuid: node.uuid,
             instance
           };

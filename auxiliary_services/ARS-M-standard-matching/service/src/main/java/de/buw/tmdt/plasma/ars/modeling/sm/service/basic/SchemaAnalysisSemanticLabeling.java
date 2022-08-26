@@ -107,7 +107,7 @@ public class SchemaAnalysisSemanticLabeling {
             String requiredPredecessor = requiredPredecessors.get(clazz.getLabel());
             if (requiredPredecessor == null ||
                     requiredPredecessor.equals(parentPath.get(parentPath.size() - 1))) {
-                clazz.setMappedSyntaxNodePath(String.join("->", primitiveNode.getPath()));
+                clazz.setMappedSyntaxNodePath(primitiveNode.getPathAsJSONPointer());
                 clazz.setMappedSyntaxNodeLabel(primitiveNode.getLabel());
                 clazz.setMappedSyntaxNodeUuid(primitiveNode.getUuid());
 
