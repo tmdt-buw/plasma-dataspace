@@ -13,6 +13,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class SemanticModel implements Serializable {
 
@@ -140,6 +141,44 @@ public class SemanticModel implements Serializable {
             String errorMessage = String.join("\n", errors);
             throw new CombinedModelIntegrityException(errorMessage);
         }
+    }
+
+    public SemanticModel getIterationContext(SemanticModelNode node, List<String> visited, SemanticModel submodel) {
+        visited.add(node.getUuid());
+        if(submodel == null){
+            submodel = new SemanticModel();
+        }
+        submodel.getNodes().add(node);
+        // calculate all neighbors
+        List<Relation> in = getEdges().stream()
+                .filter(Relation::isIterative)
+                .filter(rel ->
+                        rel.getTo().equals(node.getUuid())
+                ).collect(Collectors.toList());
+
+        List<Relation> out = getEdges().stream()
+                .filter(Relation::isIterative)
+                .filter(rel -> rel.getFrom().equals(node.getUuid()))
+                .collect(Collectors.toList());
+
+        List<SemanticModelNode> unvisitedNeighbors = in.stream()
+                .filter(rel -> !visited.contains(rel.getFrom()))
+                .peek(submodel.getEdges()::add)
+                .map(rel -> getNode(rel.getFrom()))
+                .collect(Collectors.toList());
+
+        out.stream()
+                .filter(rel -> !visited.contains(rel.getTo()))
+                .peek(submodel.getEdges()::add)
+                .map(rel -> getNode(rel.getTo()))
+                .forEach(unvisitedNeighbors::add);
+
+        // build the iteration context using recursion
+        for(SemanticModelNode neighbor : unvisitedNeighbors){
+            getIterationContext(neighbor,visited, submodel);
+        }
+
+        return submodel;
     }
 
     /**

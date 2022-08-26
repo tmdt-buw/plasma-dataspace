@@ -29,6 +29,7 @@ public abstract class Relation extends CombinedModelElement implements Serializa
     public static final String DESCRIPTION_PROPERTY = "description";
     public static final String PROPERTIES_PROPERTY = "properties";
     public static final String PROVISIONAL_PROPERTY = "provisional";
+    public static final String ITERATIVE_PROPERTY = "iterative";
 
 
     /**
@@ -46,6 +47,7 @@ public abstract class Relation extends CombinedModelElement implements Serializa
     private final String description;
     private final Set<String> properties;
     private boolean provisional;
+    private boolean iterative;
 
     public Relation(
             String from,
@@ -135,6 +137,14 @@ public abstract class Relation extends CombinedModelElement implements Serializa
 
     public void setProvisional(boolean provisional) {
         this.provisional = provisional;
+    }
+
+    public boolean isIterative() {
+        return iterative;
+    }
+
+    public void setIterative(boolean iterative) {
+        this.iterative = iterative;
     }
 
     @Override
