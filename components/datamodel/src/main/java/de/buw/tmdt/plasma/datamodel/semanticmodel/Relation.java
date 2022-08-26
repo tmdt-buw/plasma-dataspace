@@ -29,7 +29,7 @@ public abstract class Relation extends CombinedModelElement implements Serializa
     public static final String DESCRIPTION_PROPERTY = "description";
     public static final String PROPERTIES_PROPERTY = "properties";
     public static final String PROVISIONAL_PROPERTY = "provisional";
-    public static final String ITERATIVE_PROPERTY = "iterative";
+    public static final String ARRAY_CONTEXT_PROPERTY = "arraycontext";
 
 
     /**
@@ -47,14 +47,14 @@ public abstract class Relation extends CombinedModelElement implements Serializa
     private final String description;
     private final Set<String> properties;
     private boolean provisional;
-    private boolean iterative;
+    private boolean arrayContext;
 
     public Relation(
             String from,
             String to,
             @NotNull String uri
     ) {
-        this(null, from, to, uri, null, null, null, false);
+        this(null, from, to, uri, null, null, null, false, false);
     }
 
     public Relation(
@@ -63,7 +63,7 @@ public abstract class Relation extends CombinedModelElement implements Serializa
             @NotNull String uri,
             @NotNull String label
     ) {
-        this(null, from, to, uri, label, null, null, false);
+        this(null, from, to, uri, label, null, null, false, false);
     }
 
     public Relation(
@@ -73,7 +73,7 @@ public abstract class Relation extends CombinedModelElement implements Serializa
             @NotNull String label,
             @Nullable String description
     ) {
-        this(null, from, to, uri, label, description, null, false);
+        this(null, from, to, uri, label, description, null, false, false);
     }
 
     @JsonCreator
@@ -85,9 +85,11 @@ public abstract class Relation extends CombinedModelElement implements Serializa
             @Nullable @JsonProperty(LABEL_PROPERTY) String label,
             @Nullable @JsonProperty(DESCRIPTION_PROPERTY) String description,
             @Nullable @JsonProperty(PROPERTIES_PROPERTY) Set<String> properties,
+            @JsonProperty(ARRAY_CONTEXT_PROPERTY) boolean arrayContext,
             @JsonProperty(PROVISIONAL_PROPERTY) boolean provisional
     ) {
         super(label == null ? "" : label);
+        this.arrayContext = arrayContext;
         setUuid(uuid);
         this.from = from;
         this.to = to;
@@ -139,12 +141,13 @@ public abstract class Relation extends CombinedModelElement implements Serializa
         this.provisional = provisional;
     }
 
-    public boolean isIterative() {
-        return iterative;
+    @JsonProperty(ARRAY_CONTEXT_PROPERTY)
+    public boolean isArrayContext() {
+        return arrayContext;
     }
 
-    public void setIterative(boolean iterative) {
-        this.iterative = iterative;
+    public void setArrayContext(boolean arrayContext) {
+        this.arrayContext = arrayContext;
     }
 
     @Override

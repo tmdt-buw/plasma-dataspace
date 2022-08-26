@@ -139,11 +139,11 @@ public class CombinedModelGenerator {
             Literal staffNameLiteral = new Literal("name");
             mapSemanticNode(staffNameLiteral, staffNameNode);
             Relation staffNameRelation = new DataProperty(staffClass.getUuid(), staffNameLiteral.getUuid(),namespace + "hasName");
-            staffNameRelation.setIterative(true);
+            staffNameRelation.setArrayContext(true);
             Class seatClass = new Class(namespace + "seat_number", "seat", "Identifier for a specific place on a vehicle or in a room");
             mapSemanticNode(seatClass,staffSeatNode);
             Relation staffSeatRelation = new ObjectProperty(staffClass.getUuid(), seatClass.getUuid(),namespace + "seatedAt");
-            staffSeatRelation.setIterative(true);
+            staffSeatRelation.setArrayContext(true);
             // connect this bloc to the flight
             Relation flightStaffRelation = new ObjectProperty(flightClass.getUuid(), staffClass.getUuid(), namespace + "hasStaff");
             Relation staffFlightRelation = new ObjectProperty( staffClass.getUuid(),flightClass.getUuid(), namespace + "scheduledFor");

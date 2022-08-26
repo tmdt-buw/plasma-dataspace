@@ -21,8 +21,8 @@ export interface Relation {
     label?: string;
     description?: string;
     properties?: Array<string>;
+    arraycontext?: boolean;
     provisional?: boolean;
-    iterative?: boolean;
     template?: boolean;
     _class: string;
 }

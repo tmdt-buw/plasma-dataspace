@@ -14,7 +14,6 @@ import de.buw.tmdt.plasma.datamodel.syntaxmodel.SchemaNode;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.SetNode;
 import de.buw.tmdt.plasma.services.dps.conversion.ConversionException;
 import org.apache.jena.rdf.model.*;
-import org.apache.jena.rdf.model.impl.LiteralImpl;
 import org.apache.jena.shared.PrefixMapping;
 import org.apache.jena.vocabulary.RDF;
 import org.jetbrains.annotations.NotNull;
@@ -25,6 +24,8 @@ import org.springframework.web.util.HtmlUtils;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static de.buw.tmdt.plasma.datamodel.syntaxmodel.SchemaNode.*;
+
 /**
  * Converter to parse a {@link SemanticModel} with filled {@link Literal}s and convert it to RDF.
  */
@@ -34,8 +35,9 @@ public class RDFConverter {
 
     private static final int NODE_LABEL_LENGTH = 254;
     private static final String ROOT_ELEMENT_NAME = "";
-    private static final String ARRAY_ELEMENT_NAME = "0";
+
     private static final String MISSING_DATA_LITERAL = "##ValueNotAvailable##";
+
 
     private final PrefixMapping prefixes;
 
@@ -127,9 +129,9 @@ public class RDFConverter {
         List<SemanticModel> iterationContexts = new ArrayList<>();
         for (SemanticModelNode unprocessedNode : unprocessedNodes) {
             // check that this node is not part of any existing iteration context
-            if(iterationContexts.stream()
+            if (iterationContexts.stream()
                     .flatMap(ic -> ic.getNodes().stream())
-                    .anyMatch(node -> node.getUuid().equals(unprocessedNode.getUuid()))){
+                    .anyMatch(node -> node.getUuid().equals(unprocessedNode.getUuid()))) {
                 continue;
             }
             SemanticModel iterationContext = combinedModel.getSemanticModel().getIterationContext(unprocessedNode, new ArrayList<>(), null);
@@ -146,7 +148,7 @@ public class RDFConverter {
                     .filter(smn -> smn instanceof MappableSemanticModelNode)
                     .filter(SemanticModelNode::isMapped)
                     .map(smn -> (MappableSemanticModelNode) smn)
-                    .filter(smn -> smn.getMappedSyntaxNodePath().endsWith(ARRAY_ELEMENT_NAME))
+                    .filter(smn -> smn.getMappedSyntaxNodePath().endsWith(ARRAY_PATH_TOKEN))
                     .collect(Collectors.toList());
             if (indexNodes.size() != 1) {
                 throw new ConversionException(
@@ -177,7 +179,8 @@ public class RDFConverter {
             List<RDFNode> tailNodes = List.of(fromNode);
             if (arrayExpansionMap.containsKey(to)) {
                 headNodes = arrayExpansionMap.get(to);
-            } if (arrayExpansionMap.containsKey(from)) {
+            }
+            if (arrayExpansionMap.containsKey(from)) {
                 tailNodes = arrayExpansionMap.get(from);
             }
             for (RDFNode tailNode : tailNodes) {
@@ -202,7 +205,7 @@ public class RDFConverter {
 
                 SchemaNode schemaNode = combinedModel.getSyntaxModel().getNode(syntaxNodeUuid);
                 List<String> nodePath = schemaNode.getPath();
-                if (ARRAY_ELEMENT_NAME.equals(nodePath.get(nodePath.size() - 1))) {
+                if (ARRAY_PATH_TOKEN.equals(nodePath.get(nodePath.size() - 1))) {
                     // this is a child node of an array, refer back to parent node to build list
                     JsonNode arrayNode = datum.at(JsonPointer.compile(schemaNode.getPathAsJSONPointer()).head());
                     if (!(arrayNode instanceof ArrayNode)) {
@@ -230,7 +233,7 @@ public class RDFConverter {
             }
         } else if (node instanceof Literal) {
             Literal l = (Literal) node;
-            rdfNode =  convertLiteralNodeToRDF(l);
+            rdfNode = convertLiteralNodeToRDF(l);
         } else if (node instanceof NamedEntity) {
             NamedEntity ne = (NamedEntity) node;
             // create a resource which describes the named entity
@@ -254,14 +257,14 @@ public class RDFConverter {
         for (JsonNode entry : arrayNode) {
             // for each data point in the array node, a new set of rdf entities has to be generated
             // Map the iteration context
-            RDFNode rdfIndexNode = processIterationContext(iterationContext, indexNode, entry,  index);
+            RDFNode rdfIndexNode = processIterationContext(iterationContext, indexNode, entry, index);
             nodes.add(rdfIndexNode);
             index++;
         }
         return m.createList(nodes.iterator());
     }
 
-    private RDFNode processIterationContext(SemanticModel iterationContext, MappableSemanticModelNode indexNode, JsonNode entry,int index) throws ConversionException {
+    private RDFNode processIterationContext(SemanticModel iterationContext, MappableSemanticModelNode indexNode, JsonNode entry, int index) throws ConversionException {
         RDFNode rdfIndexNode = null;
         for (SemanticModelNode node : iterationContext.getNodes()) {
             RDFNode rdfNode = convertNodeInIterationContextToRDF(node, entry, indexNode.getMappedSyntaxNodePath(), index);
@@ -285,7 +288,8 @@ public class RDFConverter {
             if (!iterationContext.getNodes().contains(to) && arrayExpansionMap.containsKey(to)) {
                 headNodes = arrayExpansionMap.get(to);
 
-            } if (!iterationContext.getNodes().contains(from) && arrayExpansionMap.containsKey(from)) {
+            }
+            if (!iterationContext.getNodes().contains(from) && arrayExpansionMap.containsKey(from)) {
                 tailNodes = arrayExpansionMap.get(from);
 
             }
@@ -331,14 +335,12 @@ public class RDFConverter {
                     }
                     String value = readJSONArray((ArrayNode) arrayNode);
                     resultNode = m.createLiteral(value);
-                }
-                else if (schemaNode instanceof ObjectNode){
+                } else if (schemaNode instanceof ObjectNode) {
                     resultNode = convertClassNodeToRDF(clazz, datum, relativePath);
-                }
-                else if (schemaNode instanceof PrimitiveNode){
+                } else if (schemaNode instanceof PrimitiveNode) {
                     resultNode = convertClassNodeToRDF(clazz, datum, relativePath);
                 } else {
-                    log.warn("Encountered unknown node type for processing:"+ schemaNode);
+                    log.warn("Encountered unknown node type for processing:" + schemaNode);
                     return null;
                 }
                 rdfNode = resultNode;
@@ -349,7 +351,7 @@ public class RDFConverter {
             }
         } else if (node instanceof Literal) {
             Literal l = (Literal) node;
-            rdfNode =  convertLiteralNodeToRDF(l, datum, relativePath);
+            rdfNode = convertLiteralNodeToRDF(l, datum, relativePath);
 
         } else if (node instanceof NamedEntity) {
             throw new ConversionException("Named Entity " + node.getURI() + " should not be part of an iteration context!");
@@ -361,17 +363,22 @@ public class RDFConverter {
 
     @NotNull
     private Resource convertClassNodeToRDF(Class clazz) throws ConversionException {
-        return convertClassNodeToRDF(clazz, datum,"");
+        return convertClassNodeToRDF(clazz, datum, "");
     }
+
     @NotNull
-    private Resource convertClassNodeToRDF(Class clazz,JsonNode datum, String relativePath) throws ConversionException {
+    private Resource convertClassNodeToRDF(Class clazz, JsonNode datum, String relativePath) throws ConversionException {
         Instance i = clazz.getInstance();
         Resource resource;
         String baseURI = smURI + semanticModelId + "-" + getCounter();
+
         if (i != null) {
+            String label = !PREDEFINED_LABELS.contains(i.getLabel()) ? i.getLabel() : "";
             resource =
-                    m.createResource(baseURI + "-" + convertToInstanceId(i.getLabel())); // will reuse if already existent
-            resource.addProperty(PLCM.label, m.createLiteral(i.getLabel()));
+                    m.createResource(baseURI + "-" + convertToInstanceId(label)); // will reuse if already existent
+            if (!PREDEFINED_LABELS.contains(i.getLabel())) {
+                resource.addProperty(PLCM.label, m.createLiteral(i.getLabel()));
+            }
             if (i.getDescription() != null && !i.getDescription().isBlank()) {
                 resource.addProperty(PLCM.description, m.createLiteral(i.getDescription()));
             }
@@ -379,14 +386,14 @@ public class RDFConverter {
             resource = m.createResource(baseURI);
         }
         resource.addProperty(RDF.type, m.createResource(m.expandPrefix(clazz.getURI())));
-        if(clazz.isMapped()){
+        if (clazz.isMapped()) {
             SchemaNode schemaNode = combinedModel.getSyntaxModel().getNode(clazz.getMappedSyntaxNodeUuid());
-            if(schemaNode instanceof ObjectNode){
+            if (schemaNode instanceof ObjectNode) {
                 // ignore the mapping, this is just for clarification
                 return resource;
             }
             String jsonPointerPath = schemaNode.getPathAsJSONPointer();
-            jsonPointerPath = jsonPointerPath.replaceFirst(relativePath,"");
+            jsonPointerPath = jsonPointerPath.replaceFirst(relativePath, "");
             JsonNode valueNode = datum.at(JsonPointer.compile(jsonPointerPath));
             if (!valueNode.isValueNode()) {
                 throw new ConversionException("Node " + JsonPointer.compile(schemaNode.getPathAsJSONPointer()) + " is not a value node!");
@@ -403,16 +410,17 @@ public class RDFConverter {
         }
         return resource;
     }
+
     private RDFNode convertLiteralNodeToRDF(Literal l) throws ConversionException {
-        return convertLiteralNodeToRDF(l, datum,"");
+        return convertLiteralNodeToRDF(l, datum, "");
     }
 
-    private RDFNode convertLiteralNodeToRDF(Literal l,JsonNode datum, String relativePath) throws ConversionException {
-        if(l.isMapped()){
+    private RDFNode convertLiteralNodeToRDF(Literal l, JsonNode datum, String relativePath) throws ConversionException {
+        if (l.isMapped()) {
             String syntaxNodeUuid = l.getMappedSyntaxNodeUuid();
             SchemaNode schemaNode = combinedModel.getSyntaxModel().getNode(syntaxNodeUuid);
             String jsonPointerPath = schemaNode.getPathAsJSONPointer();
-            jsonPointerPath = jsonPointerPath.replaceFirst(relativePath,"");
+            jsonPointerPath = jsonPointerPath.replaceFirst(relativePath, "");
             JsonNode valueNode = datum.at(JsonPointer.compile(jsonPointerPath));
             if (!valueNode.isValueNode()) {
                 throw new ConversionException("Node " + JsonPointer.compile(schemaNode.getPathAsJSONPointer()) + " is not a value node!");

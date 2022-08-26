@@ -27,6 +27,13 @@ public abstract class SchemaNode extends PositionedCombinedModelElement {
 
     private static final long serialVersionUID = 8398288916936841021L;
 
+    public static final String ARRAY_PATH_TOKEN = "0";
+    public static final String ROOT_PATH_TOKEN = "";
+    public static final String ARRAY_LABEL = "##array";
+    public static final String OBJECT_LABEL = "##object";
+    public static final String VALUE_LABEL = "##value";
+    public static final List<String> PREDEFINED_LABELS = List.of(ARRAY_LABEL,OBJECT_LABEL,VALUE_LABEL);
+
     public static final String OPERATIONS_PROPERTY = "operations";
     public static final String VALID_PROPERTY = "valid";
     public static final String PATH_PROPERTY = "path";

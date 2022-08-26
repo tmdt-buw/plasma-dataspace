@@ -151,13 +151,13 @@ public class SemanticModel implements Serializable {
         submodel.getNodes().add(node);
         // calculate all neighbors
         List<Relation> in = getEdges().stream()
-                .filter(Relation::isIterative)
+                .filter(Relation::isArrayContext)
                 .filter(rel ->
                         rel.getTo().equals(node.getUuid())
                 ).collect(Collectors.toList());
 
         List<Relation> out = getEdges().stream()
-                .filter(Relation::isIterative)
+                .filter(Relation::isArrayContext)
                 .filter(rel -> rel.getFrom().equals(node.getUuid()))
                 .collect(Collectors.toList());
 

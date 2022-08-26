@@ -359,7 +359,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
             uri: this.relation.uri
           };
           const tmpNode: dia.Element = this.addLiteralNode(literal.uuid, 'Set Value', 'text_fields', literal.x, literal.y);
-          const tmpRel = this.addDataPropertyLink(relation.uuid, relation.from, relation.to, relation.label);
+          const tmpRel = this.addDataPropertyLink(relation.uuid, relation.from, relation.to, relation.label, relation.arraycontext);
 
           this.literalValueModalRef = this.modal.create({
             nzStyle: {
@@ -436,7 +436,8 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
         if (Links.isSemanticLink(cellView)) {
           const link = this.combinedModel.semanticModel.edges.find(edge => edge.uuid === id);
           this.contextMenu.open(cellView.el, PlsRelationConceptMenuComponent, this.viewContainerRef, {
-            relation: link
+            relation: link,
+            arrayContext : true // TODO
           });
         }
         if (Nodes.isClass(cellView)) {
@@ -675,7 +676,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
         const hiddenSyntaxNodesIds = mappedSyntaxNodes.map(node => node.uuid);
         // update all edge from or to uuids if one of the nodes has been replaced by a semantic node
         const edges = this.combinedModel.syntaxModel.edges
-          //.filter(edge => edge.visible)
+          // .filter(edge => edge.visible)
           .map(edge => {
             if (hiddenSyntaxNodesIds.includes(edge.from) || hiddenSyntaxNodesIds.includes(edge.to)) {
               let mappedEdgeFrom = edge.from;
@@ -808,9 +809,9 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
 
       semanticModel.edges.forEach(edge => {
         if (edge._class === 'DataProperty') {
-          this.addDataPropertyLink(edge.uuid, edge.from, edge.to, showURI ? edge.uri : edge.label);
+          this.addDataPropertyLink(edge.uuid, edge.from, edge.to, showURI ? edge.uri : edge.label, edge.arraycontext);
         } else {
-          this.addObjectPropertyLink(edge.uuid, edge.from, edge.to, showURI ? edge.uri : edge.label);
+          this.addObjectPropertyLink(edge.uuid, edge.from, edge.to, showURI ? edge.uri : edge.label, edge.arraycontext);
         }
       });
     }
@@ -860,8 +861,8 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
   /**
    * Add object property link to graph
    */
-  private addObjectPropertyLink(id: string, source: string, target: string, label: string, opacity?: number): dia.Link {
-    const link = Links.createObjectPropertyLink(id, source, target, label, opacity);
+  private addObjectPropertyLink(id: string, source: string, target: string, label: string, arrayContext: boolean, opacity?: number): dia.Link {
+    const link = Links.createObjectPropertyLink(id, source, target, label, arrayContext, opacity);
     this.graph.addCell(link);
     return link;
   }
@@ -869,8 +870,8 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
   /**
    * Add data property link to graph
    */
-  private addDataPropertyLink(id: string, source: string, target: string, label: string, opacity?: number): dia.Link {
-    const link = Links.createDataPropertyLink(id, source, target, label, opacity);
+  private addDataPropertyLink(id: string, source: string, target: string, label: string, arrayContext: boolean, opacity?: number): dia.Link {
+    const link = Links.createDataPropertyLink(id, source, target, label, arrayContext, opacity);
     this.graph.addCell(link);
     return link;
   }
@@ -992,7 +993,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
         this.recommendations.push(this.addClassNode(node.uuid, node.uri, node.x, node.y, opacity, instance?.label, icon));
       }
     });
-    recommendation.relations.forEach(edge => this.recommendations.push(this.addObjectPropertyLink(edge.uuid, edge.from, edge.to, edge.label, opacity)));
+    recommendation.relations.forEach(edge => this.recommendations.push(this.addObjectPropertyLink(edge.uuid, edge.from, edge.to, edge.label, false, opacity)));
   }
 
   /**

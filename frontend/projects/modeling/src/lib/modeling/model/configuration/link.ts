@@ -5,7 +5,7 @@ import { groupBy } from 'lodash';
 /**
  * Link type def
  */
-export type Link = 'custom.SyntaxLink' |'custom.ObjectPropertyLink' | 'custom.DataPropertyLink';
+export type Link = 'custom.SyntaxLink' | 'custom.ObjectPropertyLink' | 'custom.DataPropertyLink';
 
 /**
  * Abstract class that provides configs for links
@@ -58,11 +58,11 @@ export abstract class Links {
    * @param label text
    * @param opacity of text
    */
-  private static createLabel(label: string, opacity?: number): dia.Link.Label[] {
+  private static createLabel(label: string, arrayContext: boolean, opacity?: number): dia.Link.Label[] {
     return label ? [{
       attrs: {
         text: {
-          text: label,
+          text: label + (arrayContext ? '[*]' : ''),
           opacity: opacity ? opacity : 1
         }
       },
@@ -119,13 +119,13 @@ export abstract class Links {
   /**
    * Calls constructor and return new semantic link
    */
-  static createObjectPropertyLink(id: string, source: string, target: string, label: string, opacity?: number): dia.Link {
+  static createObjectPropertyLink(id: string, source: string, target: string, label: string, arrayContext: boolean, opacity?: number): dia.Link {
     const link = new Links.objectPropertyLink({
       id,
       // @ts-ignore not in jointjs model but works this way
       source: {id: source},
       target: {id: target},
-      labels: Links.createLabel(label, opacity),
+      labels: Links.createLabel(label, arrayContext, opacity),
       attrs: {
         line: {
           opacity: opacity ? opacity : 1
@@ -141,13 +141,13 @@ export abstract class Links {
   /**
    * Calls constructor and return new semantic datatype link
    */
-  static createDataPropertyLink(id: string, source: string, target: string, label: string, opacity?: number): dia.Link {
+  static createDataPropertyLink(id: string, source: string, target: string, label: string, arrayContext: boolean, opacity?: number): dia.Link {
     const link = new Links.dataPropertyLink({
       id,
       // @ts-ignore not in jointjs model but works this way
       source: {id: source},
       target: {id: target},
-      labels: Links.createLabel(label, opacity),
+      labels: Links.createLabel(label, arrayContext, opacity),
       attrs: {
         line: {
           opacity: opacity ? opacity : 1
@@ -165,7 +165,7 @@ export abstract class Links {
    * @param source of link
    * @param target of link
    */
-  static createSyntaxLink(source: string, target: string, ): dia.Link {
+  static createSyntaxLink(source: string, target: string): dia.Link {
     const link = new Links.syntaxLink({
       // @ts-ignore not in jointjs model but works this way
       source: {id: source},

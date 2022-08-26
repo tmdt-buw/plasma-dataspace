@@ -130,7 +130,13 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
             entities: [event.target]
           };
           this.modelingService.modifyModel(this.modelId, delta).subscribe((res: CombinedModel) => this.combinedModel = res);
-        } else if (event.type === ContextMenuEventType.removeEntity) {
+        } else if (event.type === ContextMenuEventType.updateRelation) {
+          const delta: DeltaModification = {
+            relations: [event.target]
+          };
+          this.modelingService.modifyModel(this.modelId, delta).subscribe((res: CombinedModel) => this.combinedModel = res);
+        }
+        else if (event.type === ContextMenuEventType.removeEntity) {
           const delta: DeltaModification = {
             entities: [event.target],
             deletion: true
