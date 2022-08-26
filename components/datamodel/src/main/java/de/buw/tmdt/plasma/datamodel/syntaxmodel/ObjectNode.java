@@ -14,7 +14,7 @@ import java.util.UUID;
  * All outgoing edges are to be considered child nodes are to be considered to represent attributes.
  */
 @JsonTypeName("ObjectNode")
-public class ObjectNode extends SchemaNode {
+public class ObjectNode extends MappableSyntaxNode {
 
     private static final long serialVersionUID = 8596616883718165165L;
 
@@ -31,7 +31,7 @@ public class ObjectNode extends SchemaNode {
             @Nullable Double yCoordinate,
             boolean isValid
     ) {
-        super(UUID.randomUUID().toString(), label, null, xCoordinate, yCoordinate, isValid);
+        this(UUID.randomUUID().toString(), label, null, xCoordinate, yCoordinate, isValid, true, false);
     }
 
     public ObjectNode(
@@ -41,7 +41,7 @@ public class ObjectNode extends SchemaNode {
             @Nullable Double yCoordinate,
             boolean isValid
     ) {
-        super(UUID.randomUUID().toString(), label, path, xCoordinate, yCoordinate, isValid);
+        super(UUID.randomUUID().toString(), label, path, xCoordinate, yCoordinate, isValid, true, false);
     }
 
     @JsonCreator

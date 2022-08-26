@@ -554,8 +554,8 @@ public class CombinedModel implements Serializable {
                     SchemaNode targetNode = getSyntaxModel().findNode(id);
                     if (targetNode == null) {
                         errors.add("Node references non-existing syntax node " + id);
-                    } else if (!(targetNode instanceof PrimitiveNode) && !(targetNode instanceof SetNode)) {
-                        errors.add("Node references non-primitive syntax node " + id);
+                    } else if (!(targetNode instanceof MappableSyntaxNode)) {
+                        errors.add("Node references non-mappable syntax node " + id);
                     }
 
                 });

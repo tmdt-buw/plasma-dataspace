@@ -236,7 +236,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
           const syntaxNode = this.findSyntaxNodeById(elementBelow.id as string);
           const classNode = this.findSemanticNodeById(clazzId as string) as Class;
 
-          if ((syntaxNode._class === 'PrimitiveNode' || syntaxNode._class === 'SetNode') && !classNode.syntaxNodeUuid) {
+          if ((syntaxNode._class === 'PrimitiveNode' || syntaxNode._class === 'SetNode' || syntaxNode._class === 'ObjectNode') && !classNode.syntaxNodeUuid) {
             // TODO add a confirm here?
             if (!classNode.instance) {
               classNode.instance = {
@@ -1016,7 +1016,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
   private getIfMappableNode(elementView: dia.ElementView): (PrimitiveNode | SetNode) {
     if (Nodes.isSyntaxNode(elementView)) {
       const node = this.findSyntaxNodeById(elementView.model.id.toString());
-      if ((node._class === 'PrimitiveNode' || node._class === 'SetNode') && !node.disabled) {
+      if ((node._class === 'PrimitiveNode' || node._class === 'SetNode' || node._class === 'ObjectNode') && !node.disabled) {
         return node;
       }
     }
