@@ -107,6 +107,34 @@ public class DataConverterTest {
         System.out.println(output);
     }
 
+    @Test
+    public void testConversionWithMappedStaffInstance() throws IOException, ConversionException {
+        combinedModelGenerator.setMapVesselInformation(false);
+        combinedModelGenerator.setMapStaffInstance(true);
+
+        CombinedModel combinedModel = combinedModelGenerator.getFlightModel();
+
+        ObjectMapper mapper = new ObjectMapper();
+        InputStream is = DataConverterTest.class.getResourceAsStream("/flight.json");
+        JsonNode jsonNode = mapper.readTree(is);
+
+        PrefixMapping prefixMapping = new PrefixMappingImpl().withDefaultMappings(PrefixMapping.Standard);
+        prefixMapping.setNsPrefix("local", CombinedModelGenerator.namespace);
+        prefixMapping.setNsPrefix("plcm", PLCM.getURI());
+        prefixMapping.setNsPrefix("plsm", "http://plasma.uni-wuppertal.de/sm/");
+        prefixMapping.setNsPrefix("plasma", "http://plasma.uni-wuppertal.de/ontology#");
+
+
+        RDFConverter converter = new RDFConverter(prefixMapping);
+
+        jsonNode = jsonNode.get(0);
+        Model converted = converter.convertToRDF(combinedModel, jsonNode);
+
+        String output = asTurtle(converted);
+
+        System.out.println(output);
+    }
+
     public Model cleanse(Model model){
         Model newModel = ModelFactory.createDefaultModel();
         newModel.setNsPrefixes(model.getNsPrefixMap());

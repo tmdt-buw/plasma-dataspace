@@ -20,6 +20,8 @@ public class CombinedModelGenerator {
 
     private boolean mapIdentificationNumbers = false;
     private boolean mapIdentificationNumberInstance = false;
+    private boolean mapStaffInstance = false;
+    private boolean mapVesselInformation = true;
 
 
     public CombinedModel getFlightModel() {
@@ -102,44 +104,51 @@ public class CombinedModelGenerator {
         elements.add(identifierClass);
         relations.add(flightIdentifierRelation);
 
-        Class vesselClass = new Class(namespace + "airplane", "airplane", "A flying vessel");
-        Literal nameLiteral = new Literal(vesselNameNode.getLabel());
-        mapSemanticNode(nameLiteral, vesselNameNode);
-        ObjectProperty flightVesselProperty = new ObjectProperty(flightClass.getUuid(), vesselClass.getUuid(), namespace + "performedBy");
-        DataProperty vesselNameProperty = new DataProperty(vesselClass.getUuid(), nameLiteral.getUuid(), namespace + "hasName");
-        Class airlineClass = new Class(namespace + "airline", "airline", "A company that provides air travel services");
-        ObjectProperty vesselAirlineProperty = new ObjectProperty(vesselClass.getUuid(),airlineClass.getUuid(), namespace + "ownedBy");
-        Literal airlineNameLiteral = new Literal(carrierNode.getLabel());
-        mapSemanticNode(airlineNameLiteral, carrierNode);
-        Relation airlineNameRelation = new DataProperty(airlineClass.getUuid(), airlineNameLiteral.getUuid(), namespace + "hasName");
-        elements.addAll(List.of(vesselClass, nameLiteral,airlineClass, airlineNameLiteral));
-        relations.addAll(List.of(flightVesselProperty,vesselNameProperty,vesselAirlineProperty,airlineNameRelation));
+        if(this.mapVesselInformation){
+            Class vesselClass = new Class(namespace + "airplane", "airplane", "A flying vessel");
+            Literal nameLiteral = new Literal(vesselNameNode.getLabel());
+            mapSemanticNode(nameLiteral, vesselNameNode);
+            ObjectProperty flightVesselProperty = new ObjectProperty(flightClass.getUuid(), vesselClass.getUuid(), namespace + "performedBy");
+            DataProperty vesselNameProperty = new DataProperty(vesselClass.getUuid(), nameLiteral.getUuid(), namespace + "hasName");
+            Class airlineClass = new Class(namespace + "airline", "airline", "A company that provides air travel services");
+            ObjectProperty vesselAirlineProperty = new ObjectProperty(vesselClass.getUuid(),airlineClass.getUuid(), namespace + "ownedBy");
+            Literal airlineNameLiteral = new Literal(carrierNode.getLabel());
+            mapSemanticNode(airlineNameLiteral, carrierNode);
+            Relation airlineNameRelation = new DataProperty(airlineClass.getUuid(), airlineNameLiteral.getUuid(), namespace + "hasName");
+            elements.addAll(List.of(vesselClass, nameLiteral,airlineClass, airlineNameLiteral));
+            relations.addAll(List.of(flightVesselProperty,vesselNameProperty,vesselAirlineProperty,airlineNameRelation));
 
-        Class staffClass = new Class(namespace + "staff", "staff","Personel that fulfills a task in a company.");
-        Relation flightStaffRelation = new ObjectProperty(flightClass.getUuid(), staffClass.getUuid(), namespace + "has");
-        Relation staffFlightRelation = new ObjectProperty( staffClass.getUuid(),flightClass.getUuid(), namespace + "scheduledFor");
-        Literal staffNameLiteral = new Literal("name");
-        mapSemanticNode(staffNameLiteral, staffNameNode);
-        Relation staffNameRelation = new DataProperty(staffClass.getUuid(), staffNameLiteral.getUuid(),namespace + "hasName");
-        Class seatClass = new Class(namespace + "seat_number", "seat", "Identifier for a specific place on a vehicle or in a room");
-        mapSemanticNode(seatClass,staffSeatNode);
-        Relation staffSeatRelation = new ObjectProperty(staffClass.getUuid(), seatClass.getUuid(),namespace + "seatedAt");
-        elements.addAll(List.of(staffClass, staffNameLiteral, seatClass));
-        relations.addAll(List.of(flightStaffRelation,staffFlightRelation,staffNameRelation,staffSeatRelation));
+            if(this.mapIdentificationNumbers){
+                Class identification_numbersClass = new Class(namespace + "ident_numbers", "identification numbers", "Some numbers");
+                mapSemanticNode(identification_numbersClass, identificationNumbersNode);
+                elements.add(identification_numbersClass);
+                ObjectProperty airportNumbersProperty = new ObjectProperty(airlineClass.getUuid(),identification_numbersClass.getUuid(), namespace + "identNumbers");
+                relations.add(airportNumbersProperty);
+            } else if (this.mapIdentificationNumberInstance){
+                Class identification_numbersInstanceClass = new Class(namespace + "ident_number", "identification number", "A single number");
+                mapSemanticNode(identification_numbersInstanceClass, identificationNumberNode);
+                elements.add(identification_numbersInstanceClass);
+                ObjectProperty airportNumberInstanceProperty = new ObjectProperty(airlineClass.getUuid(),identification_numbersInstanceClass.getUuid(), namespace + "identNum");
+                relations.add(airportNumberInstanceProperty);
+            }
+        }
 
-
-        if(this.mapIdentificationNumbers){
-            Class identification_numbersClass = new Class(namespace + "ident_numbers", "identification numbers", "Some numbers");
-            mapSemanticNode(identification_numbersClass, identificationNumbersNode);
-            elements.add(identification_numbersClass);
-            ObjectProperty airportNumbersProperty = new ObjectProperty(airlineClass.getUuid(),identification_numbersClass.getUuid(), namespace + "identNumbers");
-            relations.add(airportNumbersProperty);
-        } else if (this.mapIdentificationNumberInstance){
-            Class identification_numbersInstanceClass = new Class(namespace + "ident_number", "identification number", "A single number");
-            mapSemanticNode(identification_numbersInstanceClass, identificationNumberNode);
-            elements.add(identification_numbersInstanceClass);
-            ObjectProperty airportNumberInstanceProperty = new ObjectProperty(airlineClass.getUuid(),identification_numbersInstanceClass.getUuid(), namespace + "identNum");
-            relations.add(airportNumberInstanceProperty);
+        if(this.mapStaffInstance){
+            Class staffClass = new Class(namespace + "staff", "staff","Personel that fulfills a task in a company.");
+            mapSemanticNode(staffClass,staffObjectNode);
+            Literal staffNameLiteral = new Literal("name");
+            mapSemanticNode(staffNameLiteral, staffNameNode);
+            Relation staffNameRelation = new DataProperty(staffClass.getUuid(), staffNameLiteral.getUuid(),namespace + "hasName");
+            staffNameRelation.setIterative(true);
+            Class seatClass = new Class(namespace + "seat_number", "seat", "Identifier for a specific place on a vehicle or in a room");
+            mapSemanticNode(seatClass,staffSeatNode);
+            Relation staffSeatRelation = new ObjectProperty(staffClass.getUuid(), seatClass.getUuid(),namespace + "seatedAt");
+            staffSeatRelation.setIterative(true);
+            // connect this bloc to the flight
+            Relation flightStaffRelation = new ObjectProperty(flightClass.getUuid(), staffClass.getUuid(), namespace + "hasStaff");
+            Relation staffFlightRelation = new ObjectProperty( staffClass.getUuid(),flightClass.getUuid(), namespace + "scheduledFor");
+            elements.addAll(List.of(staffClass, staffNameLiteral, seatClass));
+            relations.addAll(List.of(flightStaffRelation,staffFlightRelation,staffNameRelation,staffSeatRelation));
         }
 
         SemanticModel semanticModel = new SemanticModel(UUID.randomUUID().toString(), elements, relations);
@@ -152,7 +161,7 @@ public class CombinedModelGenerator {
     private static void mapSemanticNode(MappableSemanticModelNode semanticNode, MappableSyntaxNode schemaNode){
         semanticNode.setMappedSyntaxNodeLabel(schemaNode.getLabel());
         semanticNode.setMappedSyntaxNodeUuid(schemaNode.getUuid());
-        semanticNode.setMappedSyntaxNodePath(String.join("->", schemaNode.getPath()));
+        semanticNode.setMappedSyntaxNodePath(schemaNode.getPathAsJSONPointer());
         if(semanticNode instanceof Class){
             Class clazz = (Class) semanticNode;
             if(clazz.getInstance() != null){
@@ -182,5 +191,21 @@ public class CombinedModelGenerator {
 
     public void setMapIdentificationNumberInstance(boolean mapIdentificationNumberInstance) {
         this.mapIdentificationNumberInstance = mapIdentificationNumberInstance;
+    }
+
+    public boolean isMapStaffInstance() {
+        return mapStaffInstance;
+    }
+
+    public void setMapStaffInstance(boolean mapStaffInstance) {
+        this.mapStaffInstance = mapStaffInstance;
+    }
+
+    public boolean isMapVesselInformation() {
+        return mapVesselInformation;
+    }
+
+    public void setMapVesselInformation(boolean mapVesselInformation) {
+        this.mapVesselInformation = mapVesselInformation;
     }
 }
