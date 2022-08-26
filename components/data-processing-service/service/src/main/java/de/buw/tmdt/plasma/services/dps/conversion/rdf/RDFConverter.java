@@ -126,44 +126,76 @@ public class RDFConverter {
         unprocessedEdges = new ArrayList<>(combinedModel.getSemanticModel().getEdges());
 
         // identify iteration contexts
-        List<SemanticModel> iterationContexts = new ArrayList<>();
+        List<SemanticModel> arrayContexts = new ArrayList<>();
         for (SemanticModelNode unprocessedNode : unprocessedNodes) {
             // check that this node is not part of any existing iteration context
-            if (iterationContexts.stream()
+            if (arrayContexts.stream()
                     .flatMap(ic -> ic.getNodes().stream())
                     .anyMatch(node -> node.getUuid().equals(unprocessedNode.getUuid()))) {
                 continue;
             }
             SemanticModel iterationContext = combinedModel.getSemanticModel().getIterationContext(unprocessedNode, new ArrayList<>(), null);
             if (iterationContext.getNodes().size() == 1) {
-                continue;
+                // check if this node is actually mapped below an array
+                SemanticModelNode semanticModelNode = iterationContext.getNodes().get(0);
+                if(!semanticModelNode.isMapped()){
+                    continue;
+                }
+                MappableSemanticModelNode mappedNode = (MappableSemanticModelNode) semanticModelNode;
+                SchemaNode schemaNode = combinedModel.getSyntaxModel().getNode(mappedNode.getMappedSyntaxNodeUuid());
+                if(!schemaNode.getPath().contains(ARRAY_PATH_TOKEN)){
+                    continue;
+                }
             }
-            iterationContexts.add(iterationContext);
+            arrayContexts.add(iterationContext);
         }
         // TODO sort by depth to process deeper contexts first
-        for (SemanticModel iterationContext : iterationContexts) {
-            // this node is part of an iteration context
-            // identify the index node
-            List<MappableSemanticModelNode> indexNodes = iterationContext.getNodes().stream()
-                    .filter(smn -> smn instanceof MappableSemanticModelNode)
-                    .filter(SemanticModelNode::isMapped)
-                    .map(smn -> (MappableSemanticModelNode) smn)
-                    .filter(smn -> smn.getMappedSyntaxNodePath().endsWith(ARRAY_PATH_TOKEN))
-                    .collect(Collectors.toList());
-            if (indexNodes.size() != 1) {
-                throw new ConversionException(
-                        "Could not identify unanimous index node for iteration context containing node " +
-                                iterationContext.getNodes().get(0).getUuid() +
-                                "(" + iterationContext.getNodes().get(0).getURI() + ")");
+        for (SemanticModel arrayContext : arrayContexts) {
+            MappableSemanticModelNode indexNode;
+            if(arrayContext.getNodes().size() == 1){
+                indexNode = (MappableSemanticModelNode) arrayContext.getNodes().get(0);
+            } else {
+                // identify the index node
+                List<MappableSemanticModelNode> indexNodes = arrayContext.getNodes().stream()
+                        .filter(smn -> smn instanceof MappableSemanticModelNode)
+                        .filter(SemanticModelNode::isMapped)
+                        .map(smn -> (MappableSemanticModelNode) smn)
+                        .filter(smn -> smn.getMappedSyntaxNodePath().endsWith(ARRAY_PATH_TOKEN))
+                        .collect(Collectors.toList());
+                if (indexNodes.size() != 1) {
+                    throw new ConversionException(
+                            "Could not identify unanimous index node for array context containing node " +
+                                    arrayContext.getNodes().get(0).getUuid() +
+                                    "(" + arrayContext.getNodes().get(0).getURI() + ")");
+                }
+                indexNode = indexNodes.get(0);
             }
-            MappableSemanticModelNode indexNode = indexNodes.get(0);
             // identify the array json node
-            JsonPointer arrayPointer = JsonPointer.compile(indexNode.getMappedSyntaxNodePath()).head();
+            JsonPointer arrayPointer = null;
+            JsonPointer tailPointer = null;
+            SchemaNode schemaNode = combinedModel.getSyntaxModel().getNode(indexNode.getMappedSyntaxNodeUuid());
+            JsonPointer tmpPointer = JsonPointer.compile(schemaNode.getPathAsJSONPointer());
+            while(arrayPointer == null){
+                tailPointer = tmpPointer;
+                tmpPointer = tmpPointer.head();
+                JsonNode jsonNode = datum.at(tmpPointer);
+                if(jsonNode.isArray()){
+                    arrayPointer = tmpPointer;
+                    continue;
+                }
+                if(tmpPointer.toString().equals("/")){
+                    throw new ConversionException(
+                            "Could not identify array node for array context containing node " +
+                                    arrayContext.getNodes().get(0).getUuid() +
+                                    "(" + arrayContext.getNodes().get(0).getURI() + ")");
+                }
+            }
+
             JsonNode arrayNode = datum.at(arrayPointer);
             if (!arrayNode.isArray()) {
                 throw new ConversionException("Node " + arrayPointer + " is not an array!");
             }
-            buildRDFListForIterationContext(arrayNode, indexNode, iterationContext, arrayPointer.toString());
+            buildRDFListForIterationContext(arrayNode, indexNode, tailPointer.toString(),arrayContext);
         }
 
         // process the remaining nodes and edges
@@ -250,24 +282,24 @@ public class RDFConverter {
         return rdfNode;
     }
 
-    private RDFList buildRDFListForIterationContext(JsonNode arrayNode, MappableSemanticModelNode indexNode, SemanticModel iterationContext, String relativePath) throws ConversionException {
+    private RDFList buildRDFListForIterationContext(JsonNode arrayNode, MappableSemanticModelNode indexNode, String relativePath, SemanticModel iterationContext) throws ConversionException {
 
         List<RDFNode> nodes = new ArrayList<>();
         int index = 0;
         for (JsonNode entry : arrayNode) {
             // for each data point in the array node, a new set of rdf entities has to be generated
             // Map the iteration context
-            RDFNode rdfIndexNode = processIterationContext(iterationContext, indexNode, entry, index);
+            RDFNode rdfIndexNode = processIterationContext(iterationContext, indexNode, relativePath, entry, index);
             nodes.add(rdfIndexNode);
             index++;
         }
         return m.createList(nodes.iterator());
     }
 
-    private RDFNode processIterationContext(SemanticModel iterationContext, MappableSemanticModelNode indexNode, JsonNode entry, int index) throws ConversionException {
+    private RDFNode processIterationContext(SemanticModel iterationContext, MappableSemanticModelNode indexNode, String relativePath, JsonNode entry, int index) throws ConversionException {
         RDFNode rdfIndexNode = null;
         for (SemanticModelNode node : iterationContext.getNodes()) {
-            RDFNode rdfNode = convertNodeInIterationContextToRDF(node, entry, indexNode.getMappedSyntaxNodePath(), index);
+            RDFNode rdfNode = convertNodeInIterationContextToRDF(node, entry, relativePath, index);
             if (node.equals(indexNode)) {
                 rdfIndexNode = rdfNode;
             }
