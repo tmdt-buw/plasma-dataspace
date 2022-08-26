@@ -148,7 +148,7 @@ public class CombinedModelSemanticModificationTest {
         Class timeClass = new Class(generateResourceURI("time"), "time", "A time");
         timeClass.setMappedSyntaxNodeUuid(timeNode.getUuid());
         timeClass.setMappedSyntaxNodeLabel(timeNode.getLabel());
-        timeClass.setMappedSyntaxNodePath(String.join("->", timeNode.getPath()));
+        timeClass.setMappedSyntaxNodePath( timeNode.getPathAsJSONPointer());
 
         DeltaModification modification = new DeltaModification("mod_testApplyMapOneClassToPrimitiveNode", Collections.singletonList(timeClass), null, null, null, 0.0);
 
