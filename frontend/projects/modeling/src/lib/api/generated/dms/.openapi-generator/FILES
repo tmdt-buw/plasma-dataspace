@@ -28,6 +28,7 @@ model/models.ts
 model/namedEntity.ts
 model/namedEntityAllOf.ts
 model/objectNode.ts
+model/objectNodeAllOf.ts
 model/objectProperty.ts
 model/positionedCombinedModelElement.ts
 model/primitiveNode.ts

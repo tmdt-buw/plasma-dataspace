@@ -18,6 +18,7 @@ export * from './modelingInfo';
 export * from './namedEntity';
 export * from './namedEntityAllOf';
 export * from './objectNode';
+export * from './objectNodeAllOf';
 export * from './objectProperty';
 export * from './positionedCombinedModelElement';
 export * from './primitiveNode';

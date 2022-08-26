@@ -1,6 +1,6 @@
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { Router } from '@angular/router';
-import { ModelingControllerService, ModelingInfo, PlsModelingComponent } from '@tmdt/dms';
+import { ModelingControllerService, ModelingInfo} from '@tmdt/dms';
 import { DatePipe } from '@angular/common';
 import { ModalOptions, NzModalService } from 'ng-zorro-antd/modal';
 import { appRoutesNames } from '../../app.routes.names';
@@ -109,8 +109,8 @@ export class ModelingsListComponent implements OnInit {
 
   downloadLocalOntology(): void {
     this.ontologyService.downloadLocalOntology('TURTLE', 'response').subscribe(res => {
-      console.log(res.headers);
-      Util.download('local_ontology.ttl', res.body);
+      const filename = res.headers.get('filename');
+      Util.download(filename ? filename : 'local_ontology.ttl', res.body);
     }, err => this.notification.error('Download failed', 'Cannot download the local ontology: ' + err.message));
   }
 }
