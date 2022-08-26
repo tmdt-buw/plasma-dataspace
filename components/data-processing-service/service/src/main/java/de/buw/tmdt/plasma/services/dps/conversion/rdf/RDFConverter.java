@@ -396,7 +396,7 @@ public class RDFConverter {
                 // throw new ConversionException("Could not find value for syntaxId " + syntaxNodeUuid + " on model " + combinedModel.getId());
                 valueLiteral = m.createLiteral(MISSING_DATA_LITERAL);
             } else {
-                String value = valueNode.textValue();
+                String value = valueNode.asText();
                 valueLiteral = m.createLiteral(value);
             }
             m.add(resource, hasValueProperty, valueLiteral);
@@ -421,7 +421,7 @@ public class RDFConverter {
                 // throw new ConversionException("Could not find value for syntaxId " + syntaxNodeUuid + " on model " + combinedModel.getId());
                 return m.createLiteral(MISSING_DATA_LITERAL);
             } else {
-                String value = valueNode.textValue();
+                String value = valueNode.asText();
                 return m.createLiteral(value);
             }
         } else {
