@@ -34,7 +34,6 @@ export class CopySemanticModelComponent implements OnInit {
   }
 
   onModelSelectionChanged($event: string): void {
-    console.log('selected', $event);
     this.sourceModelId = $event;
     this.loading = true;
     this.getModel();
@@ -48,7 +47,6 @@ export class CopySemanticModelComponent implements OnInit {
   }
 
   getModel(): void {
-    console.log('getting model', this.sourceModelId);
     this.modelingService.getCombinedModel(this.sourceModelId).subscribe((schema: CombinedModel) => {
         this.combinedModel = schema;
         this.loading = false;
