@@ -143,7 +143,7 @@ public class SemanticModel implements Serializable {
         }
     }
 
-    public SemanticModel getIterationContext(SemanticModelNode node, List<String> visited, SemanticModel submodel) {
+    public SemanticModel getArrayContext(SemanticModelNode node, List<String> visited, SemanticModel submodel) {
         visited.add(node.getUuid());
         if(submodel == null){
             submodel = new SemanticModel();
@@ -175,7 +175,7 @@ public class SemanticModel implements Serializable {
 
         // build the iteration context using recursion
         for(SemanticModelNode neighbor : unvisitedNeighbors){
-            getIterationContext(neighbor,visited, submodel);
+            getArrayContext(neighbor,visited, submodel);
         }
 
         return submodel;
