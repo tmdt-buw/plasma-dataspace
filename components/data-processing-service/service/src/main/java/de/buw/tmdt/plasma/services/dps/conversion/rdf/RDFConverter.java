@@ -8,10 +8,7 @@ import de.buw.tmdt.plasma.datamodel.CombinedModel;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.Class;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.Literal;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.*;
-import de.buw.tmdt.plasma.datamodel.syntaxmodel.ObjectNode;
-import de.buw.tmdt.plasma.datamodel.syntaxmodel.PrimitiveNode;
-import de.buw.tmdt.plasma.datamodel.syntaxmodel.SchemaNode;
-import de.buw.tmdt.plasma.datamodel.syntaxmodel.SetNode;
+import de.buw.tmdt.plasma.datamodel.syntaxmodel.*;
 import de.buw.tmdt.plasma.services.dps.conversion.ConversionException;
 import org.apache.jena.rdf.model.*;
 import org.apache.jena.shared.PrefixMapping;
@@ -53,10 +50,12 @@ public class RDFConverter {
     private Property hasValueProperty;
     private String semanticModelId;
     private Map<SemanticModelNode, List<RDFNode>> arrayExpansionMap = new HashMap<>();
+    private Map<String, RDFNode> deepListMap = new HashMap<>();
     private int counter = 0;
     private boolean dirty = false;
     List<SemanticModelNode> unprocessedNodes;
     List<Relation> unprocessedEdges;
+    Set<Relation> processed;
 
     /**
      * Initialize a new {@link RDFConverter}.
@@ -146,15 +145,15 @@ public class RDFConverter {
             arrayContexts.add(arrayContext);
         }
         arrayContexts = arrayContexts.stream().sorted(Comparator.comparing(ac ->
-                ac.getNodes().stream()
-                        .filter(SemanticModelNode::isMapped)
-                        .map(node -> (MappableSemanticModelNode) node)
-                        .map(node -> combinedModel.getSyntaxModel().getNode(node.getMappedSyntaxNodeUuid()))
-                        .map(snode -> snode.getPath().stream()
-                                .filter(token -> token.equals(ARRAY_PATH_TOKEN))
-                                .count())
-                        .findFirst().orElseThrow()
-                    )
+                                ac.getNodes().stream()
+                                        .filter(SemanticModelNode::isMapped)
+                                        .map(node -> (MappableSemanticModelNode) node)
+                                        .map(node -> combinedModel.getSyntaxModel().getNode(node.getMappedSyntaxNodeUuid()))
+                                        .map(snode -> snode.getPath().stream()
+                                                .filter(token -> token.equals(ARRAY_PATH_TOKEN))
+                                                .count())
+                                        .findFirst().orElseThrow()
+                        )
                 )
                 .collect(Collectors.toList());
         Collections.reverse(arrayContexts);
@@ -204,7 +203,8 @@ public class RDFConverter {
             if (!arrayNode.isArray()) {
                 throw new ConversionException("Node " + arrayPointer + " is not an array!");
             }
-            RDFList list = buildRDFListForArrayContext(arrayNode, indexNode, tailPointer.toString(), arrayContext);
+
+            RDFList list = buildRDFListForArrayContext(indexNode,  arrayContext);
             uuidtoResource.put(indexNode.getUuid(), list);
         }
 
@@ -292,24 +292,64 @@ public class RDFConverter {
         return rdfNode;
     }
 
-    private RDFList buildRDFListForArrayContext(JsonNode arrayNode, MappableSemanticModelNode indexNode, String relativePath, SemanticModel arrayContext) throws ConversionException {
+    private RDFList buildRDFListForArrayContext(MappableSemanticModelNode indexNode, SemanticModel arrayContext) throws ConversionException {
+        MappableSyntaxNode syntaxNode = findMappedSyntaxNode(indexNode);
+        ArrayList<String> mappedSyntaxNodePath = new ArrayList<>(syntaxNode.getPath());
 
-        List<RDFNode> nodes = new ArrayList<>();
-        int index = 0;
-        for (JsonNode entry : arrayNode) {
-            // for each data point in the array node, a new set of rdf entities has to be generated
-            // Map the iteration context
-            RDFNode rdfIndexNode = processArrayContext(arrayContext, indexNode, relativePath, entry, index);
-            nodes.add(rdfIndexNode);
-            index++;
+        PointerFactory pf = new PointerFactory(mappedSyntaxNodePath);
+        processed = new HashSet<>();
+
+        // for each data point in the array node, a new set of rdf entities has to be generated
+        List<RDFList> list = new ArrayList<>();
+        JsonPointer peekPointer = JsonPointer.compile(pf.composePath());
+        JsonNode peekNode = datum.at(peekPointer);
+        while(!peekNode.isMissingNode()){
+            list.add(iterateArray(pf, 0, indexNode, arrayContext));
+            pf.increaseIndex(0);
+            peekPointer = JsonPointer.compile(pf.composePath());
+            peekNode = datum.at(peekPointer);
         }
-        return m.createList(nodes.iterator());
+        unprocessedEdges.removeAll(processed);
+        return list.get(0);
     }
 
-    private RDFNode processArrayContext(SemanticModel iterationContext, MappableSemanticModelNode indexNode, String relativePath, JsonNode entry, int index) throws ConversionException {
+    private RDFList iterateArray(PointerFactory pf, int level,MappableSemanticModelNode indexNode, SemanticModel arrayContext) throws ConversionException {
+        if (level >= pf.getDepth()) {
+            // process
+            String originPointer = pf.composePath();
+            JsonPointer peekPointer = JsonPointer.compile(pf.composePath());
+            JsonNode peekNode = datum.at(peekPointer);
+            List<RDFNode> nodes = new ArrayList<>();
+
+            while(!peekNode.isMissingNode()){
+                JsonNode entry = datum.at(JsonPointer.compile(pf.composePath()));
+                RDFNode rdfIndexNode = processArrayContext(arrayContext, indexNode, pf.getOriginalPath(), pf.composePath(),entry);
+                nodes.add(rdfIndexNode);
+                pf.increaseIndex(level);
+                peekPointer = JsonPointer.compile(pf.composePath());
+                peekNode = datum.at(peekPointer);
+            }
+            RDFList list = m.createList(nodes.iterator());
+            deepListMap.put(originPointer,list);
+            return list;
+        } else {
+            return iterateArray(pf, level+1, indexNode, arrayContext);
+        }
+    }
+
+
+    private MappableSyntaxNode findMappedSyntaxNode(MappableSemanticModelNode node) {
+        return combinedModel.getSyntaxModel().getNodes().stream()
+                .filter(n -> n.getUuid().equals(node.getMappedSyntaxNodeUuid()))
+                .map(n -> (MappableSyntaxNode) n)
+                .findFirst().orElseThrow();
+    }
+
+    private RDFNode processArrayContext(SemanticModel arrayContext, MappableSemanticModelNode indexNode,
+                                        String basePath, String currentPath, JsonNode entry) throws ConversionException {
         RDFNode rdfIndexNode = null;
-        for (SemanticModelNode node : iterationContext.getNodes()) {
-            RDFNode rdfNode = convertNodeInIterationContextToRDF(node, entry, relativePath, index);
+        for (SemanticModelNode node : arrayContext.getNodes()) {
+            RDFNode rdfNode = convertNodeInArrayContextToRDF(node, entry, basePath);
             if (node.equals(indexNode)) {
                 rdfIndexNode = rdfNode;
             }
@@ -319,21 +359,19 @@ public class RDFConverter {
             arrayExpansionMap.get(node).add(rdfNode);
             unprocessedNodes.remove(node);
         }
-        for (Relation r : iterationContext.getEdges()) {
-            SemanticModelNode from = iterationContext.getNode(r.getFrom());
-            SemanticModelNode to = iterationContext.getNode(r.getTo());
+        for (Relation r : arrayContext.getEdges()) {
+            SemanticModelNode from = arrayContext.getNode(r.getFrom());
+            SemanticModelNode to = arrayContext.getNode(r.getTo());
             RDFNode fromNode = uuidtoResource.get(from.getUuid());
             RDFNode toNode = uuidtoResource.get(to.getUuid());
             List<RDFNode> headNodes = List.of(toNode);
             List<RDFNode> tailNodes = List.of(fromNode);
 
-            if (!iterationContext.getNodes().contains(to) && arrayExpansionMap.containsKey(to)) {
+            if (!arrayContext.getNodes().contains(to) && arrayExpansionMap.containsKey(to)) {
                 headNodes = arrayExpansionMap.get(to);
-
             }
-            if (!iterationContext.getNodes().contains(from) && arrayExpansionMap.containsKey(from)) {
+            if (!arrayContext.getNodes().contains(from) && arrayExpansionMap.containsKey(from)) {
                 tailNodes = arrayExpansionMap.get(from);
-
             }
             for (RDFNode tailNode : tailNodes) {
                 for (RDFNode headNode : headNodes) {
@@ -342,10 +380,29 @@ public class RDFConverter {
             }
             unprocessedEdges.remove(r);
         }
+        // search outside of array context
+
+        for (Relation r : unprocessedEdges) {
+            SemanticModelNode from = combinedModel.getSemanticModel().getNode(r.getFrom());
+            SemanticModelNode to = combinedModel.getSemanticModel().getNode(r.getTo());
+            RDFNode fromNode = uuidtoResource.get(from.getUuid());
+            RDFNode toNode = uuidtoResource.get(to.getUuid());
+            if(fromNode == null || toNode == null){
+                continue;
+            }
+            for (Map.Entry<String, RDFNode> listmapEntry : deepListMap.entrySet()) {
+                if(listmapEntry.getKey().startsWith(currentPath)){
+                        RDFNode headNode = listmapEntry.getValue();
+                           fromNode.asResource().addProperty(m.createProperty(m.expandPrefix(r.getURI())), headNode);
+                           processed.add(r);
+                }
+            }
+        }
+
         return rdfIndexNode;
     }
 
-    private RDFNode convertNodeInIterationContextToRDF(SemanticModelNode node, JsonNode datum, String relativePath, int index) throws ConversionException {
+    private RDFNode convertNodeInArrayContextToRDF(SemanticModelNode node, JsonNode datum, String relativePath) throws ConversionException {
         RDFNode rdfNode = null;
         if (node instanceof Class) {
             Class clazz = (Class) node;

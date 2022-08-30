@@ -172,12 +172,12 @@ PrimitiveNode tagsKeyNode = new PrimitiveNode("key", true,  DataType.String, Lis
                 mapSemanticNode(tagKeyLiteral                        , tagsKeyNode);
                 Relation tagKeyRelation = new DataProperty(tagsClass.getUuid(), tagKeyLiteral.getUuid(),namespace + "key");
                 tagKeyRelation.setArrayContext(true);
-                Class tagValueClass = new Class(namespace + "value", "value", "The value of a tag");
-                mapSemanticNode(tagValueClass,tagsValueNode);
-                Relation tagValueRelation = new ObjectProperty(tagsClass.getUuid(), tagValueClass.getUuid(),namespace + "value");
+                 Literal tagValueLiteral = new Literal("value");
+                mapSemanticNode(tagValueLiteral,tagsValueNode);
+                Relation tagValueRelation = new ObjectProperty(tagsClass.getUuid(), tagValueLiteral.getUuid(),namespace + "value");
                 tagValueRelation.setArrayContext(true);
                 Relation staffTagsRelation = new ObjectProperty(staffClass.getUuid(), tagsClass.getUuid(), namespace + "tags");
-                elements.addAll(List.of(tagsClass, tagKeyLiteral, tagValueClass));
+                elements.addAll(List.of(tagsClass, tagKeyLiteral, tagValueLiteral));
                 relations.addAll(List.of(staffTagsRelation,tagKeyRelation,tagValueRelation));
             }
         }
