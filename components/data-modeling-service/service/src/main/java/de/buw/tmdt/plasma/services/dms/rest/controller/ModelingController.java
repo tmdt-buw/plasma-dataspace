@@ -18,6 +18,7 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -34,6 +35,9 @@ public class ModelingController implements ModelingAPI {
 
     private final ModelingHandler modelingHandler;
     private final ModelingRepository modelingRepository;
+
+    @Value("${plasma.dms.feature.finalizemodels.enabled:true}")
+    private Boolean finalizeModelsEnabled;
 
     @Autowired
     public ModelingController(
@@ -212,6 +216,13 @@ public class ModelingController implements ModelingAPI {
     @Operation(description = "End modelling process and finalize model.")
     public CombinedModel finalizeModeling(@NotNull String modelId) {
         return modelingHandler.finalizeModeling(modelId);
+    }
+
+    @NotNull
+    @Override
+    @Operation(description = "Check if a model may be finalized. This can be disabled in the DMS config.")
+    public Boolean finalizeModelingAvailable() {
+        return finalizeModelsEnabled;
     }
 
     @Override

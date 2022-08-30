@@ -107,6 +107,10 @@ public interface ModelingAPI {
     @PostMapping(value = "/{modelId}/finalize", produces = MediaType.APPLICATION_JSON_VALUE)
     CombinedModel finalizeModeling(@NotNull @PathVariable("modelId") String modelId);
 
+    @NotNull
+    @GetMapping(value = "/finalizeAvailable", produces = MediaType.APPLICATION_JSON_VALUE)
+    Boolean finalizeModelingAvailable();
+
     @DeleteMapping(value = "/{modelId}")
     void deleteModel(@NotNull @PathVariable("modelId") String modelId);
 

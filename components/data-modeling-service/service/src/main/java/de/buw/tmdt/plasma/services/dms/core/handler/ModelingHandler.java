@@ -52,6 +52,9 @@ public class ModelingHandler {
     private HashMap<SchemaNode, Set<Operation.Handle>> parameterDefinitionLookup;
     private final ConfigServiceClient configServiceClient;
 
+    @Value("${plasma.dms.feature.finalizemodels.enabled:true}")
+    private Boolean finalizeModelsEnabled;
+
     @Value("${plasma.dms.feature.syntacticoperations.enabled:false}")
     private Boolean syntacticOperationsEnabled;
 
@@ -615,6 +618,10 @@ public class ModelingHandler {
     @NotNull
     @Transactional
     public CombinedModel finalizeModeling(@NotNull String modelId) {
+        if(!finalizeModelsEnabled){
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Model finalization is not allowed" +
+                    " in the current configuration.");
+        }
         //Load the modeling from the repository.
         Modeling modeling = modelingRepository.findById(modelId)
                 .orElseThrow(() -> new ResponseStatusException(
