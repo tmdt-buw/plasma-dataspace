@@ -20,7 +20,7 @@ import { NzTabsModule } from 'ng-zorro-antd/tabs';
 import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
 import { NzTypographyModule } from 'ng-zorro-antd/typography';
 import { NzUploadModule } from 'ng-zorro-antd/upload';
-import { ApiModule, BASE_PATH } from './api/generated/dms';
+import { ApiModule, BASE_PATH, Configuration } from './api/generated/dms';
 import { ApiModule as KGSApiModule, BASE_PATH as KGS_BASE_PATH } from './api/generated/kgs';
 import { PlsSemanticClassMenuComponent } from './modeling/context-menu/semantic-class-menu/semantic-class-menu.component';
 import { PlsRelationConceptMenuComponent } from './modeling/context-menu/relation-menu/relation-menu.component';
@@ -44,6 +44,7 @@ import { NzCollapseModule } from 'ng-zorro-antd/collapse';
 import { UploadOntologyComponent } from './modeling/dialogs/upload-ontology/upload-ontology.component';
 import { NzResultModule } from 'ng-zorro-antd/result';
 import { CopySemanticModelComponent } from './modeling/dialogs/copy-semantic-model/copy-semantic-model.component';
+import { environment } from 'src/environments/environment';
 import { NzNotificationModule } from 'ng-zorro-antd/notification';
 
 
@@ -57,9 +58,17 @@ import { NzNotificationModule } from 'ng-zorro-antd/notification';
   ],
   imports: [
     // Plasma
-    ApiModule,
+    ApiModule.forRoot(() => {
+      return new Configuration({
+        basePath: environment.baseUrl,
+      });
+    }),
     PlsOperationsDialogModule,
-    KGSApiModule,
+    KGSApiModule.forRoot(() => {
+      return new Configuration({
+        basePath: environment.baseUrl,
+      });
+    }),
     // Angular
     CommonModule,
     DragDropModule,
