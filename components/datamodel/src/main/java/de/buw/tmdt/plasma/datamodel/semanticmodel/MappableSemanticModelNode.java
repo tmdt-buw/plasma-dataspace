@@ -4,9 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import de.buw.tmdt.plasma.datamodel.syntaxmodel.ObjectNode;
-import de.buw.tmdt.plasma.datamodel.syntaxmodel.PrimitiveNode;
-import de.buw.tmdt.plasma.datamodel.syntaxmodel.SetNode;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

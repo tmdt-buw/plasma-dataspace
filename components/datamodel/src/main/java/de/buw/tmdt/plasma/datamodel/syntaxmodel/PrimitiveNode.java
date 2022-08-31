@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import de.buw.tmdt.plasma.datamodel.modification.operation.DataType;
-import de.buw.tmdt.plasma.utilities.misc.StringUtilities;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -29,7 +28,7 @@ public class PrimitiveNode extends MappableSyntaxNode {
             @NotNull String label,
             @NotNull DataType dataType
     ) {
-        this(label,  true, dataType, null, null);
+        this(label, true, dataType, null, null);
     }
 
     public PrimitiveNode(
@@ -37,7 +36,7 @@ public class PrimitiveNode extends MappableSyntaxNode {
             boolean isValid,
             @NotNull DataType dataType
     ) {
-        this(label,  isValid, dataType, null, null);
+        this(label, isValid, dataType, null, null);
     }
 
     public PrimitiveNode(
@@ -47,7 +46,7 @@ public class PrimitiveNode extends MappableSyntaxNode {
             @Nullable List<String> examples,
             @Nullable String cleansingPattern
     ) {
-        super(label,  isValid);
+        super(label, isValid);
         this.dataType = dataType;
         this.examples = examples != null ? new ArrayList<>(examples) : new ArrayList<>();
         this.cleansingPattern = cleansingPattern;
@@ -61,7 +60,7 @@ public class PrimitiveNode extends MappableSyntaxNode {
             @Nullable List<String> examples,
             @Nullable String cleansingPattern
     ) {
-        super(label,  isValid);
+        super(label, isValid);
         this.dataType = dataType;
         this.examples = examples != null ? new ArrayList<>(examples) : new ArrayList<>();
         this.cleansingPattern = cleansingPattern;

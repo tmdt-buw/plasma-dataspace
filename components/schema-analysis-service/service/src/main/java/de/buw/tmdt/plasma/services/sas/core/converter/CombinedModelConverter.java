@@ -5,7 +5,10 @@ import de.buw.tmdt.plasma.datamodel.modification.operation.DataType;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.Edge;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.SchemaNode;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.SyntaxModel;
-import de.buw.tmdt.plasma.services.sas.core.model.syntaxmodel.*;
+import de.buw.tmdt.plasma.services.sas.core.model.syntaxmodel.Node;
+import de.buw.tmdt.plasma.services.sas.core.model.syntaxmodel.ObjectNode;
+import de.buw.tmdt.plasma.services.sas.core.model.syntaxmodel.PrimitiveNode;
+import de.buw.tmdt.plasma.services.sas.core.model.syntaxmodel.SetNode;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -32,7 +35,8 @@ public class CombinedModelConverter {
 	}
 
 	/**
-	 * Conversion methods internal model ===>  CombinedModel
+	 * Conversion methods internal model to {@link CombinedModel}.
+	 *
 	 * @param root The root element of the internal tree
 	 * @return The resulting {@link SyntaxModel}
 	 */

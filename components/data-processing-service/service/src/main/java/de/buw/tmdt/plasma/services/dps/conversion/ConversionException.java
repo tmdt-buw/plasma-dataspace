@@ -1,6 +1,6 @@
 package de.buw.tmdt.plasma.services.dps.conversion;
 
-public class ConversionException extends Exception{
+public class ConversionException extends Exception {
 
     public ConversionException() {
     }

@@ -1,23 +1,10 @@
 package de.buw.tmdt.plasma.services.dps.conversion.json;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import de.buw.tmdt.plasma.services.dps.conversion.json.MapJSON;
-import de.buw.tmdt.plasma.services.dps.conversion.json.MappingException;
-import de.buw.tmdt.plasma.services.dps.conversion.json.TreeNode;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.net.URISyntaxException;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 
 @SuppressWarnings("checkstyle:LocalVariableName")
 public class MapJSONTest {

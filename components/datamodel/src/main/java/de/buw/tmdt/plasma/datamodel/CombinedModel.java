@@ -405,7 +405,7 @@ public class CombinedModel implements Serializable {
                 .map(node -> (SetNode) node)
 
                 .forEach(setNode -> {
-                    if(isMappedSchemaNode(setNode)){
+                    if (isMappedSchemaNode(setNode)) {
                         syntaxModel.getChildNodesForNode(setNode.getUuid()).stream()
                                 .filter(cNode -> cNode instanceof PrimitiveNode)
                                 .forEach(cNode -> {
@@ -414,7 +414,7 @@ public class CombinedModel implements Serializable {
                                             .forEach(edge -> edge.setDisabled(true));
                                     cNode.setDisabled(true);
                                     MappableSemanticModelNode mappingNode = getMappingSemanticNode(cNode);
-                                    if(mappingNode != null){
+                                    if (mappingNode != null) {
                                         mappingNode.unmap();
                                     }
                                 });
@@ -449,11 +449,11 @@ public class CombinedModel implements Serializable {
         lastModification = delta;
     }
 
-    private boolean isMappedSchemaNode(SchemaNode sn){
+    private boolean isMappedSchemaNode(SchemaNode sn) {
         return getMappingSemanticNode(sn) != null;
     }
 
-    private MappableSemanticModelNode getMappingSemanticNode(SchemaNode sn){
+    private MappableSemanticModelNode getMappingSemanticNode(SchemaNode sn) {
         return semanticModel.getNodes().stream()
                 .filter(smNode -> smNode instanceof MappableSemanticModelNode)
                 .map(smNode -> (MappableSemanticModelNode) smNode)

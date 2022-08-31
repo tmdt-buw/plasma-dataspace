@@ -3,7 +3,6 @@ package de.buw.tmdt.plasma.services.dps.core;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.buw.tmdt.plasma.datamodel.CombinedModel;
-import de.buw.tmdt.plasma.datamodel.semanticmodel.SemanticModel;
 import de.buw.tmdt.plasma.services.dps.conversion.ConversionException;
 import de.buw.tmdt.plasma.services.dps.conversion.rdf.RDFConverter;
 import de.buw.tmdt.plasma.services.kgs.shared.feignclient.OntologyApiClient;
@@ -19,8 +18,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.io.*;
-import java.util.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 @Service
 public class DataProcessingHandler {
@@ -58,7 +62,6 @@ public class DataProcessingHandler {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Unable to read file.");
         }
         List<JsonNode> nodes = new ArrayList<>();
-        ;
         if (root.isArray()) {
             root.elements().forEachRemaining(nodes::add);
         } else {

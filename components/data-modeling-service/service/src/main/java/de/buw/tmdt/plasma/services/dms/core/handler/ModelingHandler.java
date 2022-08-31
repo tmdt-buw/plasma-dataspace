@@ -224,7 +224,8 @@ public class ModelingHandler {
         return currentModel;
     }
 
-    public @NotNull CombinedModel getCombinedModel(@NotNull String modelId) {
+    public @NotNull
+    CombinedModel getCombinedModel(@NotNull String modelId) {
 
         return getCombinedModel(modelId, false);
     }
@@ -352,7 +353,8 @@ public class ModelingHandler {
      * @deprecated Legacy function, use {@link #applyModification(String, DeltaModification)} instead
      */
     @Deprecated
-    public @NotNull CombinedModel modifySyntaxModel(@NotNull String modelId, @NotNull SyntacticOperationDTO syntacticOperationDTO) {
+    public @NotNull
+    CombinedModel modifySyntaxModel(@NotNull String modelId, @NotNull SyntacticOperationDTO syntacticOperationDTO) {
         //load referenced modeling
         Modeling modeling = findModelingOrThrow(modelId);
 
@@ -572,7 +574,8 @@ public class ModelingHandler {
 
     /* UNDO / REDO Functions */
 
-    public @NotNull CombinedModel undoModelModification(@NotNull String modelId) {
+    public @NotNull
+    CombinedModel undoModelModification(@NotNull String modelId) {
         //Get the modeling from the repository
         Modeling modeling = findModelingOrThrow(modelId);
         try {
@@ -587,7 +590,8 @@ public class ModelingHandler {
         return modeling.getCurrentModel();
     }
 
-    public @NotNull CombinedModel redoModelModification(@NotNull String modelId) {
+    public @NotNull
+    CombinedModel redoModelModification(@NotNull String modelId) {
         //Get the modeling from the repository
         Modeling modeling = findModelingOrThrow(modelId);
         try {
@@ -618,7 +622,7 @@ public class ModelingHandler {
     @NotNull
     @Transactional
     public CombinedModel finalizeModeling(@NotNull String modelId) {
-        if(!finalizeModelsEnabled){
+        if (!finalizeModelsEnabled) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Model finalization is not allowed" +
                     " in the current configuration.");
         }

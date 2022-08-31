@@ -15,6 +15,10 @@ public class CSVConverter {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
+    private CSVConverter() {
+
+    }
+
     public static String convert(String input, int headerHeight) throws ConversionException {
         return convert(input, ',', headerHeight);
     }

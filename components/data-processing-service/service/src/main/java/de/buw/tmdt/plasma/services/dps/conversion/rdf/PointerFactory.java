@@ -36,8 +36,8 @@ public class PointerFactory {
         return String.join("/", composeTokenizedPath());
     }
 
-    public int getDepth(){
-        return levelIndexes.size()-1;
+    public int getDepth() {
+        return levelIndexes.size() - 1;
     }
 
     public String composePath(int level) {
@@ -51,7 +51,7 @@ public class PointerFactory {
         return String.join("/", subpath);
     }
 
-    private ArrayList<String> composeTokenizedPath(){
+    private ArrayList<String> composeTokenizedPath() {
         ArrayList<String> composed = new ArrayList<>(nodePath);
         for (int i = 0; i < levelIndexes.size(); i++) {
             String token = TOKEN_START + i + TOKEN_END;
@@ -66,19 +66,18 @@ public class PointerFactory {
 
     public void increaseIndex(int level) {
         levelIndexes.set(level, levelIndexes.get(level) + 1);
-        for(int i = level +1; i< levelIndexes.size();i++){
-            levelIndexes.set(i,0);
+        for (int i = level + 1; i < levelIndexes.size(); i++) {
+            levelIndexes.set(i, 0);
         }
     }
 
 
-
-    public void peekPath(int level, int index){
+    public void peekPath(int level, int index) {
 
     }
 
     @Override
-    public String toString(){
+    public String toString() {
         return composePath();
     }
 

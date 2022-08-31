@@ -14,6 +14,10 @@ import java.util.List;
 public class GeoJSONConverter {
     private static ObjectMapper mapper = new ObjectMapper();
 
+    private GeoJSONConverter() {
+
+    }
+
     public static String convert(String input) throws ConversionException {
         List<EnrichedFeature> features = new ArrayList<>();
         try {

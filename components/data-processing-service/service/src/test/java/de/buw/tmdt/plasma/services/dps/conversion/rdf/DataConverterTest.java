@@ -4,7 +4,6 @@ package de.buw.tmdt.plasma.services.dps.conversion.rdf;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.buw.tmdt.plasma.datamodel.CombinedModel;
-import de.buw.tmdt.plasma.datamodel.semanticmodel.*;
 import de.buw.tmdt.plasma.services.dps.CombinedModelGenerator;
 import de.buw.tmdt.plasma.services.dps.conversion.ConversionException;
 import org.apache.jena.rdf.model.Model;
@@ -13,7 +12,6 @@ import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.StmtIterator;
 import org.apache.jena.shared.PrefixMapping;
 import org.apache.jena.shared.impl.PrefixMappingImpl;
-import org.junit.Before;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -27,7 +25,7 @@ public class DataConverterTest {
     private CombinedModelGenerator combinedModelGenerator;
 
     @BeforeEach
-    public void setup(){
+    public void setup() {
         combinedModelGenerator = new CombinedModelGenerator();
     }
 
@@ -164,24 +162,22 @@ public class DataConverterTest {
         System.out.println(output);
     }
 
-    public Model cleanse(Model model){
+    public Model cleanse(Model model) {
         Model newModel = ModelFactory.createDefaultModel();
         newModel.setNsPrefixes(model.getNsPrefixMap());
         StmtIterator stmtIterator = model.listStatements();
-        while(stmtIterator.hasNext()){
+        while (stmtIterator.hasNext()) {
             Statement stmt = stmtIterator.nextStatement();
-            if(stmt.getPredicate().getURI().contains("cmUuid")){
+            if (stmt.getPredicate().getURI().contains("cmUuid")) {
                 continue;
             }
-            if(stmt.getPredicate().getURI().contains("http://plasma.uni-wuppertal.de/cm#syntaxNodeId")){
+            if (stmt.getPredicate().getURI().contains("http://plasma.uni-wuppertal.de/cm#syntaxNodeId")) {
                 continue;
             }
             newModel.add(stmt);
         }
         return newModel;
     }
-
-
 
 
 }

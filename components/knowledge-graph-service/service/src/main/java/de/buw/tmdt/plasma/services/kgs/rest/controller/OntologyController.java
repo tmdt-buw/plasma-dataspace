@@ -15,14 +15,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.context.request.RequestAttributes;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.server.ResponseStatusException;
 
-import javax.servlet.http.HttpServletResponse;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -85,11 +79,11 @@ public class OntologyController implements OntologyApi {
         headers.set("filename", localOntologyLabel + ".ttl");
         headers.setAccessControlExposeHeaders(List.of(HttpHeaders.CONTENT_DISPOSITION, "filename"));
 
-        return new ResponseEntity<>(ontologyHandler.downloadLocalOntology(format), headers,HttpStatus.OK);
+        return new ResponseEntity<>(ontologyHandler.downloadLocalOntology(format), headers, HttpStatus.OK);
     }
 
     @Override
-    public Map<String,String> getPrefixes() {
+    public Map<String, String> getPrefixes() {
         return Ontologies.PREFIXES.getNsPrefixMap();
     }
 

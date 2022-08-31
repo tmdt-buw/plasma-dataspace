@@ -5,10 +5,11 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.ValueNode;
 
+import java.io.Serializable;
 import java.util.Comparator;
 import java.util.Map;
 
-public class JSONComparator implements Comparator<JsonNode> {
+public class JSONComparator implements Comparator<JsonNode>, Serializable {
 
     private JSONComparator() {
     }

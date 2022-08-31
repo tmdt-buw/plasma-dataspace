@@ -21,7 +21,8 @@ import org.springframework.web.util.HtmlUtils;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static de.buw.tmdt.plasma.datamodel.syntaxmodel.SchemaNode.*;
+import static de.buw.tmdt.plasma.datamodel.syntaxmodel.SchemaNode.ARRAY_PATH_TOKEN;
+import static de.buw.tmdt.plasma.datamodel.syntaxmodel.SchemaNode.PREDEFINED_LABELS;
 
 /**
  * Converter to parse a {@link SemanticModel} with filled {@link Literal}s and convert it to RDF.
@@ -204,7 +205,7 @@ public class RDFConverter {
                 throw new ConversionException("Node " + arrayPointer + " is not an array!");
             }
 
-            RDFList list = buildRDFListForArrayContext(indexNode,  arrayContext);
+            RDFList list = buildRDFListForArrayContext(indexNode, arrayContext);
             uuidtoResource.put(indexNode.getUuid(), list);
         }
 
@@ -303,7 +304,7 @@ public class RDFConverter {
         List<RDFList> list = new ArrayList<>();
         JsonPointer peekPointer = JsonPointer.compile(pf.composePath());
         JsonNode peekNode = datum.at(peekPointer);
-        while(!peekNode.isMissingNode()){
+        while (!peekNode.isMissingNode()) {
             list.add(iterateArray(pf, 0, indexNode, arrayContext));
             pf.increaseIndex(0);
             peekPointer = JsonPointer.compile(pf.composePath());
@@ -313,7 +314,7 @@ public class RDFConverter {
         return list.get(0);
     }
 
-    private RDFList iterateArray(PointerFactory pf, int level,MappableSemanticModelNode indexNode, SemanticModel arrayContext) throws ConversionException {
+    private RDFList iterateArray(PointerFactory pf, int level, MappableSemanticModelNode indexNode, SemanticModel arrayContext) throws ConversionException {
         if (level >= pf.getDepth()) {
             // process
             String originPointer = pf.composePath();
@@ -321,19 +322,19 @@ public class RDFConverter {
             JsonNode peekNode = datum.at(peekPointer);
             List<RDFNode> nodes = new ArrayList<>();
 
-            while(!peekNode.isMissingNode()){
+            while (!peekNode.isMissingNode()) {
                 JsonNode entry = datum.at(JsonPointer.compile(pf.composePath()));
-                RDFNode rdfIndexNode = processArrayContext(arrayContext, indexNode, pf.getOriginalPath(), pf.composePath(),entry);
+                RDFNode rdfIndexNode = processArrayContext(arrayContext, indexNode, pf.getOriginalPath(), pf.composePath(), entry);
                 nodes.add(rdfIndexNode);
                 pf.increaseIndex(level);
                 peekPointer = JsonPointer.compile(pf.composePath());
                 peekNode = datum.at(peekPointer);
             }
             RDFList list = m.createList(nodes.iterator());
-            deepListMap.put(originPointer,list);
+            deepListMap.put(originPointer, list);
             return list;
         } else {
-            return iterateArray(pf, level+1, indexNode, arrayContext);
+            return iterateArray(pf, level + 1, indexNode, arrayContext);
         }
     }
 
@@ -387,14 +388,14 @@ public class RDFConverter {
             SemanticModelNode to = combinedModel.getSemanticModel().getNode(r.getTo());
             RDFNode fromNode = uuidtoResource.get(from.getUuid());
             RDFNode toNode = uuidtoResource.get(to.getUuid());
-            if(fromNode == null || toNode == null){
+            if (fromNode == null || toNode == null) {
                 continue;
             }
             for (Map.Entry<String, RDFNode> listmapEntry : deepListMap.entrySet()) {
-                if(listmapEntry.getKey().startsWith(currentPath)){
-                        RDFNode headNode = listmapEntry.getValue();
-                           fromNode.asResource().addProperty(m.createProperty(m.expandPrefix(r.getURI())), headNode);
-                           processed.add(r);
+                if (listmapEntry.getKey().startsWith(currentPath)) {
+                    RDFNode headNode = listmapEntry.getValue();
+                    fromNode.asResource().addProperty(m.createProperty(m.expandPrefix(r.getURI())), headNode);
+                    processed.add(r);
                 }
             }
         }
@@ -537,7 +538,7 @@ public class RDFConverter {
     }
 
     /**
-     * Parses the values of an array and converts them to an {@link RDFList}
+     * Parses the values of an array and converts them to an {@link RDFList}.
      *
      * @param arrayNode The JSON node containing the array data
      * @return The root element of the list
@@ -580,7 +581,7 @@ public class RDFConverter {
     }
 
     /**
-     * Serializes a json array into a {@link String}
+     * Serializes a json array into a {@link String}.
      *
      * @param arrayNode The node containing the data
      * @return A string of all values divided by the ',' character

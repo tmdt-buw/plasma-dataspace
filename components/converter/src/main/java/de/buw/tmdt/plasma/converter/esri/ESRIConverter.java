@@ -2,6 +2,7 @@ package de.buw.tmdt.plasma.converter.esri;
 
 import de.buw.tmdt.plasma.converter.ConversionException;
 import de.buw.tmdt.plasma.converter.geojson.GeoJSONConverter;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.geotools.data.DataStoreFinder;
@@ -13,6 +14,8 @@ import org.geotools.geojson.geom.GeometryJSON;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.filter.Filter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.nio.charset.Charset;
@@ -26,8 +29,14 @@ import java.util.zip.ZipInputStream;
 
 public class ESRIConverter {
 
+    private static final Logger log = LoggerFactory.getLogger(ESRIConverter.class);
+
     public static final int DECIMALS = 15;
     public static final int BUFFER_SIZE = 1024;
+
+    private ESRIConverter() {
+
+    }
 
     public static String convertToGeoJSON(Path filePath) throws ConversionException {
         return convertToGeoJSON(filePath, StandardCharsets.ISO_8859_1);
@@ -42,17 +51,19 @@ public class ESRIConverter {
         return GeoJSONConverter.convert(geoJson);
     }
 
+    @SuppressFBWarnings("PATH_TRAVERSAL_IN")
     public static String convertToGeoJSON(Path filePath, Charset charset) throws ConversionException {
         String tmpDirectory = "./" + UUID.randomUUID();
-        InputStream inputStream = null;
         File destDir = null;
         ShapefileDataStore dataStore = null;
-        try {
-            inputStream = new FileInputStream(filePath.toFile());
+        try (InputStream inputStream = new FileInputStream(filePath.toFile())) {
 
             // Unzip File
+
             destDir = new File(tmpDirectory);
-            destDir.mkdirs();
+            if (!destDir.mkdirs()) {
+                log.warn("DestDir " + destDir.getAbsolutePath() + " could not be created!");
+            }
             byte[] buffer = new byte[BUFFER_SIZE];
             ZipInputStream zis = new ZipInputStream(inputStream);
             ZipEntry zipEntry = zis.getNextEntry();
@@ -102,12 +113,6 @@ public class ESRIConverter {
             throw new ConversionException("Failed to read shape file properly.", e);
 
         } finally {
-            try {
-                if (inputStream != null) {
-                    inputStream.close();
-                }
-            } catch (IOException ignore) {
-            }
             if (dataStore != null) {
                 dataStore.dispose();
             }

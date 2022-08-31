@@ -155,7 +155,7 @@ public class OntologyHandler {
 
     public String downloadLocalOntology(ExportFormat format) {
         Optional<OntModel> ontologyModelByLabel = ontologies.getOntologyModelByLabel(localOntologyLabel);
-        if(ontologyModelByLabel.isEmpty()){
+        if (ontologyModelByLabel.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Could not find a local ontology. Check with system maintainer.");
         }
         OntModel localOntology = ontologyModelByLabel.get();

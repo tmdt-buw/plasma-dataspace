@@ -3,8 +3,10 @@ package de.buw.tmdt.plasma.datamodel;
 import de.buw.tmdt.plasma.datamodel.modification.DeltaModification;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.Class;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.*;
+import de.buw.tmdt.plasma.datamodel.syntaxmodel.MappableSyntaxNode;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.PrimitiveNode;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.SchemaNode;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
@@ -174,12 +176,13 @@ public class CombinedModelSemanticModificationTest {
     }
 
     @Test
-    public void testApplyMapOneEntityToNonPrimitiveNode() {
+    @Disabled("test currently disabled as there exist no unmappable nodes in the generator")
+    public void testApplyMapOneEntityToNonMappableNode() {
         CombinedModel model = getCombinedModel();
 
         // get the target node we want to map to
         SchemaNode schemaNode = model.getSyntaxModel().getNodes().stream()
-                .filter(node -> !(node instanceof PrimitiveNode))
+                .filter(node -> !(node instanceof MappableSyntaxNode))
                 .findFirst()
                 .orElseThrow();
 

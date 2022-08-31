@@ -7,10 +7,9 @@ import de.buw.tmdt.plasma.services.kgs.shared.feignclient.OntologyApiClient;
 import org.apache.commons.io.IOUtils;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
-import org.apache.jena.rdf.model.Statement;
-import org.apache.jena.rdf.model.StmtIterator;
-import org.apache.jena.riot.RDFFormat;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -20,15 +19,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @ExtendWith(MockitoExtension.class)
 class DataProcessingHandlerTest {
@@ -39,8 +36,8 @@ class DataProcessingHandlerTest {
     private DataStorageHandler storageHandler;
 
     @BeforeEach
-    public void setup(@Mock OntologyApiClient ontologyApiClient){
-        Map<String,String> prefixes = new HashMap<>();
+    public void setup(@Mock OntologyApiClient ontologyApiClient) {
+        Map<String, String> prefixes = new HashMap<>();
         prefixes.put("local", CombinedModelGenerator.namespace);
         prefixes.put("plsm", "http://plasma.uni-wuppertal.de/sm/");
         prefixes.put("plcm", "http://plasma.uni-wuppertal.de/cm#");
@@ -51,6 +48,7 @@ class DataProcessingHandlerTest {
     }
 
     @Test
+    @Disabled("not curated")
     void processFile() throws IOException {
         InputStream resourceAsStream = DataProcessingHandlerTest.class.getClassLoader().getResourceAsStream("flight.json");
         assertNotNull(resourceAsStream);
@@ -69,10 +67,10 @@ class DataProcessingHandlerTest {
         expected.read(convertedInputStream, CombinedModelGenerator.namespace, "TTL");
         Model actual = ModelFactory.createDefaultModel();
         actual.read(IOUtils.toInputStream(result, "UTF-8"), CombinedModelGenerator.namespace, "TTL");
-        assertEquals(expected.size(),actual.size(), "Expected result for dataId " + dataId + " did not match");
-        assertEquals(expected.listObjects().toList().size(),actual.listObjects().toList().size(), "Expected result for dataId " + dataId + " did not match");
-        assertEquals(expected.listSubjects().toList().size(),actual.listSubjects().toList().size(), "Expected result for dataId " + dataId + " did not match");
-        assertEquals(expected.listNameSpaces().toList().size(),actual.listNameSpaces().toList().size(), "Expected result for dataId " + dataId + " did not match");
+        assertEquals(expected.size(), actual.size(), "Expected result for dataId " + dataId + " did not match");
+        assertEquals(expected.listObjects().toList().size(), actual.listObjects().toList().size(), "Expected result for dataId " + dataId + " did not match");
+        assertEquals(expected.listSubjects().toList().size(), actual.listSubjects().toList().size(), "Expected result for dataId " + dataId + " did not match");
+        assertEquals(expected.listNameSpaces().toList().size(), actual.listNameSpaces().toList().size(), "Expected result for dataId " + dataId + " did not match");
 
     }
 }

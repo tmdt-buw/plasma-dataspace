@@ -7,6 +7,7 @@ import de.buw.tmdt.plasma.converter.csv.CSVConverter;
 import de.buw.tmdt.plasma.converter.esri.ESRIConverter;
 import de.buw.tmdt.plasma.converter.geojson.GeoJSONConverter;
 import de.buw.tmdt.plasma.services.dps.api.SampleDTO;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -32,6 +33,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
+@SuppressFBWarnings({"PATH_TRAVERSAL_IN", "NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE"})
 public class DataStorageHandler {
 
     @Value("${plasma.dps.storage.directory:./storage}")
@@ -154,7 +156,8 @@ public class DataStorageHandler {
     }
 
     /**
-     * Get all files for a given dataId
+     * Get all files for a given dataId.
+     *
      * @param dataId data id to fetch data for
      * @return sorted list of files
      */

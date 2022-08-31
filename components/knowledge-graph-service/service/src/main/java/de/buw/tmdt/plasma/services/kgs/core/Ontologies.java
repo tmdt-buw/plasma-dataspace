@@ -3,7 +3,6 @@ package de.buw.tmdt.plasma.services.kgs.core;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
-import de.buw.tmdt.plasma.services.kgs.shared.model.ExportFormat;
 import de.buw.tmdt.plasma.services.kgs.shared.model.OntologyInfo;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.io.FilenameUtils;
@@ -87,7 +86,7 @@ public class Ontologies {
                             Ontology ontology = mapper.readValue(filePath.toFile(), Ontology.class);
                             OntModel loadedOnto = ModelFactory.createOntologyModel();
                             Path ontologyFilePath = Path.of(getOntologyFolder(), ontology.getFilename());
-                             try (FileInputStream fis = new FileInputStream(ontologyFilePath.toFile())) {
+                            try (FileInputStream fis = new FileInputStream(ontologyFilePath.toFile())) {
                                 loadedOnto.read(fis, "", "TURTLE"); // TODO handle different formats or homogenize
                             } catch (IOException fnfe) {
                                 log.error("Could not read {}:", filePath, fnfe);
@@ -246,7 +245,7 @@ public class Ontologies {
         if (label == null || label.isBlank()) {
             return Optional.empty();
         }
-        if(ontologyModels.isEmpty()){
+        if (ontologyModels.isEmpty()) {
             reloadOntologies();
         }
         return ontologyModels.entrySet().stream()

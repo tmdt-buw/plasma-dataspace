@@ -32,7 +32,7 @@ public abstract class SchemaNode extends PositionedCombinedModelElement {
     public static final String ARRAY_LABEL = "##array";
     public static final String OBJECT_LABEL = "##object";
     public static final String VALUE_LABEL = "##value";
-    public static final List<String> PREDEFINED_LABELS = List.of(ARRAY_LABEL,OBJECT_LABEL,VALUE_LABEL);
+    public static final List<String> PREDEFINED_LABELS = List.of(ARRAY_LABEL, OBJECT_LABEL, VALUE_LABEL);
 
     public static final String OPERATIONS_PROPERTY = "operations";
     public static final String VALID_PROPERTY = "valid";
@@ -63,7 +63,7 @@ public abstract class SchemaNode extends PositionedCombinedModelElement {
 
     public SchemaNode(
             @NotNull String uuid,
-            @NotNull  String label,
+            @NotNull String label,
             @Nullable List<String> path,
             @Nullable Double xCoordinate,
             @Nullable Double yCoordinate,
@@ -134,20 +134,21 @@ public abstract class SchemaNode extends PositionedCombinedModelElement {
      * Arrays will always be represented with index 0, e.g. /list/0/value in that path as the length of said list is
      * not available at creation time.
      */
-    public String getPathAsJSONPointer(){
+    public String getPathAsJSONPointer() {
         return path.stream()
                 .map(component -> component.replaceAll("~", "~0"))
                 .map(component -> component.replaceAll("/", "~1"))
                 .collect(Collectors.joining("/"));
     }
 
-    public void setVisible(boolean visible){
+    public void setVisible(boolean visible) {
         this.visible = visible;
     }
 
-    public void setDisabled(boolean disabled){
+    public void setDisabled(boolean disabled) {
         this.disabled = disabled;
     }
+
     /**
      * Creates a deep clone of the current entity.
      *

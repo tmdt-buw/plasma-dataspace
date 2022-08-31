@@ -13,7 +13,7 @@ import java.util.List;
         @JsonSubTypes.Type(value = SetNode.class, name = "SetNode"),
         @JsonSubTypes.Type(value = ObjectNode.class, name = "ObjectNode"),
 })
-public abstract class MappableSyntaxNode extends SchemaNode{
+public abstract class MappableSyntaxNode extends SchemaNode {
     public MappableSyntaxNode(@NotNull String label, boolean isValid) {
         super(label, isValid);
     }
