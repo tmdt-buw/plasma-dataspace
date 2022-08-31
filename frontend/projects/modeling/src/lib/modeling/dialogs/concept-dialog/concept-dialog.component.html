@@ -23,7 +23,7 @@
              cdkDropListSortingDisabled>
           <div *ngFor="let element of semanticModelNodes" [cdkDragData]="element" cdkDrag class="concept-box"
                fxLayout="column"
-               fxLayoutAlign="start start" nz-tooltip="{{element.description}}" nzTooltipTitle="{{element.label}}">
+               fxLayoutAlign="start start" nz-tooltip="{{getDescription(element)}}" >
             <div fxFill fxLayout="row" fxLayoutAlign="start center">
               <span nz-typography nzEllipsis>{{ element.label }}</span>
               <nz-tag class="named-entity-tag" *ngIf="element._class === 'NamedEntity'"
@@ -74,7 +74,8 @@
         <div *ngFor="let relation of relations; let i = index"
             (click)="toggleRelation(i, relation)"
             [ngStyle]="{'background': isSelected(relation) ? 'lightgrey' : null, 'color': isSelected(relation) ? 'white' : null}"
-            class="relation-box" fxLayout="column">
+            class="relation-box" fxLayout="column"
+             nz-tooltip="{{getDescription(relation)}}">
 
           <div fxLayout="row" fxLayoutAlign="start center">
             <span nz-typography nzEllipsis>{{ relation.label }}</span>

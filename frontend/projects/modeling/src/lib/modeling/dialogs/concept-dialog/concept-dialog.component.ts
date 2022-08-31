@@ -3,7 +3,13 @@ import { FormControl } from '@angular/forms';
 import { ModalOptions, NzModalService } from 'ng-zorro-antd/modal';
 import { NzTabChangeEvent } from 'ng-zorro-antd/tabs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
-import { DeltaModification, ModelingControllerService, Relation, SemanticModelNode } from '../../../api/generated/dms';
+import {
+  Class, DataProperty,
+  DeltaModification,
+  ModelingControllerService, NamedEntity, ObjectProperty,
+  Relation,
+  SemanticModelNode
+} from '../../../api/generated/dms';
 import { ModelingService } from '../../modeling.service';
 import { ModalBaseConfig } from '../common/modal.base-config';
 import { PlsNewEntityDialogComponent } from '../new-entity-dialog/new-entity-dialog.component';
@@ -156,5 +162,21 @@ export class PlsConceptDialogComponent implements OnInit, OnDestroy {
         });
       }
     });
+  }
+
+  getDescription(element: SemanticModelNode): string {
+    if (element._class === 'Class') {
+      return (element as Class).description;
+    }
+    if (element._class === 'NamedEntity') {
+      return (element as NamedEntity).description;
+    }
+    if (element._class === 'ObjectProperty') {
+      return (element as ObjectProperty).description;
+    }
+    if (element._class === 'DataProperty') {
+      return (element as DataProperty).description;
+    }
+    return 'No description available.';
   }
 }
