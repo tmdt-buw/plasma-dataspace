@@ -15,6 +15,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.io.StringWriter;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -28,7 +29,7 @@ public class SemanticModelHandler {
     private final LocalOntologyManagement onto;
     private final OntologyHandler ontologyHandler;
 
-    private final DateTimeFormatter exportTimestampFormatter = DateTimeFormatter.ofPattern("yMd-Hm");
+    private final DateTimeFormatter exportTimestampFormatter = DateTimeFormatter.ofPattern("yyMMdd-Hm");
 
     @Autowired
     public SemanticModelHandler(
@@ -112,7 +113,7 @@ public class SemanticModelHandler {
         if (modelId == null) {
             modelId = "temp";
         }
-        String timestamp = LocalDate.now().format(exportTimestampFormatter);
+        String timestamp = LocalDateTime.now().format(exportTimestampFormatter);
 
         HttpHeaders headers = generateFilenameHeader(timestamp + "-" + modelId + ".ttl");
         return new ResponseEntity<>(prepareForExport(cmModel, format, includeMappings), headers, HttpStatus.OK);
