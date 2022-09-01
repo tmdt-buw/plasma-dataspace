@@ -151,6 +151,20 @@ services:
     environment:
       - plasma.ars.refinement.recommendation.enabled=false
 
+  dps:
+    image: git.uni-wuppertal.de:4567/tmdt/projects/dataspace/plasma/dps:${PLASMA_VERSION}
+    hostname: plasma-dps
+    user: root
+    restart: unless-stopped
+    depends_on:
+      - discovery
+    ports:
+      - "8193:8193"
+    environment:
+      - plasma.localstorage.directory=/var/plasma/localstorage
+    volumes:
+      - dps_storage:/var/plasma/localstorage
+
   ui:
     image: git.uni-wuppertal.de:4567/tmdt/projects/dataspace/plasma/frontend:${PLASMA_VERSION}
     hostname: plasma-ui
@@ -227,3 +241,4 @@ volumes:
   mariadb_dms:
   mariadb_ars_m_sm:
   configs:
+  dps_storage:
