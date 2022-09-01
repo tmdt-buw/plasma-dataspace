@@ -44,7 +44,6 @@ import { NzCollapseModule } from 'ng-zorro-antd/collapse';
 import { UploadOntologyComponent } from './modeling/dialogs/upload-ontology/upload-ontology.component';
 import { NzResultModule } from 'ng-zorro-antd/result';
 import { CopySemanticModelComponent } from './modeling/dialogs/copy-semantic-model/copy-semantic-model.component';
-import { environment } from 'src/environments/environment';
 import { NzNotificationModule } from 'ng-zorro-antd/notification';
 
 
@@ -58,17 +57,9 @@ import { NzNotificationModule } from 'ng-zorro-antd/notification';
   ],
   imports: [
     // Plasma
-    ApiModule.forRoot(() => {
-      return new Configuration({
-        basePath: environment.baseUrl,
-      });
-    }),
+    ApiModule,
     PlsOperationsDialogModule,
-    KGSApiModule.forRoot(() => {
-      return new Configuration({
-        basePath: environment.baseUrl,
-      });
-    }),
+    KGSApiModule,
     // Angular
     CommonModule,
     DragDropModule,
