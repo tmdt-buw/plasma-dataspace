@@ -45,6 +45,10 @@ import { UploadOntologyComponent } from './modeling/dialogs/upload-ontology/uplo
 import { NzResultModule } from 'ng-zorro-antd/result';
 import { CopySemanticModelComponent } from './modeling/dialogs/copy-semantic-model/copy-semantic-model.component';
 import { NzNotificationModule } from 'ng-zorro-antd/notification';
+import { ManageOntologiesDialogComponent } from './modeling/dialogs/manage-ontologies-dialog/manage-ontologies-dialog.component';
+import { NzListModule } from 'ng-zorro-antd/list';
+import { NzPopconfirmModule } from 'ng-zorro-antd/popconfirm';
+import { NzDescriptionsModule } from 'ng-zorro-antd/descriptions';
 
 
 @NgModule({
@@ -53,7 +57,7 @@ import { NzNotificationModule } from 'ng-zorro-antd/notification';
     PlsSemanticNodeDetailsComponent, PlsConceptDialogComponent, PlsNewEntityDialogComponent,
     PlsNewRelationDialogComponent, PlsImportDialogComponent,
     InlineInputEditComponent, PlsSemanticClassMenuComponent, PlsRelationConceptMenuComponent, PlsFullscreenDirective,
-    PlsNamedEntityMenuComponent, PlsLiteralMenuComponent, UploadOntologyComponent, CopySemanticModelComponent
+    PlsNamedEntityMenuComponent, PlsLiteralMenuComponent, UploadOntologyComponent, CopySemanticModelComponent, ManageOntologiesDialogComponent
   ],
   imports: [
     // Plasma
@@ -88,7 +92,10 @@ import { NzNotificationModule } from 'ng-zorro-antd/notification';
     NzTagModule,
     NzCollapseModule,
     NzResultModule,
-    NzNotificationModule
+    NzNotificationModule,
+    NzListModule,
+    NzPopconfirmModule,
+    NzDescriptionsModule
   ],
   exports: [PlsModelingComponent]
 })

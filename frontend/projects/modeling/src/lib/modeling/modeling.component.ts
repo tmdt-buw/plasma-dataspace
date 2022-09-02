@@ -28,6 +28,7 @@ import { UploadOntologyComponent } from './dialogs/upload-ontology/upload-ontolo
 import { CopySemanticModelComponent } from './dialogs/copy-semantic-model/copy-semantic-model.component';
 import { NzNotificationService } from 'ng-zorro-antd/notification';
 import { HttpErrorResponse, HttpStatusCode } from '@angular/common/http';
+import { ManageOntologiesDialogComponent } from './dialogs/manage-ontologies-dialog/manage-ontologies-dialog.component';
 
 
 @Component({
@@ -88,8 +89,8 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
   // dialogs
   private addConceptDialogRef: NzModalRef<any, any>;
   contextMenuSubscription;
-  private uploadOntologyDialogRef: NzModalRef<any, any>;
   private copySemanticModelDialogRef: NzModalRef<any, any>;
+  private manageOntolggiesDialogRef: NzModalRef<any, any>;
 
   // tools
   recommendationsEnabled = true;
@@ -171,7 +172,7 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
     this.modal.closeAll();
     this.contextMenuSubscription.unsubscribe();
     this.addConceptDialogRef?.close();
-    this.uploadOntologyDialogRef?.close();
+    this.manageOntolggiesDialogRef?.close();
   }
 
   getSchema(): void {
@@ -335,7 +336,7 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
       this.addConceptDialogRef = undefined;
       return;
     }
-    this.uploadOntologyDialogRef?.close();
+    this.manageOntolggiesDialogRef?.close();
     const rect: DOMRect = this.modelingArea.nativeElement.getBoundingClientRect();
     const config: ModalOptions = {
       nzStyle: {position: 'absolute', top: `${rect.top + 15}px`, left: `10px`, 'max-width': '30%', bottom: '15px'},
@@ -359,24 +360,32 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
     }
   }
 
-  showUploadOntologyDialog(): void {
-    if (this.uploadOntologyDialogRef) {
-      this.uploadOntologyDialogRef.close();
-      this.uploadOntologyDialogRef = undefined;
-      return;
-    }
+  showManageOntologiesDialog(): void {
     this.closeAddConceptDialog();
-    const rect: DOMRect = this.modelingArea.nativeElement.getBoundingClientRect();
+    const boundingBox: DOMRect = this.modelingArea.nativeElement.getBoundingClientRect();
+
     const config: ModalOptions = {
-      nzStyle: {position: 'absolute', top: `${rect.top + 15}px`, right: `10px`, 'max-width': '30%', bottom: '15px'},
-      nzClassName: 'pls-upload-ontology',
-      nzTitle: 'Add ontology',
-      nzContent: UploadOntologyComponent,
-      nzComponentParams: {}
+      nzStyle: {
+        position: 'absolute',
+        top: `${boundingBox.top + 15}px`,
+        left: `50px`,
+        'min-width': '60%',
+        'max-width': '80%',
+        bottom: '15px'
+      },
+      nzClassName: 'pls-manage-ontologies',
+      nzTitle: 'Manage Ontologies',
+      nzContent: ManageOntologiesDialogComponent,
+      nzComponentParams: {boundingBox}
     };
-    this.uploadOntologyDialogRef = this.modal.create(Object.assign(config, ModalMouseEnabledConfig));
-    this.uploadOntologyDialogRef.afterClose.subscribe(() => this.uploadOntologyDialogRef = undefined);
-    this.uploadOntologyDialogRef.getContentComponent().ontologyCreated.subscribe(() => {
+    this.manageOntolggiesDialogRef = this.modal.create(Object.assign(config, ModalMouseEnabledConfig));
+    this.manageOntolggiesDialogRef.afterClose.subscribe(() => this.manageOntolggiesDialogRef = undefined);
+    this.manageOntolggiesDialogRef.getContentComponent().ontologyCreated.subscribe(() => {
+      this.ontologyService.listOntologies().subscribe((ontologies: Array<OntologyInfo>) => {
+        this.availableOntologies = ontologies;
+      });
+    });
+    this.manageOntolggiesDialogRef.getContentComponent().ontologyDeleted.subscribe(() => {
       this.ontologyService.listOntologies().subscribe((ontologies: Array<OntologyInfo>) => {
         this.availableOntologies = ontologies;
       });
@@ -444,5 +453,9 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
 
   isViewerMode(): boolean {
     return this.viewerMode || this.combinedModel?.finalized;
+  }
+
+  openOntologyDialog(info: OntologyInfo): void {
+    console.log('info for', info);
   }
 }
