@@ -7,10 +7,7 @@ import de.buw.tmdt.plasma.services.kgs.shared.model.OntologyInfo;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -57,11 +54,17 @@ public interface OntologyApi {
     /**
      * Add ontology.
      */
-    @PostMapping(value = "/ontologies",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/ontologies", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     void addOntology(@RequestParam(value = "label") String label,
                      @RequestParam(value = "prefix") String prefix,
                      @RequestParam(value = "uri") String uri,
                      @RequestParam("file") MultipartFile ontologyFile);
+
+    /**
+     * Delete an ontology.
+     */
+    @DeleteMapping(value = "/ontologies/{label}")
+    void deleteOntology(@PathVariable(value = "label") String label);
 
     /**
      * Get a list of all available ontologies.

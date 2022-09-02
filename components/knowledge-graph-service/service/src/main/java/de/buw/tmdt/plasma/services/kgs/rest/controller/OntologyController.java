@@ -64,6 +64,11 @@ public class OntologyController implements OntologyApi {
     }
 
     @Override
+    public void deleteOntology(String label) {
+        ontologies.deleteOntology(label);
+    }
+
+    @Override
     public List<OntologyInfo> listOntologies() {
         return ontologies.listOntologies();
     }
