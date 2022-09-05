@@ -455,7 +455,4 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
     return this.viewerMode || this.combinedModel?.finalized;
   }
 
-  openOntologyDialog(info: OntologyInfo): void {
-    console.log('info for', info);
-  }
 }
