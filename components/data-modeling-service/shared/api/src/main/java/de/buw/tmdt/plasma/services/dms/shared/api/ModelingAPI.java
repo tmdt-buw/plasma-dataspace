@@ -2,6 +2,7 @@ package de.buw.tmdt.plasma.services.dms.shared.api;
 
 import de.buw.tmdt.plasma.datamodel.CombinedModel;
 import de.buw.tmdt.plasma.datamodel.CombinedModelElement;
+import de.buw.tmdt.plasma.datamodel.ModelMapping;
 import de.buw.tmdt.plasma.datamodel.PositionedCombinedModelElement;
 import de.buw.tmdt.plasma.datamodel.modification.DeltaModification;
 import de.buw.tmdt.plasma.datamodel.modification.operation.SyntacticOperationDTO;
@@ -13,6 +14,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Set;
 
 @SuppressWarnings("HardcodedFileSeparator")
 @RequestMapping(value = "/api/plasma-dms/modelings")
@@ -39,6 +41,14 @@ public interface ModelingAPI {
     @NotNull
     @GetMapping(value = "/{modelId}", produces = MediaType.APPLICATION_JSON_VALUE)
     CombinedModel getCombinedModel(@NotNull @PathVariable("modelId") String modelId);
+
+    @NotNull
+    @GetMapping(value = "/{modelId}/arraycontexts", produces = MediaType.APPLICATION_JSON_VALUE)
+    List<Set<String>> getArrayContexts(@NotNull @PathVariable("modelId") String modelId);
+
+    @NotNull
+    @GetMapping(value = "/{modelId}/mappings", produces = MediaType.APPLICATION_JSON_VALUE)
+    List<ModelMapping> getModelMappings(@NotNull @PathVariable("modelId") String modelId);
 
     @NotNull
     @GetMapping(value = "/{modelId}/labeling", produces = MediaType.APPLICATION_JSON_VALUE)

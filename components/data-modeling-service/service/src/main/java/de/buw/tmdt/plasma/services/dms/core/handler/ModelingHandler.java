@@ -1,9 +1,6 @@
 package de.buw.tmdt.plasma.services.dms.core.handler;
 
-import de.buw.tmdt.plasma.datamodel.CombinedModel;
-import de.buw.tmdt.plasma.datamodel.CombinedModelElement;
-import de.buw.tmdt.plasma.datamodel.CombinedModelIntegrityException;
-import de.buw.tmdt.plasma.datamodel.PositionedCombinedModelElement;
+import de.buw.tmdt.plasma.datamodel.*;
 import de.buw.tmdt.plasma.datamodel.modification.DeltaModification;
 import de.buw.tmdt.plasma.datamodel.modification.operation.SyntacticOperationDTO;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.Class;
@@ -150,7 +147,6 @@ public class ModelingHandler {
      * @param sourceModelId The source model id
      * @return The updated model
      */
-    // TODO handle proper positioning of new nodes
     public CombinedModel copySemanticModelFromOtherModel(@NotNull String modelId, @NotNull String sourceModelId) {
         Modeling modeling = findModelingOrThrow(modelId);
         CombinedModel model = getCombinedModel(modelId, true);
@@ -226,8 +222,25 @@ public class ModelingHandler {
 
     public @NotNull
     CombinedModel getCombinedModel(@NotNull String modelId) {
-
         return getCombinedModel(modelId, false);
+    }
+
+    @NotNull
+    public List<Set<String>> getArrayContexts(@NotNull String modelId) {
+        CombinedModel combinedModel = getCombinedModel(modelId);
+        List<Set<String>> sets = combinedModel.getArrayContexts().stream()
+                .map(SemanticModel::getEdges)
+                .map(set -> set.stream().map(CombinedModelElement::getUuid)
+                        .collect(Collectors.toSet()))
+                .collect(Collectors.toList());
+        return sets;
+    }
+
+    @NotNull
+    public List<ModelMapping> getModelMappings(@NotNull String modelId) {
+        CombinedModel combinedModel = getCombinedModel(modelId);
+        List<ModelMapping> modelMappings = combinedModel.generateModelMappings();
+        return modelMappings;
     }
 
     /**

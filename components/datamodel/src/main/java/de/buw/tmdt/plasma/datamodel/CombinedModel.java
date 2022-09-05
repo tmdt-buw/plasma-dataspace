@@ -18,6 +18,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static de.buw.tmdt.plasma.datamodel.syntaxmodel.SchemaNode.ARRAY_PATH_TOKEN;
+
 /**
  * The combined model contains all elements that model the current state of the syntactic
  * and semantic model of a data source.
@@ -462,7 +464,7 @@ public class CombinedModel implements Serializable {
                 .findFirst().orElse(null);
     }
 
-    @JsonProperty(value = "modelMappings", access = JsonProperty.Access.READ_ONLY)
+
     public List<ModelMapping> generateModelMappings() {
         return getSemanticModel().getNodes().stream()
                 .filter(node -> node instanceof MappableSemanticModelNode)
@@ -470,6 +472,37 @@ public class CombinedModel implements Serializable {
                 .filter(SemanticModelNode::isMapped)
                 .map(this::createExplicitMapping)
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * identify iteration contexts
+     */
+    public List<SemanticModel> getArrayContexts() {
+        List<SemanticModel> arrayContexts = new ArrayList<>();
+        for (SemanticModelNode unprocessedNode : this.getSemanticModel().getNodes()) {
+            // check that this node is not part of any existing iteration context
+            if (arrayContexts.stream()
+                    .flatMap(ic -> ic.getNodes().stream())
+                    .anyMatch(node -> node.getUuid().equals(unprocessedNode.getUuid()))) {
+                continue;
+            }
+            SemanticModel arrayContext = this.getSemanticModel().getArrayContext(unprocessedNode, new ArrayList<>(), null);
+            if (arrayContext.getNodes().size() == 1) {
+                // check if this node is actually mapped below an array
+                SemanticModelNode semanticModelNode = arrayContext.getNodes().get(0);
+                if (!semanticModelNode.isMapped()) {
+                    continue;
+                }
+                MappableSemanticModelNode mappedNode = (MappableSemanticModelNode) semanticModelNode;
+                SchemaNode schemaNode = this.getSyntaxModel().getNode(mappedNode.getMappedSyntaxNodeUuid());
+                if (!schemaNode.getPath().contains(ARRAY_PATH_TOKEN)) {
+                    continue;
+                }
+            }
+            // TODO check homogenity of each array context (same level)
+            arrayContexts.add(arrayContext);
+        }
+        return arrayContexts;
     }
 
     /**
