@@ -44,11 +44,7 @@ public class ObjectProperty extends Relation {
     @Override
     @SuppressWarnings("MagicCharacter")
     public String toString() {
-        return "{\"@class\":\"ObjectProperty\""
-                + ", \"fromId\":\"" + getFrom() + '"'
-                + ", \"toId\":\"" + getTo() + '"'
-                + ", \"URI\":" + getURI()
-                + '}';
+        return "ObjectProperty " + super.toString();
     }
 
     /**

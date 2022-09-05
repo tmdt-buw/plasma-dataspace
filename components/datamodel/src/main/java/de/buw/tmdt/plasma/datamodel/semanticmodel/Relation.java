@@ -171,11 +171,10 @@ public abstract class Relation extends CombinedModelElement implements Serializa
     @Override
     @SuppressWarnings("MagicCharacter")
     public String toString() {
-        return "{\"@class\":\"Relation\""
-                + ", \"fromId\":\"" + from + '"'
-                + ", \"toId\":\"" + to + '"'
-                + ", \"URI\":" + uri
-                + '}';
+        if (isTemplate()) {
+            return "Footer -- " + getURI() + " -> Header";
+        }
+        return getUuid().substring(0, 8) + ": " + getFrom().substring(0, 8) + " -- " + getURI() + " -> " + getTo().substring(0, 8);
     }
 
     public abstract Relation copy();

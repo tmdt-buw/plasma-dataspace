@@ -44,11 +44,7 @@ public class DataProperty extends Relation {
     @Override
     @SuppressWarnings("MagicCharacter")
     public String toString() {
-        return "{\"@class\":\"DataProperty\""
-                + ", \"fromId\":\"" + getFrom() + '"'
-                + ", \"toId\":\"" + getTo() + '"'
-                + ", \"URI\":" + getURI()
-                + '}';
+        return "DataProperty " + super.toString();
     }
 
     /**
