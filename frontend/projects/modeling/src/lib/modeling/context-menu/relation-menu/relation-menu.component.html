@@ -3,8 +3,8 @@
     <li *ngIf="relation" nz-menu-group nzTitle="Edit relation">
       <ul>
         <li nz-menu-item nzDanger (click)="remove()"><i class="context-icon" nz-icon nzType="delete"></i>Remove relation</li>
-        <li *ngIf="relation.iterative" nz-menu-item (click)="removeFromArrayContext()"><i class="context-icon" nz-icon nzType="delete-column"></i>Remove from array context</li>
-        <li *ngIf="!relation.iterative && arrayContext" nz-menu-item (click)="addToArrayContext()"><i class="context-icon" nz-icon nzType="cluster"></i>Add to array context</li>
+        <li *ngIf="relation.arraycontext" nz-menu-item (click)="removeFromArrayContext()"><i class="context-icon" nz-icon nzType="delete-column"></i>Remove from array context</li>
+        <li *ngIf="!relation.arraycontext && arrayContext" nz-menu-item (click)="addToArrayContext()"><i class="context-icon" nz-icon nzType="cluster"></i>Add to array context</li>
       </ul>
     </li>
   </ul>
