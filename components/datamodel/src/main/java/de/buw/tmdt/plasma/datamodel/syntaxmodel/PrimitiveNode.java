@@ -136,7 +136,7 @@ public class PrimitiveNode extends MappableSyntaxNode {
     @Override
     @SuppressWarnings("MagicCharacter")
     public String toString() {
-        return "PrimitiveNode: " + getPathAsJSONPointer();
+        return super.toString() + " | PrimitiveNode: " + getPathAsJSONPointer();
     }
 
     @Override

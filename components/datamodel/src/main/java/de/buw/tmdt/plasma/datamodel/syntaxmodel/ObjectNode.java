@@ -73,6 +73,6 @@ public class ObjectNode extends MappableSyntaxNode {
     @Override
     @SuppressWarnings("MagicCharacter")
     public String toString() {
-        return  "SetNode: " + getPathAsJSONPointer();
+        return super.toString() + " | SetNode: " + getPathAsJSONPointer();
     }
 }

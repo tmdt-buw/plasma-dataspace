@@ -490,9 +490,13 @@ public class CombinedModel implements Serializable {
         SchemaNode syntaxNode = syntaxModel.getNodes().stream()
                 .filter(schemaNode -> schemaNode.getUuid().equals(syntaxNodeId))
                 .findFirst()
-                .orElseThrow();
+                .orElseThrow(() -> new CombinedModelIntegrityException("No schema node found for syntax id " + syntaxNodeId));
         if (!(syntaxNode instanceof MappableSyntaxNode)) {
             throw new UnsupportedOperationException("Cannot map to syntax node " + syntaxNode.getUuid() + ". Not a primitive node.");
+        }
+        if (syntaxNode.getUuid().equals(syntaxModel.getRoot())) {
+            // if root node, skip the parent node (as there is none)
+            return new ModelMapping(syntaxNode.getUuid(), mappedNode.getUuid(), "");
         }
         // now get parent
         SchemaNode parentNode = syntaxModel.getParentNodeFor(syntaxNode.getUuid());

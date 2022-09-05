@@ -6,7 +6,6 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import de.buw.tmdt.plasma.datamodel.PositionedCombinedModelElement;
 import de.buw.tmdt.plasma.datamodel.modification.operation.SyntacticOperationDTO;
-import de.buw.tmdt.plasma.utilities.misc.StringUtilities;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -176,11 +175,6 @@ public abstract class SchemaNode extends PositionedCombinedModelElement {
     @Override
     @SuppressWarnings("MagicCharacter")
     public String toString() {
-        return "{\"@class\":\"SchemaNode\""
-                + ", \"@super\":" + super.toString()
-                + ", \"uuid\":" + getUuid()
-                + ", \"isValid\":\"" + isValid + '"'
-                + ", \"operations\":" + StringUtilities.listToJson(operations)
-                + '}';
+        return getUuid().substring(0, 8);
     }
 }
