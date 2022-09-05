@@ -2,12 +2,12 @@ import { animate, style, transition, trigger } from '@angular/animations';
 import { Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { ModalOptions, NzModalRef, NzModalService } from 'ng-zorro-antd/modal';
-import { BehaviorSubject, Subject } from 'rxjs';
+import { BehaviorSubject, forkJoin, Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import {
   CombinedModel,
   DeltaModification,
-  ModelingControllerService,
+  ModelingControllerService, ModelMapping,
   Relation,
   SchemaNode,
   SemanticModelNode
@@ -82,8 +82,10 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
 
   exportIncludeMappings: boolean = true;
 
-  // schema
+  // combined model
   combinedModel: CombinedModel;
+  arrayContexts: string[][];
+  modelMappings: ModelMapping[];
   loading: boolean = true;
 
   // dialogs
@@ -116,7 +118,7 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
     });
 
     // query schema
-    this.getSchema();
+    this.getCombinedModel();
     // subscribe to search
     this.searchControl.valueChanges.pipe(
       distinctUntilChanged(),
@@ -175,24 +177,32 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
     this.manageOntolggiesDialogRef?.close();
   }
 
-  getSchema(): void {
-    this.modelingService.getCombinedModel(this.modelId).subscribe((schema: CombinedModel) => {
-        this.combinedModel = schema;
-        if (this.viewerMode) {
-          this.$filter.next(Filter.SEMANTIC);
+  getCombinedModel(): void {
+    forkJoin({
+      cm: this.modelingService.getCombinedModel(this.modelId),
+      ac: this.modelingService.getArrayContexts(this.modelId),
+      mm: this.modelingService.getModelMappings(this.modelId)
+    })
+      .subscribe(res => {
+          console.log('res', res);
+          this.combinedModel = res.cm;
+          this.arrayContexts = res.ac;
+          this.modelMappings = res.mm;
+          if (this.viewerMode) {
+            this.$filter.next(Filter.SEMANTIC);
+          }
+          this.loading = false;
+        },
+        (error: HttpErrorResponse) => {
+          if (error.status === HttpStatusCode.ServiceUnavailable) {
+            this.notification.error('Service not available', 'The modeling service is currently not available, please try again later');
+          } else if (error.status === HttpStatusCode.NotFound) {
+            this.notification.error('Model not found', 'The requested model could not be found');
+          } else {
+            this.notification.error('Error retrieving model or supplementary data', 'An unexpected error occurred.');
+          }
         }
-        this.loading = false;
-      },
-      (error: HttpErrorResponse) => {
-        if (error.status === HttpStatusCode.ServiceUnavailable) {
-          this.notification.error('Service not available', 'The modeling service is currently not available, please try again later');
-        } else if (error.status === HttpStatusCode.NotFound) {
-          this.notification.error('Model not found', 'The requested model could not be found');
-        } else {
-          this.notification.error('Error retrieving model', 'An unexpected error occurred.');
-        }
-      }
-    );
+      );
   }
 
   // ======= Menu functions ===========
@@ -418,7 +428,7 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
     });
     this.copySemanticModelDialogRef.getContentComponent().copySuccessful.subscribe(() => {
       this.closeSemanticModelCopyDialog();
-      this.getSchema();
+      this.getCombinedModel();
     });
   }
 

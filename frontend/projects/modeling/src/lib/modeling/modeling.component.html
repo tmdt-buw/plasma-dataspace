@@ -121,6 +121,8 @@
   <nz-spin fxFlex class="modeling-container" nzTip="Loading..." [nzSpinning]="loading">
     <div class="modeling-area" *ngIf="combinedModel" #modelingArea>
       <pls-modeling-diagram [$filter]="$filter" [$center]="$center" [$layout]="$layout" [$URIMode]="$URIMode"
+                            [modelMappings]="modelMappings"
+                            [arrayContexts]="arrayContexts"
                             [combinedModel]="combinedModel"
                             (graphLaidOut)="onGraphLaidOut($event)"
                             (semanticModelElementsAdded)="onSemanticElementsAdded($event)"

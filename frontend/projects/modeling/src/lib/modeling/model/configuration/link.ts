@@ -5,7 +5,11 @@ import { groupBy } from 'lodash';
 /**
  * Link type def
  */
-export type Link = 'custom.SyntaxLink' | 'custom.ObjectPropertyLink' | 'custom.DataPropertyLink';
+export type Link =
+  'custom.SyntaxLink'
+  | 'custom.ObjectPropertyLink'
+  | 'custom.DataPropertyLink'
+  | 'custom.arrayContextLink';
 
 /**
  * Abstract class that provides configs for links
@@ -13,17 +17,17 @@ export type Link = 'custom.SyntaxLink' | 'custom.ObjectPropertyLink' | 'custom.D
 export abstract class Links {
 
   // internal link type names
-  static readonly syntaxLinkName: Link = 'custom.SyntaxLink';
-  static readonly objectPropertyLinkName: Link = 'custom.ObjectPropertyLink';
-  static readonly dataPropertyLinkName: Link = 'custom.DataPropertyLink';
+  static readonly syntaxLinkName = 'custom.SyntaxLink';
+  static readonly objectPropertyLinkName = 'custom.ObjectPropertyLink';
+  static readonly dataPropertyLinkName = 'custom.DataPropertyLink';
+  static readonly arrayContextLinkName = 'custom.ArrayContextLink';
 
   // object property semantic link config
   private static objectPropertyLink = shapes.standard.Link.define(
     Links.objectPropertyLinkName, {
       attrs: {
         line: {
-          strokeWidth: 1,
-          stroke: '#333333'
+          strokeWidth: 1
         }
       }
     }
@@ -34,8 +38,17 @@ export abstract class Links {
     Links.dataPropertyLinkName, {
       attrs: {
         line: {
-          strokeWidth: 1,
-          stroke: '#333333'
+          strokeWidth: 1
+        }
+      }
+    }
+  );
+
+  private static arrayContextLink = shapes.standard.Link.define(
+    Links.arrayContextLinkName, {
+      attrs: {
+        line: {
+          strokeWidth: 1
         }
       }
     }
@@ -47,7 +60,10 @@ export abstract class Links {
         line: {
           strokeOpacity: 0.2,
           strokeWidth: 1,
-          strokeDasharray: '10,2'
+          strokeDasharray: '10,2',
+          style: {
+            'pointer-events': 'none'
+          }
         }
       }
     }
@@ -58,11 +74,11 @@ export abstract class Links {
    * @param label text
    * @param opacity of text
    */
-  private static createLabel(label: string, arrayContext: boolean, opacity?: number): dia.Link.Label[] {
+  private static createLabel(label: string, opacity?: number): dia.Link.Label[] {
     return label ? [{
       attrs: {
         text: {
-          text: label + (arrayContext ? '[*]' : ''),
+          text: label,
           opacity: opacity ? opacity : 1
         }
       },
@@ -119,13 +135,37 @@ export abstract class Links {
   /**
    * Calls constructor and return new semantic link
    */
-  static createObjectPropertyLink(id: string, source: string, target: string, label: string, arrayContext: boolean, opacity?: number): dia.Link {
+  static createObjectPropertyLink(id: string, source: string, target: string, label: string, opacity?: number): dia.Link {
     const link = new Links.objectPropertyLink({
       id,
       // @ts-ignore not in jointjs model but works this way
       source: {id: source},
       target: {id: target},
-      labels: Links.createLabel(label, arrayContext, opacity),
+      labels: Links.createLabel(label, opacity),
+      attrs: {
+        line: {
+          opacity: opacity ? opacity : 1
+        }
+      }
+    });
+    // link style
+
+    link.router('normal');
+    link.connector('jumpover');
+
+    return link;
+  }
+
+  /**
+   * Calls constructor and return new semantic datatype link
+   */
+  static createDataPropertyLink(id: string, source: string, target: string, label: string, opacity?: number): dia.Link {
+    const link = new Links.dataPropertyLink({
+      id,
+      // @ts-ignore not in jointjs model but works this way
+      source: {id: source},
+      target: {id: target},
+      labels: Links.createLabel(label, opacity),
       attrs: {
         line: {
           opacity: opacity ? opacity : 1
@@ -141,16 +181,16 @@ export abstract class Links {
   /**
    * Calls constructor and return new semantic datatype link
    */
-  static createDataPropertyLink(id: string, source: string, target: string, label: string, arrayContext: boolean, opacity?: number): dia.Link {
-    const link = new Links.dataPropertyLink({
+  static createArrayContextLink(id: string, source: string, target: string, label: string, opacity?: number): dia.Link {
+    const link = new Links.arrayContextLink({
       id,
       // @ts-ignore not in jointjs model but works this way
       source: {id: source},
       target: {id: target},
-      labels: Links.createLabel(label, arrayContext, opacity),
+      labels: Links.createLabel(label, opacity),
       attrs: {
         line: {
-          opacity: opacity ? opacity : 1
+          opacity: opacity ? opacity : 1,
         }
       }
     });

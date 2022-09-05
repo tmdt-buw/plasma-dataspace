@@ -14,7 +14,6 @@ import { SemanticModel } from './semanticModel';
 import { SemanticModelNode } from './semanticModelNode';
 import { SyntaxModel } from './syntaxModel';
 import { DeltaModification } from './deltaModification';
-import { ModelMapping } from './modelMapping';
 
 
 export interface CombinedModel { 
@@ -26,6 +25,6 @@ export interface CombinedModel {
     finalized?: boolean;
     provisionalElements?: Array<SemanticModelNode>;
     provisionalRelations?: Array<CacheRelationRequest>;
-    readonly modelMappings?: Array<ModelMapping>;
+    arrayContexts?: Array<SemanticModel>;
 }
 

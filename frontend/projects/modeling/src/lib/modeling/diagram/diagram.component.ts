@@ -25,7 +25,7 @@ import {
   DataProperty,
   DeltaModification,
   Instance,
-  Literal,
+  Literal, ModelMapping,
   NamedEntity,
   ObjectProperty,
   PrimitiveNode,
@@ -85,6 +85,8 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
   // data
   initializing = true;
   _combinedModel: CombinedModel;
+  _modelMappings: ModelMapping[];
+  _arrayContexts: string[][];
 
   // graph elements
   @ViewChild('graph') canvas: ElementRef;
@@ -101,12 +103,20 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
     return this._combinedModel;
   }
 
-  // create graph if input schema changes and graph has already been initialized
+  // create graph if input graph changes and graph has already been initialized
   @Input() set combinedModel(combinedModel: CombinedModel) {
     this._combinedModel = combinedModel;
     if (!this.initializing) {
       this.createGraph(this.$URIMode?.getValue());
     }
+  }
+
+  @Input() set arrayContexts(arrayContexts: string[][]) {
+    this._arrayContexts = arrayContexts;
+  }
+
+  @Input() set modelMappings(modelMappings: ModelMapping[]) {
+    this._modelMappings = modelMappings;
   }
 
   // modeling
@@ -359,7 +369,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
             uri: this.relation.uri
           };
           const tmpNode: dia.Element = this.addLiteralNode(literal.uuid, 'Set Value', 'text_fields', literal.x, literal.y);
-          const tmpRel = this.addDataPropertyLink(relation.uuid, relation.from, relation.to, relation.label, relation.arraycontext);
+          const tmpRel = this.addDataPropertyLink(relation.uuid, relation.from, relation.to, relation.label, undefined);
 
           this.literalValueModalRef = this.modal.create({
             nzStyle: {
@@ -437,7 +447,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
           const link = this.combinedModel.semanticModel.edges.find(edge => edge.uuid === id);
           this.contextMenu.open(cellView.el, PlsRelationConceptMenuComponent, this.viewContainerRef, {
             relation: link,
-            arrayContext : true // TODO
+            arrayContext: true // TODO
           });
         }
         if (Nodes.isClass(cellView)) {
@@ -668,9 +678,10 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
     switch (this.$filter.getValue()) {
       case Filter.ALL:
         // filter syntax nodes
-        const mappings = this.combinedModel.modelMappings;
+
+        const mappings = this._modelMappings;
         const mappedSyntaxNodes = this.combinedModel.syntaxModel.nodes
-          .filter(node => this.combinedModel.modelMappings
+          .filter(node => this._modelMappings
             .some(mapping => mapping.schemaNodeUuid === node.uuid)
           );
         const hiddenSyntaxNodesIds = mappedSyntaxNodes.map(node => node.uuid);
@@ -791,30 +802,34 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
    * @param showURI maps labels to URIs where possible
    */
   private createSemanticGraph(semanticModel: SemanticModel, showURI: boolean): void {
-    if (semanticModel.nodes.length > 0) {
-      semanticModel.nodes.forEach(node => {
-        if (node._class === 'Class') {
-          // get icon from syntax node
-          let icon = '';
-          if ((node as Class).syntaxNodeUuid) {
-            icon = Icons.getIcon(this.findSyntaxNodeById((node as Class).syntaxNodeUuid));
-          }
-          this.addClassNode(node.uuid, showURI ? node.uri : node.label, node.x, node.y, 1, (node as Class).instance?.label, icon);
-        } else if (node._class === 'NamedEntity') {
-          this.addNamedEntityNode(node.uuid, showURI ? node.uri : node.label, node.x, node.y);
-        } else if (node._class === 'Literal') {
-          this.addLiteralNode(node.uuid, node.label, 'text_fields', node.x, node.y);
-        }
-      });
-
-      semanticModel.edges.forEach(edge => {
-        if (edge._class === 'DataProperty') {
-          this.addDataPropertyLink(edge.uuid, edge.from, edge.to, showURI ? edge.uri : edge.label, edge.arraycontext);
-        } else {
-          this.addObjectPropertyLink(edge.uuid, edge.from, edge.to, showURI ? edge.uri : edge.label, edge.arraycontext);
-        }
-      });
+    if (semanticModel.nodes.length === 0) {
+      return;
     }
+    semanticModel.nodes.forEach(node => {
+      if (node._class === 'Class') {
+        // get icon from syntax node
+        let icon = '';
+        if ((node as Class).syntaxNodeUuid) {
+          icon = Icons.getIcon(this.findSyntaxNodeById((node as Class).syntaxNodeUuid));
+        }
+        this.addClassNode(node.uuid, showURI ? node.uri : node.label, node.x, node.y, 1, (node as Class).instance?.label, icon);
+      } else if (node._class === 'NamedEntity') {
+        this.addNamedEntityNode(node.uuid, showURI ? node.uri : node.label, node.x, node.y);
+      } else if (node._class === 'Literal') {
+        this.addLiteralNode(node.uuid, node.label, 'text_fields', node.x, node.y);
+      }
+    });
+
+
+    semanticModel.edges.forEach(edge => {
+      if (edge.arraycontext) {
+        this.addArrayContextLink(edge.uuid, edge.from, edge.to, showURI ? edge.uri : edge.label);
+      } else if (edge._class === 'DataProperty') {
+        this.addDataPropertyLink(edge.uuid, edge.from, edge.to, showURI ? edge.uri : edge.label);
+      } else {
+        this.addObjectPropertyLink(edge.uuid, edge.from, edge.to, showURI ? edge.uri : edge.label);
+      }
+    });
   }
 
   /**
@@ -861,8 +876,8 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
   /**
    * Add object property link to graph
    */
-  private addObjectPropertyLink(id: string, source: string, target: string, label: string, arrayContext: boolean, opacity?: number): dia.Link {
-    const link = Links.createObjectPropertyLink(id, source, target, label, arrayContext, opacity);
+  private addObjectPropertyLink(id: string, source: string, target: string, label: string, opacity?: number): dia.Link {
+    const link = Links.createObjectPropertyLink(id, source, target, label, opacity);
     this.graph.addCell(link);
     return link;
   }
@@ -870,8 +885,17 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
   /**
    * Add data property link to graph
    */
-  private addDataPropertyLink(id: string, source: string, target: string, label: string, arrayContext: boolean, opacity?: number): dia.Link {
-    const link = Links.createDataPropertyLink(id, source, target, label, arrayContext, opacity);
+  private addDataPropertyLink(id: string, source: string, target: string, label: string, opacity?: number): dia.Link {
+    const link = Links.createDataPropertyLink(id, source, target, label, opacity);
+    this.graph.addCell(link);
+    return link;
+  }
+
+  /**
+   * Add array context property link to graph
+   */
+  private addArrayContextLink(id: string, source: string, target: string, label: string, opacity?: number): dia.Link {
+    const link = Links.createArrayContextLink(id, source, target, label, opacity);
     this.graph.addCell(link);
     return link;
   }
@@ -993,7 +1017,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
         this.recommendations.push(this.addClassNode(node.uuid, node.uri, node.x, node.y, opacity, instance?.label, icon));
       }
     });
-    recommendation.relations.forEach(edge => this.recommendations.push(this.addObjectPropertyLink(edge.uuid, edge.from, edge.to, edge.label, false, opacity)));
+    recommendation.relations.forEach(edge => this.recommendations.push(this.addObjectPropertyLink(edge.uuid, edge.from, edge.to, edge.label,  opacity)));
   }
 
   /**
