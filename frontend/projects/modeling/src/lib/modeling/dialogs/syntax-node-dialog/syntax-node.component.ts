@@ -17,4 +17,8 @@ export class PlsSyntaxNodeDetailsComponent {
     return this.node?._class === 'PrimitiveNode' ? (this.node as PrimitiveNode).examples : [];
   }
 
+  hasExamples(): boolean {
+    return this.getExamples().length > 0;
+  }
+
 }
