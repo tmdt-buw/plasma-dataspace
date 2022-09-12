@@ -25,14 +25,16 @@ import {
   DataProperty,
   DeltaModification,
   Instance,
-  Literal, ModelMapping,
+  Literal,
+  ModelMapping,
   NamedEntity,
   ObjectProperty,
   PrimitiveNode,
   Relation,
   SchemaNode,
   SemanticModel,
-  SemanticModelNode, SetNode,
+  SemanticModelNode,
+  SetNode,
   SyntaxModel
 } from '../../api/generated/dms';
 import { ContextMenuService } from '../context-menu/context-menu.service';
@@ -247,7 +249,6 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
           const classNode = this.findSemanticNodeById(clazzId as string) as Class;
 
           if ((syntaxNode._class === 'PrimitiveNode' || syntaxNode._class === 'SetNode' || syntaxNode._class === 'ObjectNode') && !classNode.syntaxNodeUuid) {
-            // TODO add a confirm here?
             if (!classNode.instance) {
               classNode.instance = {
                 label: syntaxNode.label,
@@ -444,10 +445,11 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
         }
         const id = cellView.model.attributes.id;
         if (Links.isSemanticLink(cellView)) {
-          const link = this.combinedModel.semanticModel.edges.find(edge => edge.uuid === id);
+          const link: Relation = this.combinedModel.semanticModel.edges.find(edge => edge.uuid === id);
+          const arrayContextAvailable = this.isArrayContextAvailable(link);
           this.contextMenu.open(cellView.el, PlsRelationConceptMenuComponent, this.viewContainerRef, {
             relation: link,
-            arrayContext: true // TODO
+            arrayContextAvailable
           });
         }
         if (Nodes.isClass(cellView)) {
@@ -535,6 +537,11 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
         this.initializing = false;
       }
     });
+  }
+
+  private isArrayContextAvailable(link: Relation): boolean {
+
+    return false;
   }
 
   /**
@@ -1017,7 +1024,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
         this.recommendations.push(this.addClassNode(node.uuid, node.uri, node.x, node.y, opacity, instance?.label, icon));
       }
     });
-    recommendation.relations.forEach(edge => this.recommendations.push(this.addObjectPropertyLink(edge.uuid, edge.from, edge.to, edge.label,  opacity)));
+    recommendation.relations.forEach(edge => this.recommendations.push(this.addObjectPropertyLink(edge.uuid, edge.from, edge.to, edge.label, opacity)));
   }
 
   /**

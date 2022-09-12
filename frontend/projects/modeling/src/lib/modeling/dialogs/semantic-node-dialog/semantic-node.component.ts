@@ -54,7 +54,7 @@ export class PlsSemanticNodeDetailsComponent implements OnInit {
         label: [{
           value: this.getInstance()?.label,
           disabled: !this.editing
-        }, [Validators.required, Validators.maxLength(20)]],
+        }, [Validators.required, Validators.maxLength(40)]],
         description: [{
           value: this.getInstance()?.description,
           disabled: !this.editing
@@ -190,11 +190,8 @@ export class PlsSemanticNodeDetailsComponent implements OnInit {
   }
 
   hasExampleValues(): boolean {
-    if (!this.isMappedNode()) {
-      return false;
-    }
     // console.log('examples');
-    return this.node.examples?.length >= 0;
+    return this.node.examples?.length > 0;
   }
 
   getInstance(): Instance {

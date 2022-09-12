@@ -19,7 +19,8 @@
   <form [formGroup]="form" class="semantic-node-input" nz-form>
     <nz-form-item>
       <nz-form-label nzFor="label">Custom label</nz-form-label>
-      <nz-form-control nzErrorTip="Empty labels or labels longer than 20 characters are not allowed!">
+      <nz-form-control
+        nzErrorTip="Empty labels or labels longer than 40 characters may be rejected by the modeling service!">
         <input [nz-tooltip]="'Custom label for this element'" [nzBorderless]="!editing" disabled
                formControlName="label" id="label" nz-input/>
       </nz-form-control>

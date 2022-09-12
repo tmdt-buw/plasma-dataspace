@@ -31,7 +31,6 @@
   path[joint-selector="line"] {
     stroke: @modeling-datatype-property-color;
   }
-
   .label {
     rect {
       fill-opacity: 0;
@@ -44,7 +43,7 @@
 
 .joint-type-custom-arraycontextlink {
   path[joint-selector="line"] {
-    stroke: #00f7ff;
+    stroke: @modeling-arraycontext-color;
   }
 
   .label {
@@ -52,16 +51,8 @@
       fill-opacity: 0;
     }
     text {
-      fill: #00f7ff;
+      fill: @modeling-arraycontext-color;
     }
-  }
-}
-
-/* Link arrow header */
-marker {
-  path {
-    stroke: @modeling-primary-color;
-    fill: @modeling-primary-color;
   }
 }
 

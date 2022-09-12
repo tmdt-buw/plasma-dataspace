@@ -51,7 +51,7 @@ export abstract class Nodes {
           refY: 15,
           fontSize: 14,
           'font-family': 'Roboto',
-          cursor: 'default',
+          cursor: 'pointer',
           pointerEvents: 'none'
         }
       }
@@ -89,7 +89,7 @@ export abstract class Nodes {
           refY: 15,
           fontSize: 14,
           'font-family': 'Roboto',
-          cursor: 'default',
+          cursor: 'pointer',
           pointerEvents: 'none'
         },
         bodyIcon: {
@@ -100,7 +100,7 @@ export abstract class Nodes {
           refY2: 15,
           fontSize: 24,
           'font-family': 'Material Icons',
-          cursor: 'default',
+          cursor: 'pointer',
           pointerEvents: 'none'
         },
         bodyText: {
@@ -111,7 +111,7 @@ export abstract class Nodes {
           refY2: 15,
           fontSize: 14,
           'font-family': 'Roboto',
-          cursor: 'default',
+          cursor: 'pointer',
           pointerEvents: 'none'
         }
       }
@@ -151,7 +151,7 @@ export abstract class Nodes {
           refY: '50%',
           fontSize: 14,
           'font-family': 'Roboto',
-          cursor: 'default',
+          cursor: 'pointer',
           pointerEvents: 'none'
         }
       }
@@ -218,7 +218,8 @@ export abstract class Nodes {
         body: {
           strokeWidth: 2,
           strokeOpacity: 0.2,
-          strokeDasharray: '10,2'
+          strokeDasharray: '10,2',
+          cursor: 'pointer'
         },
         icon: {
           textVerticalAnchor: 'middle',
@@ -227,7 +228,6 @@ export abstract class Nodes {
           refY: '65%',
           fontSize: 24,
           'font-family': 'Material Icons',
-          cursor: 'default',
           pointerEvents: 'none'
         },
         label: {
@@ -237,7 +237,6 @@ export abstract class Nodes {
           refY: '50%',
           fontSize: 14,
           'font-family': 'Roboto',
-          cursor: 'default',
           pointerEvents: 'none'
         }
       }

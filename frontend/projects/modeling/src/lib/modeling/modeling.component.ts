@@ -122,7 +122,7 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
       distinctUntilChanged(),
       debounceTime(1000)
     ).subscribe((value) => {
-      // TODO
+      // TODO enable search and filtering #34
     });
     this.contextMenuSubscription = this.contextMenu.onClosed.subscribe((event: ContextMenuEvent) => {
       if (event) {

@@ -1,10 +1,17 @@
 <nz-page-header class="content-header">
   <nz-page-header-title>Modelings</nz-page-header-title>
   <nz-page-header-extra>
-    <button [disabled]="error" fxFlex="nogrow" nz-button nzType="primary" [routerLink]="['create']"><i nz-icon nzType="plus"></i>Create new
+    <button *ngIf="dpsAvailable" [routerLink]="['arraycontext-info']" fxFlex="nogrow" nz-button nzType="default"><i
+      nz-icon nzType="info"></i>RDF Conversion Info
+    </button>
+    <button [disabled]="error" fxFlex="nogrow" nz-button nzType="primary" [routerLink]="['create']"><i nz-icon
+                                                                                                       nzType="plus"></i>Create
+      new
       modeling
     </button>
-    <button [disabled]="error" fxFlex="nogrow" nz-button nzType="default" (click)="downloadLocalOntology()"><i nz-icon nzType="download"></i>Download local ontology
+    <button [disabled]="error" fxFlex="nogrow" nz-button nzType="default" (click)="downloadLocalOntology()"><i nz-icon
+                                                                                                               nzType="download"></i>Download
+      local ontology
     </button>
   </nz-page-header-extra>
 </nz-page-header>

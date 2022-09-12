@@ -1,0 +1,18 @@
+<nz-page-header class="content-header" nzBackIcon>
+  <nz-page-header-title>Data Processing in PLASMA</nz-page-header-title>
+</nz-page-header>
+
+<p>
+  To successfully parse an array, an array-context has to be defined.
+  For each array, the parser will iterate over each value (or object) in the array. All semantic nodes that are part of
+  the array-context of this array
+  will then be converted into new RDF instances, filled with values obtained from array sub-elements or standalone
+  classes if not mapped.
+  All elements that are not part of the array context will not be duplicated. Also NamedEntities and unmapped Literals
+  cannot be duplicated
+  Array-contexts for different array nodes must not be connected. There may, however, be multiple contexts for one
+  ArrayNode.
+  An array-context can be defined by adding relations to an array context (via the context menu). A mapped node in an
+  array-context will be duplicated as if it is part of an array context. Relations that are part of an array-context are
+  highlighted.</p>
+

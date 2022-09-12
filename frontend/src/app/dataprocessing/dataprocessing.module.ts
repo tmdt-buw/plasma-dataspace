@@ -10,27 +10,30 @@ import { CommonModule } from '@angular/common';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { Configuration } from '../../../projects/modeling/src/lib/api/generated/dms';
 import { environment } from '../../environments/environment';
+import { ArraycontextInfoComponent } from './arraycontext-info/arraycontext-info.component';
+import { NzPageHeaderModule } from 'ng-zorro-antd/page-header';
 
 @NgModule({
   declarations: [
-    ConversionDialogComponent
+    ConversionDialogComponent,
+    ArraycontextInfoComponent
   ],
-  exports: [
-  ],
-    imports: [
-        ApiModule.forRoot(() => {
-          return new Configuration({
-            basePath: environment.baseUrl,
-          });
-        }),
-        FlexModule,
-        NzListModule,
-        NzTypographyModule,
-        NzUploadModule,
-        NzIconModule,
-        CommonModule,
-        NzButtonModule,
-    ]
+  exports: [],
+  imports: [
+    ApiModule.forRoot(() => {
+      return new Configuration({
+        basePath: environment.baseUrl,
+      });
+    }),
+    FlexModule,
+    NzListModule,
+    NzTypographyModule,
+    NzUploadModule,
+    NzIconModule,
+    CommonModule,
+    NzButtonModule,
+    NzPageHeaderModule,
+  ]
 })
 export class DataprocessingModule {
 }

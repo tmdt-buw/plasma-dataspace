@@ -11,7 +11,7 @@ import { ContextMenuEvent, ContextMenuEventType } from '../../model/events/conte
 export class PlsRelationConceptMenuComponent {
 
   @Input() relation: Relation;
-  @Input() arrayContext: boolean = false;
+  @Input() arrayContextAvailable: boolean = false;
 
   constructor(private contextMenu: ContextMenuService) {
   }
