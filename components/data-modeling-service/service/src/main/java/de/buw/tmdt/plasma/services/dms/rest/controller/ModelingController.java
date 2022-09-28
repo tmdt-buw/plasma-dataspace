@@ -73,7 +73,8 @@ public class ModelingController implements ModelingAPI {
                 modeling.getName(),
                 modeling.getDescription(),
                 modeling.getCreated(),
-                modeling.getDataId());
+                modeling.getDataId(),
+                false);
     }
 
     @Override
@@ -85,7 +86,8 @@ public class ModelingController implements ModelingAPI {
                         modeling.getName(),
                         modeling.getDescription(),
                         modeling.getCreated(),
-                        modeling.getDataId()))
+                        modeling.getDataId(),
+                        false))
                 .sorted(Comparator.comparing(ModelingInfo::getCreated).reversed())
                 .collect(Collectors.toList());
     }

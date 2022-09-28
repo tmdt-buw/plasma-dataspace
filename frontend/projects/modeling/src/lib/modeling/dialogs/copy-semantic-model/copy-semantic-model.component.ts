@@ -42,7 +42,9 @@ export class CopySemanticModelComponent implements OnInit {
   getAvailableModels(): void {
     this.modelingService.listModelings().subscribe(
       modelings => {
-        this.availableModels = modelings.filter(modeling => modeling.id !== this.currentModelId);
+        this.availableModels = modelings
+          .filter(modeling => modeling.id !== this.currentModelId)
+          .filter(modeling => modeling.finalized);
       });
   }
 

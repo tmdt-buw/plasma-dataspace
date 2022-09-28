@@ -153,6 +153,9 @@ public class ModelingHandler {
         CombinedModel sourceCM = getCombinedModel(sourceModelId);
 
         SemanticModel sourceSM = sourceCM.getSemanticModel();
+        if (!sourceCM.isFinalized()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Model " + modelId + " is not finalized.");
+        }
         DeltaModification delta = new DeltaModification("clone-" + sourceModelId);
         // sanitize and clone all elements
         Map<String, String> uuidMapping = new HashMap<>(); // keep track of exchanged uuids to adjust relations later on
