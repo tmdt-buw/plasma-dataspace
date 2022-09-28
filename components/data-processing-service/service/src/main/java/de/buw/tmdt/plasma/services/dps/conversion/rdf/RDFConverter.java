@@ -120,6 +120,10 @@ public class RDFConverter {
         unprocessedNodes = new ArrayList<>(combinedModel.getSemanticModel().getNodes());
         unprocessedEdges = new ArrayList<>(combinedModel.getSemanticModel().getEdges());
 
+        // process primitive arrays
+
+        // process serialized arrays
+
         // identify iteration contexts
         List<SemanticModel> arrayContexts = new ArrayList<>();
         for (SemanticModelNode unprocessedNode : unprocessedNodes) {
