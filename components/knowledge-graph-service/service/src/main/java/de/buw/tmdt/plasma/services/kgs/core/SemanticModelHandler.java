@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.StringWriter;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -29,7 +28,7 @@ public class SemanticModelHandler {
     private final LocalOntologyManagement onto;
     private final OntologyHandler ontologyHandler;
 
-    private final DateTimeFormatter exportTimestampFormatter = DateTimeFormatter.ofPattern("yyMMdd-Hm");
+    private final DateTimeFormatter exportTimestampFormatter = DateTimeFormatter.ofPattern("yyMMdd-HHmm");
 
     @Autowired
     public SemanticModelHandler(
@@ -96,7 +95,7 @@ public class SemanticModelHandler {
         if (retrievedModel.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No model available for id " + id);
         }
-        String timestamp = LocalDate.now().format(exportTimestampFormatter);
+        String timestamp = LocalDateTime.now().format(exportTimestampFormatter);
 
         HttpHeaders headers = generateFilenameHeader(timestamp + "-" + id + ".ttl");
         return new ResponseEntity<>(prepareForExport(retrievedModel, format, includeMappings), headers, HttpStatus.OK);

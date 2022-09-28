@@ -67,7 +67,7 @@ public class CombinedModel implements Serializable {
     private DeltaModification lastModification;
 
     /**
-     * A finalized model should not be changed any more.
+     * A finalized model should not be changed anymore. The DMS might reject any changes to finalized models.
      */
     private boolean finalized;
 
@@ -475,7 +475,7 @@ public class CombinedModel implements Serializable {
     }
 
     /**
-     * identify iteration contexts
+     * Identify iteration contexts in the model.
      */
     public List<SemanticModel> getArrayContexts() {
         List<SemanticModel> arrayContexts = new ArrayList<>();

@@ -37,11 +37,12 @@ The included web-based frontend is written using Angular 13.
 ### Docker Setup
 * Checkout the repository
 * To build the services execute `mvn package` on the parent module in the `components` folder
-* To build the Docker containers execute mvn install jib:dockerBuild -DskipTests on the parent module
+* Alternatively, to also build the Docker containers execute `mvn package jib:dockerBuild -DskipTests` on the parent
+  module
 
 **Note**: Ensure that your docker is running on the local machine and can be reached
 
-* Build the UI by running `npm build:dms` and `npm build` in `frontend` directory
+* Build the UI by running `npm run build:dms` and `npm run build` in `frontend` directory
 * Build the docker container for the UI using the corresponding `Dockerfile` in `frontend`
 
 ### Starting PLASMA
