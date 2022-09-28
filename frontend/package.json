@@ -30,6 +30,7 @@
     "@angular/platform-browser-dynamic": "^13.2.5",
     "@angular/router": "^13.2.5",
     "@dash14/svg-pan-zoom": "^3.6.6",
+    "@fontsource/material-icons": "^4.5.4",
     "@fontsource/roboto": "^4.5.8",
     "dagre": "^0.8.5",
     "graphlib": "^2.1.8",
