@@ -246,13 +246,11 @@ public class Ontologies {
                 .findFirst()
                 .orElseThrow();
         try {
-
-            Path ontologyFilePath = Paths.get(filepath);
+            Path ontologyFilePath = Path.of(getOntologyFolder(), filepath);
             try (OutputStream out = new FileOutputStream(ontologyFilePath.toFile())) {
                 model.write(out, "TURTLE");
                 log.info("Written updated model to " + ontologyFilePath);
             }
-
         } catch (IOException e) {
             log.error("Error while writing updated ontology", e);
             throw new ResponseStatusException(
