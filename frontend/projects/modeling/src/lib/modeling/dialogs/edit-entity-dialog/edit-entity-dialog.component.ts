@@ -1,17 +1,18 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { NzModalRef } from 'ng-zorro-antd/modal';
 import { Class, ModelingControllerService, NamedEntity } from '../../../api/generated/dms';
 
 @Component({
-  selector: 'pls-new-entity-dialog',
-  templateUrl: './new-entity-dialog.component.html',
+  selector: 'pls-edit-entity-dialog',
+  templateUrl: './edit-entity-dialog.component.html',
   styleUrls: ['../common/dialog.styles.scss']
 })
-export class PlsNewEntityDialogComponent {
+export class PlsNewEntityDialogComponent implements OnInit {
 
   @Input() modelId: string;
   @Input() defaultNamespace: string = 'local';
+  @Input() editNode: Class | NamedEntity;
 
   form = new FormGroup({
     label: new FormControl('', [Validators.required]),
@@ -22,10 +23,20 @@ export class PlsNewEntityDialogComponent {
   });
 
   error;
-  isNamedEntity = false;
+  existingURI: string;
 
   constructor(private modalRef: NzModalRef, private modelingService: ModelingControllerService) {
   }
+
+  ngOnInit(): void {
+    if (this.editNode) {
+      this.existingURI = this.editNode.uri;
+      this.form.get('label').setValue(this.editNode.label);
+      this.form.get('description').setValue(this.editNode.description);
+      this.form.get('namedEntity').setValue(this.editNode._class === 'NamedEntity');
+    }
+  }
+
 
   submit(): void {
     this.error = null;
@@ -70,6 +81,9 @@ export class PlsNewEntityDialogComponent {
     let namespace = this.form.get('namespace').value;
     let identifier = this.form.get('identifier').value;
 
+    if (this.existingURI && !identifier) {
+      return this.existingURI;
+    }
     if (!namespace.includes(':')) {
       namespace = namespace + ':';
     }
@@ -93,4 +107,6 @@ export class PlsNewEntityDialogComponent {
 
   onLabelEdited(event: Event): void {
   }
+
+
 }

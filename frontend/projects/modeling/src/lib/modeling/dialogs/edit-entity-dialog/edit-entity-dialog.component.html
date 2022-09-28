@@ -1,5 +1,4 @@
 <form nz-form [formGroup]="form" (submit)="submit()" xmlns="http://www.w3.org/1999/html">
-
   <nz-form-item>
     <nz-form-label [nzSpan]="5" nzRequired nzFor="label">Label</nz-form-label>
     <nz-form-control nzErrorTip="Label is required"
@@ -16,24 +15,33 @@
     </nz-form-control>
   </nz-form-item>
 
+  <span *ngIf="existingURI" nz-typography>{{existingURI}}</span>
+  <span *ngIf="existingURI" nz-typography
+        nzType="warning">Existing URI will be overwritten if below values are input</span>
   <div fxLayout="row">
-  <nz-form-item fxFlex>
-    <nz-form-label>URI</nz-form-label>
-    <nz-form-control nzExtra="Namespace" nz-tooltip="Namespace of the class or named entity. Should be either a prefix like 'rdfs:' or a HTTP URL">
-      <input (change)="onNamespaceEdited($event)" formControlName="namespace" nz-input/>
-    </nz-form-control>
-  </nz-form-item>
+    <nz-form-item fxFlex>
+      <nz-form-label>URI</nz-form-label>
+      <nz-form-control
+        nz-tooltip="Namespace of the class or named entity. Should be either a prefix like 'rdfs:' or a HTTP URL"
+        nzExtra="Namespace">
+        <input (change)="onNamespaceEdited($event)" formControlName="namespace" nz-input/>
+      </nz-form-control>
+    </nz-form-item>
 
-  <nz-form-item fxFlex>
-    <nz-form-control nz-tooltip="Identifier of the class or named entity. Any identifier is valid. Special characters and whitespaces are converted to '_'." nzExtra="Identifier">
-      <input (change)="onIdentifierEdited($event)" formControlName="identifier" nz-input placeholder="{{generateIdentifier()}}"/>
-    </nz-form-control>
-  </nz-form-item>
+    <nz-form-item fxFlex>
+      <nz-form-control
+        nz-tooltip="Identifier of the class or named entity. Any identifier is valid. Special characters and whitespaces are converted to '_'."
+        nzExtra="Identifier">
+        <input (change)="onIdentifierEdited($event)" formControlName="identifier" nz-input
+               placeholder="{{generateIdentifier()}}"/>
+      </nz-form-control>
+    </nz-form-item>
   </div>
 
   <nz-form-item>
     <nz-form-label [nzSpan]="5" nzFor="namedentity">NamedEntity</nz-form-label>
-    <nz-form-control nzExtra="Check if this is a named entity. Named entities are entities that exist only once and cannot be altered. Examples: 'Los Angeles' or 'George Washington'. ">
+    <nz-form-control
+      nzExtra="Check if this is a named entity. Named entities are entities that exist only once and cannot be altered. Examples: 'Los Angeles' or 'George Washington'. ">
       <label nz-checkbox formControlName="namedEntity"></label>
     </nz-form-control>
   </nz-form-item>

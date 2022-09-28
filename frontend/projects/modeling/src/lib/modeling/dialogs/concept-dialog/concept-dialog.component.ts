@@ -4,16 +4,19 @@ import { ModalOptions, NzModalService } from 'ng-zorro-antd/modal';
 import { NzTabChangeEvent } from 'ng-zorro-antd/tabs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import {
-  Class, DataProperty,
+  Class,
+  DataProperty,
   DeltaModification,
-  ModelingControllerService, NamedEntity, ObjectProperty,
+  ModelingControllerService,
+  NamedEntity,
+  ObjectProperty,
   Relation,
   SemanticModelNode
 } from '../../../api/generated/dms';
 import { ModelingService } from '../../modeling.service';
 import { ModalBaseConfig } from '../common/modal.base-config';
-import { PlsNewEntityDialogComponent } from '../new-entity-dialog/new-entity-dialog.component';
-import { PlsNewRelationDialogComponent } from '../new-relation-dialog/new-relation-dialog.component';
+import { PlsNewEntityDialogComponent } from '../edit-entity-dialog/edit-entity-dialog.component';
+import { PlsNewRelationDialogComponent } from '../edit-relation-dialog/edit-relation-dialog.component';
 import { NzNotificationService } from 'ng-zorro-antd/notification';
 
 
