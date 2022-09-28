@@ -7,7 +7,8 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import {
   CombinedModel,
   DeltaModification,
-  ModelingControllerService, ModelMapping,
+  ModelingControllerService,
+  ModelMapping,
   Relation,
   SchemaNode,
   SemanticModelNode
@@ -16,15 +17,12 @@ import { OntologyControllerService, OntologyInfo, SemanticModelControllerService
 import { ContextMenuService } from './context-menu/context-menu.service';
 import { ModalBaseConfig, ModalMouseEnabledConfig } from './dialogs/common/modal.base-config';
 import { PlsConceptDialogComponent } from './dialogs/concept-dialog/concept-dialog.component';
-import {
-  PlsOperationsDialogComponent
-} from './dialogs/operations-dialog/operations-dialog/operations-dialog.component';
+import { PlsOperationsDialogComponent } from './dialogs/operations-dialog/operations-dialog/operations-dialog.component';
 import { Filter } from './model/common/filter';
 import { Nodes } from './model/configuration/node';
 import { ContextMenuEvent, ContextMenuEventType } from './model/events/context-menu-event';
 import { NodeChangedEvent } from './model/events/node-changed-event';
 import { Util } from './model/common/util';
-import { UploadOntologyComponent } from './dialogs/upload-ontology/upload-ontology.component';
 import { CopySemanticModelComponent } from './dialogs/copy-semantic-model/copy-semantic-model.component';
 import { NzNotificationService } from 'ng-zorro-antd/notification';
 import { HttpErrorResponse, HttpStatusCode } from '@angular/common/http';
@@ -62,7 +60,7 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
   @ViewChild('main') main;
   @ViewChild('modelingArea') modelingArea: ElementRef;
 
-  @Output() finished = new EventEmitter();
+  @Output() finalized = new EventEmitter();
   @Output() clickedNode = new EventEmitter();
 
   // ontologies
@@ -184,7 +182,6 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
       mm: this.modelingService.getModelMappings(this.modelId)
     })
       .subscribe(res => {
-          console.log('res', res);
           this.combinedModel = res.cm;
           this.arrayContexts = res.ac;
           this.modelMappings = res.mm;
@@ -307,7 +304,9 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
     this.modal.closeAll();
     this.viewerMode = true;
     this.modelingService.finalizeModeling(this.modelId).subscribe(() => {
-      this.finished.emit();
+      this.notification.success('Model finalized', 'The model has been finalized and provisional classes and relations added to the ontology.');
+      this.finalized.emit();
+      this.hideFinalizeButton = true;
     }, () => {
       this.viewerMode = false;
       this.notification.error('Could not finalize model', 'An error occurred during model finalization. Please contact an admin for more information.');
