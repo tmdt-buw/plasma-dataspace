@@ -130,24 +130,24 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
           const delta: DeltaModification = {
             entities: [event.target]
           };
-          this.modelingService.modifyModel(this.modelId, delta).subscribe((res: CombinedModel) => this.combinedModel = res);
+          this.modelingService.modifyModel(this.modelId, delta).subscribe((res: CombinedModel) => this.getCombinedModel());
         } else if (event.type === ContextMenuEventType.updateRelation) {
           const delta: DeltaModification = {
             relations: [event.target]
           };
-          this.modelingService.modifyModel(this.modelId, delta).subscribe((res: CombinedModel) => this.combinedModel = res);
+          this.modelingService.modifyModel(this.modelId, delta).subscribe((res: CombinedModel) => this.getCombinedModel());
         } else if (event.type === ContextMenuEventType.removeEntity) {
           const delta: DeltaModification = {
             entities: [event.target],
             deletion: true
           };
-          this.modelingService.modifyModel(this.modelId, delta).subscribe((res: CombinedModel) => this.combinedModel = res);
+          this.modelingService.modifyModel(this.modelId, delta).subscribe((res: CombinedModel) => this.getCombinedModel());
         } else if (event.type === ContextMenuEventType.removeRelation) {
           const delta: DeltaModification = {
             relations: [event.target],
             deletion: true
           };
-          this.modelingService.modifyModel(this.modelId, delta).subscribe((res: CombinedModel) => this.combinedModel = res);
+          this.modelingService.modifyModel(this.modelId, delta).subscribe((res: CombinedModel) => this.getCombinedModel());
         } else if (event.type === ContextMenuEventType.performOperation) {
           const operation = event.operation;
           const config: ModalOptions = {
@@ -160,7 +160,7 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
           const dialogRef = this.modal.create(Object.assign(config, ModalBaseConfig));
           dialogRef.afterClose.subscribe(context => {
             if (context) {
-              this.modelingService.modifySyntacticSchema(this.modelId, context).subscribe((res: CombinedModel) => this.combinedModel = res);
+              this.modelingService.modifySyntacticSchema(this.modelId, context).subscribe((res: CombinedModel) => this.getCombinedModel());
             }
           });
         }
@@ -182,8 +182,31 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
       mm: this.modelingService.getModelMappings(this.modelId)
     })
       .subscribe(res => {
-          this.combinedModel = res.cm;
           this.arrayContexts = res.ac;
+          this.modelMappings = res.mm;
+          this.combinedModel = res.cm;
+          if (this.viewerMode) {
+            this.$filter.next(Filter.SEMANTIC);
+          }
+          this.loading = false;
+        },
+        (error: HttpErrorResponse) => {
+          if (error.status === HttpStatusCode.ServiceUnavailable) {
+            this.notification.error('Service not available', 'The modeling service is currently not available, please try again later');
+          } else if (error.status === HttpStatusCode.NotFound) {
+            this.notification.error('Model not found', 'The requested model could not be found');
+          } else {
+            this.notification.error('Error retrieving model or supplementary data', 'An unexpected error occurred.');
+          }
+        }
+      );
+  }
+
+  updateModelMappings(): void {
+    forkJoin({
+      mm: this.modelingService.getModelMappings(this.modelId)
+    })
+      .subscribe(res => {
           this.modelMappings = res.mm;
           if (this.viewerMode) {
             this.$filter.next(Filter.SEMANTIC);
@@ -208,14 +231,14 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
     if (this.isFinalized()) {
       return;
     }
-    this.modelingService.undo(this.modelId).subscribe((res: CombinedModel) => this.combinedModel = res);
+    this.modelingService.undo(this.modelId).subscribe((res: CombinedModel) => this.getCombinedModel());
   }
 
   redo(): void {
     if (this.isFinalized()) {
       return;
     }
-    this.modelingService.redo(this.modelId).subscribe((res: CombinedModel) => this.combinedModel = res);
+    this.modelingService.redo(this.modelId).subscribe((res: CombinedModel) => this.getCombinedModel());
   }
 
   onNodeClicked(event: string): void {
@@ -227,7 +250,7 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
       nodes: event.nodes,
       entities: event.entities
     };
-    this.modelingService.modifyModel(this.modelId, delta).subscribe((res) => this.combinedModel = res);
+    this.modelingService.modifyModel(this.modelId, delta).subscribe((res) => this.getCombinedModel());
   }
 
   onSemanticElementsAdded(event: { entities?: Array<SemanticModelNode>, relations?: Array<Relation> }): void {
@@ -235,7 +258,7 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
       relations: event.relations,
       entities: event.entities
     };
-    this.modelingService.modifyModel(this.modelId, delta).subscribe((res) => this.combinedModel = res);
+    this.modelingService.modifyModel(this.modelId, delta).subscribe((res) => this.getCombinedModel());
   }
 
   onSemanticElementsRemoved(event: { entities?: Array<SemanticModelNode>, relations?: Array<Relation> }): void {
@@ -244,7 +267,9 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
       entities: event.entities,
       deletion: true
     };
-    this.modelingService.modifyModel(this.modelId, delta).subscribe((res) => this.combinedModel = res);
+    this.modelingService.modifyModel(this.modelId, delta).subscribe((res) => {
+     this.getCombinedModel();
+    });
   }
 
   onGraphLaidOut(event: CombinedModel): void {
