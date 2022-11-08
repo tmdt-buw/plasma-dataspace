@@ -89,6 +89,7 @@ export class CreateModelingComponent {
       .subscribe(response => {
         this.notification.success('File uploaded', 'File has been uploaded');
         this.usingFiles = true;
+        item.onSuccess();
         this.schemaAnalysisController.initAnalysis(this.dataId).subscribe(() => {
           response.samples.forEach(sample => {
             if (this.sampleCounter < 10) {
@@ -97,7 +98,13 @@ export class CreateModelingComponent {
               this.sampleCounter++;
             }
           });
-        }, error => this.notification.error('Error during schema analysis', error.status + ':' + error));
-      }, error => this.notification.error('Error during file upload', error.status + ':' + error));
+        }, error => {
+          this.notification.error('Error during schema analysis', error.status + ': ' + error.error.message);
+          item.onError();
+        });
+      }, error => {
+        this.notification.error('Error during file upload', error.status + ': ' + error.error.message);
+        item.onError();
+      });
   }
 }
