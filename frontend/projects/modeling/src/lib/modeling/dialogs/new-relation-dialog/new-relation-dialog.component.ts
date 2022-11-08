@@ -2,6 +2,7 @@ import { Component, Input } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { NzModalRef } from 'ng-zorro-antd/modal';
 import { ModelingControllerService, ObjectProperty } from '../../../api/generated/dms';
+import { Relation } from '../../../api/generated/kgs';
 
 @Component({
   selector: 'pls-new-relation-dialog',
@@ -29,10 +30,11 @@ export class PlsNewRelationDialogComponent {
 
   submit(): void {
     this.error = null;
-    const rel: ObjectProperty = {
+    const rel: Relation = {
       _class: this.form.get('type').value,
       uri: this.constructURI(),
-      label: this.form.get('label').value
+      label: this.form.get('label').value,
+      description: this.form.get('description').value
     };
     console.log(rel);
     this.modelingService.cacheRelation(this.modelId, rel).subscribe(() => this.modalRef.close(true), error => this.error = error.error.message);
