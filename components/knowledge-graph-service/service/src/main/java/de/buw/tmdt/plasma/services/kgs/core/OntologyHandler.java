@@ -48,18 +48,13 @@ public class OntologyHandler {
                                                @Nullable String infix,
                                                @Nullable String uri
     ) {
-        List<OntModel> localOntologyList = new ArrayList<>();
-        if (ontologyLabels.contains(localOntologyLabel)) {
-            localOntologyList = ontologies.getFilteredOntologyModels(Collections.singletonList(localOntologyLabel));
-        }
-
         List<OntModel> filteredOntologyModels = ontologies.getFilteredOntologyModels(ontologyLabels);
         List<SemanticModelNode> nodes = new ArrayList<>();
         if (uri != null && !uri.isBlank()) {
             findClasses(filteredOntologyModels, clazz -> uri.equals(clazz.getURI())).stream()
                     .map(CMToRDFMapper::convertOntologyClassToClass)
                     .forEach(nodes::add);
-            findNamedEntities(localOntologyList, ne -> uri.equals(ne.getURI())).stream()
+            findNamedEntities(filteredOntologyModels, ne -> uri.equals(ne.getURI())).stream()
                     .map(CMToRDFMapper::convertOntologyResourceToSemanticModelNode)
                     .filter(Objects::nonNull)
                     .forEach(nodes::add);
@@ -68,7 +63,7 @@ public class OntologyHandler {
                     clazz -> StringUtils.startsWithIgnoreCase(clazz.getLabel(null), prefix)).stream()
                     .map(CMToRDFMapper::convertOntologyClassToClass)
                     .forEach(nodes::add);
-            findNamedEntities(localOntologyList, ne -> StringUtils.startsWithIgnoreCase(ne.getProperty(RDFS.label) != null ? ne.getProperty(RDFS.label).getString() : "", prefix)).stream()
+            findNamedEntities(filteredOntologyModels, ne -> StringUtils.startsWithIgnoreCase(ne.getProperty(RDFS.label) != null ? ne.getProperty(RDFS.label).getString() : "", prefix)).stream()
                     .map(CMToRDFMapper::convertOntologyResourceToSemanticModelNode)
                     .forEach(nodes::add);
         } else if (infix != null && !infix.isBlank()) {
@@ -77,7 +72,7 @@ public class OntologyHandler {
                             StringUtils.containsIgnoreCase(clazz.getURI(), infix)).stream()
                     .map(CMToRDFMapper::convertOntologyClassToClass)
                     .forEach(nodes::add);
-            findNamedEntities(localOntologyList, ne -> StringUtils.containsIgnoreCase(ne.getProperty(RDFS.label) != null ? ne.getProperty(RDFS.label).getString() : "", infix) ||
+            findNamedEntities(filteredOntologyModels, ne -> StringUtils.containsIgnoreCase(ne.getProperty(RDFS.label) != null ? ne.getProperty(RDFS.label).getString() : "", infix) ||
                     StringUtils.containsIgnoreCase(ne.getURI(), infix)).stream()
                     .map(CMToRDFMapper::convertOntologyResourceToSemanticModelNode)
                     .filter(Objects::nonNull)
@@ -86,7 +81,7 @@ public class OntologyHandler {
             findClasses(filteredOntologyModels, clazz -> true).stream()
                     .map(CMToRDFMapper::convertOntologyClassToClass)
                     .forEach(nodes::add);
-            findNamedEntities(localOntologyList, ne -> true).stream()
+            findNamedEntities(filteredOntologyModels, ne -> true).stream()
                     .map(CMToRDFMapper::convertOntologyResourceToSemanticModelNode)
                     .filter(Objects::nonNull)
                     .forEach(nodes::add);
