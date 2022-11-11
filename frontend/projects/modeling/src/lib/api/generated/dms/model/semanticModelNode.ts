@@ -12,14 +12,14 @@
 
 
 export interface SemanticModelNode { 
-    template?: boolean;
     mapped?: boolean;
+    template?: boolean;
     uuid?: string;
     label?: string;
     uri?: string;
     provisional?: boolean;
-    y?: number;
     x?: number;
+    y?: number;
     _class: string;
 }
 

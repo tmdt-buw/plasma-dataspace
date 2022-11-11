@@ -238,6 +238,20 @@ public class ModelingController implements ModelingAPI {
 
     @NotNull
     @Override
+    @Operation(description = "Clone an existing modeling.")
+    public ModelingInfo cloneModeling(@NotNull String modelId) {
+        Modeling modeling = modelingHandler.cloneModeling(modelId);
+        return new ModelingInfo(
+                modeling.getId(),
+                modeling.getName(),
+                modeling.getDescription(),
+                modeling.getCreated(),
+                modeling.getDataId(),
+                false);
+    }
+
+    @NotNull
+    @Override
     @Operation(description = "Check if a model may be finalized. This can be disabled in the DMS config.")
     public Boolean finalizeModelingAvailable() {
         return finalizeModelsEnabled;

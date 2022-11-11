@@ -74,8 +74,7 @@ export class ModelingsListComponent implements OnInit {
     this.isLoading = true;
     this.error = null;
     this.modelingController.deleteModel(modeling.id).subscribe(() => {
-        const index = this.modelings.indexOf(modeling);
-        this.modelings.splice(index, 1);
+        this.modelings = this.modelings.filter(d => d.id !== modeling.id);
         this.isLoading = false;
       }, error => {
         this.error = error;
@@ -112,5 +111,16 @@ export class ModelingsListComponent implements OnInit {
       const filename = res.headers.get('filename');
       Util.download(filename ? filename : 'local_ontology.ttl', res.body);
     }, err => this.notification.error('Download failed', 'Cannot download the local ontology: ' + err.message));
+  }
+
+  cloneModeling(modelingId: string): void {
+    console.log(this.modelings);
+    this.modelingController.cloneModeling(modelingId).subscribe(mi => {
+      this.modelings = [mi, ...this.modelings];
+      console.log(this.modelings);
+      this.notification.success('Cloning finished', 'New modeling has been added to the list');
+      },
+      err => this.notification.error('Cloning failed', 'Cannot clone this model: ' + err.message));
+
   }
 }

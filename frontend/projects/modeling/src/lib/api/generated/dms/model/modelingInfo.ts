@@ -11,12 +11,12 @@
  */
 
 
-export interface ModelingInfo {
-  id?: string;
-  name?: string;
-  description?: string;
-  created?: string;
-  dataId?: string;
-  finalized?: boolean;
+export interface ModelingInfo { 
+    id?: string;
+    name?: string;
+    description?: string;
+    created?: string;
+    dataId?: string;
+    finalized?: boolean;
 }
 

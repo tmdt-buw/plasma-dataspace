@@ -11,7 +11,7 @@
 
 <div fxFill fxLayout="column" class="content">
   <div>
-    <nz-table [nzData]="modelings" [nzLoading]="isLoading" nzNoResult="No active model process found."
+    <nz-table #modelingsTable [nzData]="modelings" [nzLoading]="isLoading" nzNoResult="No active modeling process found."
               [nzFrontPagination]="false" nzTableLayout="fixed">
       <thead>
       <tr>
@@ -22,7 +22,7 @@
       </tr>
       </thead>
       <tbody>
-      <tr *ngFor="let model of modelings">
+      <tr *ngFor="let model of modelingsTable.data">
         <td nzEllipsis> {{model.name}}</td>
         <td nzEllipsis> {{model.description}}</td>
         <td> {{model.created | date:'medium' }}</td>
@@ -30,6 +30,7 @@
           <div fxLayout="row" fxLayoutGap="4px">
             <button nz-button nzShape="circle" (click)="showDescriptionModal(model.name, model.description)" nz-tooltip="Display detail information"><i nz-icon nzType="info"></i></button>
             <button nz-button nzShape="circle" [routerLink]="['..',modelsRoute,model.id]" nz-tooltip="Edit the semantic model"><i nz-icon nzType="appstore-add"></i></button>
+            <button nz-button nzShape="circle" (click)="cloneModeling(model.id)" nz-tooltip="Clone this modeling"><i nz-icon nzType="copy"></i></button>
             <button *ngIf="dpsAvailable" nz-button nzShape="circle" (click)="openConversionModal(model)" [nz-tooltip]="'Convert data using defined model'" [disabled]="!dpsAvailable">
                             <i nz-icon nzType="file-text"></i>
             </button>
@@ -44,7 +45,6 @@
         </td>
       </tr>
       </tbody>
-
     </nz-table>
   </div>
 </div>

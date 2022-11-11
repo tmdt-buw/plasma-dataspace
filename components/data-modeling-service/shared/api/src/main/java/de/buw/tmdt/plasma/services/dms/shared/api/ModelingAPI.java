@@ -118,6 +118,10 @@ public interface ModelingAPI {
     CombinedModel finalizeModeling(@NotNull @PathVariable("modelId") String modelId);
 
     @NotNull
+    @PostMapping(value = "/{modelId}/clone", produces = MediaType.APPLICATION_JSON_VALUE)
+    ModelingInfo cloneModeling(@NotNull @PathVariable("modelId") String modelId);
+
+    @NotNull
     @GetMapping(value = "/finalizeAvailable", produces = MediaType.APPLICATION_JSON_VALUE)
     Boolean finalizeModelingAvailable();
 

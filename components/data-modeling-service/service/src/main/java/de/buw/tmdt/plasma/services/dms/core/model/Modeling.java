@@ -18,7 +18,7 @@ import java.util.UUID;
 @DynamicUpdate
 @Entity
 @Table(name = "modelings")
-public class Modeling {
+public class  Modeling {
 
     @Id
     @Column(nullable = false, unique = true, updatable = false)

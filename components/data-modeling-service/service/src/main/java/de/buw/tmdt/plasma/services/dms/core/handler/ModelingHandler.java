@@ -646,7 +646,7 @@ public class ModelingHandler {
         Modeling modeling = modelingRepository.findById(modelId)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND,
-                        "Data Source does not exists"
+                        "Modeling does not exist"
                 ));
 
         CombinedModel combinedModel = getCombinedModel(modeling, false);
@@ -671,6 +671,51 @@ public class ModelingHandler {
         modeling.pushCombinedModel(combinedModel);
         Modeling finalDataSource = modelingRepository.save(modeling);
         return finalDataSource.getCurrentModel();
+    }
+
+    /**
+     * Clones an existing modeling at its current state.
+     * New modeling will have the old name with "(Clone)" appended.
+     * All history is deleted for that model and all IDs reset.
+     * If the model was finalized, the clone can be edited again.
+     *
+     * @param modelId The id of the modeling to clone
+     * @return A cloned instance of the given modeling with all ids reset and finalized set to false.
+     */
+    @Transactional
+    public Modeling cloneModeling(@NotNull String modelId) {
+        //Load the modeling from the repository.
+        Modeling modeling = modelingRepository.findById(modelId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Modeling does not exist"
+                ));
+
+        CombinedModel combinedModel = getCombinedModel(modeling, false);
+
+        Modeling newModeling = new Modeling(UUID.randomUUID().toString(),
+                modeling.getName() + " (Clone)",
+                modeling.getDescription(),
+                ZonedDateTime.now(),
+                UUID.randomUUID().toString()      );
+
+
+        CombinedModel copy = combinedModel.copy(); // create a deep copy to decouple from Java objects
+        /* Now replace all ids to not cause any unintentional side effects
+        (although this should only happen when we mix elements from two models (who would do this?....)
+        Current clone version only resets CM and SM ids, may be subject to change!
+        */
+
+        CombinedModel clone = new CombinedModel(UUID.randomUUID().toString(),
+                copy.getSyntaxModel(),
+                copy.getSemanticModel()); // generate a new CM id
+        clone.getSemanticModel().setId(null); // for now, we only reset the semantic model id
+
+
+        newModeling.pushCombinedModel(clone);
+
+        newModeling = modelingRepository.save(newModeling);
+        return newModeling;
     }
 
     /**
