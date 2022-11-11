@@ -166,13 +166,13 @@ services:
       - plasma.ars.modeling.url=
       - plasma.ars.refinement.url=
 
-  ui:
+  frontend:
     build: ./frontend
     image: "plasma/ui:${PLASMA_VERSION}"
     hostname: plasma-ui
     restart: unless-stopped
     ports:
-     - 80:80
+      - 80:80
 
 ########################### Auxiliary Services ######################################
 
