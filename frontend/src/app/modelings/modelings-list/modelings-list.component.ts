@@ -1,16 +1,20 @@
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { Router } from '@angular/router';
-import { ModelingControllerService, ModelingInfo} from '@tmdt/dms';
+import { ModelingControllerService, ModelingInfo } from '@tmdt/dms';
 import { DatePipe } from '@angular/common';
-import { ModalOptions, NzModalService } from 'ng-zorro-antd/modal';
+import { ModalOptions, NzModalRef, NzModalService } from 'ng-zorro-antd/modal';
 import { appRoutesNames } from '../../app.routes.names';
 import { NzNotificationService } from 'ng-zorro-antd/notification';
 import { HttpStatusCode } from '@angular/common/http';
 import { DataProcessingControllerService } from '../../dataprocessing/api/generated';
-import { ModalBaseConfig } from '../../../../projects/modeling/src/lib/modeling/dialogs/common/modal.base-config';
+import {
+  ModalBaseConfig,
+  ModalMouseEnabledConfig
+} from '../../../../projects/modeling/src/lib/modeling/dialogs/common/modal.base-config';
 import { ConversionDialogComponent } from '../../dataprocessing/conversion-dialog/conversion-dialog.component';
 import { OntologyControllerService } from '../../../../projects/modeling/src/lib/api/generated/kgs';
 import { Util } from 'projects/modeling/src/lib/modeling/model/common/util';
+import { EditModelingComponent } from '../edit-modeling/edit-modeling.component';
 
 @Component({
   selector: 'app-modelings-list',
@@ -28,6 +32,7 @@ export class ModelingsListComponent implements OnInit {
   // output to emit created event
   @Output() modelingSelected = new EventEmitter<ModelingInfo>();
   dpsAvailable: boolean;
+  private editModelingModalRef: NzModalRef<any, any>;
 
   constructor(private modelingController: ModelingControllerService, private router: Router, private date: DatePipe,
               private modal: NzModalService, private notification: NzNotificationService, private processingService: DataProcessingControllerService, private ontologyService: OntologyControllerService) {
@@ -83,15 +88,37 @@ export class ModelingsListComponent implements OnInit {
     );
   }
 
-  showDescriptionModal(title: string, description: string): void {
-    this.modal.create({
-      nzTitle: title,
-      nzContent: description,
-      nzWidth: '70%',
-      nzClosable: false,
-      nzCancelText: null,
-      nzOkText: 'Close'
+  showUpdateModelingModal(info: ModelingInfo): void {
+    // const rect: DOMRect = this.modelingArea.nativeElement.getBoundingClientRect();
+    const config: ModalOptions = {
+      nzStyle: {position: 'absolute', top: `20%`, left: `10%`, width: '80%', bottom: '20%'},
+      nzClassName: 'pls-edit-modeling',
+      nzTitle: 'Edit modeling',
+      nzContent: EditModelingComponent,
+      nzComponentParams: {
+        modeling: info
+      }
+    };
+    this.editModelingModalRef = this.modal.create(Object.assign(config, ModalMouseEnabledConfig));
+    this.editModelingModalRef.afterClose.subscribe(result => {
+      if (result) {
+        this.modelingController.updateModeling(info.id, result.name, result.description).subscribe(update => {
+            info.name = update.name;
+            info.description = update.description;
+            this.notification.success('Modeling updated', 'Modeling information updated');
+          },
+          err => this.notification.error('Modeling update failed', 'Could not update modeling: ' + err.message));
+      }
+      this.editModelingModalRef = undefined;
     });
+    // this.modal.create({
+    //   nzTitle: title,
+    //   nzContent: description,
+    //   nzWidth: '70%',
+    //   nzClosable: false,
+    //   nzCancelText: null,
+    //   nzOkText: 'Close'
+    // });
   }
 
   openConversionModal(model: ModelingInfo): void {
@@ -116,9 +143,9 @@ export class ModelingsListComponent implements OnInit {
   cloneModeling(modelingId: string): void {
     console.log(this.modelings);
     this.modelingController.cloneModeling(modelingId).subscribe(mi => {
-      this.modelings = [mi, ...this.modelings];
-      console.log(this.modelings);
-      this.notification.success('Cloning finished', 'New modeling has been added to the list');
+        this.modelings = [mi, ...this.modelings];
+        console.log(this.modelings);
+        this.notification.success('Cloning finished', 'New modeling has been added to the list');
       },
       err => this.notification.error('Cloning failed', 'Cannot clone this model: ' + err.message));
 

@@ -93,6 +93,19 @@ public class ModelingController implements ModelingAPI {
     }
 
     @Override
+    @Operation(description = "Update secondary information of a modeling.")
+    public ModelingInfo updateModeling(@NotNull String modelId, @Nullable String name, @Nullable String description, @Nullable String dataId) {
+        Modeling updated = modelingHandler.updateModeling(modelId, name, description, dataId);
+        return new ModelingInfo(
+                updated.getId(),
+                updated.getName(),
+                updated.getDescription(),
+                updated.getCreated(),
+                updated.getDataId(),
+                updated.getCurrentModel().isFinalized());
+    }
+
+    @Override
     public @NotNull CombinedModel performSemanticLabeling(@NotNull String modelId) {
         return modelingHandler.performSemanticLabeling(modelId);
     }

@@ -34,6 +34,12 @@ public interface ModelingAPI {
     @GetMapping(value = "/", produces = MediaType.APPLICATION_JSON_VALUE)
     List<ModelingInfo> listModelings();
 
+    @PatchMapping(value = "/{modelId}/info", produces = MediaType.APPLICATION_JSON_VALUE)
+    ModelingInfo updateModeling(@NotNull @PathVariable("modelId") String modelId,
+                                @RequestParam(required = false) String name,
+                                @RequestParam(required = false) String description,
+                                @RequestParam(required = false) String dataId);
+
     @NotNull
     @GetMapping(value = "/{modelId}/import", produces = MediaType.APPLICATION_JSON_VALUE)
     CombinedModel copySemanticModelFromOtherModel(@NotNull @PathVariable("modelId") String modelId, @RequestParam(value = "sourceModelId") @NotNull String sourceModelId);

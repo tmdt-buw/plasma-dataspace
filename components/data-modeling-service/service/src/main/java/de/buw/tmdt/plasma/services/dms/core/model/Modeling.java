@@ -166,4 +166,12 @@ public class  Modeling {
     public ZonedDateTime getCreated() {
         return created;
     }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
 }

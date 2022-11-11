@@ -90,8 +90,19 @@ public class ModelingHandler {
         // save initial version of submitted model
         modeling.pushCombinedModel(combinedModel);
         modeling = persistModeling(modeling);
+        return modeling;
+    }
 
-
+    public Modeling updateModeling(@NotNull String modelId, @Nullable String name, @Nullable String description, @Nullable String dataId) {
+        Modeling modeling = findModelingOrThrow(modelId);
+        if (name != null && !name.isBlank()) {
+            modeling.setName(name);
+        }
+        if (description != null && !description.isBlank()) {
+            modeling.setDescription(description);
+        }
+        // dataId update is prohibited for now
+        modeling = modelingRepository.save(modeling);
         return modeling;
     }
 
@@ -828,5 +839,6 @@ public class ModelingHandler {
         modeling.getSelectedOntologies().addAll(selectedOntologies);
         persistModeling(modeling);
     }
+
 
 }
