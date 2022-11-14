@@ -747,21 +747,6 @@ public class ModelingHandler {
         combinedModel = combinedModel.copy();
         SemanticModel semanticModel = combinedModel.getSemanticModel();
 
-        //Ensure that all instances have a unique name
-        // TODO remove once not necessary any more (currently is for export in platform)
-        Map<String, SemanticModelNode> duplicateCheck = new HashMap<>();
-        for (SemanticModelNode node : semanticModel.getNodes()) {
-            if (node instanceof Class) {
-                Instance instance = ((Class) node).getInstance();
-                if (instance != null) {
-                    if (duplicateCheck.containsKey(instance.getLabel())) {
-                        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Instance labels must be unique");
-                    }
-                    duplicateCheck.put(node.getLabel(), node);
-                }
-            }
-        }
-
         //send request
         final SemanticModel response;
         try {
