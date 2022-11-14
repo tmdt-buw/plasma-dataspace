@@ -470,49 +470,17 @@ public class RDFConverter {
         return convertClassNodeToRDF(clazz, datum, "");
     }
 
-    @NotNull
-    private Resource convertClassNodeToRDF(Class clazz, JsonNode datum, String relativePath) throws ConversionException {
-        Instance i = clazz.getInstance();
-        Resource resource;
-        String baseURI = smURI + semanticModelId + "-" + getCounter();
-
-        if (i != null) {
-            String label = !PREDEFINED_LABELS.contains(i.getLabel()) ? i.getLabel() : "";
-            resource =
-                    m.createResource(baseURI + "-" + convertToInstanceId(label)); // will reuse if already existent
-            if (!PREDEFINED_LABELS.contains(i.getLabel())) {
-                resource.addProperty(PLCM.label, m.createLiteral(i.getLabel()));
-            }
-            if (i.getDescription() != null && !i.getDescription().isBlank()) {
-                resource.addProperty(PLCM.description, m.createLiteral(i.getDescription()));
-            }
-        } else {
-            resource = m.createResource(baseURI);
-        }
-        resource.addProperty(RDF.type, m.createResource(m.expandPrefix(clazz.getURI())));
-        if (clazz.isMapped()) {
-            SchemaNode schemaNode = combinedModel.getSyntaxModel().getNode(clazz.getMappedSyntaxNodeUuid());
-            if (schemaNode instanceof ObjectNode) {
-                // ignore the mapping, this is just for clarification
-                return resource;
-            }
-            String jsonPointerPath = schemaNode.getPathAsJSONPointer();
-            jsonPointerPath = jsonPointerPath.replaceFirst(relativePath, "");
-            JsonNode valueNode = datum.at(JsonPointer.compile(jsonPointerPath));
-            if (!valueNode.isValueNode()) {
-                throw new ConversionException("Node " + JsonPointer.compile(schemaNode.getPathAsJSONPointer()) + " is not a value node!");
-            }
-            org.apache.jena.rdf.model.Literal valueLiteral;
-            if (valueNode.isMissingNode()) {
-                // throw new ConversionException("Could not find value for syntaxId " + syntaxNodeUuid + " on model " + combinedModel.getId());
-                valueLiteral = m.createLiteral(MISSING_DATA_LITERAL);
-            } else {
-                String value = valueNode.asText();
-                valueLiteral = m.createLiteral(value);
-            }
-            m.add(resource, hasValueProperty, valueLiteral);
-        }
-        return resource;
+    public static String convertToInstanceId(String label) {
+        String formatted = label.trim().toLowerCase().replace(" ", "_");
+        formatted = HtmlUtils.htmlEscape(formatted);
+        formatted = formatted.replaceAll("##", "_");
+        formatted = formatted.replaceAll("#", "_");
+        formatted = formatted.replaceAll("\\[", "_");
+        formatted = formatted.replaceAll("\\]", "_");
+        formatted = formatted.replaceAll("\\)", "_");
+        formatted = formatted.replaceAll("\\(", "_");
+        formatted = formatted.replaceAll("__", "_");
+        return formatted;
     }
 
     private RDFNode convertLiteralNodeToRDF(Literal l) throws ConversionException {
@@ -574,14 +542,48 @@ public class RDFConverter {
         return m.createList(nodes.iterator());
     }
 
-    public static String convertToInstanceId(String label) {
-        String formatted = label.trim().toLowerCase().replace(" ", "_");
-        formatted = HtmlUtils.htmlEscape(formatted);
-        formatted = formatted.replaceAll("\\[", "_");
-        formatted = formatted.replaceAll("\\]", "_");
-        formatted = formatted.replaceAll("\\)", "_");
-        formatted = formatted.replaceAll("\\(", "_");
-        return formatted;
+    @NotNull
+    private Resource convertClassNodeToRDF(Class clazz, JsonNode datum, String relativePath) throws ConversionException {
+        Instance i = clazz.getInstance();
+        Resource resource;
+        String baseURI = smURI + semanticModelId + "-" + getCounter();
+
+        if (i != null) {
+            resource =
+                    m.createResource(baseURI);
+            if (!PREDEFINED_LABELS.contains(i.getLabel())) {
+                resource.addProperty(PLCM.label, m.createLiteral(i.getLabel()));
+            }
+            if (i.getDescription() != null && !i.getDescription().isBlank()) {
+                resource.addProperty(PLCM.description, m.createLiteral(i.getDescription()));
+            }
+        } else {
+            resource = m.createResource(baseURI);
+        }
+        resource.addProperty(RDF.type, m.createResource(m.expandPrefix(clazz.getURI())));
+        if (clazz.isMapped()) {
+            SchemaNode schemaNode = combinedModel.getSyntaxModel().getNode(clazz.getMappedSyntaxNodeUuid());
+            if (schemaNode instanceof ObjectNode) {
+                // ignore the mapping, this is just for clarification
+                return resource;
+            }
+            String jsonPointerPath = schemaNode.getPathAsJSONPointer();
+            jsonPointerPath = jsonPointerPath.replaceFirst(relativePath, "");
+            JsonNode valueNode = datum.at(JsonPointer.compile(jsonPointerPath));
+            if (!valueNode.isValueNode()) {
+                throw new ConversionException("Node " + JsonPointer.compile(schemaNode.getPathAsJSONPointer()) + " is not a value node!");
+            }
+            org.apache.jena.rdf.model.Literal valueLiteral;
+            if (valueNode.isMissingNode()) {
+                // throw new ConversionException("Could not find value for syntaxId " + syntaxNodeUuid + " on model " + combinedModel.getId());
+                valueLiteral = m.createLiteral(MISSING_DATA_LITERAL);
+            } else {
+                String value = valueNode.asText();
+                valueLiteral = m.createLiteral(value);
+            }
+            m.add(resource, hasValueProperty, valueLiteral);
+        }
+        return resource;
     }
 
     /**

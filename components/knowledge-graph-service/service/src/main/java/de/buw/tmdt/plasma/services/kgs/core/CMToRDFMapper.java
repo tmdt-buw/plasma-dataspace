@@ -53,8 +53,14 @@ public class CMToRDFMapper {
                 Instance i = clazz.getInstance();
                 Resource resource;
                 if (i != null) {
+                    String originInstanceURI = smPrefix + semanticModelId + "-" + convertToInstanceId(i.getLabel());
+                    String instanceURI = originInstanceURI;
+                    int counter = 1;
+                    while (m.getResource(instanceURI) != null) {
+                        instanceURI = originInstanceURI + "_" + counter++;
+                    }
                     resource =
-                            m.createResource(smPrefix + semanticModelId + "-" + convertToInstanceId(i.getLabel())); // will reuse if already existent
+                            m.createResource(instanceURI); // will reuse if already existent
                     resource.addProperty(PLCM.label, m.createLiteral(i.getLabel()));
                     if (i.getDescription() != null && !i.getDescription().isBlank()) {
                         resource.addProperty(PLCM.description, m.createLiteral(i.getDescription()));
@@ -303,13 +309,23 @@ public class CMToRDFMapper {
         return r.hasProperty(property) ? r.getProperty(property).getDouble() : null;
     }
 
+    /**
+     * Convert a label to an instance id usable in a URI.
+     * Jena does not offer proper support for IRIs yet, thus many special symbols are converted to '_' characters.
+     *
+     * @param label The input label
+     * @return A cleansed label
+     */
     public static String convertToInstanceId(String label) {
         String formatted = label.trim().toLowerCase().replace(" ", "_");
         formatted = HtmlUtils.htmlEscape(formatted);
+        formatted = formatted.replaceAll("##", "_");
+        formatted = formatted.replaceAll("#", "_");
         formatted = formatted.replaceAll("\\[", "_");
         formatted = formatted.replaceAll("\\]", "_");
         formatted = formatted.replaceAll("\\)", "_");
         formatted = formatted.replaceAll("\\(", "_");
+        formatted = formatted.replaceAll("__", "_");
         return formatted;
     }
 

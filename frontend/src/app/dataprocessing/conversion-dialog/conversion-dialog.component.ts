@@ -44,15 +44,20 @@ export class ConversionDialogComponent implements OnInit {
   triggerConversion(): void {
     this.modelingService.getCombinedModel(this.model.id).subscribe(
       (cm: CombinedModel) => {
-        console.log(cm);
         this.processingService.convertFile(this.model.dataId, cm, this.selectedFile).subscribe(rdf => {
-            console.log(rdf);
             const filename = this.selectedFile.replace('.json', '.ttl');
             Util.download(filename, rdf);
           },
-          error => this.notification.error('Error during export', 'TODO'));
+          error => {
+            if (error.message.includes('service unavailable')) {
+              this.notification.error('Error during export', 'Processing service not reachable');
+            } else {
+              this.notification.error('Error during export', 'Could not convert file: ' + error.message);
+            }
+
+          });
       },
-      error => this.notification.error('Error during export', 'TODO'));
+      error => this.notification.error('Error during export', 'Could not obtain semantic model: ' + error.message));
   }
 
   uploadFile = (item): Subscription => {
@@ -61,5 +66,5 @@ export class ConversionDialogComponent implements OnInit {
         this.notification.success('File uploaded', 'File has been uploaded');
         this.fileList.push(sample.filename);
       }, error => this.notification.error('Error during file upload', error.status + ':' + error));
-  }
+  };
 }
