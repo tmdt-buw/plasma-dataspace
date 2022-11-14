@@ -64,17 +64,23 @@ public class SemanticModelHandler {
     @NotNull
     public SemanticModel getSemanticModel(@NotNull String id) {
         Model retrievedModel = ops.queryModel(id);
-        log.info(asTurtle(retrievedModel));
+        log.info("retrieved model\n {}", asTurtle(retrievedModel));
 
         if (retrievedModel.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No model available for id " + id);
         }
-        SemanticModel restoredSM = CMToRDFMapper.convertToSemanticModel(retrievedModel, this::lookupElementByURI);
+        SemanticModel restoredSM = CMToRDFMapper.convertToSemanticModel(retrievedModel, this::lookupNodeByURI, this::lookupRelationByURI);
         return restoredSM;
     }
 
-    private SemanticModelNode lookupElementByURI(String uri) {
+    private SemanticModelNode lookupNodeByURI(String uri) {
         return ontologyHandler.getElements(Collections.emptyList(), null, null, uri).stream()
+                .findFirst()
+                .orElse(null);
+    }
+
+    private Relation lookupRelationByURI(String uri) {
+        return ontologyHandler.getRelations(Collections.emptyList(), null, null, uri).stream()
                 .findFirst()
                 .orElse(null);
     }
