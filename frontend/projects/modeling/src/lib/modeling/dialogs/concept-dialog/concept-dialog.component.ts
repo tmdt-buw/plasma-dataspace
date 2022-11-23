@@ -104,6 +104,7 @@ export class PlsConceptDialogComponent implements OnInit, OnDestroy {
 
   newSemanticNode(): void {
     const config: ModalOptions = {
+      nzStyle: {width: '50%'},
       nzTitle: 'Add new modeling element',
       nzContent: PlsEditEntityDialogComponent,
       nzComponentParams: {
@@ -143,6 +144,7 @@ export class PlsConceptDialogComponent implements OnInit, OnDestroy {
 
   editProvisionalNode(e: MouseEvent, node: SemanticModelNode): void {
     const config: ModalOptions = {
+      nzStyle: {width: '50%'},
       nzTitle: 'Edit modeling element',
       nzContent: PlsEditEntityDialogComponent,
       nzComponentParams: {
@@ -175,6 +177,7 @@ export class PlsConceptDialogComponent implements OnInit, OnDestroy {
 
   editProvisionalRelation(e: MouseEvent, rel: Relation): void {
     const config: ModalOptions = {
+      nzStyle: {width: '50%'},
       nzTitle: 'Edit provisional relation',
       nzContent: PlsEditRelationDialogComponent,
       nzComponentParams: {

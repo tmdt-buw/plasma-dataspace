@@ -25,13 +25,14 @@
   </nz-form-item>
 
 
-  <span *ngIf="uriwarn" nz-typography nzType="warning">If URI is changed, the existing relation will be updated!</span>
+  <span *ngIf="uriWarning" nz-typography
+        nzType="warning">If URI is changed, the existing relation will be updated!</span>
   <nz-form-item fxFlex>
     <nz-form-label [nzSpan]="3" nzRequired nzFor="uri">URI</nz-form-label>
     <nz-form-control
-    [nzErrorTip]="urierror"
+      [nzErrorTip]="uriError"
       [nzValidatingTip]="'Validating...'"
-    [nzValidateStatus]="uriCheckStatus">
+      [nzValidateStatus]="uriCheckStatus">
       <pls-uri-generator #uri_generator [uri]="editRelation?.uri" [identifierUpdate]="identifier" [namespaces]="namespaces" [disableAutoGeneration]="!!editRelation" (URIChanged)="updateURI($event)"></pls-uri-generator>
     </nz-form-control>
 

@@ -1,7 +1,7 @@
 <form nz-form [formGroup]="form" (submit)="submit()" xmlns="http://www.w3.org/1999/html">
   <div fxFlex fxLayout="column">
   <nz-form-item>
-    <nz-form-label [nzSpan]="5" nzRequired nzFor="label">Label</nz-form-label>
+    <nz-form-label [nzSpan]="3" nzFor="label" nzRequired>Label</nz-form-label>
     <nz-form-control nzErrorTip="Label is required"
                      nzExtra="This will provide a readable name for the concept or named entity. It should be independent from your current modeling.">
       <input formControlName="label" (change)="onLabelEdited($event)" nz-input/>
@@ -9,7 +9,7 @@
   </nz-form-item>
 
   <nz-form-item>
-    <nz-form-label [nzSpan]="5" nzRequired nzFor="description">Description</nz-form-label>
+    <nz-form-label [nzSpan]="3" nzFor="description" nzRequired>Description</nz-form-label>
     <nz-form-control nzErrorTip="Description is required"
                      nzExtra="Detailed description of the class or named entity.">
       <textarea nz-input formControlName="description"></textarea>
@@ -18,16 +18,18 @@
 
 
     <nz-form-item fxFlex>
-      <nz-form-label [nzSpan]="5" nzRequired nzFor="uri">URI</nz-form-label>
+      <nz-form-label [nzSpan]="3" nzFor="uri" nzRequired>URI</nz-form-label>
       <nz-form-control
         nz-tooltip="URI of the class or named entity">
-        <pls-uri-generator #uri_generator [uri]="editNode?.uri" [identifierUpdate]="identifier" [namespaceUpdate]="namespace" [disableAutoGeneration]="!!editNode"></pls-uri-generator>
+        <pls-uri-generator #uri_generator (URIChanged)="updateURI($event)" [disableAutoGeneration]="!!editNode"
+                           [identifierUpdate]="identifier" [namespaces]="namespaces"
+                           [uri]="editNode?.uri"></pls-uri-generator>
       </nz-form-control>
     </nz-form-item>
 
 
   <nz-form-item>
-    <nz-form-label [nzSpan]="5" nzFor="namedentity">NamedEntity</nz-form-label>
+    <nz-form-label [nzSpan]="3" nzFor="namedentity">NamedEntity</nz-form-label>
     <nz-form-control
       nzExtra="Check if this is a named entity. Named entities are entities that exist only once and cannot be altered. Examples: 'Los Angeles' or 'George Washington'. ">
       <label nz-checkbox formControlName="namedEntity" [nzDisabled]="!!editNode" [nz-tooltip]="getNamedEntityTooltip()"></label>

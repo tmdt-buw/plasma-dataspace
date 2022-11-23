@@ -3,7 +3,8 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { NzModalRef } from 'ng-zorro-antd/modal';
 import { Class, ModelingControllerService, NamedEntity } from '../../../api/generated/dms';
 import { UriGeneratorComponent } from '../common/uri-generator/uri-generator.component';
-import { Observable, Subject } from 'rxjs';
+import { BehaviorSubject, Subject } from 'rxjs';
+import { OntologyControllerService } from '../../../api/generated/kgs';
 
 @Component({
   selector: 'pls-edit-entity-dialog',
@@ -13,10 +14,14 @@ import { Observable, Subject } from 'rxjs';
 export class PlsEditEntityDialogComponent implements OnInit {
 
   @Input() modelId: string;
+  @Input() namespaces: Array<{ prefix: string, uri: string }>;
   @Input() editNode: Class | NamedEntity;
 
   namespace: Subject<string>;
   identifier: Subject<string>;
+  uriCheckStatus = undefined;
+  uriError: string;
+  uriWarning: boolean;
 
   @ViewChild('uri_generator') uriGenerator: UriGeneratorComponent;
 
@@ -29,7 +34,7 @@ export class PlsEditEntityDialogComponent implements OnInit {
 
   error;
 
-  constructor(private modalRef: NzModalRef, private modelingService: ModelingControllerService) {
+  constructor(private modalRef: NzModalRef, private modelingService: ModelingControllerService, private ontologyService: OntologyControllerService) {
   }
 
   ngOnInit(): void {
@@ -39,8 +44,8 @@ export class PlsEditEntityDialogComponent implements OnInit {
       this.form.get('uri').setValue(this.editNode.uri);
       this.form.get('namedEntity').setValue(this.editNode._class === 'NamedEntity');
     }
-    this.namespace = new Subject<string>();
-    this.identifier = new Subject<string>();
+
+    this.identifier = new BehaviorSubject<string>('');
   }
 
 
@@ -95,6 +100,20 @@ export class PlsEditEntityDialogComponent implements OnInit {
     this.identifier.next(identifier);
   }
 
+  updateURI(uri: string): void {
+    this.uriCheckStatus = 'validating';
+    this.ontologyService.validateURI(uri).subscribe(() => {
+      this.form.get('uri').setValue(uri);
+      this.uriError = undefined;
+      this.uriCheckStatus = 'success';
+      this.form.updateValueAndValidity();
+    }, error => {
+      this.form.get('uri').setValue(uri);
+      this.uriCheckStatus = 'error';
+      this.uriError = error.error.message;
+      this.form.setErrors({invalid: true});
+    });
+  }
 
   getNamedEntityTooltip(): string {
     return !!this.editNode ? 'Cannot be changed for an existing element.' : undefined;

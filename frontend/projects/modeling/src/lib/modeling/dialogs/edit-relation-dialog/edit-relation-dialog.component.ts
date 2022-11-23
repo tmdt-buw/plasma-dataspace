@@ -19,8 +19,8 @@ export class PlsEditRelationDialogComponent implements OnInit {
 
   identifier: Subject<string>;
   uriCheckStatus = undefined;
-  urierror: string;
-  uriwarn: boolean;
+  uriError: string;
+  uriWarning: boolean;
 
   @ViewChild('uri_generator') uriGenerator: UriGeneratorComponent;
 
@@ -45,7 +45,7 @@ export class PlsEditRelationDialogComponent implements OnInit {
       this.form.get('description').setValue(this.editRelation.description);
       this.form.get('uri').setValue(this.editRelation.uri);
       this.relationType = (this.editRelation._class === 'ObjectProperty') ? 'ObjectProperty' : 'DataProperty';
-      this.uriwarn = true;
+      this.uriWarning = true;
     }
     this.identifier = new BehaviorSubject<string>('');
   }
@@ -95,13 +95,13 @@ export class PlsEditRelationDialogComponent implements OnInit {
     this.uriCheckStatus = 'validating';
     this.ontologyService.validateURI(uri).subscribe(() => {
       this.form.get('uri').setValue(uri);
-      this.urierror = undefined;
+      this.uriError = undefined;
       this.uriCheckStatus = 'success';
       this.form.updateValueAndValidity();
     }, error => {
       this.form.get('uri').setValue(uri);
       this.uriCheckStatus = 'error';
-      this.urierror = error.error.message;
+      this.uriError = error.error.message;
       this.form.setErrors({invalid: true});
     });
   }
