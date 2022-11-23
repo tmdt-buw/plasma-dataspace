@@ -66,5 +66,5 @@ export class ConversionDialogComponent implements OnInit {
         this.notification.success('File uploaded', 'File has been uploaded');
         this.fileList.push(sample.filename);
       }, error => this.notification.error('Error during file upload', error.status + ':' + error.error.message));
-  };
+  }
 }

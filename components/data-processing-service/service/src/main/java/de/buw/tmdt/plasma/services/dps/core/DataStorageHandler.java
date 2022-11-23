@@ -146,9 +146,10 @@ public class DataStorageHandler {
                 jsonSampleList.add(obj.toString());
             }
         } catch (JsonProcessingException e) {
+            newFilePath.toFile().delete();
             throw new ResponseStatusException(
                     HttpStatus.INTERNAL_SERVER_ERROR,
-                    "Could not generate sample"
+                    "Formatting error in JSON file"
             );
         }
 
