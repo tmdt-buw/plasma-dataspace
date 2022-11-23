@@ -52,12 +52,12 @@ export class ConversionDialogComponent implements OnInit {
             if (error.message.includes('service unavailable')) {
               this.notification.error('Error during export', 'Processing service not reachable');
             } else {
-              this.notification.error('Error during export', 'Could not convert file: ' + error.message);
+              this.notification.error('Error during export', 'Could not convert file: ' + error.error.message);
             }
 
           });
       },
-      error => this.notification.error('Error during export', 'Could not obtain semantic model: ' + error.message));
+      error => this.notification.error('Error during export', 'Could not obtain semantic model: ' + error.error.message));
   }
 
   uploadFile = (item): Subscription => {
@@ -65,6 +65,6 @@ export class ConversionDialogComponent implements OnInit {
       .subscribe(sample => {
         this.notification.success('File uploaded', 'File has been uploaded');
         this.fileList.push(sample.filename);
-      }, error => this.notification.error('Error during file upload', error.status + ':' + error));
+      }, error => this.notification.error('Error during file upload', error.status + ':' + error.error.message));
   };
 }
