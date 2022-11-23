@@ -54,10 +54,13 @@ public class CMToRDFMapper {
                 Resource resource;
                 if (i != null) {
                     String originInstanceURI = smPrefix + semanticModelId + "-" + convertToInstanceId(i.getLabel());
-                    String instanceURI = originInstanceURI;
                     int counter = 1;
-                    while (m.getResource(instanceURI) != null) {
+                    String instanceURI = originInstanceURI+ "_" + counter;
+
+                    Resource res = ResourceFactory.createResource(instanceURI);
+                    while (m.containsResource(res)) {
                         instanceURI = originInstanceURI + "_" + counter++;
+                        res = ResourceFactory.createResource(instanceURI);
                     }
                     resource =
                             m.createResource(instanceURI); // will reuse if already existent
