@@ -42,7 +42,7 @@ class DataProcessingHandlerTest {
         prefixes.put("plsm", "http://plasma.uni-wuppertal.de/sm/");
         prefixes.put("plcm", "http://plasma.uni-wuppertal.de/cm#");
         prefixes.put("plasma", "http://plasma.uni-wuppertal.de/ontology#");
-        Mockito.lenient().when(ontologyApiClient.getPrefixes()).thenReturn(prefixes);
+        Mockito.lenient().when(ontologyApiClient.getNamespaces()).thenReturn(prefixes);
         storageHandler = new DataStorageHandler();
         processingHandler = new DataProcessingHandler(ontologyApiClient, storageHandler);
     }

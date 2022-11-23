@@ -34,13 +34,18 @@
                       class="provisional-tag">PROV
               </nz-tag>
             </div>
-            <div fxFill fxLayout="row" fxLayoutAlign="space-between center">
+            <div fxFill  fxLayout="row"  fxLayoutAlign="space-between center">
               <span nz-typography nzType="secondary" nzEllipsis>{{ element.uri }}</span>
-              <button (click)="deleteProvisionalNode($event, element)" *ngIf="element.provisional" nz-button nzDanger
-                      nzSize="small" nzType="default">Delete
-              </button>
-            </div>
+              <div *ngIf="element.provisional" fxLayout="row" fxLayoutAlign="end center" fxLayoutGap="2px">
 
+                <button (click)="deleteProvisionalNode($event, element)" nz-button nzDanger
+                        nzSize="small" nzType="default">Delete
+                </button>
+                <button (click)="editProvisionalNode($event, element)" nz-button nzDanger
+                        nzSize="small" nzType="default">Edit
+                </button>
+              </div>
+            </div>
 
             <div *cdkDragPreview class="concept-preview"
                  [ngStyle]="{ border: '3px solid', 'border-color': 'black',  color: 'black'}">
@@ -64,7 +69,7 @@
         </ng-template>
 
         <div>
-          <button nz-button nzType="primary" (click)="newRelationConcept()">
+          <button nz-button nzType="primary" (click)="newRelation()">
             <span>New</span>
           </button>
         </div>
@@ -87,11 +92,17 @@
                     class="provisional-tag">PROV
             </nz-tag>
           </div>
-          <div fxFlex fxLayout="row" fxLayoutAlign="space-between center">
-            <span nz-typography nzEllipsis nzType="secondary">{{ relation.uri }}</span>
-            <button (click)="deleteProvisionalRelation($event, relation)" *ngIf="relation.provisional" nz-button
-                    nzDanger nzSize="small" nzType="default">Delete
-            </button>
+          <div fxFill  fxLayout="row"  fxLayoutAlign="space-between center">
+            <span nz-typography nzType="secondary" nzEllipsis>{{ relation.uri }}</span>
+            <div  *ngIf="relation.provisional" fxLayout="row" fxLayoutAlign="end center" fxLayoutGap="2px">
+
+              <button (click)="deleteProvisionalRelation($event, relation)"  nz-button nzDanger
+                      nzSize="small" nzType="default">Delete
+              </button>
+              <button (click)="editProvisionalRelation($event, relation)" nz-button nzDanger
+                      nzSize="small" nzType="default">Edit
+              </button>
+            </div>
           </div>
 
         </div>

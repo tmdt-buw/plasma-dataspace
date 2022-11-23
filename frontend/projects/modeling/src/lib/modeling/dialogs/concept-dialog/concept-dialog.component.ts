@@ -15,9 +15,10 @@ import {
 } from '../../../api/generated/dms';
 import { ModelingService } from '../../modeling.service';
 import { ModalBaseConfig } from '../common/modal.base-config';
-import { PlsNewEntityDialogComponent } from '../edit-entity-dialog/edit-entity-dialog.component';
-import { PlsNewRelationDialogComponent } from '../edit-relation-dialog/edit-relation-dialog.component';
+import { PlsEditEntityDialogComponent } from '../edit-entity-dialog/edit-entity-dialog.component';
+import { PlsEditRelationDialogComponent } from '../edit-relation-dialog/edit-relation-dialog.component';
 import { NzNotificationService } from 'ng-zorro-antd/notification';
+import { OntologyInfo } from '../../../api/generated/kgs';
 
 
 @Component({
@@ -29,7 +30,7 @@ import { NzNotificationService } from 'ng-zorro-antd/notification';
 export class PlsConceptDialogComponent implements OnInit, OnDestroy {
 
   @Input() modelId: string;
-  @Input() defaultNamespace: string;
+  @Input() namespaces: OntologyInfo[];
 
   @ViewChild('colorEl') color;
 
@@ -104,10 +105,10 @@ export class PlsConceptDialogComponent implements OnInit, OnDestroy {
   newSemanticNode(): void {
     const config: ModalOptions = {
       nzTitle: 'Add new modeling element',
-      nzContent: PlsNewEntityDialogComponent,
+      nzContent: PlsEditEntityDialogComponent,
       nzComponentParams: {
         modelId: this.modelId,
-        defaultNamespace: this.defaultNamespace
+        namespaces: this.namespaces
       }
     };
     const ref = this.modal.create(Object.assign(config, ModalBaseConfig));
@@ -118,13 +119,14 @@ export class PlsConceptDialogComponent implements OnInit, OnDestroy {
     });
   }
 
-  newRelationConcept(): void {
+  newRelation(): void {
     const config: ModalOptions = {
+      nzStyle: {width: '50%'},
       nzTitle: 'Add new relation',
-      nzContent: PlsNewRelationDialogComponent,
+      nzContent: PlsEditRelationDialogComponent,
       nzComponentParams: {
         modelId: this.modelId,
-        defaultNamespace: this.defaultNamespace
+        namespaces: this.namespaces
       }
     };
     const ref = this.modal.create(Object.assign(config, ModalBaseConfig));
@@ -139,6 +141,24 @@ export class PlsConceptDialogComponent implements OnInit, OnDestroy {
     this.modeling.recommendation.next(recommendation);
   }
 
+  editProvisionalNode(e: MouseEvent, node: SemanticModelNode): void {
+    const config: ModalOptions = {
+      nzTitle: 'Edit modeling element',
+      nzContent: PlsEditEntityDialogComponent,
+      nzComponentParams: {
+        modelId: this.modelId,
+        namespace: this.namespaces,
+        editNode: node
+      }
+    };
+    const ref = this.modal.create(Object.assign(config, ModalBaseConfig));
+    ref.afterClose.subscribe(res => {
+      if (res) {
+        this.getSemanticNodeTemplates();
+      }
+    });
+  }
+
   deleteProvisionalNode(e: MouseEvent, node: SemanticModelNode): void {
     this.modal.confirm({
       nzTitle: 'Remove provisional element?',
@@ -149,6 +169,24 @@ export class PlsConceptDialogComponent implements OnInit, OnDestroy {
         }, error => {
           this.notification.error('Error deleting provisional node', error.error?.message);
         });
+      }
+    });
+  }
+
+  editProvisionalRelation(e: MouseEvent, rel: Relation): void {
+    const config: ModalOptions = {
+      nzTitle: 'Edit provisional relation',
+      nzContent: PlsEditRelationDialogComponent,
+      nzComponentParams: {
+        modelId: this.modelId,
+        namespaces: this.namespaces,
+        editRelation: rel
+      }
+    };
+    const ref = this.modal.create(Object.assign(config, ModalBaseConfig));
+    ref.afterClose.subscribe(res => {
+      if (res) {
+        this.getRelationTemplates();
       }
     });
   }

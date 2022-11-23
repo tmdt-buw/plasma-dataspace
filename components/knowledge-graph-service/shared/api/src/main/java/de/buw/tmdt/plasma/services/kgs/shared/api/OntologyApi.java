@@ -86,6 +86,16 @@ public interface OntologyApi {
      * This endpoint returns a mapping of all prefixes to their namespaces currently known to the service.
      */
     @GetMapping(value = "/prefixes", produces = MediaType.APPLICATION_JSON_VALUE)
-    Map<String, String> getPrefixes();
+    Map<String, String> getNamespaces();
 
+    /**
+     * Validate the given URI.
+     * Checks if the given URI is valid according to RFC3987 and 3986.
+     * Also checks if this URI is already taken in the local ontology.
+     * @param uri The uri to check
+     * @throws org.springframework.web.server.ResponseStatusException 406 if the URI is not valid
+     * @throws org.springframework.web.server.ResponseStatusException 409 if an element with that URI already exists
+     */
+    @GetMapping(value = "/validate", produces = MediaType.APPLICATION_JSON_VALUE)
+    void validateURI(@RequestParam(name = "uri") String uri);
 }

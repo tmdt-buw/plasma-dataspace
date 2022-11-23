@@ -1,40 +1,46 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { NzModalRef } from 'ng-zorro-antd/modal';
 import { Class, ModelingControllerService, NamedEntity } from '../../../api/generated/dms';
+import { UriGeneratorComponent } from '../common/uri-generator/uri-generator.component';
+import { Observable, Subject } from 'rxjs';
 
 @Component({
   selector: 'pls-edit-entity-dialog',
   templateUrl: './edit-entity-dialog.component.html',
   styleUrls: ['../common/dialog.styles.scss']
 })
-export class PlsNewEntityDialogComponent implements OnInit {
+export class PlsEditEntityDialogComponent implements OnInit {
 
   @Input() modelId: string;
-  @Input() defaultNamespace: string = 'local';
   @Input() editNode: Class | NamedEntity;
+
+  namespace: Subject<string>;
+  identifier: Subject<string>;
+
+  @ViewChild('uri_generator') uriGenerator: UriGeneratorComponent;
 
   form = new FormGroup({
     label: new FormControl('', [Validators.required]),
     description: new FormControl('', [Validators.required]),
-    namespace: new FormControl(this.defaultNamespace + ':', [Validators.required]),
-    identifier: new FormControl(''),
+    uri: new FormControl('', [Validators.required]),
     namedEntity: new FormControl(false)
   });
 
   error;
-  existingURI: string;
 
   constructor(private modalRef: NzModalRef, private modelingService: ModelingControllerService) {
   }
 
   ngOnInit(): void {
     if (this.editNode) {
-      this.existingURI = this.editNode.uri;
       this.form.get('label').setValue(this.editNode.label);
       this.form.get('description').setValue(this.editNode.description);
+      this.form.get('uri').setValue(this.editNode.uri);
       this.form.get('namedEntity').setValue(this.editNode._class === 'NamedEntity');
     }
+    this.namespace = new Subject<string>();
+    this.identifier = new Subject<string>();
   }
 
 
@@ -49,19 +55,24 @@ export class PlsNewEntityDialogComponent implements OnInit {
     if (this.form.get('namedEntity').value) {
       node = {
         _class: 'NamedEntity',
-        uri: this.constructURI(),
+        uri: this.uriGenerator.getURI(),
         description: this.form.get('description').value,
         label: this.form.get('label').value
       };
     } else {
       node = {
         _class: 'Class',
-        uri: this.constructURI(),
+        uri: this.uriGenerator.getURI(),
         description: this.form.get('description').value,
         label: this.form.get('label').value
       };
     }
-    this.modelingService.cacheElement(this.modelId, node).subscribe(() => this.modalRef.close(true), error => this.error = error.error.message);
+    if (this.editNode) {
+      // this is an edit, not a new node
+      this.modelingService.updateProvisionalNode(this.modelId, node, this.editNode.uri === node.uri ? undefined : this.editNode.uri).subscribe(() => this.modalRef.close(true), error => this.error = error.error.message);
+    } else {
+      this.modelingService.cacheElement(this.modelId, node).subscribe(() => this.modalRef.close(true), error => this.error = error.error.message);
+    }
   }
 
   cancel(): void {
@@ -77,36 +88,15 @@ export class PlsNewEntityDialogComponent implements OnInit {
     return input.trim().replace(/[^a-zA-Z0-9]/g, '_');
   }
 
-  constructURI(): string {
-    let namespace = this.form.get('namespace').value;
-    let identifier = this.form.get('identifier').value;
-
-    if (this.existingURI && !identifier) {
-      return this.existingURI;
-    }
-    if (!namespace.includes(':')) {
-      namespace = namespace + ':';
-    }
-    if (!identifier) {
-      identifier = this.generateIdentifier();
-    }
-    return namespace + identifier;
-  }
-
-  onIdentifierEdited(event: Event): void {
-  }
-
-  onNamespaceEdited(event: Event): void {
-    let namespace = this.form.get('namespace').value;
-
-    if (!namespace.includes(':')) {
-      namespace = namespace + ':';
-    }
-    this.form.get('namespace').setValue(namespace);
-  }
-
   onLabelEdited(event: Event): void {
+    console.log(event);
+    const identifier = this.generateIdentifier();
+    console.log(identifier);
+    this.identifier.next(identifier);
   }
 
 
+  getNamedEntityTooltip(): string {
+    return !!this.editNode ? 'Cannot be changed for an existing element.' : undefined;
+  }
 }

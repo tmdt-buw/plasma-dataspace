@@ -69,7 +69,7 @@ public class DataProcessingHandler {
         }
 
         try {
-            Map<String, String> prefixes = ontologyApiClient.getPrefixes();
+            Map<String, String> prefixes = ontologyApiClient.getNamespaces();
             PrefixMapping prefixMapping = new PrefixMappingImpl();
             prefixMapping.setNsPrefixes(prefixes);
             RDFConverter converter = new RDFConverter(prefixMapping);

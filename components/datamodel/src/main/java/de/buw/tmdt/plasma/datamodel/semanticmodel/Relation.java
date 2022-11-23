@@ -43,8 +43,8 @@ public abstract class Relation extends CombinedModelElement implements Serializa
     private String to;
 
     @NotNull
-    private final String uri;
-    private final String description;
+    private String uri;
+    private String description;
     private final Set<String> properties;
     private boolean provisional;
     private boolean arrayContext;
@@ -122,9 +122,17 @@ public abstract class Relation extends CombinedModelElement implements Serializa
         return description;
     }
 
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
     @JsonProperty(URI_PROPERTY)
     public String getURI() {
         return uri;
+    }
+
+    public void setUri(@NotNull String uri) {
+        this.uri = uri;
     }
 
     @JsonProperty(PROPERTIES_PROPERTY)
