@@ -100,7 +100,7 @@ public class OntologyController implements OntologyApi {
         try {
             IRIs.checkEx(uri);
         } catch (IRIException ie){
-            throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "The URI provided is not a valid URI according to RFC3987");
+            throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "The URI provided is not valid according to RFC3987");
         }
 
         if(!getElements(List.of(localOntologyLabel), null, null, uri).isEmpty()){

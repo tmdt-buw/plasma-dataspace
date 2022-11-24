@@ -43,6 +43,7 @@ export class PlsEditEntityDialogComponent implements OnInit {
       this.form.get('description').setValue(this.editNode.description);
       this.form.get('uri').setValue(this.editNode.uri);
       this.form.get('namedEntity').setValue(this.editNode._class === 'NamedEntity');
+      this.uriWarning = true;
     }
 
     this.identifier = new BehaviorSubject<string>('');
@@ -94,9 +95,7 @@ export class PlsEditEntityDialogComponent implements OnInit {
   }
 
   onLabelEdited(event: Event): void {
-    console.log(event);
     const identifier = this.generateIdentifier();
-    console.log(identifier);
     this.identifier.next(identifier);
   }
 
@@ -104,8 +103,8 @@ export class PlsEditEntityDialogComponent implements OnInit {
     this.uriCheckStatus = 'validating';
     this.ontologyService.validateURI(uri).subscribe(() => {
       this.form.get('uri').setValue(uri);
-      this.uriError = undefined;
       this.uriCheckStatus = 'success';
+      this.uriError = undefined;
       this.form.updateValueAndValidity();
     }, error => {
       this.form.get('uri').setValue(uri);

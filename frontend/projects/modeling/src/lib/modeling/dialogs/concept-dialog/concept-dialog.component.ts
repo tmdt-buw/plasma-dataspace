@@ -149,7 +149,7 @@ export class PlsConceptDialogComponent implements OnInit, OnDestroy {
       nzContent: PlsEditEntityDialogComponent,
       nzComponentParams: {
         modelId: this.modelId,
-        namespace: this.namespaces,
+        namespaces: this.namespaces,
         editNode: node
       }
     };

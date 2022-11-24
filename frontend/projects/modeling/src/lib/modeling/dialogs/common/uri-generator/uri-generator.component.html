@@ -1,7 +1,7 @@
 <div fxLayout="column" fxLayoutGap="5px">
 
   <div fxLayout="row" fxLayoutGap="2px">
-    <input (focusout)="propagateURI(uri)" [value]="uri" nz-input/>
+    <input (focusout)="propagateURI(uri)" [(ngModel)]="uri" nz-input/>
     <button (click)="showGenerator()" *ngIf="!generatorVisible"
             nz-button nzType="primary">Generate
     </button>

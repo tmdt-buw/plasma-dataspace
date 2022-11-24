@@ -46,7 +46,10 @@ export class UriGeneratorComponent implements OnInit {
     if (!this.uri) {
       this.uri = '';
     }
-    this.selectNamespace(this.namespaces[0]);
+    if (this.namespaces?.length > 0) {
+      this.selectNamespace(this.namespaces[0]);
+    }
+
   }
 
   public getURI(): string {
@@ -69,5 +72,10 @@ export class UriGeneratorComponent implements OnInit {
 
   selectNamespace(namespace: { prefix: string; uri: string }): void {
     this.generatorForm.get('namespace').setValue(namespace.uri);
+  }
+
+
+  onURIFocusout($event: FocusEvent): void {
+    console.log($event);
   }
 }
