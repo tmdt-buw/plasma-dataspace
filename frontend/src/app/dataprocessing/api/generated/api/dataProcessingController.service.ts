@@ -39,19 +39,19 @@ import { Configuration } from '../configuration';
 })
 export class DataProcessingControllerService {
 
-  protected basePath = 'http://plasma-gateway-service:8888';
   public defaultHeaders = new HttpHeaders();
   public configuration = new Configuration();
-    public encoder: HttpParameterCodec;
+  protected basePath = 'http://plasma-gateway-service:8888';
+  public encoder: HttpParameterCodec;
 
-    constructor(protected httpClient: HttpClient, @Optional()@Inject(BASE_PATH) basePath: string, @Optional() configuration: Configuration) {
-        if (configuration) {
-            this.configuration = configuration;
-        }
-        if (typeof this.configuration.basePath !== 'string') {
-            if (typeof basePath !== 'string') {
-                basePath = this.basePath;
-            }
+  constructor(protected httpClient: HttpClient, @Optional() @Inject(BASE_PATH) basePath: string, @Optional() configuration: Configuration) {
+    if (configuration) {
+      this.configuration = configuration;
+    }
+    if (typeof this.configuration.basePath !== 'string') {
+      if (typeof basePath !== 'string') {
+        basePath = this.basePath;
+      }
             this.configuration.basePath = basePath;
         }
         this.encoder = this.configuration.encoder || new CustomHttpParameterCodec();
@@ -62,13 +62,13 @@ export class DataProcessingControllerService {
      * @return true: consumes contains 'multipart/form-data', false: otherwise
      */
     private canConsumeForm(consumes: string[]): boolean {
-        const form = 'multipart/form-data';
-        for (const consume of consumes) {
-            if (form === consume) {
-                return true;
-            }
+      const form = 'multipart/form-data';
+      for (const consume of consumes) {
+        if (form === consume) {
+          return true;
         }
-        return false;
+      }
+      return false;
     }
 
   /**
@@ -96,16 +96,16 @@ export class DataProcessingControllerService {
     let localVarQueryParameters = new HttpParams({encoder: this.encoder});
     if (dataId !== undefined && dataId !== null) {
       localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
-            <any>dataId, 'dataId');
-        }
-        if (fileId !== undefined && fileId !== null) {
-          localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
-            <any>fileId, 'fileId');
-        }
-        if (format !== undefined && format !== null) {
-          localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
-            <any>format, 'format');
-        }
+        <any> dataId, 'dataId');
+    }
+    if (fileId !== undefined && fileId !== null) {
+      localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
+        <any> fileId, 'fileId');
+    }
+    if (format !== undefined && format !== null) {
+      localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
+        <any> format, 'format');
+    }
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -149,34 +149,17 @@ export class DataProcessingControllerService {
 
         return this.httpClient.post<string>(`${this.configuration.basePath}/api/plasma-dps/convert`,
             combinedModel,
-            {
-                context: localVarHttpContext,
-              params: localVarQueryParameters,
-              responseType: <any> responseType_,
-              withCredentials: this.configuration.withCredentials,
-              headers: localVarHeaders,
-              observe: observe,
-              reportProgress: reportProgress
-            }
+          {
+            context: localVarHttpContext,
+            params: localVarQueryParameters,
+            responseType: <any> responseType_,
+            withCredentials: this.configuration.withCredentials,
+            headers: localVarHeaders,
+            observe: observe,
+            reportProgress: reportProgress
+          }
         );
   }
-
-  /**
-   * List all files of a dataId.
-   * @param dataId
-   * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-   * @param reportProgress flag to report request and response progress.
-   */
-  public listFiles(dataId: string, observe?: 'body', reportProgress?: boolean, options?: { httpHeaderAccept?: 'application/json', context?: HttpContext }): Observable<Array<string>>;
-
-  /**
-   * Initializes a new modeling.
-   * @param file
-   * @param dataId
-   * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-   * @param reportProgress flag to report request and response progress.
-   */
-  public uploadFile(file: Blob, dataId?: string, observe?: 'body', reportProgress?: boolean, options?: { httpHeaderAccept?: 'application/json', context?: HttpContext }): Observable<SampleDTO>;
 
   /**
    * Check if service available.
@@ -184,19 +167,22 @@ export class DataProcessingControllerService {
    * @param reportProgress flag to report request and response progress.
    */
   public isAvailable(observe?: 'body', reportProgress?: boolean, options?: { httpHeaderAccept?: 'text/plain', context?: HttpContext }): Observable<string>;
+
   public isAvailable(observe?: 'response', reportProgress?: boolean, options?: { httpHeaderAccept?: 'text/plain', context?: HttpContext }): Observable<HttpResponse<string>>;
+
   public isAvailable(observe?: 'events', reportProgress?: boolean, options?: { httpHeaderAccept?: 'text/plain', context?: HttpContext }): Observable<HttpEvent<string>>;
+
   public isAvailable(observe: any = 'body', reportProgress: boolean = false, options?: { httpHeaderAccept?: 'text/plain', context?: HttpContext }): Observable<any> {
 
-        let localVarHeaders = this.defaultHeaders;
+    let localVarHeaders = this.defaultHeaders;
 
-        let localVarHttpHeaderAcceptSelected: string | undefined = options && options.httpHeaderAccept;
-        if (localVarHttpHeaderAcceptSelected === undefined) {
-            // to determine the Accept header
-            const httpHeaderAccepts: string[] = [
-                'text/plain'
-            ];
-            localVarHttpHeaderAcceptSelected = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+    let localVarHttpHeaderAcceptSelected: string | undefined = options && options.httpHeaderAccept;
+    if (localVarHttpHeaderAcceptSelected === undefined) {
+      // to determine the Accept header
+      const httpHeaderAccepts: string[] = [
+        'text/plain'
+      ];
+      localVarHttpHeaderAcceptSelected = this.configuration.selectHeaderAccept(httpHeaderAccepts);
         }
         if (localVarHttpHeaderAcceptSelected !== undefined) {
             localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
@@ -220,29 +206,29 @@ export class DataProcessingControllerService {
         }
 
         return this.httpClient.get<string>(`${this.configuration.basePath}/api/plasma-dps/available`,
-            {
-              context: localVarHttpContext,
-              responseType: <any> responseType_,
-              withCredentials: this.configuration.withCredentials,
-              headers: localVarHeaders,
-              observe: observe,
-              reportProgress: reportProgress
-            }
+          {
+            context: localVarHttpContext,
+            responseType: <any> responseType_,
+            withCredentials: this.configuration.withCredentials,
+            headers: localVarHeaders,
+            observe: observe,
+            reportProgress: reportProgress
+          }
         );
   }
 
-  // @ts-ignore
-  private addToHttpParams(httpParams: HttpParams, value: any, key?: string): HttpParams {
-    if (typeof value === 'object' && value instanceof Date === false) {
-      httpParams = this.addToHttpParamsRecursive(httpParams, value);
-    } else {
-      httpParams = this.addToHttpParamsRecursive(httpParams, value, key);
-    }
-    return httpParams;
-  }
+  /**
+   * List all files of a dataId.
+   * @param dataId
+   * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+   * @param reportProgress flag to report request and response progress.
+   */
+  public listFiles(dataId: string, observe?: 'body', reportProgress?: boolean, options?: { httpHeaderAccept?: 'application/json', context?: HttpContext }): Observable<Array<string>>;
 
   public listFiles(dataId: string, observe?: 'response', reportProgress?: boolean, options?: { httpHeaderAccept?: 'application/json', context?: HttpContext }): Observable<HttpResponse<Array<string>>>;
+
   public listFiles(dataId: string, observe?: 'events', reportProgress?: boolean, options?: { httpHeaderAccept?: 'application/json', context?: HttpContext }): Observable<HttpEvent<Array<string>>>;
+
   public listFiles(dataId: string, observe: any = 'body', reportProgress: boolean = false, options?: { httpHeaderAccept?: 'application/json', context?: HttpContext }): Observable<any> {
     if (dataId === null || dataId === undefined) {
       throw new Error('Required parameter dataId was null or undefined when calling listFiles.');
@@ -251,12 +237,12 @@ export class DataProcessingControllerService {
     let localVarHeaders = this.defaultHeaders;
 
     let localVarHttpHeaderAcceptSelected: string | undefined = options && options.httpHeaderAccept;
-        if (localVarHttpHeaderAcceptSelected === undefined) {
-            // to determine the Accept header
-            const httpHeaderAccepts: string[] = [
-                'application/json'
-            ];
-            localVarHttpHeaderAcceptSelected = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+    if (localVarHttpHeaderAcceptSelected === undefined) {
+      // to determine the Accept header
+      const httpHeaderAccepts: string[] = [
+        'application/json'
+      ];
+      localVarHttpHeaderAcceptSelected = this.configuration.selectHeaderAccept(httpHeaderAccepts);
         }
         if (localVarHttpHeaderAcceptSelected !== undefined) {
             localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
@@ -280,45 +266,30 @@ export class DataProcessingControllerService {
         }
 
         return this.httpClient.get<Array<string>>(`${this.configuration.basePath}/api/plasma-dps/files/${encodeURIComponent(String(dataId))}`,
-            {
-              context: localVarHttpContext,
-              responseType: <any> responseType_,
-              withCredentials: this.configuration.withCredentials,
-              headers: localVarHeaders,
-              observe: observe,
-              reportProgress: reportProgress
-            }
+          {
+            context: localVarHttpContext,
+            responseType: <any> responseType_,
+            withCredentials: this.configuration.withCredentials,
+            headers: localVarHeaders,
+            observe: observe,
+            reportProgress: reportProgress
+          }
         );
   }
 
-  private addToHttpParamsRecursive(httpParams: HttpParams, value?: any, key?: string): HttpParams {
-    if (value == null) {
-      return httpParams;
-    }
-
-    if (typeof value === 'object') {
-      if (Array.isArray(value)) {
-        (value as any[]).forEach(elem => httpParams = this.addToHttpParamsRecursive(httpParams, elem, key));
-      } else if (value instanceof Date) {
-        if (key != null) {
-          httpParams = httpParams.append(key, (value as Date).toISOString().substr(0, 10));
-        } else {
-          throw Error('key may not be null if value is Date');
-        }
-      } else {
-        Object.keys(value).forEach(k => httpParams = this.addToHttpParamsRecursive(
-          httpParams, value[k], key != null ? `${key}.${k}` : k));
-      }
-    } else if (key != null) {
-      httpParams = httpParams.append(key, value);
-    } else {
-      throw Error('key may not be null if value is not object or array');
-    }
-    return httpParams;
-  }
+  /**
+   * Initializes a new modeling.
+   * @param file
+   * @param dataId
+   * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+   * @param reportProgress flag to report request and response progress.
+   */
+  public uploadFile(file: Blob, dataId?: string, observe?: 'body', reportProgress?: boolean, options?: { httpHeaderAccept?: 'application/json', context?: HttpContext }): Observable<SampleDTO>;
 
   public uploadFile(file: Blob, dataId?: string, observe?: 'response', reportProgress?: boolean, options?: { httpHeaderAccept?: 'application/json', context?: HttpContext }): Observable<HttpResponse<SampleDTO>>;
+
   public uploadFile(file: Blob, dataId?: string, observe?: 'events', reportProgress?: boolean, options?: { httpHeaderAccept?: 'application/json', context?: HttpContext }): Observable<HttpEvent<SampleDTO>>;
+
   public uploadFile(file: Blob, dataId?: string, observe: any = 'body', reportProgress: boolean = false, options?: { httpHeaderAccept?: 'application/json', context?: HttpContext }): Observable<any> {
     if (file === null || file === undefined) {
       throw new Error('Required parameter file was null or undefined when calling uploadFile.');
@@ -327,16 +298,16 @@ export class DataProcessingControllerService {
     let localVarQueryParameters = new HttpParams({encoder: this.encoder});
     if (dataId !== undefined && dataId !== null) {
       localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
-            <any>dataId, 'dataId');
-        }
+        <any> dataId, 'dataId');
+    }
 
-        let localVarHeaders = this.defaultHeaders;
+    let localVarHeaders = this.defaultHeaders;
 
-        let localVarHttpHeaderAcceptSelected: string | undefined = options && options.httpHeaderAccept;
-        if (localVarHttpHeaderAcceptSelected === undefined) {
-            // to determine the Accept header
-            const httpHeaderAccepts: string[] = [
-                'application/json'
+    let localVarHttpHeaderAcceptSelected: string | undefined = options && options.httpHeaderAccept;
+    if (localVarHttpHeaderAcceptSelected === undefined) {
+      // to determine the Accept header
+      const httpHeaderAccepts: string[] = [
+        'application/json'
             ];
             localVarHttpHeaderAcceptSelected = this.configuration.selectHeaderAccept(httpHeaderAccepts);
         }
@@ -387,14 +358,50 @@ export class DataProcessingControllerService {
             localVarConvertFormParamsToString ? localVarFormParams.toString() : localVarFormParams,
             {
                 context: localVarHttpContext,
-                params: localVarQueryParameters,
-                responseType: <any>responseType_,
-                withCredentials: this.configuration.withCredentials,
-                headers: localVarHeaders,
-                observe: observe,
-                reportProgress: reportProgress
+              params: localVarQueryParameters,
+              responseType: <any> responseType_,
+              withCredentials: this.configuration.withCredentials,
+              headers: localVarHeaders,
+              observe: observe,
+              reportProgress: reportProgress
             }
         );
+  }
+
+  // @ts-ignore
+  private addToHttpParams(httpParams: HttpParams, value: any, key?: string): HttpParams {
+    if (typeof value === 'object' && value instanceof Date === false) {
+      httpParams = this.addToHttpParamsRecursive(httpParams, value);
+    } else {
+      httpParams = this.addToHttpParamsRecursive(httpParams, value, key);
     }
+    return httpParams;
+  }
+
+  private addToHttpParamsRecursive(httpParams: HttpParams, value?: any, key?: string): HttpParams {
+    if (value == null) {
+      return httpParams;
+    }
+
+    if (typeof value === 'object') {
+      if (Array.isArray(value)) {
+        (value as any[]).forEach(elem => httpParams = this.addToHttpParamsRecursive(httpParams, elem, key));
+      } else if (value instanceof Date) {
+        if (key != null) {
+          httpParams = httpParams.append(key, (value as Date).toISOString().substr(0, 10));
+        } else {
+          throw Error('key may not be null if value is Date');
+        }
+      } else {
+        Object.keys(value).forEach(k => httpParams = this.addToHttpParamsRecursive(
+          httpParams, value[k], key != null ? `${key}.${k}` : k));
+      }
+    } else if (key != null) {
+      httpParams = httpParams.append(key, value);
+    } else {
+      throw Error('key may not be null if value is not object or array');
+    }
+    return httpParams;
+  }
 
 }
