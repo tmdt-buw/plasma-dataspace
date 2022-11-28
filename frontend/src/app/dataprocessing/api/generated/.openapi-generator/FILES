@@ -8,10 +8,10 @@ encoder.ts
 git_push.sh
 index.ts
 model/combinedModel.ts
+model/combinedModelProvisionalRelationsInner.ts
 model/dataProperty.ts
 model/deltaModification.ts
 model/edge.ts
-model/modelMapping.ts
 model/models.ts
 model/objectProperty.ts
 model/relation.ts

@@ -48,16 +48,18 @@ export class ConversionDialogComponent implements OnInit {
             const filename = this.selectedFile.replace('.json', '.ttl');
             Util.download(filename, rdf);
           },
-          error => {
+          async error => {
+            const err = JSON.parse(await error.error.text());
             if (error.message.includes('service unavailable')) {
-              this.notification.error('Error during export', 'Processing service not reachable');
+              this.notification.error('Error during conversion', 'Processing service not reachable');
             } else {
-              this.notification.error('Error during export', 'Could not convert file: ' + error.error.message);
+
+              this.notification.error('Error during conversion', err.message);
             }
 
           });
       },
-      error => this.notification.error('Error during export', 'Could not obtain semantic model: ' + error.error.message));
+      error => this.notification.error('Error during conversion', 'Could not obtain semantic model: ' + error.error.message));
   }
 
   uploadFile = (item): Subscription => {

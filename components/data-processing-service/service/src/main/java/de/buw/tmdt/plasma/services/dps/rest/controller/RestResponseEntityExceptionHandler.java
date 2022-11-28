@@ -1,6 +1,7 @@
 package de.buw.tmdt.plasma.services.dps.rest.controller;
 
 import de.buw.tmdt.plasma.services.dps.api.ErrorDTO;
+import de.buw.tmdt.plasma.services.dps.conversion.ConversionException;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,7 +36,7 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
 
 	@ExceptionHandler(value = {ResponseStatusException.class})
 	public ResponseEntity<Object> handleResponseStatusException(ResponseStatusException ex) {
-		logger.info("A response Status Exception occurred {} {}", ex.getStatus(), ex.getMessage());
+		logger.info("A Response Status Exception occurred {} {}", ex.getStatus(), ex.getMessage());
 		ErrorDTO errorDTO = new ErrorDTO(ex.getStatus().value(), ex.getReason(), ex.getMessage());
 		return new ResponseEntity<>(errorDTO, HttpStatus.valueOf(errorDTO.getStatus()));
 	}

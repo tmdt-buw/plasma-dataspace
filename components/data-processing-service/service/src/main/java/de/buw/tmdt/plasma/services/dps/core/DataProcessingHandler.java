@@ -83,7 +83,7 @@ public class DataProcessingHandler {
             return asTurtle(combined);
         } catch (ConversionException e) {
             e.printStackTrace();
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Could not parse file content(s)");
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Could not convert file content(s): " + e.getMessage());
         } catch (FeignException e) {
             e.printStackTrace();
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Could not obtain prefixes from KGS.");

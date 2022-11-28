@@ -23,7 +23,7 @@ public interface DataProcessingApi {
     @GetMapping(value = "/available", produces = MediaType.TEXT_PLAIN_VALUE)
     ResponseEntity<String> isAvailable();
 
-    @PostMapping(value = "/convert", produces = "text/turtle")
+    @PostMapping(value = "/convert")
     String convertFile(@RequestBody CombinedModel template,
                        @RequestParam(value = "dataId") String dataId,
                        @RequestParam(value = "fileId", required = false) String fileId,
