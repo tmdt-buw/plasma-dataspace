@@ -143,7 +143,29 @@ public class SemanticModel implements Serializable {
         }
     }
 
-    public SemanticModel getArrayContext(SemanticModelNode node, List<String> visited, SemanticModel submodel) {
+    /**
+     * Build the array context this node belongs to.
+     * Built using recursive expansion following links (bi-directionally) that are marked as being part of an AC.
+     *
+     * @param node    The node to start from
+     * @param visited The list of already visited / processed nodes
+     * @return A {@link SemanticModel} submodel that contains all nodes of the array context
+     */
+    public SemanticModel getArrayContext(SemanticModelNode node, List<String> visited) {
+        SemanticModel submodel = new SemanticModel();
+        return getArrayContext(node, visited, submodel);
+    }
+
+    /**
+     * Recursion function to build the array context this node belongs to.
+     * Built using recursive expansion following links (bi-directionally) that are marked as being part of an AC.
+     *
+     * @param node     The node to start from
+     * @param visited  The list of already visited / processed nodes
+     * @param submodel An existing model that may already contain nodes of that specific context.
+     * @return A {@link SemanticModel} submodel that contains all nodes of the array context
+     */
+    private SemanticModel getArrayContext(SemanticModelNode node, List<String> visited, SemanticModel submodel) {
         visited.add(node.getUuid());
         if (submodel == null) {
             submodel = new SemanticModel();

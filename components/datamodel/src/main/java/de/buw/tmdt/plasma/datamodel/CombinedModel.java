@@ -486,7 +486,7 @@ public class CombinedModel implements Serializable {
                     .anyMatch(node -> node.getUuid().equals(unprocessedNode.getUuid()))) {
                 continue;
             }
-            SemanticModel arrayContext = this.getSemanticModel().getArrayContext(unprocessedNode, new ArrayList<>(), null);
+            SemanticModel arrayContext = this.getSemanticModel().getArrayContext(unprocessedNode, new ArrayList<>());
             if (arrayContext.getNodes().size() == 1) {
                 // check if this node is actually mapped below an array
                 SemanticModelNode semanticModelNode = arrayContext.getNodes().get(0);
@@ -503,6 +503,16 @@ public class CombinedModel implements Serializable {
             arrayContexts.add(arrayContext);
         }
         return arrayContexts;
+    }
+
+    public int getArrayDepthOfNode(SemanticModelNode semanticModelNode) {
+        if (!semanticModelNode.isMapped()) {
+            return -1;
+        }
+        MappableSemanticModelNode mappedNode = (MappableSemanticModelNode) semanticModelNode;
+        SchemaNode schemaNode = getSyntaxModel().getNode(mappedNode.getMappedSyntaxNodeUuid());
+        return (int) schemaNode.getPath().stream().filter(ARRAY_PATH_TOKEN::equals)
+                .count();
     }
 
     /**

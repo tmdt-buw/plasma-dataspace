@@ -124,16 +124,16 @@ public class RDFConverter {
 
         // process serialized arrays
 
-        // identify iteration contexts
+        // identify array contexts
         List<SemanticModel> arrayContexts = new ArrayList<>();
         for (SemanticModelNode unprocessedNode : unprocessedNodes) {
-            // check that this node is not part of any existing iteration context
+            // check that this node is not part of any existing array context
             if (arrayContexts.stream()
                     .flatMap(ic -> ic.getNodes().stream())
                     .anyMatch(node -> node.getUuid().equals(unprocessedNode.getUuid()))) {
                 continue;
             }
-            SemanticModel arrayContext = combinedModel.getSemanticModel().getArrayContext(unprocessedNode, new ArrayList<>(), null);
+            SemanticModel arrayContext = combinedModel.getSemanticModel().getArrayContext(unprocessedNode, new ArrayList<>());
             if (arrayContext.getNodes().size() == 1) {
                 // check if this node is actually mapped below an array
                 SemanticModelNode semanticModelNode = arrayContext.getNodes().get(0);
@@ -146,7 +146,21 @@ public class RDFConverter {
                     continue;
                 }
             }
-            // TODO check homogenity of each array context (same level)
+
+            // heck homogeneity of each array context (same level)
+            for (Relation r : arrayContext.getEdges()) {
+                SemanticModelNode from = semanticModel.getNode(r.getFrom());
+                SemanticModelNode to = semanticModel.getNode(r.getTo());
+                int fromLevel = combinedModel.getArrayDepthOfNode(from);
+                int toLevel = combinedModel.getArrayDepthOfNode(to);
+                if (fromLevel > 0 && toLevel > 0 && fromLevel != toLevel) {
+                    throw new ConversionException("Found array context spanning multiple array depths");
+                }
+                // reject all models with array context depth > 1 (remove when #68 is solved)
+                if (fromLevel > 1 || toLevel > 1) {
+                    throw new ConversionException("Array contexts of depth greater than 1 are not yet supported");
+                }
+            }
             arrayContexts.add(arrayContext);
         }
         arrayContexts = arrayContexts.stream().sorted(Comparator.comparing(ac ->
@@ -548,17 +562,14 @@ public class RDFConverter {
         Resource resource;
         String baseURI = smURI + semanticModelId + "-" + getCounter();
 
+        resource = m.createResource(baseURI);
         if (i != null) {
-            resource =
-                    m.createResource(baseURI);
             if (!PREDEFINED_LABELS.contains(i.getLabel())) {
                 resource.addProperty(PLCM.label, m.createLiteral(i.getLabel()));
             }
             if (i.getDescription() != null && !i.getDescription().isBlank()) {
                 resource.addProperty(PLCM.description, m.createLiteral(i.getDescription()));
             }
-        } else {
-            resource = m.createResource(baseURI);
         }
         resource.addProperty(RDF.type, m.createResource(m.expandPrefix(clazz.getURI())));
         if (clazz.isMapped()) {
