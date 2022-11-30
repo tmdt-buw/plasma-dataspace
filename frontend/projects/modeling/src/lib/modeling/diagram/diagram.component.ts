@@ -245,10 +245,12 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
           return (el.id !== clazzId);
         });
         if (Nodes.isClass(elementView) && elementBelow) {
+          // map an existing class to a syntax node
           const syntaxNode = this.findSyntaxNodeById(elementBelow.id as string);
           const classNode = this.findSemanticNodeById(clazzId as string) as Class;
 
-          if ((syntaxNode._class === 'PrimitiveNode' || syntaxNode._class === 'SetNode' || syntaxNode._class === 'ObjectNode') && !classNode.syntaxNodeUuid) {
+          if ((syntaxNode._class === 'PrimitiveNode' || syntaxNode._class === 'SetNode' || syntaxNode._class === 'ObjectNode')
+            && !classNode.syntaxNodeUuid && !syntaxNode.disabled) {
             if (!classNode.instance) {
               classNode.instance = {
                 label: syntaxNode.label,
