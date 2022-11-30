@@ -1,6 +1,5 @@
 package de.buw.tmdt.plasma.datamodel.semanticmodel;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -84,7 +83,6 @@ public abstract class MappableSemanticModelNode extends SemanticModelNode {
     }
 
     @Override
-    @JsonIgnore
     public boolean isMapped() {
         return getMappedSyntaxNodeUuid() != null;
     }

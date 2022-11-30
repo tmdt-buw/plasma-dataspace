@@ -426,6 +426,16 @@ public class CombinedModel implements Serializable {
 
             );
         }
+        // check the consistency of all arraycontexts
+        for (SemanticModel arrayContext : getArrayContexts()) {
+            boolean hasMappedArrayNode = arrayContext.getNodes().stream().filter(SemanticModelNode::isMapped)
+                    .map(node -> (MappableSemanticModelNode) node)
+                    .map(node -> syntaxModel.getNode(node.getMappedSyntaxNodeUuid()))
+                    .anyMatch(node -> node.getPath().contains(ARRAY_PATH_TOKEN));
+            if (!hasMappedArrayNode) {
+                arrayContext.getEdges().forEach(e -> e.setArrayContext(false));
+            }
+        }
         // now validate the model state
         validate();
         lastModification = delta;
