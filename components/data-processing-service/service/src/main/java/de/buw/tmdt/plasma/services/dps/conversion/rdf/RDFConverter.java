@@ -1,7 +1,9 @@
 package de.buw.tmdt.plasma.services.dps.conversion.rdf;
 
 import com.fasterxml.jackson.core.JsonPointer;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ValueNode;
 import de.buw.tmdt.plasma.datamodel.CombinedModel;
@@ -606,8 +608,21 @@ public class RDFConverter {
     private String readJSONArray(ArrayNode arrayNode) {
         List<String> values = new ArrayList<>();
         arrayNode.elements().forEachRemaining(el -> {
-            ValueNode v = (ValueNode) el;
-            values.add(v.asText());
+            if (el instanceof ValueNode) {
+                ValueNode v = (ValueNode) el;
+                values.add(v.asText());
+            } else if (el instanceof com.fasterxml.jackson.databind.node.ObjectNode) {
+                com.fasterxml.jackson.databind.node.ObjectNode o = (com.fasterxml.jackson.databind.node.ObjectNode) el;
+                ObjectMapper mapper = new ObjectMapper();
+                try {
+                    String objectString = mapper.writeValueAsString(o);
+                    values.add(objectString);
+                } catch (JsonProcessingException e) {
+                    e.printStackTrace();
+                }
+
+            }
+
         });
         return values.stream()
                 .map(v -> {
