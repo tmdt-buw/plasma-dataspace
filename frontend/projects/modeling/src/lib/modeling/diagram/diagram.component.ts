@@ -542,8 +542,42 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
   }
 
   private isArrayContextAvailable(link: Relation): boolean {
-
-    return false;
+    const from: SemanticModelNode = this.combinedModel.semanticModel.nodes.find(n => n.uuid === link.from);
+    const to: SemanticModelNode = this.combinedModel.semanticModel.nodes.find(n => n.uuid === link.to);
+    console.log('checking link', from, to);
+    // check if any of those two nodes is mapped to a sub-array node
+    if (from.mapped && ['Class', 'Literal'].includes(to._class)) {
+      // treating as literal here as we only need the mapping info and openapi does not provide the shared abstract class
+      const mappedNodeUuid = (from as Literal).syntaxNodeUuid;
+      const mappedFrom: SyntaxNode = this.combinedModel.syntaxModel.nodes.find(n => n.uuid === mappedNodeUuid);
+      const depthFrom = mappedFrom.path.filter(v => v === '0').length;
+      console.log('depthFrom', depthFrom);
+      if (depthFrom > 0) {
+        // prevent array contexts with depth > 1 (remove with #68)
+        if (depthFrom > 1) {
+          return false;
+        }
+        return true;
+      }
+    }
+    if (to.mapped && ['Class', 'Literal'].includes(to._class)) {
+      // treating as literal here as we only need the mapping info and openapi does not provide the shared abstract class
+      const mappedNodeUuid = (to as Literal).syntaxNodeUuid;
+      const mappedTo: SyntaxNode = this.combinedModel.syntaxModel.nodes.find(n => n.uuid === mappedNodeUuid);
+      const depthTo = mappedTo.path.filter(v => v === '0').length;
+      if (depthTo > 0) {
+        // prevent array contexts with depth > 1 (remove with #68)
+        if (depthTo > 1) {
+          return false;
+        }
+        return true;
+      }
+    }
+    // check if any of from/to nodes are part of an array context
+    console.log(this._arrayContexts, this.combinedModel);
+    const b = this._arrayContexts.some(ac => ac.some(id => id === from.uuid || id === to.uuid));
+    console.log(b);
+    return b;
   }
 
   /**
