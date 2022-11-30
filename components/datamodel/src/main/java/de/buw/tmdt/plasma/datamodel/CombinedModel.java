@@ -401,36 +401,16 @@ public class CombinedModel implements Serializable {
             }
         }
 
-        // disable primitive nodes below a mapped setnode
+        // disable nodes below a mapped SetNode
         syntaxModel.getNodes().stream()
                 .filter(node -> node instanceof SetNode)
                 .map(node -> (SetNode) node)
-
                 .forEach(setNode -> {
                     if (isMappedSchemaNode(setNode)) {
-                        syntaxModel.getChildNodesForNode(setNode.getUuid()).stream()
-                                .filter(cNode -> cNode instanceof PrimitiveNode)
-                                .forEach(cNode -> {
-                                    syntaxModel.getEdges().stream()
-                                            .filter(e -> e.getFromId().equals(setNode.getUuid()) && e.getToId().equals(cNode.getUuid()))
-                                            .forEach(edge -> edge.setDisabled(true));
-                                    cNode.setDisabled(true);
-                                    MappableSemanticModelNode mappingNode = getMappingSemanticNode(cNode);
-                                    if (mappingNode != null) {
-                                        mappingNode.unmap();
-                                    }
-                                });
+                        setStatusOfChildElements(setNode, true, false, true);
                     } else {
-                        syntaxModel.getChildNodesForNode(setNode.getUuid()).stream()
-                                .filter(cNode -> cNode instanceof PrimitiveNode)
-                                .forEach(cNode -> {
-                                    syntaxModel.getEdges().stream()
-                                            .filter(e -> e.getFromId().equals(setNode.getUuid()) && e.getToId().equals(cNode.getUuid()))
-                                            .forEach(edge -> edge.setDisabled(false));
-                                    cNode.setDisabled(false);
-                                });
+                        setStatusOfChildElements(setNode, false, false, false);
                     }
-
                 });
 
         // check consistency of semantic model in case elements have been removed
@@ -449,6 +429,34 @@ public class CombinedModel implements Serializable {
         // now validate the model state
         validate();
         lastModification = delta;
+    }
+
+    private void setStatusOfChildElements(SchemaNode node, Boolean disabled, Boolean visible, boolean unmap) {
+        syntaxModel.getEdges().stream()
+                .filter(e -> e.getFromId().equals(node.getUuid()))
+                .forEach(edge -> {
+                    if (disabled != null) {
+                        edge.setDisabled(disabled);
+                    }
+                    if (visible != null) {
+                        edge.setVisible(visible);
+                    }
+                    // process the subnodes
+                    SchemaNode childNode = syntaxModel.getNode(edge.getToId());
+                    if (disabled != null) {
+                        childNode.setDisabled(disabled);
+                    }
+                    if (visible != null) {
+                        childNode.setVisible(visible);
+                    }
+                    if (unmap) {
+                        MappableSemanticModelNode mappingNode = getMappingSemanticNode(childNode);
+                        if (mappingNode != null) {
+                            mappingNode.unmap();
+                        }
+                    }
+                    setStatusOfChildElements(childNode, disabled, visible, unmap);
+                });
     }
 
     private boolean isMappedSchemaNode(SchemaNode sn) {
