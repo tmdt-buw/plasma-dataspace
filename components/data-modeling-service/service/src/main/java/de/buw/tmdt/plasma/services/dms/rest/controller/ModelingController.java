@@ -134,7 +134,7 @@ public class ModelingController implements ModelingAPI {
 
     @NotNull
     @Override
-    @Operation(description = "Requests all array contexts for the given model")
+    @Operation(description = "Requests all array context represented by element ids (nodes and edges) for the given model")
     public List<Set<String>> getArrayContexts(@NotNull String modelId) {
         return modelingHandler.getArrayContexts(modelId);
     }

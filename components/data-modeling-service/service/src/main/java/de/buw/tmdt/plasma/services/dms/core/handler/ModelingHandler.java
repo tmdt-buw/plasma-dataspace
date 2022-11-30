@@ -34,6 +34,7 @@ import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class ModelingHandler {
@@ -243,8 +244,8 @@ public class ModelingHandler {
     public List<Set<String>> getArrayContexts(@NotNull String modelId) {
         CombinedModel combinedModel = getCombinedModel(modelId);
         List<Set<String>> sets = combinedModel.getArrayContexts().stream()
-                .map(SemanticModel::getEdges)
-                .map(set -> set.stream().map(CombinedModelElement::getUuid)
+                .map(sm -> Stream.concat(sm.getEdges().stream().map(CombinedModelElement::getUuid),
+                                sm.getNodes().stream().map(CombinedModelElement::getUuid))
                         .collect(Collectors.toSet()))
                 .collect(Collectors.toList());
         return sets;
