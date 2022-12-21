@@ -6,6 +6,7 @@ target/
 .idea/*
 !.idea/.name
 !.idea/copyright/
+.fleet/*
 
 #Share all dictionaries
 !.idea/dictionaries/

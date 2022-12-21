@@ -12,6 +12,7 @@ import { Configuration } from '../../../projects/modeling/src/lib/api/generated/
 import { environment } from '../../environments/environment';
 import { ArraycontextInfoComponent } from './arraycontext-info/arraycontext-info.component';
 import { NzPageHeaderModule } from 'ng-zorro-antd/page-header';
+import { NzCardModule } from 'ng-zorro-antd/card';
 
 @NgModule({
   declarations: [
@@ -33,6 +34,7 @@ import { NzPageHeaderModule } from 'ng-zorro-antd/page-header';
     CommonModule,
     NzButtonModule,
     NzPageHeaderModule,
+    NzCardModule,
   ]
 })
 export class DataprocessingModule {
