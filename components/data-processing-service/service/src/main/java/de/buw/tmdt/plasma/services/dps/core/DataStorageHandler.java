@@ -56,8 +56,9 @@ public class DataStorageHandler {
 
     /**
      * Processes a file and returns the converted data.
+     *
      * @param dataId data id, can be null
-     * @param file file to process
+     * @param file   file to process
      * @return sample dto consisting of data id and sample
      */
     public SampleDTO storeFile(@Nullable String dataId, @NotNull MultipartFile file) {
@@ -107,7 +108,7 @@ public class DataStorageHandler {
             } else if ("csv".equalsIgnoreCase(fileEnding)) {
                 // Convert CSV to JSON
                 result = CSVConverter.convert(content, 1);
-            } else if  ("json".equalsIgnoreCase(fileEnding)) {
+            } else if ("json".equalsIgnoreCase(fileEnding)) {
                 result = content;
             }
         } catch (IOException | de.buw.tmdt.plasma.converter.ConversionException e) {
@@ -146,14 +147,16 @@ public class DataStorageHandler {
                 jsonSampleList.add(obj.toString());
             }
         } catch (JsonProcessingException e) {
-            newFilePath.toFile().delete();
+            if (!newFilePath.toFile().delete()) {
+                log.error("Could not properly delete file");
+            }
             throw new ResponseStatusException(
                     HttpStatus.INTERNAL_SERVER_ERROR,
                     "Formatting error in JSON file"
             );
         }
 
-        return new SampleDTO(dataId,newFilePath.getFileName().toString(), jsonSampleList);
+        return new SampleDTO(dataId, newFilePath.getFileName().toString(), jsonSampleList);
     }
 
     /**

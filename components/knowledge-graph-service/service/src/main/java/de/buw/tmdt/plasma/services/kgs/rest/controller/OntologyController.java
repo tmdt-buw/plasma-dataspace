@@ -99,15 +99,15 @@ public class OntologyController implements OntologyApi {
     public void validateURI(String uri) {
         try {
             IRIs.checkEx(uri);
-        } catch (IRIException ie){
+        } catch (IRIException ie) {
             throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "The URI provided is not valid according to RFC3987");
         }
 
-        if(!getElements(List.of(localOntologyLabel), null, null, uri).isEmpty()){
+        if (!getElements(List.of(localOntologyLabel), null, null, uri).isEmpty()) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "The URI provided is already in use in the local ontology");
         }
 
-        if(!getRelations(List.of(localOntologyLabel), null, null, uri).isEmpty()){
+        if (!getRelations(List.of(localOntologyLabel), null, null, uri).isEmpty()) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "The URI provided is already in use in the local ontology");
         }
     }

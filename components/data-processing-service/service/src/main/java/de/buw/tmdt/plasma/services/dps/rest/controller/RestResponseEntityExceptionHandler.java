@@ -1,7 +1,6 @@
 package de.buw.tmdt.plasma.services.dps.rest.controller;
 
 import de.buw.tmdt.plasma.services.dps.api.ErrorDTO;
-import de.buw.tmdt.plasma.services.dps.conversion.ConversionException;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

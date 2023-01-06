@@ -528,7 +528,7 @@ public class ModelingHandler {
         //load model - DON'T COPY since caching of provisional nodes is not "undoable"
         Modeling modeling = findModelingOrThrow(modelId);
         CombinedModel combinedModel = getCombinedModel(modeling, true);
-        if(oldURI == null || oldURI.isBlank()){
+        if (oldURI == null || oldURI.isBlank()) {
             oldURI = node.getURI();
         }
         String refURI = oldURI;
@@ -539,11 +539,11 @@ public class ModelingHandler {
                     combinedModel.getProvisionalElements());
 
             combinedModel.getSemanticModel().getNodes().forEach(sm_node -> {
-                if (Objects.equals(sm_node.getURI(),refURI)) {
+                if (Objects.equals(sm_node.getURI(), refURI)) {
                     sm_node.setURI(node.getURI());
                     sm_node.setLabel(node.getLabel());
-                    if(node instanceof Class){
-                        ((Class)sm_node).setDescription(((Class) node).getDescription());
+                    if (node instanceof Class) {
+                        ((Class) sm_node).setDescription(((Class) node).getDescription());
                     }
                 }
             });
@@ -560,7 +560,7 @@ public class ModelingHandler {
     public void uncacheNode(@NotNull String modelId, String uri) {
         Modeling modeling = findModelingOrThrow(modelId);
         CombinedModel combinedModel = getCombinedModel(modeling, true);
-        boolean inUse = combinedModel.getSemanticModel().getNodes().stream().anyMatch(node -> node.getURI().equals(uri));
+        boolean inUse = combinedModel.getSemanticModel().getNodes().stream().anyMatch(node -> Objects.equals(node.getURI(), uri));
         if (inUse) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Node with URI " + uri + " is in use in this model. Please remove all instances before deleting.");
         }
@@ -606,7 +606,7 @@ public class ModelingHandler {
         //load schema - DON'T COPY since caching of transient concepts is not "undoable"
         Modeling modeling = findModelingOrThrow(modelId);
         CombinedModel combinedModel = getCombinedModel(modeling, true);
-        if(oldURI == null || oldURI.isBlank()){
+        if (oldURI == null || oldURI.isBlank()) {
             oldURI = relation.getURI();
         }
         String refURI = oldURI;
@@ -617,7 +617,7 @@ public class ModelingHandler {
         );
 
         combinedModel.getSemanticModel().getEdges().forEach(sm_edge -> {
-            if (Objects.equals(sm_edge.getURI(),refURI)) {
+            if (Objects.equals(sm_edge.getURI(), refURI)) {
                 sm_edge.setUri(relation.getURI());
                 sm_edge.setLabel(relation.getLabel());
                 sm_edge.setDescription(relation.getDescription());
@@ -634,7 +634,7 @@ public class ModelingHandler {
         Modeling modeling = findModelingOrThrow(modelId);
         CombinedModel combinedModel = getCombinedModel(modeling, true);
 
-        boolean inUse = combinedModel.getSemanticModel().getEdges().stream().anyMatch(rel -> rel.getURI().equals(uri));
+        boolean inUse = combinedModel.getSemanticModel().getEdges().stream().anyMatch(rel -> Objects.equals(rel.getURI(), uri));
         if (inUse) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Relation with URI " + uri + " is in use in this model. Please remove all usages before deleting.");
         }
