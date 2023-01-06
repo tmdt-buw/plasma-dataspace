@@ -90,12 +90,22 @@ public interface ModelingAPI {
     CombinedModelElement cacheElement(@NotNull @PathVariable("modelId") String modelId, @NotNull @RequestBody SemanticModelNode node);
 
     @NotNull
-    @PostMapping(value = "/{modelId}/cache/relations", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    CombinedModelElement cacheRelation(@NotNull @PathVariable("modelId") String modelId, @NotNull @RequestBody Relation relation);
+    @PatchMapping(value = "/{modelId}/cache/nodes", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    CombinedModelElement updateProvisionalNode(@NotNull @PathVariable("modelId") String modelId, @NotNull @RequestBody SemanticModelNode node, @RequestParam(value = "oldURI", required = false) String oldURI);
+
 
     @DeleteMapping(value = "/{modelId}/cache/nodes")
     void deleteCachedElement(@NotNull @PathVariable("modelId") String modelId, @RequestParam(value = "uri") @NotNull String uri);
 
+
+    @NotNull
+    @PostMapping(value = "/{modelId}/cache/relations", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    CombinedModelElement cacheRelation(@NotNull @PathVariable("modelId") String modelId, @NotNull @RequestBody Relation relation);
+
+    @NotNull
+    @PatchMapping(value = "/{modelId}/cache/relations", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    CombinedModelElement updateProvisionalRelation(@NotNull @PathVariable("modelId") String modelId, @NotNull @RequestBody Relation relation, @RequestParam(value = "oldURI", required = false) String oldURI);
+    
     @DeleteMapping(value = "/{modelId}/cache/relations")
     void deleteCachedRelation(@NotNull @PathVariable("modelId") String modelId, @RequestParam(value = "uri") @NotNull String uri);
 

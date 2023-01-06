@@ -17,7 +17,9 @@ import { OntologyControllerService, OntologyInfo, SemanticModelControllerService
 import { ContextMenuService } from './context-menu/context-menu.service';
 import { ModalBaseConfig, ModalMouseEnabledConfig } from './dialogs/common/modal.base-config';
 import { PlsConceptDialogComponent } from './dialogs/concept-dialog/concept-dialog.component';
-import { PlsOperationsDialogComponent } from './dialogs/operations-dialog/operations-dialog/operations-dialog.component';
+import {
+  PlsOperationsDialogComponent
+} from './dialogs/operations-dialog/operations-dialog/operations-dialog.component';
 import { Filter } from './model/common/filter';
 import { Nodes } from './model/configuration/node';
 import { ContextMenuEvent, ContextMenuEventType } from './model/events/context-menu-event';
@@ -64,9 +66,9 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
   @Output() clickedNode = new EventEmitter();
 
   // ontologies
-  availableOntologies: Array<OntologyInfo>;
   selectedOntologies: Array<string>;
-  defaultNamespace: string = 'local:';
+  ontologies: Array<OntologyInfo>;
+  namespaces: Array<{ prefix: string, uri: string }>;
 
   // search bar
   searchControl = new FormControl();
@@ -105,11 +107,12 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.ontologyService.listOntologies().subscribe((ontologies: Array<OntologyInfo>) => {
-      this.availableOntologies = ontologies;
-      this.defaultNamespace = ontologies.find(ont => ont.local)?.prefix;
-      if (!this.defaultNamespace) {
-        this.defaultNamespace = '';
-      }
+      this.ontologies = ontologies;
+      this.namespaces = ontologies
+        .sort((ont1, ont2) => ont1.local ? -1 : 1)
+        .map(ont => {
+          return {uri: ont.uri, prefix: ont.prefix};
+        });
     });
     this.modelingService.getSelectedOntologies(this.modelId).subscribe((ontologies: Array<string>) => {
       this.selectedOntologies = ontologies;
@@ -268,7 +271,7 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
       deletion: true
     };
     this.modelingService.modifyModel(this.modelId, delta).subscribe((res) => {
-     this.getCombinedModel();
+      this.getCombinedModel();
     });
   }
 
@@ -379,7 +382,7 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
       nzContent: PlsConceptDialogComponent,
       nzComponentParams: {
         modelId: this.modelId,
-        defaultNamespace: this.defaultNamespace
+        namespaces: this.namespaces
       }
     };
     this.addConceptDialogRef = this.modal.create(Object.assign(config, ModalMouseEnabledConfig));
@@ -416,12 +419,12 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
     this.manageOntolggiesDialogRef.afterClose.subscribe(() => this.manageOntolggiesDialogRef = undefined);
     this.manageOntolggiesDialogRef.getContentComponent().ontologyCreated.subscribe(() => {
       this.ontologyService.listOntologies().subscribe((ontologies: Array<OntologyInfo>) => {
-        this.availableOntologies = ontologies;
+        this.ontologies = ontologies;
       });
     });
     this.manageOntolggiesDialogRef.getContentComponent().ontologyDeleted.subscribe(() => {
       this.ontologyService.listOntologies().subscribe((ontologies: Array<OntologyInfo>) => {
-        this.availableOntologies = ontologies;
+        this.ontologies = ontologies;
       });
     });
   }
@@ -480,7 +483,6 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
       this.combinedModel = combinedModel;
       this.notification.success('Semantic Modeling', 'Requested a semantic modeling. The result has been applied.');
     }, error => {
-      console.log(error);
       this.notification.error('Could not perform semantic modeling', error.error.message);
     });
   }

@@ -11,15 +11,15 @@
  */
 
 
-export interface SemanticModelNode {
-  template?: boolean;
-  mapped?: boolean;
-  uuid?: string;
-  label?: string;
-  uri?: string;
-  provisional?: boolean;
-  x?: number;
-  y?: number;
-  _class: string;
+export interface SemanticModelNode { 
+    mapped?: boolean;
+    template?: boolean;
+    uuid?: string;
+    label?: string;
+    uri?: string;
+    provisional?: boolean;
+    x?: number;
+    y?: number;
+    _class: string;
 }
 

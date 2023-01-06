@@ -8,6 +8,8 @@ import de.buw.tmdt.plasma.services.kgs.core.OntologyHandler;
 import de.buw.tmdt.plasma.services.kgs.shared.api.OntologyApi;
 import de.buw.tmdt.plasma.services.kgs.shared.model.ExportFormat;
 import de.buw.tmdt.plasma.services.kgs.shared.model.OntologyInfo;
+import org.apache.jena.irix.IRIException;
+import org.apache.jena.irix.IRIs;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +18,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Map;
@@ -88,9 +91,24 @@ public class OntologyController implements OntologyApi {
     }
 
     @Override
-    public Map<String, String> getPrefixes() {
+    public Map<String, String> getNamespaces() {
         return Ontologies.PREFIXES.getNsPrefixMap();
     }
 
+    @Override
+    public void validateURI(String uri) {
+        try {
+            IRIs.checkEx(uri);
+        } catch (IRIException ie){
+            throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "The URI provided is not valid according to RFC3987");
+        }
 
+        if(!getElements(List.of(localOntologyLabel), null, null, uri).isEmpty()){
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "The URI provided is already in use in the local ontology");
+        }
+
+        if(!getRelations(List.of(localOntologyLabel), null, null, uri).isEmpty()){
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "The URI provided is already in use in the local ontology");
+        }
+    }
 }

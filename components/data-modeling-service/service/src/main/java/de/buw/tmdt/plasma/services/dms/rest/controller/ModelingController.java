@@ -20,9 +20,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.validation.constraints.Null;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
@@ -177,23 +179,40 @@ public class ModelingController implements ModelingAPI {
 
     @NotNull
     @Override
-    @Operation(description = "Adds a new provisional node to the cache of the model.")
-    public CombinedModelElement cacheElement(@NotNull String modelId, @NotNull SemanticModelNode node) {
-        return modelingHandler.cacheNode(modelId, node);
+    @Operation(description = "Adds a new provisional node to the cache of the modeling.")
+    public CombinedModelElement cacheElement(@NotNull String modelingId, @NotNull SemanticModelNode node) {
+        return modelingHandler.cacheNode(modelingId, node);
     }
 
     @NotNull
     @Override
-    @Operation(description = "Adds a new provisional relation to the cache of the model.")
-    public CombinedModelElement cacheRelation(@NotNull String modelId, @NotNull Relation relation) {
-        return modelingHandler.cacheRelation(modelId, relation);
+    @Operation(description = "Updates provisional node in the cache of the modeling.")
+    public CombinedModelElement updateProvisionalNode(@NotNull String modelingId, @NotNull SemanticModelNode node, @Nullable String oldURI) {
+        return modelingHandler.updateCachedNode(modelingId, node, oldURI);
     }
 
     @Override
     @Operation(description = "Removes a cached element identified by the given URI")
     public void deleteCachedElement(@NotNull String modelId, @NotNull String uri) {
-        modelingHandler.uncacheElement(modelId, uri);
+        modelingHandler.uncacheNode(modelId, uri);
     }
+
+
+    @NotNull
+    @Override
+    @Operation(description = "Adds a new provisional relation to the cache of the modeling.")
+    public CombinedModelElement cacheRelation(@NotNull String modelingId, @NotNull Relation relation) {
+        return modelingHandler.cacheRelation(modelingId, relation);
+    }
+
+
+    @NotNull
+    @Override
+    @Operation(description = "Updates provisional relation in the cache of the modeling.")
+    public CombinedModelElement updateProvisionalRelation(@NotNull String modelingId, @NotNull Relation relation, @Nullable String oldURI) {
+        return modelingHandler.updateCachedRelation(modelingId, relation, oldURI);
+    }
+
 
     @Override
     @Operation(description = "Removes a cached relation identified by the given URI")

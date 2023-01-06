@@ -20,7 +20,7 @@ import { NzTabsModule } from 'ng-zorro-antd/tabs';
 import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
 import { NzTypographyModule } from 'ng-zorro-antd/typography';
 import { NzUploadModule } from 'ng-zorro-antd/upload';
-import { ApiModule, BASE_PATH, Configuration } from './api/generated/dms';
+import { ApiModule, BASE_PATH } from './api/generated/dms';
 import { ApiModule as KGSApiModule, BASE_PATH as KGS_BASE_PATH } from './api/generated/kgs';
 import { PlsSemanticClassMenuComponent } from './modeling/context-menu/semantic-class-menu/semantic-class-menu.component';
 import { PlsRelationConceptMenuComponent } from './modeling/context-menu/relation-menu/relation-menu.component';
@@ -28,8 +28,8 @@ import { PlsDiagramComponent } from './modeling/diagram/diagram.component';
 import { InlineInputEditComponent } from './modeling/dialogs/common/inline-edit/inline-edit.component';
 import { PlsConceptDialogComponent } from './modeling/dialogs/concept-dialog/concept-dialog.component';
 import { PlsImportDialogComponent } from './modeling/dialogs/import-dialog/import-dialog.component';
-import { PlsNewEntityDialogComponent } from './modeling/dialogs/new-entity-dialog/new-entity-dialog.component';
-import { PlsNewRelationDialogComponent } from './modeling/dialogs/new-relation-dialog/new-relation-dialog.component';
+import { PlsEditEntityDialogComponent } from './modeling/dialogs/edit-entity-dialog/edit-entity-dialog.component';
+import { PlsEditRelationDialogComponent } from './modeling/dialogs/edit-relation-dialog/edit-relation-dialog.component';
 import { PlsOperationsDialogModule } from './modeling/dialogs/operations-dialog/operations-dialog.module';
 import { PlsSemanticNodeDetailsComponent } from './modeling/dialogs/semantic-node-dialog/semantic-node.component';
 import { PlsSyntaxNodeDetailsComponent } from './modeling/dialogs/syntax-node-dialog/syntax-node.component';
@@ -49,15 +49,16 @@ import { ManageOntologiesDialogComponent } from './modeling/dialogs/manage-ontol
 import { NzListModule } from 'ng-zorro-antd/list';
 import { NzPopconfirmModule } from 'ng-zorro-antd/popconfirm';
 import { NzDescriptionsModule } from 'ng-zorro-antd/descriptions';
+import { UriGeneratorComponent } from './modeling/dialogs/common/uri-generator/uri-generator.component';
 
 
 @NgModule({
   declarations: [
     PlsModelingComponent, PlsDiagramComponent, PlsSyntaxNodeDetailsComponent,
-    PlsSemanticNodeDetailsComponent, PlsConceptDialogComponent, PlsNewEntityDialogComponent,
-    PlsNewRelationDialogComponent, PlsImportDialogComponent,
+    PlsSemanticNodeDetailsComponent, PlsConceptDialogComponent, PlsEditEntityDialogComponent,
+    PlsEditRelationDialogComponent, PlsImportDialogComponent,
     InlineInputEditComponent, PlsSemanticClassMenuComponent, PlsRelationConceptMenuComponent, PlsFullscreenDirective,
-    PlsNamedEntityMenuComponent, PlsLiteralMenuComponent, UploadOntologyComponent, CopySemanticModelComponent, ManageOntologiesDialogComponent
+    PlsNamedEntityMenuComponent, PlsLiteralMenuComponent, UploadOntologyComponent, CopySemanticModelComponent, ManageOntologiesDialogComponent, UriGeneratorComponent
   ],
   imports: [
     // Plasma
