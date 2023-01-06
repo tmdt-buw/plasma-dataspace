@@ -1,6 +1,7 @@
 package de.buw.tmdt.plasma.datamodel;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import de.buw.tmdt.plasma.datamodel.modification.DeltaModification;
 import de.buw.tmdt.plasma.datamodel.modification.operation.DataType;
@@ -495,6 +496,7 @@ public class CombinedModel implements Serializable {
     /**
      * Identify iteration contexts in the model.
      */
+    @JsonIgnore
     public List<SemanticModel> getArrayContexts() {
         List<SemanticModel> arrayContexts = new ArrayList<>();
         for (SemanticModelNode unprocessedNode : this.getSemanticModel().getNodes()) {

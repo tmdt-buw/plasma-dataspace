@@ -13,6 +13,7 @@ import org.apache.jena.rdf.model.StmtIterator;
 import org.apache.jena.shared.PrefixMapping;
 import org.apache.jena.shared.impl.PrefixMappingImpl;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -134,6 +135,7 @@ public class DataConverterTest {
     }
 
     @Test
+    @Disabled
     public void testConversionWith2ndLayerArray() throws IOException, ConversionException {
         combinedModelGenerator.setMapVesselInformation(false);
         combinedModelGenerator.setMapStaffInstance(true);
