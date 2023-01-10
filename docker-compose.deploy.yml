@@ -112,6 +112,10 @@ services:
     hostname: plasma-kgs
     user: root
     restart: unless-stopped
+    volumes:
+      - kgs_ontologies:/ontologies
+    environment:
+      - plasma.kgs.ontologies.folder=/ontologies
     depends_on:
       - discovery
       - neo4j
