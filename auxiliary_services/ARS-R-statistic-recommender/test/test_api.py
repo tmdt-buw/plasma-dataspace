@@ -1,7 +1,5 @@
 import unittest
 
-from pydantic import BaseModel
-
 import service
 from schemas import CombinedModel, SemanticModel, SemanticModelNode
 
