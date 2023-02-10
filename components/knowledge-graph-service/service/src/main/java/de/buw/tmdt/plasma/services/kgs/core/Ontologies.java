@@ -181,12 +181,12 @@ public class Ontologies {
         reloadOntologies();
     }
 
-    public OntModel createLocalOntology(String label, String prefix, String namespace, String description) {
+    public void createLocalOntology(String label, String prefix, String namespace, String description) {
         label = label.replaceAll(" ", "_");
         String filename = label + ".ttl";
 
         if (Files.exists(Paths.get(getOntologyFolder(), filename))) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "This ontology already exists.");
+            return;
         }
         OntModel createdOnto = ModelFactory.createOntologyModel();
         try {
@@ -212,7 +212,6 @@ public class Ontologies {
         }
         // rebuild the index
         reloadOntologies();
-        return createdOnto;
     }
 
     public void deleteOntology(String label) {
