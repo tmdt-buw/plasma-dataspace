@@ -1,49 +1,62 @@
 import json
+import os
 import pickle
+
+from rdflib import RDF, RDFS, OWL, URIRef, Graph, Literal, XSD
+
 import config
+from util.namespaces import PREFIXES
 from util.parse import get_classes_and_predicates, generate_id_dict, encode_triples
+from SPARQLWrapper import SPARQLWrapper, JSON, TURTLE, XML
+from util.graphutil import uninstanciate_graph, get_triples_from_model
 
 
 def get_models():
-    models = [
-        [
-            [
-                "http://plasma.uni-wuppertal.de/schema#latitude",
-                "http://plasma.uni-wuppertal.de/schema#definedBy",
-                "http://plasma.uni-wuppertal.de/schema#wgs84"
-            ],
-            [
-                "http://plasma.uni-wuppertal.de/schema#geoposition",
-                "http://plasma.uni-wuppertal.de/schema#consistsOf",
-                "http://plasma.uni-wuppertal.de/schema#longitude"
-            ],
-            [
-                "http://plasma.uni-wuppertal.de/schema#longitude",
-                "http://plasma.uni-wuppertal.de/schema#definedBy",
-                "http://plasma.uni-wuppertal.de/schema#wgs84"
-            ],
-            [
-                "http://plasma.uni-wuppertal.de/schema#location",
-                "http://plasma.uni-wuppertal.de/schema#has",
-                "http://plasma.uni-wuppertal.de/schema#address"
-            ],
-            [
-                "http://plasma.uni-wuppertal.de/schema#location",
-                "http://plasma.uni-wuppertal.de/schema#definedBy",
-                "http://plasma.uni-wuppertal.de/schema#geoposition"
-            ],
-            [
-                "http://plasma.uni-wuppertal.de/schema#geoposition",
-                "http://plasma.uni-wuppertal.de/schema#consistsOf",
-                "http://plasma.uni-wuppertal.de/schema#latitude"
-            ],
-            [
-                "http://plasma.uni-wuppertal.de/schema#location",
-                "http://plasma.uni-wuppertal.de/schema#has",
-                "http://plasma.uni-wuppertal.de/schema#geo_type"
-            ]
-        ]
-    ]
+    # establish connection to triple store (currently Fuseki)
+    host = os.getenv('sparql_endpoint')
+
+    sparql = SPARQLWrapper(host)
+    sparql.setQuery(PREFIXES + """
+        SELECT ?id WHERE {
+          ?model <http://plasma.uni-wuppertal.de/cm#cmUuid> ?id .
+        } LIMIT 100
+    """)
+    # sparql.setCredentials("admin", "plasma")
+    sparql.setReturnFormat(JSON)
+    results = sparql.query().convert()
+
+    print("found models", len(results["results"]["bindings"]))
+
+    models = []
+
+    for result in results["results"]["bindings"]:
+        model_id = result["id"]['value']
+        print('processing', model_id)
+
+        query = PREFIXES + f"""
+                    DESCRIBE ?node WHERE {{
+                      ?model <http://plasma.uni-wuppertal.de/cm#cmUuid> "{model_id}" .
+                      ?model <http://plasma.uni-wuppertal.de/cm#hasNode> ?node .
+                      ?node ?p ?o .
+                    }}
+                """
+
+        sparql.setReturnFormat(XML)
+        sparql.setQuery(query)
+
+        model_graph:Graph = sparql.queryAndConvert()
+
+        triples = list(model_graph.triples((None, None, None)))
+        print('model size', len(triples))
+
+        model_graph = uninstanciate_graph(model_graph)
+
+        triples = list(model_graph.triples((None, None, None)))
+        print('model size', len(triples))
+
+        triples = get_triples_from_model(model_graph)
+        models.append(triples)
+
     with open(config.CACHE.RAW_MODELS_PATH, "w") as file:
         json.dump(models, file)
 

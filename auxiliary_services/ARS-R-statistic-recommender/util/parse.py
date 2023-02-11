@@ -66,27 +66,6 @@ def get_graphs_from_ttl(directory) -> [rdflib.Graph]:
     return graph_list
 
 
-def get_triples_from_models(models) -> [(str, str, str)]:
-    triples = []
-    for model in models:
-        triples += get_triples_from_model(model)
-    return triples
-
-
-def get_triples_from_model(model) -> [(str, str, str)]:
-    triples = []
-    if isinstance(model, Graph):
-        for (s, p, o) in model.triples((None, None, None)):
-            (s, p, o) = (str(s), str(p), str(o))
-            triples.append((s, p, o))
-    else:
-        for triplet in model:
-            triples.append((triplet[0],triplet[1],triplet[2]))
-
-    # print(triples[:20])
-    return triples
-
-
 def get_classes_and_predicates(triples: [(str, str, str)]):
     # collect predicates and types
     all_preds = set([a for (s, a, t) in triples])

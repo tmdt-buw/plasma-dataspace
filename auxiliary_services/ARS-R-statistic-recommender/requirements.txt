@@ -6,3 +6,4 @@ rdflib==6.0.2
 pydantic
 datamodel-code-generator[http]
 uvicorn
+SPARQLWrapper
