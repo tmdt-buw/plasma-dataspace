@@ -106,7 +106,7 @@ def generate_lme(
     # 1.1 specify context
     context.append(anchor_id)  # ensure that the anchor node is always in context
     # 1.2 perform ME
-    candidate_nodes = me.recommend(positives=context)
+    candidate_nodes = me.recommend(positives=context, limit=10)
     # 1.3 (optional) filter undesired results (increases performance)
     candidate_nodes = [(id, cert) for (id, cert) in candidate_nodes if cert > .4]
     # 2. link prediction

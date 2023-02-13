@@ -40,13 +40,13 @@ def init():
         statistic_recommender = StatisticsRecommender.load(config.CACHE.SR_MODEL_PATH)
 
 
-def recommend(positives: [str], topn: int = 5) -> [(str, float)]:
+def recommend(positives: [str], limit: int = 5) -> [(str, float)]:
 
     positives = list(set(positives))  # remove duplicates
 
     try:
         n2v_most_similar = node2vec_model.wv.most_similar(
-            topn=topn,
+            topn=limit,
             positive=positives)
     except:
         logging.warning(f"Failed to retrieve n2v most similar for positives: {positives}")
@@ -66,19 +66,19 @@ def recommend(positives: [str], topn: int = 5) -> [(str, float)]:
     return most_similar_target_nodes
 
 
-def recommend_focus(history: [str], topn: int = 5) -> [str]:
-    most_similar_target_nodes = recommend(history,topn)
+def recommend_focus(history: [str], limit: int = 5) -> [str]:
+    most_similar_target_nodes = recommend(history, limit)
 
     return [x[0] for x in most_similar_target_nodes]  # drop the probabilities (for now)
 
 
-def recommend_general(model: nx.Graph, topn: int = 5) -> [str]:
+def recommend_general(model: nx.Graph, limit: int = 5) -> [str]:
     aggregate = {}
     candidates = []
     for node in model.nodes:
         neighborhood = [str(x) for x in model.neighbors(node)]  # 1 hop neighbors
         filter_nodes = model.nodes
-        most_similar_target_nodes = recommend([str(node)] + neighborhood, topn)
+        most_similar_target_nodes = recommend([str(node)] + neighborhood, limit)
         most_similar_target_nodes = [uri for uri in most_similar_target_nodes if uri[0] not in filter_nodes]
         # most_similar_target_nodes = most_similar_target_nodes[:1]
         logging.debug(f"{node} -> {most_similar_target_nodes}")
@@ -108,4 +108,4 @@ def recommend_general(model: nx.Graph, topn: int = 5) -> [str]:
     aggregate = sorted(aggregate.items(), key=lambda x: x[1], reverse=True)
     aggregate = sorted(candidates_max.items(), key=lambda x: x[1], reverse=True)
 
-    return aggregate[:topn]
+    return aggregate[:limit]
