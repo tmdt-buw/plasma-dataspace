@@ -31,9 +31,9 @@ import java.util.stream.Collectors;
 
 @Component
 @SuppressFBWarnings("PATH_TRAVERSAL_IN")
-public class Ontologies {
+public class OntologyManagement {
 
-    private static final Logger log = LoggerFactory.getLogger(Ontologies.class);
+    private static final Logger log = LoggerFactory.getLogger(OntologyManagement.class);
 
     static String SM_URI = "http://plasma.uni-wuppertal.de/sm/";
 
@@ -53,7 +53,7 @@ public class Ontologies {
             .setNsPrefix("plasma", "http://plasma.uni-wuppertal.de/ontology#");
 
     @Autowired
-    public Ontologies() {
+    public OntologyManagement() {
         mapper = new ObjectMapper()
                 .registerModule(new ParameterNamesModule())
                 .enable(SerializationFeature.INDENT_OUTPUT);
