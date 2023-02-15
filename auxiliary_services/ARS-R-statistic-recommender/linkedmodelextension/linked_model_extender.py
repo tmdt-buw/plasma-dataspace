@@ -27,6 +27,8 @@ def predicate_uri(pred_id: int) -> str:
 
 
 def predicate_id(pred_name: str) -> int:
+    if pred_name not in predicates_mapping:
+        return -1
     return predicates_mapping[pred_name]
 
 
@@ -37,6 +39,8 @@ def class_uri(class_id: int) -> str:
 
 
 def class_id(class_name: str) -> int:
+    if class_name not in classes_mapping:
+        return -1
     return classes_mapping[class_name]
 
 
@@ -53,6 +57,7 @@ def init():
             not os.path.isfile(config.CACHE.SR_MODEL_PATH) or \
             not os.path.isfile(config.CACHE.WORD2VEC_MODEL_PATH) or \
             not os.path.isfile(config.CACHE.RAW_MODELS_PATH):
+        clear_cache()
         rebuild_cache()
     else:
         with open(config.CACHE.CLASSES_MAPPING_PATH, "r") as file:
@@ -64,15 +69,17 @@ def init():
         lp.init()
 
 
-def rebuild_cache():
-    global classes_mapping
-    global predicates_mapping
-    print("rebuilding cache")
+def clear_cache():
     if not os.path.isdir(config.CACHE.BASE_PATH):
         os.makedirs(config.CACHE.BASE_PATH, exist_ok=True)
     for file in os.listdir(config.CACHE.BASE_PATH):
         os.remove(Path(config.CACHE.BASE_PATH, file))
 
+
+def rebuild_cache():
+    global classes_mapping
+    global predicates_mapping
+    print("rebuilding cache")
     # rebuild model index
     modelbuilder.get_models()
     assert os.path.isfile(config.CACHE.RAW_MODELS_PATH)
@@ -101,12 +108,15 @@ def generate_lme(
 
     # 0 encode URI to id for anchor and candidates (context)
     anchor_id = class_id(anchor)
+    if anchor_id == -1:
+        # unknown anchor
+        return []
     context = [class_id(c) for c in context]
     # 1. candidate nodes
     # 1.1 specify context
     context.append(anchor_id)  # ensure that the anchor node is always in context
     # 1.2 perform ME
-    candidate_nodes = me.recommend(positives=context)
+    candidate_nodes = me.recommend(positives=context, limit=10)
     # 1.3 (optional) filter undesired results (increases performance)
     candidate_nodes = [(id, cert) for (id, cert) in candidate_nodes if cert > .4]
     # 2. link prediction

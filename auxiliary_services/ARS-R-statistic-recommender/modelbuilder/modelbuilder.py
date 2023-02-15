@@ -1,6 +1,7 @@
 import json
 import os
 import pickle
+from typing import Dict
 
 from rdflib import RDF, RDFS, OWL, URIRef, Graph, Literal, XSD
 
@@ -13,12 +14,13 @@ from util.graphutil import uninstanciate_graph, get_triples_from_model
 
 def get_models():
     # establish connection to triple store (currently Fuseki)
-    host = os.getenv('sparql_endpoint')
+    host = os.getenv('SPARQL_SM_STORE')
+    assert host
 
     sparql = SPARQLWrapper(host)
     sparql.setQuery(PREFIXES + """
         SELECT ?id WHERE {
-          ?model <http://plasma.uni-wuppertal.de/cm#cmUuid> ?id .
+          ?model plcm:cmUuid ?id .
         } LIMIT 100
     """)
     # sparql.setCredentials("admin", "plasma")
@@ -35,8 +37,8 @@ def get_models():
 
         query = PREFIXES + f"""
                     DESCRIBE ?node WHERE {{
-                      ?model <http://plasma.uni-wuppertal.de/cm#cmUuid> "{model_id}" .
-                      ?model <http://plasma.uni-wuppertal.de/cm#hasNode> ?node .
+                      ?model plcm:cmUuid "{model_id}" .
+                      ?model plcm:hasNode ?node .
                       ?node ?p ?o .
                     }}
                 """
@@ -44,7 +46,7 @@ def get_models():
         sparql.setReturnFormat(XML)
         sparql.setQuery(query)
 
-        model_graph:Graph = sparql.queryAndConvert()
+        model_graph: Graph = sparql.queryAndConvert()
 
         triples = list(model_graph.triples((None, None, None)))
         print('model size', len(triples))
@@ -59,6 +61,35 @@ def get_models():
 
     with open(config.CACHE.RAW_MODELS_PATH, "w") as file:
         json.dump(models, file)
+
+
+def build_label_index():
+    host = os.getenv('sparql_ontologies_store')
+
+    sparql = SPARQLWrapper(host)
+    sparql.setQuery(PREFIXES + """
+            SELECT ?uri ?label ?comment WHERE {
+                    ?uri rdfs:label ?label .
+                    OPTIONAL { ?uri rdfs:comment ?comment }
+        } 
+        """)
+    # FILTER(?uri in (<uri1>,<uri2>))
+
+    # sparql.setCredentials("admin", "plasma")
+    sparql.setReturnFormat(JSON)
+    results = sparql.query().convert()
+
+    meta_info: Dict[str, {str, str}] = {}
+
+    for result in results["results"]["bindings"]:
+        uri = result["uri"]['value']
+        label = result["label"]['value']
+        if "comment" in result:
+            comment = result["comment"]['value']
+
+        meta_info[uri] = {'label':label, 'comment':comment}
+
+    return meta_info
 
 
 def generate_mappings():

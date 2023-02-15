@@ -11,7 +11,7 @@ PREFIX_MAP = {'rdf': str(RDF),
               'owl': str(OWL),
               'schema': str(SDO),
               'xsd': str(XSD),
-              'sm': 'http://plasma.uni-wuppertal.de/sm/',
+              'plsm': 'http://plasma.uni-wuppertal.de/sm/',
               'plasma': 'http://plasma.uni-wuppertal.de/schema#',
               'plcm': 'http://plasma.uni-wuppertal.de/cm#'}
 
