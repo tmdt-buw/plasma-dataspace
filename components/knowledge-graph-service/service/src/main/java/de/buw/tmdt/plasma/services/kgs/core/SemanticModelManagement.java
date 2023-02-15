@@ -26,7 +26,7 @@ public class SemanticModelManagement {
 
     private RDFConnectionRemoteBuilder builder;
 
-    public SemanticModelManagement(@Value("${plasma.kgs.semanticmodels.server.url}") String semanticModelServerAddress) {
+    public SemanticModelManagement(@Value("${plasma.kgs.semanticmodels.store.url}") String semanticModelServerAddress) {
         builder = RDFConnectionFuseki.create()
                 .destination(semanticModelServerAddress);
     }
