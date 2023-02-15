@@ -19,7 +19,7 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static de.buw.tmdt.plasma.services.kgs.core.Ontologies.PREFIXES;
+import static de.buw.tmdt.plasma.services.kgs.core.OntologyManagement.PREFIXES;
 
 /**
  * Converts a {@link SemanticModel} from a {@link de.buw.tmdt.plasma.datamodel.CombinedModel} to

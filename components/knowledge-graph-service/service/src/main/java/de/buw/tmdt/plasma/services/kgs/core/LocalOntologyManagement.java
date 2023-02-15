@@ -21,7 +21,7 @@ import javax.annotation.PostConstruct;
 import java.util.List;
 import java.util.Optional;
 
-import static de.buw.tmdt.plasma.services.kgs.core.Ontologies.PREFIXES;
+import static de.buw.tmdt.plasma.services.kgs.core.OntologyManagement.PREFIXES;
 
 /**
  * Handles the connection to the ontology build by manually adding objects and relations.
@@ -29,7 +29,7 @@ import static de.buw.tmdt.plasma.services.kgs.core.Ontologies.PREFIXES;
 @Service
 public class LocalOntologyManagement {
 
-    private final Ontologies ontologies;
+    private final OntologyManagement ontologyManagement;
 
     @Value("${plasma.kgs.localontology.prefix:local}")
     private String localOntologyPrefix;
@@ -41,8 +41,8 @@ public class LocalOntologyManagement {
     private String localOntologyDescription;
 
 
-    public LocalOntologyManagement(Ontologies ontologies) {
-        this.ontologies = ontologies;
+    public LocalOntologyManagement(OntologyManagement ontologyManagement) {
+        this.ontologyManagement = ontologyManagement;
     }
 
     @PostConstruct
@@ -109,12 +109,12 @@ public class LocalOntologyManagement {
     }
 
     public OntModel getInternalOntology() {
-        Optional<OntModel> localModel = ontologies.getOntologyModelByLabel(localOntologyLabel);
+        Optional<OntModel> localModel = ontologyManagement.getOntologyModelByLabel(localOntologyLabel);
         if (localModel.isEmpty()) {
             // create a new local ontology
-            ontologies.createLocalOntology(localOntologyLabel, localOntologyPrefix, localOntologyUri, localOntologyDescription);
+            ontologyManagement.createLocalOntology(localOntologyLabel, localOntologyPrefix, localOntologyUri, localOntologyDescription);
         }
-        localModel = ontologies.getOntologyModelByLabel(localOntologyLabel);
+        localModel = ontologyManagement.getOntologyModelByLabel(localOntologyLabel);
         if(localModel.isEmpty()){
             throw new IllegalStateException("Could not find or create local ontology!");
         }
@@ -248,6 +248,6 @@ public class LocalOntologyManagement {
     private void putModel(Model model) {
         OntModel internalOntology = getInternalOntology();
         internalOntology.add(model);
-        ontologies.updateOntology(localOntologyLabel, internalOntology);
+        ontologyManagement.updateOntology(localOntologyLabel, internalOntology);
     }
 }

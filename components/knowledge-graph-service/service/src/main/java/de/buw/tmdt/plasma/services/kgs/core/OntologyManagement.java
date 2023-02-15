@@ -6,12 +6,16 @@ import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import de.buw.tmdt.plasma.services.kgs.shared.model.OntologyInfo;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.jena.arq.querybuilder.UpdateBuilder;
 import org.apache.jena.ontology.OntModel;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
+import org.apache.jena.rdfconnection.RDFConnectionFuseki;
+import org.apache.jena.rdfconnection.RDFConnectionRemoteBuilder;
 import org.apache.jena.riot.RiotException;
 import org.apache.jena.shared.PrefixMapping;
 import org.apache.jena.shared.impl.PrefixMappingImpl;
+import org.apache.jena.update.Update;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,9 +35,9 @@ import java.util.stream.Collectors;
 
 @Component
 @SuppressFBWarnings("PATH_TRAVERSAL_IN")
-public class Ontologies {
+public class OntologyManagement {
 
-    private static final Logger log = LoggerFactory.getLogger(Ontologies.class);
+    private static final Logger log = LoggerFactory.getLogger(OntologyManagement.class);
 
     static String SM_URI = "http://plasma.uni-wuppertal.de/sm/";
 
@@ -46,18 +50,24 @@ public class Ontologies {
     private final ObjectMapper mapper;
     @Value("${plasma.kgs.ontologies.folder:./ontologies}")
     private String ontologyFolder;
+
     private static final PrefixMapping DEFAULT_PREFIXES = new PrefixMappingImpl()
             .setNsPrefixes(PrefixMapping.Standard)
             .setNsPrefix("plcm", PLCM.getURI())
             .setNsPrefix("plsm", SM_URI)
             .setNsPrefix("plasma", "http://plasma.uni-wuppertal.de/ontology#");
 
+    private RDFConnectionRemoteBuilder builder;
+
+
     @Autowired
-    public Ontologies() {
+    public OntologyManagement(@Value("${plasma.kgs.ontologies.store.url}") String ontologyStoreAddress) {
         mapper = new ObjectMapper()
                 .registerModule(new ParameterNamesModule())
                 .enable(SerializationFeature.INDENT_OUTPUT);
         DEFAULT_PREFIXES.getNsPrefixMap().forEach(PREFIXES::setNsPrefix);
+        builder = RDFConnectionFuseki.create()
+                .destination(ontologyStoreAddress);
     }
 
     @PostConstruct
@@ -83,6 +93,7 @@ public class Ontologies {
                         if (!("." + FilenameUtils.getExtension(filePath.toString())).equals(ontologySuffix)) {
                             return;
                         }
+                        log.info("Loading " + filePath);
                         try {
 
                             Ontology ontology = mapper.readValue(filePath.toFile(), Ontology.class);
@@ -119,6 +130,33 @@ public class Ontologies {
         PREFIXES.setNsPrefixes(DEFAULT_PREFIXES);
         ontologyModels.keySet().forEach(o -> PREFIXES.setNsPrefix(o.getPrefix(), o.getUri()));
         rebuildOntologyInfoCache();
+        publishOntologyInformation();
+    }
+
+    /**
+     * Creates a copy of all ontologies in the triple store
+     */
+    private void publishOntologyInformation() {
+        try (RDFConnectionFuseki conn = (RDFConnectionFuseki) builder.build()) {
+
+            // clear the current ontology store
+            UpdateBuilder updateBuilder = new UpdateBuilder()
+                    .addDelete("?s", "?p", "?o")
+                    .addWhere("?s", "?p", "?o");
+            Update deleteAll = updateBuilder.buildDeleteWhere();
+            conn.update(deleteAll);
+
+            // add all loaded ontologies one by one
+            for (OntModel model : ontologyModels.values()) {
+                updateBuilder = new UpdateBuilder()
+                        .addPrefixes(PREFIXES)
+                        .addInsert(model);
+                Update insert = updateBuilder.build();
+
+                conn.update(insert);
+            }
+        }
+        log.info("Updated ontology triple store");
     }
 
     private void rebuildOntologyInfoCache() {
