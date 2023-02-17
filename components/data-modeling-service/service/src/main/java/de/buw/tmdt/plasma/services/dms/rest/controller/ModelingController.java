@@ -123,7 +123,7 @@ public class ModelingController implements ModelingAPI {
 
     @NotNull
     @Override
-    @Operation(description = "Returns the current schema of the specified model.")
+    @Operation(description = "Returns the current combined model of the specified modeling.")
     public CombinedModel getCombinedModel(@NotNull String modelId) {
         CombinedModel combinedModel = modelingHandler.getCombinedModel(modelId);
         if (!combinedModel.isFinalized()) {

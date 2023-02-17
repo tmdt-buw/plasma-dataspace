@@ -12,7 +12,7 @@
   <nz-divider></nz-divider>
   <div fxLayout="row" fxLayoutAlign="space-between center">
     <p
-      [nzTooltipTitle]="'An instance defines a customized class. The changes covered by an instance are only visible and valid in this model.'"
+      [nzTooltipTitle]="'The values shown in this customization are only valid in this model and can be defined by the modeler.'"
       nz-tooltip>Customization</p>
     <ng-container *ngTemplateOutlet="editButtons"></ng-container>
   </div>
@@ -56,8 +56,8 @@
 <div *ngIf="isMappedNode()" fxLayout="column">
   <nz-divider></nz-divider>
   <p
-    [nzTooltipTitle]="'Mapping'"
-    nz-tooltip="An mapping defines a link between a semantic model node and a schema node.">Mapping</p>
+    [nzTooltipTitle]="'A mapping defines a link between a semantic model node and a schema node.'"
+    nz-tooltip>Mapping</p>
   <div fxLayout="row">
     <p nz-typography nzType="secondary">Original label: </p>
     <p [nzTooltipTitle]="'Original label: '" nz-tooltip="Original label of the connected syntax node"
