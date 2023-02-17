@@ -126,7 +126,9 @@ public class ModelingController implements ModelingAPI {
     @Operation(description = "Returns the current schema of the specified model.")
     public CombinedModel getCombinedModel(@NotNull String modelId) {
         CombinedModel combinedModel = modelingHandler.getCombinedModel(modelId);
-        combinedModel = modelingHandler.requestRecommendations(modelId, combinedModel);
+        if (!combinedModel.isFinalized()) {
+            combinedModel = modelingHandler.requestRecommendations(modelId, combinedModel);
+        }
         modelingHandler.prepareForFrontend(combinedModel);
         return combinedModel;
     }
