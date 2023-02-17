@@ -6,7 +6,7 @@ from typing import Dict
 from rdflib import RDF, RDFS, OWL, URIRef, Graph, Literal, XSD
 
 import config
-from util.namespaces import PREFIXES
+from util.namespaces import PREFIXES, PLCM
 from util.parse import get_classes_and_predicates, generate_id_dict, encode_triples
 from SPARQLWrapper import SPARQLWrapper, JSON, TURTLE, XML
 from util.graphutil import uninstanciate_graph, get_triples_from_model
@@ -48,13 +48,19 @@ def get_models():
 
         model_graph: Graph = sparql.queryAndConvert()
 
+        for triple in model_graph.triples((None, PLCM.cmUuid, None)):
+            model_graph.remove(triple)
+
+        for triple in model_graph.triples((None, PLCM.hasNode, None)):
+            model_graph.remove(triple)
+
         triples = list(model_graph.triples((None, None, None)))
         print('model size', len(triples))
 
         model_graph = uninstanciate_graph(model_graph)
 
         triples = list(model_graph.triples((None, None, None)))
-        print('model size', len(triples))
+        print('uninstanciated model size', len(triples))
 
         triples = get_triples_from_model(model_graph)
         models.append(triples)
