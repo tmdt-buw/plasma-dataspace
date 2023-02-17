@@ -1,3 +1,4 @@
+import json
 import os
 import uuid
 from typing import List, Dict
@@ -45,9 +46,9 @@ def generate_recommendations(combinedModel: CombinedModel) -> CombinedModel:
         recommendations = []
         for (s, p, o), c in extensions:
             delta: DeltaModification = DeltaModification()
-            delta.reference = "reference-" + str(count)
+            delta.reference = f"ARS-R-SR-ref-{str(count)}"
             delta.anchors = [anchor]
-            delta.confidence = 1.0
+            delta.confidence = c
             count += 1
             # convert nodes
             label, comment = get_meta_info(o)

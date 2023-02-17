@@ -3,9 +3,13 @@
 
 from __future__ import annotations
 
+from enum import Enum
 from typing import Any, Dict, List, Optional, Union
 
 from pydantic import BaseModel, Field
+from typing_extensions import Annotated
+
+from abc import ABC, abstractmethod
 
 
 class Edge(BaseModel):
@@ -16,6 +20,14 @@ class Edge(BaseModel):
     annotations: Optional[str] = None
     disabled: Optional[bool] = None
     visible: Optional[bool] = None
+
+
+class Datatype(Enum):
+    Unknown = 'Unknown'
+    String = 'String'
+    Boolean = 'Boolean'
+    Number = 'Number'
+    Binary = 'Binary'
 
 
 class Relation(BaseModel):
@@ -31,6 +43,14 @@ class Relation(BaseModel):
     template: Optional[bool] = None
     field_class: str = Field(..., alias='_class')
 
+    def __new__(cls, *args, **kwargs):
+        if cls in subclass_registry.values():
+            return super().__new__(cls)
+        for name, subclass in subclass_registry.items():
+            if name == kwargs['_class']:
+                return subclass(**kwargs)
+        return super().__new__(cls)
+
 
 class SemanticModelNode(BaseModel):
     template: Optional[bool] = None
@@ -42,6 +62,38 @@ class SemanticModelNode(BaseModel):
     x: Optional[float] = None
     y: Optional[float] = None
     field_class: str = Field(..., alias='_class')
+
+    def __new__(cls, *args, **kwargs):
+        if cls in subclass_registry.values():
+            return super().__new__(cls)
+        for name, subclass in subclass_registry.items():
+            if name == kwargs['_class']:
+                return subclass(**kwargs)
+        return super().__new__(cls)
+
+
+class MappableSemanticModelNode(SemanticModelNode):
+    syntaxNodeUuid: Optional[str] = None
+    syntaxLabel: Optional[str] = None
+    syntaxPath : Optional[str] = None
+
+
+class Instance(BaseModel):
+    description: Optional[str] = None
+    uri: Optional[str] = None
+
+
+class Class(MappableSemanticModelNode):
+    description: Optional[str] = None
+    instance: Optional[Instance] = None
+
+
+class Literal(MappableSemanticModelNode):
+    value: Optional[str] = None
+
+
+class NamedEntity(SemanticModelNode):
+    description: Optional[str] = None
 
 
 class TypeDefinitionDTOObject(BaseModel):
@@ -76,7 +128,8 @@ class SyntacticOperationDTO(BaseModel):
     parameter: Optional[TypeDefinitionDTOObject] = None
 
 
-class SchemaNode(BaseModel):
+
+class SchemaNode( BaseModel):
     uuid: Optional[str] = None
     label: Optional[str] = None
     path: Optional[List[str]] = None
@@ -89,11 +142,35 @@ class SchemaNode(BaseModel):
     operations: Optional[List[SyntacticOperationDTO]] = None
     field_class: str = Field(..., alias='_class')
 
+    def __new__(cls, *args, **kwargs):
+        if cls in subclass_registry.values():
+            return super().__new__(cls)
+        for name, subclass in subclass_registry.items():
+            if name == kwargs['_class']:
+                return subclass(**kwargs)
+        return super().__new__(cls)
+
+
+class ObjectNode(SchemaNode):
+    pass
+
+
+class PrimitiveNode(SchemaNode):
+    datatype: Optional[Datatype] = None
+    examples: Optional[List[str]] = None
+    pattern: Optional[str] = None
+
+
+class SetNode(SchemaNode):
+    pass
+
 
 class SyntaxModel(BaseModel):
     root: Optional[str] = None
     nodes: Optional[List[SchemaNode]] = None
     edges: Optional[List[Edge]] = None
+
+
 
 
 class DeltaModification(BaseModel):
@@ -116,3 +193,13 @@ class CombinedModel(BaseModel):
     finalized: Optional[bool] = None
     provisionalElements: Optional[List[SemanticModelNode]] = None
     provisionalRelations: Optional[List[Union[DataProperty, ObjectProperty]]] = None
+
+
+subclass_registry = {'PrimitiveNode': PrimitiveNode,
+                     'SetNode': SetNode,
+                     'ObjectNode': ObjectNode,
+                     'Class': Class,
+                     'Literal': Literal,
+                     'NamedEntity': NamedEntity,
+                     'ObjectProperty': ObjectProperty,
+                     'DataProperty': DataProperty}
