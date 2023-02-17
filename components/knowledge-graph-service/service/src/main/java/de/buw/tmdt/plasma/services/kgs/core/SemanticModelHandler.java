@@ -44,7 +44,7 @@ public class SemanticModelHandler {
     public SemanticModel createSemanticModel(@NotNull SemanticModel semanticModel) {
         log.info("Creating Semantic Model");
         Model cmModel = CMToRDFMapper.convertToRDFModel(semanticModel);
-        log.info(asTurtle(cmModel));
+        log.debug(asTurtle(cmModel));
 
         ops.persistModel(cmModel);
 
@@ -64,7 +64,7 @@ public class SemanticModelHandler {
     @NotNull
     public SemanticModel getSemanticModel(@NotNull String id) {
         Model retrievedModel = ops.queryModel(id);
-        log.info("retrieved model\n {}", asTurtle(retrievedModel));
+        log.debug("retrieved model\n {}", asTurtle(retrievedModel));
 
         if (retrievedModel.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No model available for id " + id);
