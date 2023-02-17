@@ -55,7 +55,7 @@ public class OntologyManagement {
             .setNsPrefixes(PrefixMapping.Standard)
             .setNsPrefix("plcm", PLCM.getURI())
             .setNsPrefix("plsm", SM_URI)
-            .setNsPrefix("plasma", "http://plasma.uni-wuppertal.de/ontology#");
+            .setNsPrefix("plasma", "http://plasma.uni-wuppertal.de/schema#");
 
     private RDFConnectionRemoteBuilder builder;
 
