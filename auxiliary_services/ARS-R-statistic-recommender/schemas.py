@@ -47,7 +47,7 @@ class Relation(BaseModel):
         if cls in subclass_registry.values():
             return super().__new__(cls)
         for name, subclass in subclass_registry.items():
-            if name == kwargs['_class']:
+            if '_class' in kwargs and name == kwargs['_class']:
                 return subclass(**kwargs)
         return super().__new__(cls)
 
@@ -67,7 +67,7 @@ class SemanticModelNode(BaseModel):
         if cls in subclass_registry.values():
             return super().__new__(cls)
         for name, subclass in subclass_registry.items():
-            if name == kwargs['_class']:
+            if '_class' in kwargs and name == kwargs['_class']:
                 return subclass(**kwargs)
         return super().__new__(cls)
 
@@ -81,6 +81,9 @@ class MappableSemanticModelNode(SemanticModelNode):
 class Instance(BaseModel):
     description: Optional[str] = None
     uri: Optional[str] = None
+    uuid: Optional[str] = None
+    value: Optional[str] = None
+    label: Optional[str] = None
 
 
 class Class(MappableSemanticModelNode):
@@ -146,7 +149,7 @@ class SchemaNode( BaseModel):
         if cls in subclass_registry.values():
             return super().__new__(cls)
         for name, subclass in subclass_registry.items():
-            if name == kwargs['_class']:
+            if '_class' in kwargs and name == kwargs['_class']:
                 return subclass(**kwargs)
         return super().__new__(cls)
 

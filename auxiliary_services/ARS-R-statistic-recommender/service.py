@@ -11,7 +11,7 @@ from pydantic import BaseModel
 import modelbuilder.modelbuilder
 from linkedmodelextension import linked_model_extender as lme
 
-from schemas import CombinedModel, DeltaModification, SemanticModelNode, ObjectProperty
+from schemas import CombinedModel, DeltaModification, SemanticModelNode, ObjectProperty, Literal, NamedEntity
 
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
@@ -41,13 +41,17 @@ def generate_recommendations(combinedModel: CombinedModel) -> CombinedModel:
     count = 0
 
     for anchor in combinedModel.semanticModel.nodes:
+        if type(anchor) == Literal or type(anchor) == NamedEntity:
+            continue
 
         extensions = lme.generate_lme(anchor=anchor.uri, limit=5)
         recommendations = []
         for (s, p, o), c in extensions:
+            if o.startswith("http://www.w3.org/2001/XMLSchema#"):
+                continue
             delta: DeltaModification = DeltaModification()
             delta.reference = f"ARS-R-SR-ref-{str(count)}"
-            delta.anchors = [anchor]
+            delta.anchors = [anchor.uuid]
             delta.confidence = c
             count += 1
             # convert nodes
