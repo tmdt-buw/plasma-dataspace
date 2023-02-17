@@ -88,6 +88,8 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
   modelMappings: ModelMapping[];
   loading: boolean = true;
 
+  finalizing: boolean = false;
+
   // dialogs
   private addConceptDialogRef: NzModalRef<any, any>;
   contextMenuSubscription;
@@ -328,16 +330,30 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
   }
 
   finalizeModel(): void {
+    if (this.finalizing) {
+      return;
+    }
     // close all dialogs
     this.modal.closeAll();
-    this.viewerMode = true;
-    this.modelingService.finalizeModeling(this.modelId).subscribe(() => {
-      this.notification.success('Model finalized', 'The model has been finalized and provisional classes and relations added to the ontology.');
-      this.finalized.emit();
-      this.hideFinalizeButton = true;
-    }, () => {
-      this.viewerMode = false;
-      this.notification.error('Could not finalize model', 'An error occurred during model finalization. Please contact an admin for more information.');
+    this.finalizing = true;
+    this.modal.confirm({
+      nzTitle: 'Do you want to finalize the modeling process?',
+      nzContent: 'This will fix the current state of the model and prevent further edits. Provisional elements are added to the local ontology.',
+      nzOnOk: () => {
+        this.viewerMode = true;
+        this.modelingService.finalizeModeling(this.modelId).subscribe(() => {
+          this.notification.success('Model finalized', 'The model has been finalized and provisional classes and relations added to the ontology.');
+          this.finalized.emit();
+          this.hideFinalizeButton = true;
+        }, () => {
+          this.finalizing = false;
+          this.viewerMode = false;
+          this.notification.error('Could not finalize model', 'An error occurred during model finalization. Please contact an admin for more information.');
+        });
+      },
+      nzOnCancel: () => {
+        this.finalizing = false;
+      }
     });
   }
 
