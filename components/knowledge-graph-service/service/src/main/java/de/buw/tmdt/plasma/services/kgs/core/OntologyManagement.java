@@ -139,16 +139,16 @@ public class OntologyManagement {
     private void publishOntologyInformation() {
         try (RDFConnectionFuseki conn = (RDFConnectionFuseki) builder.build()) {
 
-            // clear the current ontology store
-            UpdateBuilder updateBuilder = new UpdateBuilder()
-                    .addDelete("?s", "?p", "?o")
-                    .addWhere("?s", "?p", "?o");
-            Update deleteAll = updateBuilder.buildDeleteWhere();
-            conn.update(deleteAll);
+            // clear the current ontology store / currently disabled as we never remove information
+//            UpdateBuilder deleteBuilder = new UpdateBuilder()
+//                    .addDelete("?s", "?p", "?o")
+//                    .addWhere("?s", "?p", "?o");
+//            Update deleteAll = deleteBuilder.buildDeleteWhere();
+//            conn.update(deleteAll);
 
             // add all loaded ontologies one by one
             for (OntModel model : ontologyModels.values()) {
-                updateBuilder = new UpdateBuilder()
+                UpdateBuilder updateBuilder = new UpdateBuilder()
                         .addPrefixes(PREFIXES)
                         .addInsert(model);
                 Update insert = updateBuilder.build();
