@@ -126,8 +126,7 @@ public class ModelingController implements ModelingAPI {
     @Operation(description = "Returns the current schema of the specified model.")
     public CombinedModel getCombinedModel(@NotNull String modelId) {
         CombinedModel combinedModel = modelingHandler.getCombinedModel(modelId);
-        // TODO re-enable once recompiled
-        //combinedModel = modelingHandler.requestRecommendations(modelId, combinedModel);
+        combinedModel = modelingHandler.requestRecommendations(modelId, combinedModel);
         modelingHandler.prepareForFrontend(combinedModel);
         return combinedModel;
     }
@@ -223,8 +222,6 @@ public class ModelingController implements ModelingAPI {
     public CombinedModel acceptRecommendation(@NotNull String modelId, @NotNull DeltaModification recommendation) {
         @NotNull CombinedModel model = modelingHandler.applyModification(modelId, recommendation);
 
-        // request new recommendations
-        model = modelingHandler.requestRecommendations(modelId, model);
         modelingHandler.prepareForFrontend(model);
         return model;
     }
@@ -234,9 +231,6 @@ public class ModelingController implements ModelingAPI {
     public CombinedModel modifyModel(@NotNull String modelId, @NotNull DeltaModification recommendation) {
         @NotNull CombinedModel model = modelingHandler.applyModification(modelId, recommendation);
 
-        // request new recommendations
-        // TODO re-enable once recompiled
-        // model = modelingHandler.requestRecommendations(modelId, model);
         modelingHandler.prepareForFrontend(model);
         return model;
     }
