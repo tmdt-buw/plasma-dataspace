@@ -946,7 +946,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
   private createConfig(title: string, content: any, node: SyntaxNode | PlsSemanticNodeDetailsData): ModalOptions {
     const rect: DOMRect = this.viewContainerRef.element.nativeElement.getBoundingClientRect();
     return Object.assign({
-      nzStyle: {position: 'absolute', top: `${rect.top + 15}px`, right: `15px`},
+      nzStyle: {position: 'absolute', top: `${30}px`, right: `15px`},
       nzTitle: title,
       nzContent: content,
       nzComponentParams: {
