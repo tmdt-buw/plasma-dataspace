@@ -49,19 +49,40 @@ def generate_recommendations(combinedModel: CombinedModel) -> CombinedModel:
         for (s, p, o), c in extensions:
             if o.startswith("http://www.w3.org/2001/XMLSchema#"):
                 continue
+
+
             delta: DeltaModification = DeltaModification()
             delta.reference = f"ARS-R-SR-ref-{str(count)}"
             delta.anchors = [anchor.uuid]
             delta.confidence = c
             count += 1
-            # convert nodes
-            label, comment = get_meta_info(o)
-            o_smn = SemanticModelNode.parse_obj(
-                {'_class': 'Class',
-                 'uri': o,
-                 'label': label,
-                 'description': comment,
-                 'uuid': str(uuid.uuid1())})
+
+            # check if a similar object already exists
+            o_smn = None
+            for node in combinedModel.semanticModel.nodes:
+                if node.uri == o:
+                    o_smn = node
+                    break
+
+            if o_smn:
+                existing = False  # needed to break two loops
+                for edge in combinedModel.semanticModel.edges:
+                    if edge.from_ == anchor.uuid and edge.to == o_smn.uuid and edge.uri == p:
+                        existing = True
+                        break
+                if existing:
+                    continue  # ignore all recommendations that already exist
+            if not o_smn:
+                # convert object node
+                label, comment = get_meta_info(o)
+                o_smn = SemanticModelNode.parse_obj(
+                    {'_class': 'Class',
+                     'uri': o,
+                     'label': label,
+                     'description': comment,
+                     'x': anchor.x + 50,
+                     'y': anchor.y - 150,
+                     'uuid': str(uuid.uuid1())})
 
             delta.entities = [o_smn]
 
