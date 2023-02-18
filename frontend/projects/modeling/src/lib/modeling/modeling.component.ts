@@ -295,8 +295,8 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
         };
         this.modelingService.modifyModel(this.modelId, delta).subscribe();
         break;
-      case Nodes.semanticClassName:
-      case Nodes.extendedSemanticClassName:
+      case Nodes.classNodeName:
+      case Nodes.extendedClassNodeName:
         const delta2: DeltaModification = {
           entities: [event.node]
         };
@@ -323,9 +323,8 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
   }
 
   onRecommendationAccepted(event: DeltaModification): void {
-    console.log('accepting recommendation', event);
     this.modelingService.acceptRecommendation(this.modelId, event).subscribe(cm =>
-      this.combinedModel = cm
+      this.getCombinedModel()
     );
   }
 

@@ -140,7 +140,7 @@ export class PlsSemanticNodeDetailsComponent implements OnInit {
   }
 
   showRecommendation(recommendation: DeltaModification): void {
-    console.log('emitting select for recommendation', recommendation);
+    // console.log('emitting select for recommendation', recommendation);
     this.recommendationSelect.emit(recommendation);
   }
 
@@ -150,6 +150,10 @@ export class PlsSemanticNodeDetailsComponent implements OnInit {
 
   acceptRecommendation(recommendation: DeltaModification): void {
     this.recommendationAccept.emit(recommendation);
+    const index = this.node.recommendations.indexOf(recommendation, 0);
+    if (index > -1) {
+      this.node.recommendations.splice(index, 1);
+    }
   }
 
   rejectRecommendation(recommendation: DeltaModification): void {

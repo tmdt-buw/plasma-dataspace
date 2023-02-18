@@ -919,8 +919,8 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
   /**
    * Add object property link to graph
    */
-  private addObjectPropertyLink(id: string, source: string, target: string, label: string, opacity?: number): dia.Link {
-    const link = Links.createObjectPropertyLink(id, source, target, label, opacity);
+  private addObjectPropertyLink(id: string, source: string, target: string, label: string, opacity?: number, highlighted?: boolean): dia.Link {
+    const link = Links.createObjectPropertyLink(id, source, target, label, opacity, highlighted);
     this.graph.addCell(link);
     return link;
   }
@@ -928,8 +928,8 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
   /**
    * Add data property link to graph
    */
-  private addDataPropertyLink(id: string, source: string, target: string, label: string, opacity?: number): dia.Link {
-    const link = Links.createDataPropertyLink(id, source, target, label, opacity);
+  private addDataPropertyLink(id: string, source: string, target: string, label: string, opacity?: number, highlighted?: boolean): dia.Link {
+    const link = Links.createDataPropertyLink(id, source, target, label, opacity, highlighted);
     this.graph.addCell(link);
     return link;
   }
@@ -978,8 +978,8 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
   /**
    * Adds a semantic class node to the graph
    */
-  private addClassNode(id: string, uri: string, x?: number, y?: number, opacity?: number, instancelabel?: string, icon?: string): dia.Element {
-    const node = this.buildClassNode(id, uri, x, y, opacity, instancelabel, icon);
+  private addClassNode(id: string, label: string, x?: number, y?: number, opacity?: number, instancelabel?: string, icon?: string, highlighted?: boolean): dia.Element {
+    const node = this.buildClassNode(id, label, x, y, opacity, instancelabel, icon, highlighted);
     this.graph.addCell(node);
     return node;
   }
@@ -987,8 +987,8 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
   /**
    * Builds a semantic class node
    */
-  private buildClassNode(id: string, uri: string, x?: number, y?: number, opacity?: number, instancelabel?: string, icon?: string): dia.Element {
-    const classDims = this.calcDimensionsForLabel(uri, false);
+  private buildClassNode(id: string, label: string, x?: number, y?: number, opacity?: number, instancelabel?: string, icon?: string, highlighted?: boolean): dia.Element {
+    const classDims = this.calcDimensionsForLabel(label, false);
     let instanceDims = [0, 0];
     if (instancelabel) {
       instanceDims = this.calcDimensionsForLabel(instancelabel, !!icon);
@@ -997,9 +997,9 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
     const position = {x, y};
     let node;
     if (instancelabel) {
-      node = Nodes.createInstancedSemanticClassNode(id, uri, instancelabel, icon, position, dim[0], dim[1], opacity);
+      node = Nodes.createInstancedSemanticClassNode(id, label, instancelabel, icon, position, dim[0], dim[1], opacity);
     } else {
-      node = Nodes.createSemanticClassNode(id, uri, position, dim[0], dim[1], opacity);
+      node = Nodes.createSemanticClassNode(id, label, position, dim[0], dim[1], opacity, highlighted);
     }
     return node;
   }
@@ -1007,11 +1007,11 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
   /**
    * Adds a named entity node to the graph
    */
-  private addNamedEntityNode(id: string, label: string, x?: number, y?: number, opacity?: number): dia.Element {
+  private addNamedEntityNode(id: string, label: string, x?: number, y?: number, opacity?: number, highlighted?: boolean): dia.Element {
     const classDims = this.calcDimensionsForLabel(label, false);
     const dim = [classDims[0], classDims[1]];
     const position = {x, y};
-    const node = Nodes.createNamedEntityNode(id, label, position, dim[0], dim[1], opacity);
+    const node = Nodes.createNamedEntityNode(id, label, position, dim[0], dim[1], opacity, highlighted);
     this.graph.addCell(node);
     return node;
   }
@@ -1019,11 +1019,11 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
   /**
    * Adds a literal node to the graph
    */
-  private addLiteralNode(id: string, value: string, icon: string, x?: number, y?: number, opacity?: number): dia.Element {
+  private addLiteralNode(id: string, value: string, icon: string, x?: number, y?: number, opacity?: number, highlighted?: boolean): dia.Element {
     const classDims = this.calcDimensionsForLabel(value, !!icon);
     const dim = [classDims[0], classDims[1]];
     const position = {x: x - (classDims[0] / 2), y: y - (classDims[1] / 2)};
-    const node = Nodes.createLiteralNode(id, value, icon, position, dim[0], dim[1], opacity);
+    const node = Nodes.createLiteralNode(id, value, icon, position, dim[0], dim[1], opacity, highlighted);
     this.graph.addCell(node);
     return node;
   }
@@ -1049,7 +1049,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
    * @param recommendation the recommendation
    */
   private showRecommendation(recommendation: DeltaModification): void {
-    const opacity = 0.8;
+    const opacity = 1.0;
     recommendation.entities.forEach(node => {
       let icon = '';
       if (node._class === 'Class') {
@@ -1057,10 +1057,11 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
         if ((node as Class).syntaxNodeUuid) {
           icon = Icons.getIcon(this.findSyntaxNodeById((node as Class).syntaxNodeUuid));
         }
-        this.recommendations.push(this.addClassNode(node.uuid, node.uri, node.x, node.y, opacity, instance?.label, icon));
+        this.recommendations.push(this.addClassNode(node.uuid, this.$URIMode.value ? node.uri : node.label, node.x, node.y, opacity, instance?.label, icon, true));
       }
+      // TODO visualize Literals and DatatypeProperties
     });
-    recommendation.relations.forEach(edge => this.recommendations.push(this.addObjectPropertyLink(edge.uuid, edge.from, edge.to, edge.label, opacity)));
+    recommendation.relations.forEach(edge => this.recommendations.push(this.addObjectPropertyLink(edge.uuid, edge.from, edge.to, this.$URIMode.value ? edge.uri : edge.label, opacity, true)));
   }
 
   /**
@@ -1121,7 +1122,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
         node.y = position.y;
         // emit event
         if (emitEvent) {
-          const nodeChanges = new NodeChangedEvent(Nodes.semanticClassName, node);
+          const nodeChanges = new NodeChangedEvent(Nodes.classNodeName, node);
           this.nodePositionChanged.emit(nodeChanges);
         }
         // update mapped syntax node position
@@ -1167,8 +1168,8 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
           }
         });
         break;
-      case Nodes.extendedSemanticClassName:
-      case Nodes.semanticClassName:
+      case Nodes.extendedClassNodeName:
+      case Nodes.classNodeName:
         const semanticNode = this.findSemanticNodeById(id);
         if (!semanticNode) {
           return;
@@ -1253,7 +1254,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
         });
         break;
       default:
-        console.error('Unsupported node type');
+        console.error('Unsupported node type:', type);
     }
   }
 
