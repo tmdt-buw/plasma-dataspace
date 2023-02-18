@@ -2,7 +2,7 @@ import { animate, style, transition, trigger } from '@angular/animations';
 import { Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { ModalOptions, NzModalRef, NzModalService } from 'ng-zorro-antd/modal';
-import { BehaviorSubject, forkJoin, Subject } from 'rxjs';
+import { BehaviorSubject, forkJoin, Subject, Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import {
   CombinedModel,
@@ -180,8 +180,8 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
     this.manageOntolggiesDialogRef?.close();
   }
 
-  getCombinedModel(): void {
-    forkJoin({
+  getCombinedModel(): Subscription {
+    return forkJoin({
       cm: this.modelingService.getCombinedModel(this.modelId),
       ac: this.modelingService.getArrayContexts(this.modelId),
       mm: this.modelingService.getModelMappings(this.modelId)

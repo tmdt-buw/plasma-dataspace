@@ -100,6 +100,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
 
   // dialog
   private nodeDialogRef: NzModalRef<any>;
+  private selectedElementOnRecommendationAccept: string;
 
   get combinedModel(): CombinedModel {
     return this._combinedModel;
@@ -110,6 +111,13 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
     this._combinedModel = combinedModel;
     if (!this.initializing) {
       this.createGraph(this.$URIMode?.getValue());
+    }
+    if (this.selectedElementOnRecommendationAccept) {
+      const targetElement = this.graph.getElements()
+        .filter(element => element.id === this.selectedElementOnRecommendationAccept)
+        .pop();
+      const cellView = targetElement?.findView(this.paper);
+      cellView?.highlight();
     }
   }
 
@@ -1199,6 +1207,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
         });
         nodeDialogRef.recommendationAccept.subscribe(recommendation => {
           this.hideRecommendations();
+          this.selectedElementOnRecommendationAccept = id;
           this.recommendationAccepted.emit(recommendation);
         });
         nodeDialogRef.nodeEdited.subscribe((node: SemanticModelNode) => {
