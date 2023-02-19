@@ -1,18 +1,15 @@
-import json
+import os
 import os
 import uuid
-from typing import List, Dict
-from uuid import UUID
+from typing import Dict
 
 import uvicorn
 from fastapi import FastAPI
-from pydantic import BaseModel
 from rdflib import XSD
 
 import modelbuilder.modelbuilder
 from linkedmodelextension import linked_model_extender as lme
-
-from schemas import CombinedModel, DeltaModification, SemanticModelNode, ObjectProperty, Literal, NamedEntity, Relation
+from schemas import CombinedModel, DeltaModification, SemanticModelNode, Literal, NamedEntity, Relation
 from util.namespaces import PLSM, PLCM
 
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
@@ -46,7 +43,7 @@ def generate_recommendations(combinedModel: CombinedModel) -> CombinedModel:
         if type(anchor) == Literal or type(anchor) == NamedEntity:
             continue
 
-        extensions = lme.generate_lme(anchor=anchor.uri, limit=5)
+        extensions = lme.generate_lme(anchor=anchor.uri, limit=10)
         recommendations = []
         for (s, p, o), c in extensions:
             if p.startswith(str(PLSM)) or p.startswith(str(PLCM)) or o.startswith(str(PLSM)) or o.startswith(str(PLCM)):
@@ -59,38 +56,38 @@ def generate_recommendations(combinedModel: CombinedModel) -> CombinedModel:
 
             o_smn = None
 
-            if o.startswith(str(XSD)):
-                # deal with the literal
-                lit = Literal.parse_obj({
-                    '_class': 'Literal',
-                    'template': True,
-                    'uri': o,
-                    'label': o.removeprefix(str(XSD)),
-                    'value': o.removeprefix(str(XSD)),
-                    'x': anchor.x + 50,
-                    'y': anchor.y - 150,
-                    'uuid': str(uuid.uuid1())
+            # check if a similar object already exists
+            for node in combinedModel.semanticModel.nodes:
+                if node.uri == o:
+                    o_smn = node
+                    break
 
-                })
-
-                o_smn = lit
-
-            else:
-                # check if a similar object already exists
-                for node in combinedModel.semanticModel.nodes:
-                    if node.uri == o:
-                        o_smn = node
+            if o_smn:
+                existing = False  # needed to break two loops
+                for edge in combinedModel.semanticModel.edges:
+                    if edge.from_ == anchor.uuid and edge.to == o_smn.uuid and edge.uri == p:
+                        existing = True
                         break
+                if existing:
+                    continue  # ignore all recommendations that already exist
 
-                if o_smn:
-                    existing = False  # needed to break two loops
-                    for edge in combinedModel.semanticModel.edges:
-                        if edge.from_ == anchor.uuid and edge.to == o_smn.uuid and edge.uri == p:
-                            existing = True
-                            break
-                    if existing:
-                        continue  # ignore all recommendations that already exist
-                if not o_smn:
+            if not o_smn:
+                if o.startswith(str(XSD)):
+                    # deal with the literal
+                    lit = Literal.parse_obj({
+                        '_class': 'Literal',
+                        'template': True,
+                        'uri': o,
+                        'label': o.removeprefix(str(XSD)),
+                        'value': o.removeprefix(str(XSD)),
+                        'x': anchor.x + 50,
+                        'y': anchor.y - 150,
+                        'uuid': str(uuid.uuid1())
+                    })
+
+                    o_smn = lit
+
+                else:
                     # convert object node
                     label, comment = get_meta_info(o)
                     o_smn = SemanticModelNode.parse_obj(
