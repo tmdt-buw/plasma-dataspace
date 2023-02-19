@@ -49,6 +49,7 @@ export class PlsSemanticNodeDetailsComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    console.log('semantic node data', this.node);
     if (this.isClass()) {
       this.form = this.fb.group({
         label: [{

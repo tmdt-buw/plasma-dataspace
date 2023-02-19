@@ -75,7 +75,7 @@ class SemanticModelNode(BaseModel):
 class MappableSemanticModelNode(SemanticModelNode):
     syntaxNodeUuid: Optional[str] = None
     syntaxLabel: Optional[str] = None
-    syntaxPath : Optional[str] = None
+    syntaxPath: Optional[str] = None
 
 
 class Instance(BaseModel):
@@ -131,8 +131,7 @@ class SyntacticOperationDTO(BaseModel):
     parameter: Optional[TypeDefinitionDTOObject] = None
 
 
-
-class SchemaNode( BaseModel):
+class SchemaNode(BaseModel):
     uuid: Optional[str] = None
     label: Optional[str] = None
     path: Optional[List[str]] = None
@@ -172,8 +171,6 @@ class SyntaxModel(BaseModel):
     root: Optional[str] = None
     nodes: Optional[List[SchemaNode]] = None
     edges: Optional[List[Edge]] = None
-
-
 
 
 class DeltaModification(BaseModel):

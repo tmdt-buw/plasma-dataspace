@@ -379,7 +379,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
             label: this.relation.label,
             uri: this.relation.uri
           };
-          const tmpNode: dia.Element = this.addLiteralNode(literal.uuid, 'Set Value', 'text_fields', literal.x, literal.y);
+          const tmpNode: dia.Element = this.addLiteralNode(literal.uuid, 'Set Value', Icons.getLiteralIcon(literal), literal.x, literal.y);
           const tmpRel = this.addDataPropertyLink(relation.uuid, relation.from, relation.to, relation.label, undefined);
 
           this.literalValueModalRef = this.modal.create({
@@ -867,7 +867,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
       } else if (node._class === 'NamedEntity') {
         this.addNamedEntityNode(node.uuid, showURI ? node.uri : node.label, node.x, node.y);
       } else if (node._class === 'Literal') {
-        this.addLiteralNode(node.uuid, node.label, 'text_fields', node.x, node.y);
+        this.addLiteralNode(node.uuid, node.label, Icons.getLiteralIcon(node), node.x, node.y);
       }
     });
 
@@ -1028,11 +1028,13 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
    * Adds a literal node to the graph
    */
   private addLiteralNode(id: string, value: string, icon: string, x?: number, y?: number, opacity?: number, highlighted?: boolean): dia.Element {
+
     const classDims = this.calcDimensionsForLabel(value, !!icon);
     const dim = [classDims[0], classDims[1]];
     const position = {x: x - (classDims[0] / 2), y: y - (classDims[1] / 2)};
     const node = Nodes.createLiteralNode(id, value, icon, position, dim[0], dim[1], opacity, highlighted);
     this.graph.addCell(node);
+    console.log('literal value', value, classDims);
     return node;
   }
 
@@ -1060,16 +1062,32 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
     const opacity = 1.0;
     recommendation.entities.forEach(node => {
       let icon = '';
-      if (node._class === 'Class') {
-        const instance = (node as Class).instance;
-        if ((node as Class).syntaxNodeUuid) {
-          icon = Icons.getIcon(this.findSyntaxNodeById((node as Class).syntaxNodeUuid));
-        }
-        this.recommendations.push(this.addClassNode(node.uuid, this.$URIMode.value ? node.uri : node.label, node.x, node.y, opacity, instance?.label, icon, true));
+      switch (node._class) {
+        case 'Class':
+          const instance = (node as Class).instance;
+          if ((node as Class).syntaxNodeUuid) {
+            icon = Icons.getIcon(this.findSyntaxNodeById((node as Class).syntaxNodeUuid));
+          }
+          this.recommendations.push(this.addClassNode(node.uuid, this.$URIMode.value ? node.uri : node.label, node.x, node.y, opacity, instance?.label, icon, true));
+          break;
+        case 'Literal':
+          icon = Icons.getLiteralIcon(node);
+          this.recommendations.push(this.addLiteralNode(node.uuid, this.$URIMode.value ? node.uri : node.label, icon, node.x, node.y, opacity, true));
+          break;
       }
-      // TODO visualize Literals and DatatypeProperties
     });
-    recommendation.relations.forEach(edge => this.recommendations.push(this.addObjectPropertyLink(edge.uuid, edge.from, edge.to, this.$URIMode.value ? edge.uri : edge.label, opacity, true)));
+    recommendation.relations.forEach(edge => {
+      let relation;
+      switch (edge._class) {
+        case 'ObjectProperty':
+          relation = this.addObjectPropertyLink(edge.uuid, edge.from, edge.to, this.$URIMode.value ? edge.uri : edge.label, opacity, true);
+          break;
+        case 'DataProperty':
+          relation = this.addDataPropertyLink(edge.uuid, edge.from, edge.to, this.$URIMode.value ? edge.uri : edge.label, opacity, true);
+          break;
+      }
+      this.recommendations.push(relation);
+    });
   }
 
   /**

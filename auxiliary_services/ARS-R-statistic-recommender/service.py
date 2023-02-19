@@ -7,11 +7,13 @@ from uuid import UUID
 import uvicorn
 from fastapi import FastAPI
 from pydantic import BaseModel
+from rdflib import XSD
 
 import modelbuilder.modelbuilder
 from linkedmodelextension import linked_model_extender as lme
 
-from schemas import CombinedModel, DeltaModification, SemanticModelNode, ObjectProperty, Literal, NamedEntity
+from schemas import CombinedModel, DeltaModification, SemanticModelNode, ObjectProperty, Literal, NamedEntity, Relation
+from util.namespaces import PLSM, PLCM
 
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
@@ -47,49 +49,65 @@ def generate_recommendations(combinedModel: CombinedModel) -> CombinedModel:
         extensions = lme.generate_lme(anchor=anchor.uri, limit=5)
         recommendations = []
         for (s, p, o), c in extensions:
-            if o.startswith("http://www.w3.org/2001/XMLSchema#"):
+            if p.startswith(str(PLSM)) or p.startswith(str(PLCM)) or o.startswith(str(PLSM)) or o.startswith(str(PLCM)):
                 continue
-
-
             delta: DeltaModification = DeltaModification()
             delta.reference = f"ARS-R-SR-ref-{str(count)}"
             delta.anchors = [anchor.uuid]
             delta.confidence = c
             count += 1
 
-            # check if a similar object already exists
             o_smn = None
-            for node in combinedModel.semanticModel.nodes:
-                if node.uri == o:
-                    o_smn = node
-                    break
 
-            if o_smn:
-                existing = False  # needed to break two loops
-                for edge in combinedModel.semanticModel.edges:
-                    if edge.from_ == anchor.uuid and edge.to == o_smn.uuid and edge.uri == p:
-                        existing = True
+            if o.startswith(str(XSD)):
+                # deal with the literal
+                lit = Literal.parse_obj({
+                    '_class': 'Literal',
+                    'template': True,
+                    'uri': o,
+                    'label': o.removeprefix(str(XSD)),
+                    'value': o.removeprefix(str(XSD)),
+                    'x': anchor.x + 50,
+                    'y': anchor.y - 150,
+                    'uuid': str(uuid.uuid1())
+
+                })
+
+                o_smn = lit
+
+            else:
+                # check if a similar object already exists
+                for node in combinedModel.semanticModel.nodes:
+                    if node.uri == o:
+                        o_smn = node
                         break
-                if existing:
-                    continue  # ignore all recommendations that already exist
-            if not o_smn:
-                # convert object node
-                label, comment = get_meta_info(o)
-                o_smn = SemanticModelNode.parse_obj(
-                    {'_class': 'Class',
-                     'uri': o,
-                     'label': label,
-                     'description': comment,
-                     'x': anchor.x + 50,
-                     'y': anchor.y - 150,
-                     'uuid': str(uuid.uuid1())})
+
+                if o_smn:
+                    existing = False  # needed to break two loops
+                    for edge in combinedModel.semanticModel.edges:
+                        if edge.from_ == anchor.uuid and edge.to == o_smn.uuid and edge.uri == p:
+                            existing = True
+                            break
+                    if existing:
+                        continue  # ignore all recommendations that already exist
+                if not o_smn:
+                    # convert object node
+                    label, comment = get_meta_info(o)
+                    o_smn = SemanticModelNode.parse_obj(
+                        {'_class': 'Class',
+                         'uri': o,
+                         'label': label,
+                         'description': comment,
+                         'x': anchor.x + 50,
+                         'y': anchor.y - 150,
+                         'uuid': str(uuid.uuid1())})
 
             delta.entities = [o_smn]
 
             # convert relation
             label, comment = get_meta_info(p)
-            op: ObjectProperty = ObjectProperty.parse_obj(
-                {'_class': 'ObjectProperty',  # TODO extend to support DatatypeProperties
+            op: Relation = Relation.parse_obj(
+                {'_class': 'DataProperty' if type(o_smn) == Literal else 'ObjectProperty',
                  'uri': p,
                  'label': label,
                  'description': comment,
