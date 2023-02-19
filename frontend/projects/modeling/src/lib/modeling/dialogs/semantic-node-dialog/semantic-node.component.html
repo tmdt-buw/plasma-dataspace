@@ -49,6 +49,21 @@
                formControlName="value" id="value" nz-input/>
       </nz-form-control>
     </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nz-tooltip]="'Content type of this literal'" [nzNoColon]="true" nzFor="type">Type:</nz-form-label>
+      <nz-form-control>
+        <nz-select [nz-tooltip]="'By default, the XSD namespace (http://www.w3.org/2001/XMLSchema#) is used.'" formControlName="type" id="type" nzAllowClear
+                   nzPlaceHolder="Undefined">
+          <nz-option *ngFor="let type of literalTypes" [nzLabel]="type.label" [nzValue]="type.uri" nzCustomContent>
+            <!--            <span nz-icon [nzType]="getIcon(type.uri)"></span>    ### NO ICONS FOR NOW DUE TO NGZ LIB BEING USED HERE INSTEAD OF MATERIAL-->
+            {{type.label}}
+          </nz-option>
+          <nz-option [nzValue]="null" nzCustomContent nzLabel="Undefined">
+            Undefined
+          </nz-option>
+        </nz-select>
+      </nz-form-control>
+    </nz-form-item>
   </form>
 </div>
 

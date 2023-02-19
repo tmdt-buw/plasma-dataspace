@@ -392,7 +392,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
             label: this.relation.label,
             uri: this.relation.uri
           };
-          const tmpNode: dia.Element = this.addLiteralNode(literal.uuid, 'Set Value', Icons.getLiteralIcon(literal), literal.x, literal.y);
+          const tmpNode: dia.Element = this.addLiteralNode(literal.uuid, 'Set Value', Icons.getLiteralIcon(literal.uri), literal.x, literal.y);
           const tmpRel = this.addDataPropertyLink(relation.uuid, relation.from, relation.to, relation.label, undefined);
 
           this.literalValueModalRef = this.modal.create({
@@ -880,7 +880,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
       } else if (node._class === 'NamedEntity') {
         this.addNamedEntityNode(node.uuid, showURI ? node.uri : node.label, node.x, node.y);
       } else if (node._class === 'Literal') {
-        this.addLiteralNode(node.uuid, node.label, Icons.getLiteralIcon(node), node.x, node.y);
+        this.addLiteralNode(node.uuid, node.label, Icons.getLiteralIcon(node.uri), node.x, node.y);
       }
     });
 
@@ -1084,7 +1084,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
           this.recommendations.push(this.addClassNode(node.uuid, this.$URIMode.value ? node.uri : node.label, node.x, node.y, opacity, instance?.label, icon, true));
           break;
         case 'Literal':
-          icon = Icons.getLiteralIcon(node);
+          icon = Icons.getLiteralIcon(node.uri);
           this.recommendations.push(this.addLiteralNode(node.uuid, this.$URIMode.value ? node.uri : node.label, icon, node.x, node.y, opacity, true));
           break;
       }

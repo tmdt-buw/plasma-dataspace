@@ -1,4 +1,4 @@
-import { CompositeNode, Literal, ObjectNode, PrimitiveNode, SetNode } from '../../../api/generated/dms';
+import { CompositeNode, ObjectNode, PrimitiveNode, SetNode } from '../../../api/generated/dms';
 import { SyntaxNode } from './node';
 
 /**
@@ -39,8 +39,8 @@ export abstract class Icons {
     }
   }
 
-  static getLiteralIcon(node: Literal): string {
-    switch (node.uri) {
+  static getLiteralIcon(type: string): string {
+    switch (type) {
       case 'http://www.w3.org/2001/XMLSchema#string':
       case 'http://www.w3.org/2001/XMLSchema#date':
       case 'http://www.w3.org/2001/XMLSchema#time':
