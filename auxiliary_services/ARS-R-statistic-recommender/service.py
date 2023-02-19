@@ -1,5 +1,4 @@
 import os
-import os
 import uuid
 from typing import Dict
 
@@ -115,7 +114,7 @@ def generate_recommendations(combinedModel: CombinedModel) -> CombinedModel:
             recommendations.append(delta)
 
         print("recommended for", anchor.uri, recommendations)
-        for recommendation in recommendations:
+        for recommendation in recommendations[:5]:
             combinedModel.recommendations.append(recommendation)
     return combinedModel
 
