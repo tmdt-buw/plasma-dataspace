@@ -79,11 +79,6 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
   @Input() $filter: BehaviorSubject<Filter>;
   @Input() $URIMode: BehaviorSubject<boolean>;
   private literalValueModalRef: NzModalRef<any>;
-  // config
-  @Input() primaryColor;
-  @Input() primaryColorContrast;
-  @Input() accentColor;
-  @Input() accentColorContrast;
   // data
   initializing = true;
   _combinedModel: CombinedModel;
@@ -272,6 +267,24 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
             classNode.x = syntaxNode.x;
             classNode.y = syntaxNode.y;
             const nodeChanges = {entities: [classNode]};
+            this.nodeChanged.emit(nodeChanges);
+            return;
+          }
+        } else if (Nodes.isLiteral(elementView) && elementBelow) {
+          // map an existing literal to a syntax node
+          const syntaxNode = this.findSyntaxNodeById(elementBelow.id as string);
+          const literal = this.findSemanticNodeById(clazzId as string) as Literal;
+
+          if (syntaxNode._class === 'PrimitiveNode'
+            && !literal.syntaxNodeUuid && !syntaxNode.disabled) {
+            literal.syntaxNodeUuid = syntaxNode.uuid;
+            literal.syntaxLabel = syntaxNode.label;
+            literal.syntaxPath = syntaxNode.pathAsJSONPointer;
+            literal.label = syntaxNode.label;
+            literal.value = syntaxNode.label;
+            literal.x = syntaxNode.x;
+            literal.y = syntaxNode.y;
+            const nodeChanges = {entities: [literal]};
             this.nodeChanged.emit(nodeChanges);
             return;
           }
