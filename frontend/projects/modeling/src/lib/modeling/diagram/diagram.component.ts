@@ -991,6 +991,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
    */
   private unhighlightAll(): void {
     this.closeDialog();
+    this.selectedElementOnRecommendationAccept = undefined;
     this.paper.findViewsInArea(this.paper.getArea()).forEach(cell => {
       cell.unhighlight();
     });
@@ -1047,7 +1048,6 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
     const position = {x: x - (classDims[0] / 2), y: y - (classDims[1] / 2)};
     const node = Nodes.createLiteralNode(id, value, icon, position, dim[0], dim[1], opacity, highlighted);
     this.graph.addCell(node);
-    console.log('literal value', value, classDims);
     return node;
   }
 
