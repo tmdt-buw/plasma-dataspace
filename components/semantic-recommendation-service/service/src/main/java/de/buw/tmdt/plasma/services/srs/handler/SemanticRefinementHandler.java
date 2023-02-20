@@ -6,6 +6,7 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -19,15 +20,15 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@ConfigurationProperties(prefix = "plasma.ars.refinement")
 public class SemanticRefinementHandler {
 
     private static final Logger log = LoggerFactory.getLogger(SemanticModelingHandler.class);
 
     @Value("${plasma.ars.refinement.prefix:ARS-R-}")
-    private String prefixARSR;
+    private String prefix;
 
-    @Value("${plasma.ars.refinement.url:}")
-    private List<String> refinementServiceURLs;
+    private List<String> urls = new ArrayList<>();
 
     public SemanticRefinementHandler() {
     }
@@ -43,16 +44,16 @@ public class SemanticRefinementHandler {
      */
     @NotNull
     public CombinedModel performRefinement(@NotNull String uuid, String configId, String configToken, @NotNull CombinedModel combinedModel) {
-        refinementServiceURLs = refinementServiceURLs.stream()
+        urls = urls.stream()
                 .filter(string -> !string.isBlank())
                 .collect(Collectors.toList());
-        if (refinementServiceURLs.isEmpty()) {
+        if (urls.isEmpty()) {
             log.debug("No refinement services defined");
             throw new ResponseStatusException(HttpStatus.NOT_IMPLEMENTED, "No refinement services are defined to process your request.");
         }
-        combinedModel.getRecommendations().removeIf(dm -> dm.getReference().startsWith(prefixARSR));
+        combinedModel.getRecommendations().removeIf(dm -> dm.getReference().startsWith(prefix));
         List<DeltaModification> modifications = new ArrayList<>();
-        for (String url : refinementServiceURLs) {
+        for (String url : urls) {
             try {
                 log.debug("Performing refinement for {} using service: {}", uuid, url);
                 WebClient webClient = WebClient.builder()
@@ -83,10 +84,13 @@ public class SemanticRefinementHandler {
                 log.warn("Could not perform semantic refinement using service {}", url, ex);
             }
         }
-        modifications.removeIf(dm -> !dm.getReference().startsWith(prefixARSR));
+        modifications.removeIf(dm -> !dm.getReference().startsWith(prefix));
         combinedModel.getRecommendations().addAll(modifications);
 
         return combinedModel;
     }
 
+    public List<String> getUrls() {
+        return urls;
+    }
 }
