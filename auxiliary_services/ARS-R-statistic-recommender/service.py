@@ -10,6 +10,7 @@ import modelbuilder.modelbuilder
 from linkedmodelextension import linked_model_extender as lme
 from schemas import CombinedModel, DeltaModification, SemanticModelNode, Literal, NamedEntity, Relation
 from util.namespaces import PLSM, PLCM
+import schedule
 
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
@@ -20,7 +21,7 @@ app = FastAPI()
 meta_info: Dict[str, Dict[str, str]] = {}
 
 initialized: bool = False
-
+resettime = "02:30"
 
 # noinspection PyPep8Naming
 # in order to match the API query parameter names used in Java components
@@ -30,6 +31,8 @@ async def recommend(combinedModel: CombinedModel, uuid: str = None, configId: st
     if not initialized:
         init()
         initialized = True
+
+    schedule.run_pending()  # check if we should nuke the cache and rebuild
 
     return generate_recommendations(combinedModel)
 
@@ -113,7 +116,7 @@ def generate_recommendations(combinedModel: CombinedModel) -> CombinedModel:
 
             recommendations.append(delta)
 
-        print("recommended for", anchor.uri, recommendations)
+        #print("recommended for", anchor.uri, recommendations)
         for recommendation in recommendations[:5]:
             combinedModel.recommendations.append(recommendation)
     return combinedModel
@@ -125,7 +128,19 @@ def get_meta_info(uri: str):
     return meta_info[uri]['label'], meta_info[uri]['comment']
 
 
+def reset():
+    global initialized
+    lme.clear_cache()
+    initialized = False
+
+
 def init():
+    # dirty hack to refresh the cache once per day.
+    # has to be executed from inside the uvicorn runtime, so bound to request
+    # will delay the specific request until cache is rebuild
+    schedule.clear()  # prevent duplicate registrations
+    print("scheduling reset to", resettime)
+    schedule.every().day.at(resettime).do(reset)
     global meta_info
     lme.init()
     meta_info = modelbuilder.modelbuilder.build_label_index()
@@ -133,3 +148,4 @@ def init():
 
 if __name__ == "__main__":
     uvicorn.run("service:app", host="0.0.0.0", port=8000, reload=True)
+
