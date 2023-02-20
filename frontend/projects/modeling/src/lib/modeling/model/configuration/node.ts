@@ -1,7 +1,6 @@
 import { dia, shapes } from 'jointjs';
 import {
   CollisionSchema,
-  CompositeNode,
   ObjectNode,
   PrimitiveNode,
   SchemaNode,
@@ -23,7 +22,7 @@ export type NodeType =
   | 'custom.HighlightedExtendedSemanticClassNode'
   | 'custom.HighlightedLiteralNode'
   | 'custom.HighlightedNamedEntityNode';
-export type SyntaxNode = SchemaNode | CollisionSchema | CompositeNode | ObjectNode | PrimitiveNode | SetNode;
+export type SyntaxNode = SchemaNode | CollisionSchema  | ObjectNode | PrimitiveNode | SetNode;
 export type SemanticNode = SemanticModelNode;
 
 /**

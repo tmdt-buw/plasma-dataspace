@@ -5,7 +5,6 @@ import de.buw.tmdt.plasma.datamodel.CombinedModelElement;
 import de.buw.tmdt.plasma.datamodel.ModelMapping;
 import de.buw.tmdt.plasma.datamodel.PositionedCombinedModelElement;
 import de.buw.tmdt.plasma.datamodel.modification.DeltaModification;
-import de.buw.tmdt.plasma.datamodel.modification.operation.SyntacticOperationDTO;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.Relation;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.SemanticModelNode;
 import de.buw.tmdt.plasma.services.dms.core.handler.ModelingHandler;
@@ -165,15 +164,6 @@ public class ModelingController implements ModelingAPI {
     @Operation(description = "Returns all relations either persistent in the knowledge base or cached for the referenced model sorted alphabetically.")
     public List<Relation> getRelations(@NotNull String modelId, @Nullable String prefix, @Nullable String infix) {
         return modelingHandler.getRelations(modelId, prefix, infix);
-    }
-
-    @NotNull
-    @Override
-    @Operation(description = "Modify the syntactic schema of model by invoking an operation.")
-    public CombinedModel modifySyntacticSchema(@NotNull String modelId, @NotNull SyntacticOperationDTO syntacticOperationDTO) {
-        CombinedModel combinedModel = modelingHandler.modifySyntaxModel(modelId, syntacticOperationDTO);
-        modelingHandler.prepareForFrontend(combinedModel);
-        return combinedModel;
     }
 
     @NotNull

@@ -1,4 +1,4 @@
-import { CompositeNode, ObjectNode, PrimitiveNode, SetNode } from '../../../api/generated/dms';
+import { ObjectNode, PrimitiveNode, SetNode } from '../../../api/generated/dms';
 import { SyntaxNode } from './node';
 
 /**

@@ -33,9 +33,6 @@ public class CombinedModelPersistenceConverter implements AttributeConverter<Com
     public String convertToDatabaseColumn(CombinedModel combinedModel) {
         // clean up all the operations as they are not needed here
         try {
-            combinedModel.getSyntaxModel().getNodes().forEach(
-                    schemaNode -> schemaNode.getOperations().clear()
-            );
             return objectMapper.writeValueAsString(combinedModel);
         } catch (JsonProcessingException ex) {
             log.error("Unexpected IOEx encoding json to database: ", ex);

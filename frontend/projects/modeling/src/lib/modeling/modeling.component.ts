@@ -15,11 +15,8 @@ import {
 } from '../api/generated/dms';
 import { OntologyControllerService, OntologyInfo, SemanticModelControllerService } from '../api/generated/kgs';
 import { ContextMenuService } from './context-menu/context-menu.service';
-import { ModalBaseConfig, ModalMouseEnabledConfig } from './dialogs/common/modal.base-config';
+import { ModalMouseEnabledConfig } from './dialogs/common/modal.base-config';
 import { PlsConceptDialogComponent } from './dialogs/concept-dialog/concept-dialog.component';
-import {
-  PlsOperationsDialogComponent
-} from './dialogs/operations-dialog/operations-dialog/operations-dialog.component';
 import { Filter } from './model/common/filter';
 import { Nodes } from './model/configuration/node';
 import { ContextMenuEvent, ContextMenuEventType } from './model/events/context-menu-event';
@@ -153,21 +150,6 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
             deletion: true
           };
           this.modelingService.modifyModel(this.modelId, delta).subscribe((res: CombinedModel) => this.getCombinedModel());
-        } else if (event.type === ContextMenuEventType.performOperation) {
-          const operation = event.operation;
-          const config: ModalOptions = {
-            nzTitle: operation.label,
-            nzContent: PlsOperationsDialogComponent,
-            nzComponentParams: {
-              operation
-            }
-          };
-          const dialogRef = this.modal.create(Object.assign(config, ModalBaseConfig));
-          dialogRef.afterClose.subscribe(context => {
-            if (context) {
-              this.modelingService.modifySyntacticSchema(this.modelId, context).subscribe((res: CombinedModel) => this.getCombinedModel());
-            }
-          });
         }
       }
     });

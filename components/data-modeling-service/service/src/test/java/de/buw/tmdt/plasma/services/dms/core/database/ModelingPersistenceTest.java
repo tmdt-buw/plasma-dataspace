@@ -19,16 +19,16 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest(properties = {
         "spring.cloud.discovery.enabled=false" // no eureka for this run
 })
-public class DataSourceModelPersistenceTest {
+public class ModelingPersistenceTest {
 
     @Autowired
     ModelingRepository modelingRepository;
 
     @Transactional
-    public void testCreateDataSourceModel() {
+    public void testCreateModeling() {
         Modeling dsm = new Modeling();
 
-        SchemaNode root = new ObjectNode("root", true);
+        SchemaNode root = new ObjectNode("root");
 
         CombinedModel combinedModel = new CombinedModel("test", new SyntaxModel(
                 root.getUuid(),

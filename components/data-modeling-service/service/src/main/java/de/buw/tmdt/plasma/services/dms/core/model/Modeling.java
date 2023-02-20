@@ -34,6 +34,8 @@ public class  Modeling {
 
     private String dataId;
 
+    private boolean finalized;
+
     @Column()
     @ElementCollection
     @NotNull
@@ -58,6 +60,7 @@ public class  Modeling {
         this.id = UUID.randomUUID().toString();
         this.selectedOntologies = new ArrayList<>();
         this.created = ZonedDateTime.now();
+        this.finalized = false;
     }
 
     public Modeling(@NotNull String id) {
@@ -139,7 +142,7 @@ public class  Modeling {
     @Override
     @SuppressWarnings("MagicCharacter")
     public String toString() {
-        return "{\"@class\":\"DataSourceModel\""
+        return "{\"@class\":\"Modeling\""
                 + ", \"@super\":" + super.toString()
                 + ", \"currentVersion\":" + versionPointer
                 + ", \"maxVersion\":" + combinedModelVersions.size()
