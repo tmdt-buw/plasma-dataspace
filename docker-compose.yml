@@ -120,6 +120,7 @@ services:
       - 8186:8186
     environment:
       - plasma.dms.feature.recommendations.enabled=true
+      - plasma.dms.feature.finalizemodels.enabled=true
 
   dps:
     image: "plasma/dps:${PLASMA_VERSION}"
@@ -144,9 +145,9 @@ services:
     ports:
      - 8190:8190
     environment:
-      - plasma.ars.labeling.url=http://plasma-ars-l-lm:8201/api/plasma-ars-l-lm
+      - plasma.ars.labeling.urls=http://plasma-ars-l-lm:8201/api/plasma-ars-l-lm
       - plasma.ars.modeling.url=
-      - plasma.ars.refinement.url=http://plasma-ars-r-sr:8221/recommendation
+      - plasma.ars.refinement.urls=http://plasma-ars-r-sr:8221/recommendation
 
   frontend:
     build: ./frontend
