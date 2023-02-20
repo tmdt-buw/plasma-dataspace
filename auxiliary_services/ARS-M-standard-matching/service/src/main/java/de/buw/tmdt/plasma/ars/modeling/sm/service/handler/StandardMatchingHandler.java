@@ -393,8 +393,8 @@ public class StandardMatchingHandler {
         return semanticModel;
     }
 
-    public CombinedModel fetchModel(String dataSourceUuid) {
-        Analysis analysis = analysisRepository.findById(dataSourceUuid)
+    public CombinedModel fetchModel(String modelId) {
+        Analysis analysis = analysisRepository.findById(modelId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Given ID not found"));
         CombinedModel combinedModel = analysis.getResult();
         if (combinedModel == null) {

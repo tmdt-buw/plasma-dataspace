@@ -22,25 +22,25 @@ public interface StandardMatchingAPI {
 	/**
 	 * Fetches a created semantic model.
 	 *
-	 * @param dataSourceId id used to store the results
+	 * @param id id used to store the results
 	 * @return Semantic Model including identified standards
 	 */
 	@GetMapping(path = "/fetch", produces = MediaType.APPLICATION_JSON_VALUE)
-	CombinedModel fetchResult(@RequestParam("dataSourceId") String dataSourceId);
+	CombinedModel fetchResult(@RequestParam("id") String id);
 
 	/**
 	 * Starts to model, using a standard and returns the id of the analysis used to fetch the results.
 	 *
-	 * @param model          CombinedModel containing {@link de.buw.tmdt.plasma.datamodel.syntaxmodel.SyntaxModel} of the Data Source
-	 * @param dataSourceUuid The uuid of the data source used to reference this analysis
-	 * @param configId       The id of the config to retrieve
-	 *                       The config must have the "STANDARD_ID" set
-	 * @param configToken    The token to use to retrieve the config
+	 * @param model       CombinedModel containing {@link de.buw.tmdt.plasma.datamodel.syntaxmodel.SyntaxModel} of the Data Source
+	 * @param modelId     The uuid of the data source used to reference this analysis
+	 * @param configId    The id of the config to retrieve
+	 *                    The config must have the "STANDARD_ID" set
+	 * @param configToken The token to use to retrieve the config
 	 * @return Returns the original model. Use {@link #fetchResult(String)} to retrieve the result later on
 	 */
 	@NotNull
 	@PostMapping(value = "model", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	CombinedModel performModeling(@NotNull @RequestParam("uuid") String dataSourceUuid,
+	CombinedModel performModeling(@NotNull @RequestParam("uuid") String modelId,
 								  @RequestParam("configId") String configId,
 								  @RequestParam("configToken") String configToken,
 								  @NotNull @RequestBody CombinedModel model);

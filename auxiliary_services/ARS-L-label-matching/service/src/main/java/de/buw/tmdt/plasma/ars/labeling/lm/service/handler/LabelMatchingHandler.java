@@ -29,7 +29,7 @@ public class LabelMatchingHandler {
         this.ontologyApi = ontologyApi;
     }
 
-    public CombinedModel performLabeling(String dataSourceUUID, String configId, String configToken, CombinedModel combined) {
+    public CombinedModel performLabeling(String id, String configId, String configToken, CombinedModel combined) {
         List<String> mappedPrimitiveNodeIds = combined.getSemanticModel().getNodes().stream()
                 .filter(SemanticModelNode::isMapped)
                 .map(n -> (MappableSemanticModelNode) n)

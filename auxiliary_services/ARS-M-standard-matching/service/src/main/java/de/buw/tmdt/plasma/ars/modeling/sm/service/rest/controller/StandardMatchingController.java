@@ -38,15 +38,14 @@ public class StandardMatchingController implements StandardMatchingAPI {
 
     @Override
     @Operation(description = "returns the semantic model for the given id")
-    public CombinedModel fetchResult(String dataSourceId) {
-        return standardMatchingHandler.fetchModel(dataSourceId);
+    public CombinedModel fetchResult(String id) {
+        return standardMatchingHandler.fetchModel(id);
     }
 
     @Override
     @Operation(description = "performs semantic modeling using the standard defined by the config on the given combined model")
-    public @NotNull CombinedModel performModeling(@NotNull String dataSourceUuid, String configId, String configToken, @NotNull CombinedModel model) {
-
-        standardMatchingHandler.modelWithStandard(model, configId, configToken, dataSourceUuid);
+    public @NotNull CombinedModel performModeling(@NotNull String modelId, String configId, String configToken, @NotNull CombinedModel model) {
+        standardMatchingHandler.modelWithStandard(model, configId, configToken, modelId);
         return model;
     }
 }
