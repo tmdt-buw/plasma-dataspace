@@ -16,12 +16,12 @@ os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
 app = FastAPI()
 
-
 # cache to hold additional information for each URI: Format is uri -> {label, comment}
 meta_info: Dict[str, Dict[str, str]] = {}
 
 initialized: bool = False
 resettime = "02:30"
+
 
 # noinspection PyPep8Naming
 # in order to match the API query parameter names used in Java components
@@ -116,7 +116,7 @@ def generate_recommendations(combinedModel: CombinedModel) -> CombinedModel:
 
             recommendations.append(delta)
 
-        #print("recommended for", anchor.uri, recommendations)
+        # print("recommended for", anchor.uri, recommendations)
         for recommendation in recommendations[:5]:
             combinedModel.recommendations.append(recommendation)
     return combinedModel
@@ -124,7 +124,7 @@ def generate_recommendations(combinedModel: CombinedModel) -> CombinedModel:
 
 def get_meta_info(uri: str):
     if uri not in meta_info:
-        return None,None
+        return None, None
     return meta_info[uri]['label'], meta_info[uri]['comment']
 
 
@@ -147,5 +147,8 @@ def init():
 
 
 if __name__ == "__main__":
-    uvicorn.run("service:app", host="0.0.0.0", port=8000, reload=True)
-
+    port: int = int(os.getenv("SERVICE_PORT"))
+    if not port:
+        print("INFO", "No service port specified via 'SERVICE_PORT' env variable. Defaulting to 8221.")
+        port = 8221
+    uvicorn.run("service:app", host="0.0.0.0", port=port, reload=True)
