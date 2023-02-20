@@ -1,5 +1,6 @@
 package de.buw.tmdt.plasma.services.kgs.core;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
@@ -64,6 +65,7 @@ public class OntologyManagement {
     public OntologyManagement(@Value("${plasma.kgs.ontologies.store.url}") String ontologyStoreAddress) {
         mapper = new ObjectMapper()
                 .registerModule(new ParameterNamesModule())
+                .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
                 .enable(SerializationFeature.INDENT_OUTPUT);
         DEFAULT_PREFIXES.getNsPrefixMap().forEach(PREFIXES::setNsPrefix);
         builder = RDFConnectionFuseki.create()
