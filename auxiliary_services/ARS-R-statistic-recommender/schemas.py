@@ -137,7 +137,6 @@ class SchemaNode(BaseModel):
     path: Optional[List[str]] = None
     x: Optional[float] = None
     y: Optional[float] = None
-    valid: Optional[bool] = None
     visible: Optional[bool] = None
     disabled: Optional[bool] = None
     pathAsJSONPointer: Optional[str] = None

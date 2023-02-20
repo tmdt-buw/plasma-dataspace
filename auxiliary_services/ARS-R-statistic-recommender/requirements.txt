@@ -7,3 +7,4 @@ pydantic
 datamodel-code-generator[http]
 uvicorn
 SPARQLWrapper
+schedule
