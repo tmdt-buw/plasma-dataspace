@@ -3,19 +3,21 @@ import os
 import pickle
 from typing import Dict
 
-from rdflib import RDF, RDFS, OWL, URIRef, Graph, Literal, XSD
+from SPARQLWrapper import SPARQLWrapper, JSON, XML
+from rdflib import Graph
 
 import config
+from util.graphutil import uninstanciate_graph, get_triples_from_model
 from util.namespaces import PREFIXES, PLCM
 from util.parse import get_classes_and_predicates, generate_id_dict, encode_triples
-from SPARQLWrapper import SPARQLWrapper, JSON, TURTLE, XML
-from util.graphutil import uninstanciate_graph, get_triples_from_model
 
 
 def get_models():
     # establish connection to triple store (currently Fuseki)
     host = os.getenv('SPARQL_SM_STORE')
-    assert host
+    if not host:
+        print("WARN", "No SPARQL endpoint defined to request semantic models. 'SPARQL_SM_STORE' is empty.")
+        return
 
     sparql = SPARQLWrapper(host)
     sparql.setQuery(PREFIXES + """
@@ -70,7 +72,10 @@ def get_models():
 
 
 def build_label_index():
-    host = os.getenv('sparql_ontologies_store')
+    host = os.getenv('SPARQL_ONTOLOGIES_STORE')
+    if not host:
+        print("WARN", "No SPARQL endpoint defined to request ontologies. 'SPARQL_ONTOLOGIES_STORE' is empty.")
+        return
 
     sparql = SPARQLWrapper(host)
     sparql.setQuery(PREFIXES + """
