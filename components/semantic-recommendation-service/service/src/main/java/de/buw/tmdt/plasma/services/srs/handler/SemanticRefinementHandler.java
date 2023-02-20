@@ -24,7 +24,7 @@ public class SemanticRefinementHandler {
     private static final Logger log = LoggerFactory.getLogger(SemanticModelingHandler.class);
 
     @Value("${plasma.ars.refinement.prefix:ARS-R-}")
-    private String ARS_R_PREFIX;
+    private String prefixARSR;
 
     @Value("${plasma.ars.refinement.url:}")
     private List<String> refinementServiceURLs;
@@ -50,7 +50,7 @@ public class SemanticRefinementHandler {
             log.debug("No refinement services defined");
             throw new ResponseStatusException(HttpStatus.NOT_IMPLEMENTED, "No refinement services are defined to process your request.");
         }
-        combinedModel.getRecommendations().removeIf(dm -> dm.getReference().startsWith(ARS_R_PREFIX));
+        combinedModel.getRecommendations().removeIf(dm -> dm.getReference().startsWith(prefixARSR));
         List<DeltaModification> modifications = new ArrayList<>();
         for (String url : refinementServiceURLs) {
             try {
@@ -83,7 +83,7 @@ public class SemanticRefinementHandler {
                 log.warn("Could not perform semantic refinement using service {}", url, ex);
             }
         }
-        modifications.removeIf(dm -> !dm.getReference().startsWith(ARS_R_PREFIX));
+        modifications.removeIf(dm -> !dm.getReference().startsWith(prefixARSR));
         combinedModel.getRecommendations().addAll(modifications);
 
         return combinedModel;

@@ -41,9 +41,6 @@ public class CombinedModelPersistenceConverter implements AttributeConverter<Com
     @Override
     public String convertToDatabaseColumn(CombinedModel combinedModel) {
         // clean up all the operations as they are not needed here
-        combinedModel.getSyntaxModel().getNodes().forEach(
-                schemaNode -> schemaNode.getOperations().clear()
-        );
         try {
             String serialization = objectMapper.writeValueAsString(combinedModel);
             return serialization;

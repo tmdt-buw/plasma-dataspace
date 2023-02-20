@@ -196,7 +196,7 @@ public class CombinedModel implements Serializable {
 
         // apply syntactic modifications
         // update nodes
-        List<SchemaNode> nodesToBeReplaced = new ArrayList<>();
+        List<SchemaNode> nodesToBeReplaced;
         if (CollectionUtilities.hasElements(delta.getNodes())) {
             if (delta.isDeletion()) {
                 throw new UnsupportedOperationException("Cannot remove syntax nodes");

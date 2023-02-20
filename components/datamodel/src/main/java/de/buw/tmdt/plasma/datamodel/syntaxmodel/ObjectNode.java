@@ -18,7 +18,7 @@ public class ObjectNode extends MappableSyntaxNode {
 
     private static final long serialVersionUID = 8596616883718165165L;
 
-    public ObjectNode(@NotNull String label){
+    public ObjectNode(@NotNull String label) {
         super(label);
     }
 

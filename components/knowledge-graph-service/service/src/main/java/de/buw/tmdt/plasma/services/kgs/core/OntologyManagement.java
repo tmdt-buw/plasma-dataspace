@@ -134,17 +134,17 @@ public class OntologyManagement {
     }
 
     /**
-     * Creates a copy of all ontologies in the triple store
+     * Creates a copy of all ontologies in the triple store.
      */
     private void publishOntologyInformation() {
         try (RDFConnectionFuseki conn = (RDFConnectionFuseki) builder.build()) {
 
             // clear the current ontology store / currently disabled as we never remove information
-//            UpdateBuilder deleteBuilder = new UpdateBuilder()
-//                    .addDelete("?s", "?p", "?o")
-//                    .addWhere("?s", "?p", "?o");
-//            Update deleteAll = deleteBuilder.buildDeleteWhere();
-//            conn.update(deleteAll);
+            //            UpdateBuilder deleteBuilder = new UpdateBuilder()
+            //                    .addDelete("?s", "?p", "?o")
+            //                    .addWhere("?s", "?p", "?o");
+            //            Update deleteAll = deleteBuilder.buildDeleteWhere();
+            //            conn.update(deleteAll);
 
             // add all loaded ontologies one by one
             for (OntModel model : ontologyModels.values()) {

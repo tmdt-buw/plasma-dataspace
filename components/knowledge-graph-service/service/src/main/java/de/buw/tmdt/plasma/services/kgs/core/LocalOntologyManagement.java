@@ -104,7 +104,7 @@ public class LocalOntologyManagement {
             ontologyManagement.createLocalOntology(localOntologyLabel, localOntologyPrefix, localOntologyUri, localOntologyDescription);
         }
         localModel = ontologyManagement.getOntologyModelByLabel(localOntologyLabel);
-        if(localModel.isEmpty()){
+        if (localModel.isEmpty()) {
             throw new IllegalStateException("Could not find or create local ontology!");
         }
 
