@@ -4,12 +4,9 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import Any, Dict, List, Optional, Union
+from typing import List, Optional, Union
 
 from pydantic import BaseModel, Field
-from typing_extensions import Annotated
-
-from abc import ABC, abstractmethod
 
 
 class Edge(BaseModel):
@@ -99,17 +96,6 @@ class NamedEntity(SemanticModelNode):
     description: Optional[str] = None
 
 
-class TypeDefinitionDTOObject(BaseModel):
-    type: Optional[str] = None
-    name: Optional[str] = None
-    label: Optional[str] = None
-    description: Optional[str] = None
-    minCardinality: Optional[int] = None
-    maxCardinality: Optional[int] = None
-    value: Optional[List[Dict[str, Any]]] = None
-    hidden: Optional[bool] = None
-
-
 class DataProperty(Relation):
     pass
 
@@ -124,13 +110,6 @@ class SemanticModel(BaseModel):
     edges: Optional[List[Union[DataProperty, ObjectProperty]]] = None
 
 
-class SyntacticOperationDTO(BaseModel):
-    name: Optional[str] = None
-    label: Optional[str] = None
-    description: Optional[str] = None
-    parameter: Optional[TypeDefinitionDTOObject] = None
-
-
 class SchemaNode(BaseModel):
     uuid: Optional[str] = None
     label: Optional[str] = None
@@ -140,7 +119,6 @@ class SchemaNode(BaseModel):
     visible: Optional[bool] = None
     disabled: Optional[bool] = None
     pathAsJSONPointer: Optional[str] = None
-    operations: Optional[List[SyntacticOperationDTO]] = None
     field_class: str = Field(..., alias='_class')
 
     def __new__(cls, *args, **kwargs):
