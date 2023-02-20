@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import de.buw.tmdt.plasma.datamodel.PositionedCombinedModelElement;
-import de.buw.tmdt.plasma.datamodel.modification.operation.SyntacticOperationDTO;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -42,16 +41,10 @@ public abstract class SchemaNode extends PositionedCombinedModelElement {
 
     private List<String> path;
 
-    /**
-     * Holds a set of possible specific operations that are possible on this element.
-     */
-    private final ArrayList<SyntacticOperationDTO> operations;
-
     public SchemaNode(
             @NotNull String label
     ) {
         super(label);
-        this.operations = new ArrayList<>();
         this.path = new ArrayList<>();
     }
 
@@ -63,7 +56,6 @@ public abstract class SchemaNode extends PositionedCombinedModelElement {
             @Nullable Double yCoordinate
     ) {
         super(uuid, label, xCoordinate, yCoordinate);
-        this.operations = new ArrayList<>();
         this.path = path == null ? new ArrayList<>() : path;
         this.visible = true;
         this.disabled = false;
@@ -80,7 +72,6 @@ public abstract class SchemaNode extends PositionedCombinedModelElement {
             @Nullable @JsonProperty(DISABLED_PROPERTY) Boolean disabled
     ) {
         super(uuid, label, xCoordinate, yCoordinate);
-        this.operations = new ArrayList<>();
         this.path = path == null ? new ArrayList<>() : path;
         this.visible = visible == null || visible;
         this.disabled = disabled != null && disabled;
@@ -138,7 +129,7 @@ public abstract class SchemaNode extends PositionedCombinedModelElement {
 
     @Override
     public int hashCode() {
-        return Objects.hash(getUuid(), operations);
+        return Objects.hash(getUuid());
     }
 
     @Override
