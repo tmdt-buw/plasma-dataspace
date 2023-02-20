@@ -4,13 +4,14 @@ services:
 ########################### Infrastructure ######################################
 
   fuseki:
-    image: saiye/fuseki:4.4.0
+    image: saiye/fuseki:4.7.0
     hostname: fuseki
     restart: unless-stopped
     ports:
       - 3030:3030
     environment:
       - FUSEKI_DATASET_1=sm
+      - FUSEKI_DATASET_2=ontologies
       - ADMIN_PASSWORD=plasma
     volumes:
       - fuseki_data:/fuseki
@@ -145,7 +146,7 @@ services:
     environment:
       - plasma.ars.labeling.url=http://plasma-ars-l-lm:8201/api/plasma-ars-l-lm
       - plasma.ars.modeling.url=
-      - plasma.ars.refinement.url=
+      - plasma.ars.refinement.url=http://plasma-ars-r-sr:8221/recommendation
 
   frontend:
     build: ./frontend
@@ -170,17 +171,20 @@ services:
       - 8201:8201
 
   ars-r-sr:
+    build: ./auxiliary_services/ARS-R-statistic-recommender
     image: "plasma/ars-r-sr:${PLASMA_VERSION}"
     hostname: plasma-ars-r-sr
     restart: unless-stopped
+    environment:
+      - SERVICE_PORT=8221
+      - SPARQL_SM_STORE=http://fuseki:3030/sm
+      - SPARQL_ONTOLOGIES_STORE=http://fuseki:3030/ontologies
     depends_on:
-      - discovery
-      - semantic-recommender
-      - kgs
+      - fuseki
     volumes:
       - configs:/var/plasma/configs
     ports:
-      - 8205:8205
+      - 8221:8221
 
 
 volumes:
