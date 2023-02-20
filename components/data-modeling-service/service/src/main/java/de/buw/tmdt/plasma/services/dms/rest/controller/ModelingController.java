@@ -86,7 +86,7 @@ public class ModelingController implements ModelingAPI {
                         modeling.getDescription(),
                         modeling.getCreated(),
                         modeling.getDataId(),
-                        modeling.getCurrentModel().isFinalized()))
+                        modeling.isFinalized()))
                 .sorted(Comparator.comparing(ModelingInfo::getCreated).reversed())
                 .collect(Collectors.toList());
     }

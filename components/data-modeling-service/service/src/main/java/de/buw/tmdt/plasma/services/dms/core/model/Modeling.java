@@ -18,7 +18,7 @@ import java.util.UUID;
 @DynamicUpdate
 @Entity
 @Table(name = "modelings")
-public class  Modeling {
+public class Modeling {
 
     @Id
     @Column(nullable = false, unique = true, updatable = false)
@@ -146,6 +146,7 @@ public class  Modeling {
                 + ", \"@super\":" + super.toString()
                 + ", \"currentVersion\":" + versionPointer
                 + ", \"maxVersion\":" + combinedModelVersions.size()
+                + ", \"finalized\":" + isFinalized()
                 + '}';
     }
 
@@ -176,5 +177,13 @@ public class  Modeling {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public boolean isFinalized() {
+        return this.finalized;
+    }
+
+    public void finalizeModeling() {
+        this.finalized = true;
     }
 }

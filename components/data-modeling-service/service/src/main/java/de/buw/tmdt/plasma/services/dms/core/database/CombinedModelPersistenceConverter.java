@@ -1,6 +1,5 @@
 package de.buw.tmdt.plasma.services.dms.core.database;
 
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -21,8 +20,10 @@ import java.io.IOException;
 import java.time.ZoneId;
 import java.util.TimeZone;
 
+/**
+ * Custom converter to store CombinedModels in a serialized format.
+ */
 @Converter(autoApply = true)
-
 public class CombinedModelPersistenceConverter implements AttributeConverter<CombinedModel, String> {
 
     private static final Logger log = LoggerFactory.getLogger(CombinedModelPersistenceConverter.class);

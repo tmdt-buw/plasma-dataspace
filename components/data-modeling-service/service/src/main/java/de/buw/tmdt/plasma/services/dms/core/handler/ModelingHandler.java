@@ -688,8 +688,9 @@ public class ModelingHandler {
         combinedModel.finalizeModel();
 
         modeling.pushCombinedModel(combinedModel);
-        Modeling finalDataSource = modelingRepository.save(modeling);
-        return finalDataSource.getCurrentModel();
+        modeling.finalizeModeling(); // indicate the modeling as finalized (replicates the state of the CM)
+        Modeling finalModeling = modelingRepository.save(modeling);
+        return finalModeling.getCurrentModel();
     }
 
     /**
