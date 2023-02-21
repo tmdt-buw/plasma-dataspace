@@ -17,3 +17,4 @@ stages:
 include:
   - local: '.gitlab-ci-java.yml'
   - local: '.gitlab-ci-ui.yml'
+  - local: '.gitlab-ci-python.yml'
