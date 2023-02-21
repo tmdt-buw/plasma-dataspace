@@ -530,7 +530,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
         // turn off this trigger
         this.paper.off('render:done');
         // if there are no coordinates set, we guess its the initial view
-        const initial = !this.combinedModel.syntaxModel.nodes[0].x;
+        const initial = this.combinedModel.semanticModel.nodes.length === 0 && !this.combinedModel.syntaxModel.nodes[0].x;
         if (initial) {
           setTimeout(() => {
             // on first view layout and center
