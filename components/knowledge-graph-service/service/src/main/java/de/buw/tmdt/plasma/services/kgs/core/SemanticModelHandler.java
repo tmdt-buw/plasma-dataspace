@@ -50,8 +50,11 @@ public class SemanticModelHandler {
 
         List<SemanticModelNode> resources = semanticModel.getNodes().stream()
                 .filter(smn -> smn instanceof NamedEntity || smn instanceof Class)
+                .filter(SemanticModelNode::isProvisional)
                 .collect(Collectors.toList());
-        List<Relation> relations = semanticModel.getEdges();
+        List<Relation> relations = semanticModel.getEdges().stream()
+                .filter(Relation::isProvisional)
+                .collect(Collectors.toList());
         onto.addResourcesToOntology(resources, relations);
 
         SemanticModel sm = getSemanticModel(semanticModel.getId());
