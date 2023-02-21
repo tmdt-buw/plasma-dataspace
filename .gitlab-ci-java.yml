@@ -63,6 +63,9 @@ spotbugs_manual:
 unit_test:
   stage: test
   image: $MAVEN_IMAGE
+  only:
+    - merge_requests
+    - web
   tags:
     - docker
   script:
@@ -92,8 +95,7 @@ unit_test:
 integration_test_manual:
   extends: .integration_test
   only:
-    - branches
-    - pushes
+    - web
   except:
     - merge_requests
     - tags
