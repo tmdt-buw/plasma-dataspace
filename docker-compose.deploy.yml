@@ -3,13 +3,14 @@ version: "3.5"
 services:
   ########################### Infrastructure ######################################
   fuseki:
-    image: stain/jena-fuseki
+    image: saiye/fuseki:4.7.0
     hostname: fuseki
     restart: unless-stopped
     ports:
-      - 3030:3030
+      - "3030:3030"
     environment:
       - FUSEKI_DATASET_1=sm
+      - FUSEKI_DATASET_2=ontologies
       - ADMIN_PASSWORD=plasma
     volumes:
       - fuseki_data:/fuseki
@@ -31,7 +32,7 @@ services:
       retries: 3
       start_period: 5s
     ports:
-      - 3307:3306
+      - "3307:3306"
 
   mariadb-dms:
     image: mariadb:latest
@@ -50,26 +51,7 @@ services:
       retries: 3
       start_period: 5s
     ports:
-      - 3308:3306
-
-  mariadb-ars-m-sm:
-    image: mariadb:latest
-    hostname: mariadb-ars-m-sm
-    restart: unless-stopped
-    command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
-    environment:
-      - MYSQL_DATABASE=plasma-ars-m-sm
-      - MYSQL_ROOT_PASSWORD=plasma
-    volumes:
-      - mariadb_ars_m_sm:/var/lib/mysql
-    healthcheck:
-      test: bash -c "mariadb -h 127.0.0.1 -p$$MYSQL_ROOT_PASSWORD  -e \"show databases;\""
-      interval: 10s
-      timeout: 10s
-      retries: 3
-      start_period: 5s
-    ports:
-      - 3310:3306
+      - "3308:3306"
 
   ########################### Service Infrastructure ######################################
   discovery:
@@ -98,14 +80,6 @@ services:
       - "8888:8888"
 
   ########################### Services ######################################
-  sds:
-    image: git.uni-wuppertal.de:4567/tmdt/projects/dataspace/plasma/sds:${PLASMA_VERSION}
-    hostname: plasma-sds
-    restart: unless-stopped
-    depends_on:
-      - discovery
-    ports:
-      - "8182:8182"
 
   kgs:
     image: git.uni-wuppertal.de:4567/tmdt/projects/dataspace/plasma/kgs:${PLASMA_VERSION}
@@ -118,7 +92,7 @@ services:
       - plasma.kgs.ontologies.folder=/ontologies
     depends_on:
       - discovery
-      - neo4j
+      - fuseki
     ports:
       - "8181:8181"
 
@@ -143,6 +117,9 @@ services:
       - mariadb-dms
     ports:
       - "8186:8186"
+    environment:
+      - plasma.dms.feature.recommendations.enabled=true
+      - plasma.dms.feature.finalizemodels.enabled=true
 
   srs:
     image: git.uni-wuppertal.de:4567/tmdt/projects/dataspace/plasma/srs:${PLASMA_VERSION}
@@ -153,7 +130,9 @@ services:
     ports:
       - "8190:8190"
     environment:
-      - plasma.ars.refinement.recommendation.enabled=false
+      - plasma.ars.labeling.urls=http://plasma-ars-l-lm:8201/api/plasma-ars-l-lm
+      - plasma.ars.modeling.url=
+      - plasma.ars.refinement.urls=http://plasma-ars-r-sr:8221/recommendation
 
   dps:
     image: git.uni-wuppertal.de:4567/tmdt/projects/dataspace/plasma/dps:${PLASMA_VERSION}
@@ -169,7 +148,7 @@ services:
     volumes:
       - dps_storage:/var/plasma/localstorage
 
-  ui:
+  frontend:
     image: git.uni-wuppertal.de:4567/tmdt/projects/dataspace/plasma/frontend:${PLASMA_VERSION}
     hostname: plasma-ui
     restart: unless-stopped
@@ -190,59 +169,28 @@ services:
     ports:
       - "8201:8201"
 
-  ars-m-sm:
-    image: git.uni-wuppertal.de:4567/tmdt/projects/dataspace/plasma/ars-m-sm:${PLASMA_VERSION}
-    hostname: plasma-ars-m-sm
-    restart: unless-stopped
-    depends_on:
-      - discovery
-      - kgs
-      - mariadb-ars-m-sm
-    volumes:
-      - configs:/var/plasma/configs
-    ports:
-      - "8202:8202"
-
   ars-r-sr:
     image: git.uni-wuppertal.de:4567/tmdt/projects/dataspace/plasma/ars-r-sr:${PLASMA_VERSION}
     hostname: plasma-ars-r-sr
     restart: unless-stopped
     depends_on:
-      - discovery
-      - semantic-recommender
-      - kgs
+      - fuseki
+    environment:
+      - SERVICE_PORT=8221
+      - SPARQL_SM_STORE=http://fuseki:3030/sm
+      - SPARQL_ONTOLOGIES_STORE=http://fuseki:3030/ontologies
     volumes:
       - configs:/var/plasma/configs
     ports:
-      - "8205:8205"
-
-  ars-r-me:
-    image: git.uni-wuppertal.de:4567/tmdt/projects/dataspace/plasma/ars-r-me:${PLASMA_VERSION}
-    hostname: plasma-ars-r-me
-    restart: unless-stopped
-    depends_on:
-      - discovery
-      - semantic-recommender
-      - kgs
-    volumes:
-      - configs:/var/plasma/configs
-    ports:
-      - "8206:8206"
+      - "8221:8221"
 
   ########################### External Services ######################################
-
-  semantic-recommender:
-    image: git.uni-wuppertal.de:4567/tmdt/projects/dataspace/semantic-recommender/recommender:${RECOMMENDER_VERSION}
-    hostname: semantic-recommender
-    restart: unless-stopped
-    ports:
-      - "8000:8000"
 
 
 volumes:
   fuseki_data:
   mariadb_sas:
   mariadb_dms:
-  mariadb_ars_m_sm:
   configs:
+  kgs_ontologies:
   dps_storage:
