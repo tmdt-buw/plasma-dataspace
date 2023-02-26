@@ -6,7 +6,7 @@ import { ModalOptions, NzModalRef, NzModalService } from 'ng-zorro-antd/modal';
 import { appRoutesNames } from '../../app.routes.names';
 import { NzNotificationService } from 'ng-zorro-antd/notification';
 import { HttpStatusCode } from '@angular/common/http';
-import { DataProcessingControllerService } from '../../dataprocessing/api/generated';
+import { Configuration, DataProcessingControllerService } from '../../dataprocessing/api/generated';
 import {
   ModalBaseConfig,
   ModalMouseEnabledConfig
@@ -15,6 +15,7 @@ import { ConversionDialogComponent } from '../../dataprocessing/conversion-dialo
 import { OntologyControllerService } from '../../../../projects/modeling/src/lib/api/generated/kgs';
 import { Util } from 'projects/modeling/src/lib/modeling/model/common/util';
 import { EditModelingComponent } from '../edit-modeling/edit-modeling.component';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-modelings-list',
@@ -35,7 +36,12 @@ export class ModelingsListComponent implements OnInit {
   private editModelingModalRef: NzModalRef<any, any>;
 
   constructor(private modelingController: ModelingControllerService, private router: Router, private date: DatePipe,
-              private modal: NzModalService, private notification: NzNotificationService, private processingService: DataProcessingControllerService, private ontologyService: OntologyControllerService) {
+              private modal: NzModalService, private notification: NzNotificationService, private processingService: DataProcessingControllerService,
+              private ontologyService: OntologyControllerService) {
+    // manually override the basePath here as we do not import this as a module
+    ontologyService.configuration = new Configuration({
+      basePath: environment.baseUrl,
+    });
   }
 
   /**

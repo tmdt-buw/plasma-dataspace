@@ -38,11 +38,11 @@ import { EditModelingComponent } from './edit-modeling/edit-modeling.component';
     FlexModule,
     NzButtonModule,
     NzIconModule,
-        ApiModule.forRoot(() => {
-          return new Configuration({
-            basePath: environment.baseUrl,
-          });
-        }),
+    ApiModule.forRoot(() => {
+      return new Configuration({
+        basePath: environment.baseUrl,
+      });
+    }),
     RouterModule.forChild(MODELINGS_ROUTES),
     NzAlertModule,
     NzFormModule,
