@@ -47,6 +47,7 @@ export class UploadOntologyComponent {
       this.form.get('label').value,
       this.form.get('prefix').value,
       this.form.get('uri').value,
+      this.form.get('description').value,
       this.ontologyFiles[0]
     ).subscribe(() => {
       this.form.reset();

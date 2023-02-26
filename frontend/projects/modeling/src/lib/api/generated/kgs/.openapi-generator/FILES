@@ -20,7 +20,5 @@ model/relation.ts
 model/schemaNode.ts
 model/semanticModel.ts
 model/semanticModelNode.ts
-model/syntacticOperationDTO.ts
 model/syntaxModel.ts
-model/typeDefinitionDTOObject.ts
 variables.ts

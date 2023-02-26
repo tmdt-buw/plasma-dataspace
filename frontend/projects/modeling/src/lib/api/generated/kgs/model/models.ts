@@ -9,6 +9,4 @@ export * from './relation';
 export * from './schemaNode';
 export * from './semanticModel';
 export * from './semanticModelNode';
-export * from './syntacticOperationDTO';
 export * from './syntaxModel';
-export * from './typeDefinitionDTOObject';

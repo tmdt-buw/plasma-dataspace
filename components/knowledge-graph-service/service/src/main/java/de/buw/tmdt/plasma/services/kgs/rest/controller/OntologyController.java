@@ -62,8 +62,8 @@ public class OntologyController implements OntologyApi {
     }
 
     @Override
-    public void addOntology(String label, String prefix, String uri, MultipartFile ontologyFile) {
-        ontologyManagement.addOntology(label, prefix, uri, ontologyFile);
+    public void addOntology(String label, String prefix, String uri, String description, MultipartFile ontologyFile) {
+        ontologyManagement.addOntology(label, prefix, uri, description, ontologyFile);
     }
 
     @Override

@@ -175,7 +175,7 @@ public class OntologyManagement {
         return ontologyFolder;
     }
 
-    public void addOntology(String label, String prefix, String namespace, MultipartFile ontologyFile) {
+    public void addOntology(String label, String prefix, String namespace, String description, MultipartFile ontologyFile) {
         String filename = ontologyFile.getOriginalFilename();
 
         if (filename == null || filename.isBlank()) {
@@ -209,6 +209,7 @@ public class OntologyManagement {
             log.info("Written ontology file to " + ontologyFilePath);
 
             Ontology onto = new Ontology(label, filename, prefix, namespace);
+            onto.setDescription(description);
             mapper.writeValue(metadataFilePath.toFile(), onto);
         } catch (IOException e) {
             log.error("Error while writing ontology or metadata file", e);

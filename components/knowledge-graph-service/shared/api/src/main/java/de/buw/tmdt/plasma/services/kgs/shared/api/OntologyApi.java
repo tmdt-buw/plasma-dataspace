@@ -58,6 +58,7 @@ public interface OntologyApi {
     void addOntology(@RequestParam(value = "label") String label,
                      @RequestParam(value = "prefix") String prefix,
                      @RequestParam(value = "uri") String uri,
+                     @RequestParam(value = "description") String description,
                      @RequestParam("file") MultipartFile ontologyFile);
 
     /**
