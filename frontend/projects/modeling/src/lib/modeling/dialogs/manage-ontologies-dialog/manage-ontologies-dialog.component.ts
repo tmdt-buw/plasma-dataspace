@@ -10,7 +10,7 @@ import { NzNotificationService } from 'ng-zorro-antd/notification';
 @Component({
   selector: 'pls-manage-ontologies-dialog',
   templateUrl: './manage-ontologies-dialog.component.html',
-  styleUrls: ['./manage-ontologies-dialog.component.css']
+  styleUrls: ['./manage-ontologies-dialog.component.less']
 })
 export class ManageOntologiesDialogComponent implements OnInit, OnDestroy{
 
@@ -48,7 +48,7 @@ export class ManageOntologiesDialogComponent implements OnInit, OnDestroy{
     const config: ModalOptions = {
       nzStyle: {
         position: 'absolute',
-        top: `${this.boundingBox.top + 15}px`,
+        top: `${this.boundingBox.top}px`,
         right: `10px`,
         'max-width': '30%',
         bottom: '15px'

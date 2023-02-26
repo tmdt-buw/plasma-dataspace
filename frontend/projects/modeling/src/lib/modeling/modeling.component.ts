@@ -401,7 +401,7 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
     const config: ModalOptions = {
       nzStyle: {
         position: 'absolute',
-        top: `${boundingBox.top + 15}px`,
+        top: `${boundingBox.top}px`,
         left: `50px`,
         'min-width': '60%',
         'max-width': '80%',

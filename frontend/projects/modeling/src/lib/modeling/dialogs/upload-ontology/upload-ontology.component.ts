@@ -5,7 +5,7 @@ import { OntologyControllerService } from '../../../api/generated/kgs';
 @Component({
   selector: 'pls-upload-ontology',
   templateUrl: './upload-ontology.component.html',
-  styleUrls: ['./upload-ontology.component.css']
+  styleUrls: ['./upload-ontology.component.less']
 })
 export class UploadOntologyComponent {
 
@@ -22,6 +22,7 @@ export class UploadOntologyComponent {
   });
   error;
   success;
+  uploading = false;
 
   ontologyFiles: File[] = [];
 
@@ -36,7 +37,12 @@ export class UploadOntologyComponent {
    * Submits the ontology.
    */
   onSubmit(): void {
-    this.error = null;
+    if (!this.isValid()) {
+      return;
+    }
+    this.error = undefined;
+    this.success = undefined;
+    this.uploading = true;
     this.ontologyController.addOntology(
       this.form.get('label').value,
       this.form.get('prefix').value,
@@ -47,8 +53,10 @@ export class UploadOntologyComponent {
       this.ontologyFiles = [];
       this.success = 'Ontology added.';
       this.error = undefined;
+      this.uploading = false;
       this.ontologyCreated.next();
     }, error => {
+      this.uploading = false;
       this.success = undefined;
       this.error = error;
     });
