@@ -1,4 +1,4 @@
-/* tslint:disable:object-literal-key-quotes */        /* Strongly suggested by jointjs documentation for 'targetMarker' as native SVG props are passed */
+/* tslint:disable:object-literal-key-quotes */                /* Strongly suggested by jointjs documentation for 'targetMarker' as native SVG props are passed */
 import { dia, g, shapes } from 'jointjs';
 import { Nodes } from './node';
 import { groupBy } from 'lodash';
@@ -168,7 +168,7 @@ export abstract class Links {
       link.attributes.type = this.objectPropertyLinkHighlightedName;
       // hardcoded for now as there is no way to do this in CSS
       link.attr({
-        '.marker-target': {stroke: '#ff5900', d: 'M 10 0 L 0 5 L 10 10 z', strokeWidth: 4}
+        '.marker-target': {stroke: '#FC6B28', d: 'M 10 0 L 0 5 L 10 10 z', strokeWidth: 4}
       });
     } else {
       link.connector('jumpover');
@@ -197,8 +197,8 @@ export abstract class Links {
       link.attributes.type = this.dataPropertyLinkHighlightedName;
       // hardcoded for now as there is no way to do this in CSS
       link.attr({
-        '.marker-target': {stroke: '#ff5900', d: 'M 10 0 L 0 5 L 10 10 z', strokeWidth: 4},
-        '.marker-source': {stroke: '#ff5900', d: 'M 10 0 L 0 5 L 10 10 z', strokeWidth: 4}
+        '.marker-target': {stroke: '#FC6B28', d: 'M 10 0 L 0 5 L 10 10 z', strokeWidth: 4},
+        '.marker-source': {stroke: '#FC6B28', d: 'M 10 0 L 0 5 L 10 10 z', strokeWidth: 4}
       });
     } else {
       link.connector('jumpover');

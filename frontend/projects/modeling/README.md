@@ -66,7 +66,7 @@ The modeling library uses less variables for styling. The variables can be overw
 @modeling-background-color: white;
 @modeling-primary-color: #042042;
 @modeling-text-color: white;
-@modeling-highlight-color: #ff5900;
+@modeling-highlight-color: #FC6B28;
 
 // class colors
 @modeling-class-color: @modeling-primary-color;
