@@ -94,7 +94,9 @@ public class LocalOntologyManagement {
             }
 
         }
-        putModel(m);
+        if (m.size() > 0) {
+            putModel(m);
+        }
     }
 
     public OntModel getInternalOntology() {
