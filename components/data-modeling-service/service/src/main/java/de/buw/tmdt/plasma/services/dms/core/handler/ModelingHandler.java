@@ -222,6 +222,13 @@ public class ModelingHandler {
         return getCombinedModel(modelId, false);
     }
 
+    /**
+     * Returns the existing arraycontexts for a given modeling as a list of sets of strings.
+     * Each set in the list represents a single arraycontext and contains all uuids of all relations in that arraycontext.
+     *
+     * @param modelId The model id to obtain the information for
+     * @return An "index" of arraycontexts, represented as a list of sets of uuids of relations in that arraycontext.
+     */
     @NotNull
     public List<Set<String>> getArrayContexts(@NotNull String modelId) {
         CombinedModel combinedModel = getCombinedModel(modelId);

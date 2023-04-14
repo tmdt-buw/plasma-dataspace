@@ -269,6 +269,7 @@ public class CombinedModel implements Serializable {
         // disable nodes below a mapped SetNode
         syntaxModel.getNodes().stream()
                 .filter(node -> node instanceof SetNode)
+                .sorted((n1, n2) -> Integer.compare(n2.getPath().size(), n1.getPath().size()))
                 .map(node -> (SetNode) node)
                 .forEach(setNode -> {
                     if (isMappedSchemaNode(setNode)) {
@@ -316,7 +317,7 @@ public class CombinedModel implements Serializable {
                     if (visible != null) {
                         edge.setVisible(visible);
                     }
-                    // process the subnodes
+                    // process the child nodes
                     SchemaNode childNode = syntaxModel.getNode(edge.getToId());
                     if (disabled != null) {
                         childNode.setDisabled(disabled);

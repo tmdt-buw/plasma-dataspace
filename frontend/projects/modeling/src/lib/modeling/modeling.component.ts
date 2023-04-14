@@ -81,6 +81,7 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
 
   // combined model
   combinedModel: CombinedModel;
+  // ArrayContexts represented as an array of arrays of uuids of relations in an array context
   arrayContexts: string[][];
   modelMappings: ModelMapping[];
   loading: boolean = true;
@@ -163,6 +164,7 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
   }
 
   getCombinedModel(): Subscription {
+    const arrayContextElementSum = this.arrayContexts?.map(context => context.length).reduce((sum, current) => sum + current, 0);
     return forkJoin({
       cm: this.modelingService.getCombinedModel(this.modelId),
       ac: this.modelingService.getArrayContexts(this.modelId),
@@ -176,6 +178,10 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
             this.$filter.next(Filter.SEMANTIC);
           }
           this.loading = false;
+          const updatedArrayContextElementSum = this.arrayContexts?.map(context => context.length).reduce((sum, current) => sum + current, 0);
+          if (updatedArrayContextElementSum > arrayContextElementSum) {
+            this.notification.info('Relation added to arraycontext', 'A relation was added to an arraycontext automatically. Use context menu of relation to revert this.');
+          }
         },
         (error: HttpErrorResponse) => {
           if (error.status === HttpStatusCode.ServiceUnavailable) {
