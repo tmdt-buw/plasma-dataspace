@@ -615,7 +615,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
       switch (this.modelNode._class) {
         case 'Class':
           const instance: Instance = {
-            label: node.label,
+            label: node.label.startsWith('##') ? undefined : node.label,
           };
           semanticNode = {
             _class: this.modelNode._class,
