@@ -1,9 +1,6 @@
 package de.buw.tmdt.plasma.services.dms.rest.controller;
 
-import de.buw.tmdt.plasma.datamodel.CombinedModel;
-import de.buw.tmdt.plasma.datamodel.CombinedModelElement;
-import de.buw.tmdt.plasma.datamodel.ModelMapping;
-import de.buw.tmdt.plasma.datamodel.PositionedCombinedModelElement;
+import de.buw.tmdt.plasma.datamodel.*;
 import de.buw.tmdt.plasma.datamodel.modification.DeltaModification;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.Relation;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.SemanticModelNode;
@@ -24,7 +21,6 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Comparator;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -135,7 +131,7 @@ public class ModelingController implements ModelingAPI {
     @NotNull
     @Override
     @Operation(description = "Requests all array context represented by element ids (nodes and edges) for the given model")
-    public List<Set<String>> getArrayContexts(@NotNull String modelId) {
+    public List<ArrayContext> getArrayContexts(@NotNull String modelId) {
         return modelingHandler.getArrayContexts(modelId);
     }
 

@@ -7,6 +7,7 @@ configuration.ts
 encoder.ts
 git_push.sh
 index.ts
+model/arrayContext.ts
 model/cacheRelationRequest.ts
 model/class.ts
 model/classAllOf.ts

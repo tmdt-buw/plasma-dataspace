@@ -45,7 +45,8 @@
     <nz-form-item>
       <nz-form-label nzFor="value">Value</nz-form-label>
       <nz-form-control nzErrorTip="Empty values are not allowed!">
-        <input [nz-tooltip]="'Value of this literal'" [nzBorderless]="!editing" disabled
+        <input [nz-tooltip]="'Value of this literal. If mapped, will be replaced with value from data.'"
+               [nzBorderless]="!editing" disabled
                formControlName="value" id="value" nz-input/>
       </nz-form-control>
     </nz-form-item>

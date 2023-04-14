@@ -29,7 +29,6 @@ import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 public class ModelingHandler {
@@ -224,20 +223,30 @@ public class ModelingHandler {
 
     /**
      * Returns the existing arraycontexts for a given modeling as a list of sets of strings.
-     * Each set in the list represents a single arraycontext and contains all uuids of all relations in that arraycontext.
+     * Each set in the list represents a single arraycontext and contains all uuids of all relations and nodes in that arraycontext.
      *
      * @param modelId The model id to obtain the information for
-     * @return An "index" of arraycontexts, represented as a list of sets of uuids of relations in that arraycontext.
+     * @return An "index" of arraycontexts, represented as a list of sets of uuids of relations and nodes in that arraycontext.
      */
     @NotNull
-    public List<Set<String>> getArrayContexts(@NotNull String modelId) {
+    public List<ArrayContext> getArrayContexts(@NotNull String modelId) {
         CombinedModel combinedModel = getCombinedModel(modelId);
-        List<Set<String>> sets = combinedModel.getArrayContexts().stream()
-                .map(sm -> Stream.concat(sm.getEdges().stream().map(CombinedModelElement::getUuid),
-                                sm.getNodes().stream().map(CombinedModelElement::getUuid))
-                        .collect(Collectors.toSet()))
+        List<ArrayContext> contexts = combinedModel.getArrayContexts().stream()
+                .map(sm -> new ArrayContext(
+                        sm.getNodes().stream().map(CombinedModelElement::getUuid).collect(Collectors.toList()),
+                        sm.getEdges().stream().map(CombinedModelElement::getUuid).collect(Collectors.toList()),
+                        null,
+                        null,
+                        sm.getNodes().stream()
+                                .filter(SemanticModelNode::isMapped)
+                                .map(node -> (MappableSemanticModelNode) node)
+                                .map(node -> combinedModel.getSyntaxModel().getNode(node.getMappedSyntaxNodeUuid()))
+                                .map(SchemaNode::getDepth)
+                                .max(Long::compare)
+                                .orElse(-1L)
+                ))
                 .collect(Collectors.toList());
-        return sets;
+        return contexts;
     }
 
     @NotNull

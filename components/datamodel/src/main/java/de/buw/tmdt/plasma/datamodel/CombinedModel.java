@@ -257,6 +257,27 @@ public class CombinedModel implements Serializable {
             if (!delta.isDeletion()) {
                 // now add the new ones with the same uuids but new content
                 semanticModel.getEdges().addAll(delta.getRelations());
+                // for each of those relations, check if an array context might apply
+                delta.getRelations().forEach(relation -> {
+                    SemanticModelNode from = getSemanticModel().getNode(relation.getFrom());
+                    SemanticModelNode to = getSemanticModel().getNode(relation.getTo());
+                    // check if both of those two nodes are mapped to a sub-array node
+                    // otherwise skip as we do not want to automatically add context nodes to arraycontext
+                    if (from.isMapped() && to.isMapped()) {
+                        SchemaNode mappedFromNode = this.syntaxModel.getNode(((MappableSemanticModelNode) to).getMappedSyntaxNodeUuid());
+                        SchemaNode mappedToNode = this.syntaxModel.getNode(((MappableSemanticModelNode) from).getMappedSyntaxNodeUuid());
+
+                        // prevent array contexts with depth > 1 (remove with #68)
+                        if (Math.max(mappedToNode.getDepth(), mappedFromNode.getDepth()) > 1) {
+                            return;
+                        }
+                        if (mappedFromNode.getPathAsJSONPointer().contains(mappedToNode.getPathAsJSONPointer()) ||
+                                mappedToNode.getPathAsJSONPointer().contains(mappedFromNode.getPathAsJSONPointer())) {
+                            // both belong to the same array
+                            relation.setArrayContext(true);
+                        }
+                    }
+                });
             } else {
                 // check if a literal exists that has no incoming edge anymore
                 semanticModel.getNodes().removeIf(node -> node instanceof Literal &&
@@ -359,7 +380,7 @@ public class CombinedModel implements Serializable {
     }
 
     /**
-     * Identify iteration contexts in the model.
+     * Identify arraycontexts in the model.
      */
     @JsonIgnore
     public List<SemanticModel> getArrayContexts() {

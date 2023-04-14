@@ -2,9 +2,10 @@ import { animate, style, transition, trigger } from '@angular/animations';
 import { Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { ModalOptions, NzModalRef, NzModalService } from 'ng-zorro-antd/modal';
-import { BehaviorSubject, forkJoin, Subject, Subscription } from 'rxjs';
-import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { BehaviorSubject, forkJoin, Observable, Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged, tap } from 'rxjs/operators';
 import {
+  ArrayContext,
   CombinedModel,
   DeltaModification,
   ModelingControllerService,
@@ -81,8 +82,8 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
 
   // combined model
   combinedModel: CombinedModel;
-  // ArrayContexts represented as an array of arrays of uuids of relations in an array context
-  arrayContexts: string[][];
+  // ArrayContexts represented as an array of arrays of uuids of relations and nodes in an array context
+  arrayContexts: ArrayContext[];
   modelMappings: ModelMapping[];
   loading: boolean = true;
 
@@ -163,14 +164,14 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
     this.manageOntolggiesDialogRef?.close();
   }
 
-  getCombinedModel(): Subscription {
-    const arrayContextElementSum = this.arrayContexts?.map(context => context.length).reduce((sum, current) => sum + current, 0);
-    return forkJoin({
+  getCombinedModel(): Observable<any> {
+    const obs = forkJoin({
       cm: this.modelingService.getCombinedModel(this.modelId),
       ac: this.modelingService.getArrayContexts(this.modelId),
       mm: this.modelingService.getModelMappings(this.modelId)
-    })
-      .subscribe(res => {
+    });
+    // TODO find more elegant solution to avoid triggering tap every time for each subscription
+    const obs2 = obs.pipe(tap((res: { ac: ArrayContext[]; mm: ModelMapping[]; cm: CombinedModel; }) => {
           this.arrayContexts = res.ac;
           this.modelMappings = res.mm;
           this.combinedModel = res.cm;
@@ -178,21 +179,21 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
             this.$filter.next(Filter.SEMANTIC);
           }
           this.loading = false;
-          const updatedArrayContextElementSum = this.arrayContexts?.map(context => context.length).reduce((sum, current) => sum + current, 0);
-          if (updatedArrayContextElementSum > arrayContextElementSum) {
-            this.notification.info('Relation added to arraycontext', 'A relation was added to an arraycontext automatically. Use context menu of relation to revert this.');
-          }
-        },
-        (error: HttpErrorResponse) => {
-          if (error.status === HttpStatusCode.ServiceUnavailable) {
-            this.notification.error('Service not available', 'The modeling service is currently not available, please try again later');
-          } else if (error.status === HttpStatusCode.NotFound) {
-            this.notification.error('Model not found', 'The requested model could not be found');
-          } else {
-            this.notification.error('Error retrieving model or supplementary data', 'An unexpected error occurred.');
-          }
         }
-      );
+      )
+    );
+    obs2.subscribe({
+      error: (error: HttpErrorResponse) => {
+        if (error.status === HttpStatusCode.ServiceUnavailable) {
+          this.notification.error('Service not available', 'The modeling service is currently not available, please try again later');
+        } else if (error.status === HttpStatusCode.NotFound) {
+          this.notification.error('Model not found', 'The requested model could not be found');
+        } else {
+          this.notification.error('Error retrieving model or supplementary data', 'An unexpected error occurred.');
+        }
+      }
+    });
+    return obs2;
   }
 
   updateModelMappings(): void {
@@ -247,11 +248,22 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
   }
 
   onSemanticElementsAdded(event: { entities?: Array<SemanticModelNode>, relations?: Array<Relation> }): void {
+    const arrayContextRelationSum = this.arrayContexts?.map(context => context.relations.length).reduce((sum, current) => sum + current, 0);
     const delta: DeltaModification = {
       relations: event.relations,
       entities: event.entities
     };
-    this.modelingService.modifyModel(this.modelId, delta).subscribe((res) => this.getCombinedModel());
+    this.modelingService.modifyModel(this.modelId, delta).subscribe(
+      (res) => this.getCombinedModel().subscribe({
+        next: value => {
+
+          const updatedArrayContextElementSum = this.arrayContexts?.map(context => context.relations.length).reduce((sum, current) => sum + current, 0);
+          console.log('checking arraycontexts:', arrayContextRelationSum, updatedArrayContextElementSum);
+          if (event.relations.length > 0 && updatedArrayContextElementSum > arrayContextRelationSum) {
+            this.notification.info('Relation added to arraycontext', 'A relation was added to an arraycontext automatically. Use context menu of relation to revert this.');
+          }
+        }
+      }));
   }
 
   onSemanticElementsRemoved(event: { entities?: Array<SemanticModelNode>, relations?: Array<Relation> }): void {

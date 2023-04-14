@@ -100,6 +100,10 @@ public abstract class SchemaNode extends PositionedCombinedModelElement {
         this.path.add(component);
     }
 
+    public long getDepth() {
+        return getPath().stream().filter(ARRAY_PATH_TOKEN::equals).count();
+    }
+
     /**
      * JSON Path (RFC6901) identifier of that node.
      * Arrays will always be represented with index 0, e.g. /list/0/value in that path as the length of said list is
