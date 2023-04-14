@@ -1,4 +1,4 @@
-package de.buw.tmdt.plasma.services.dps;
+package de.buw.tmdt.plasma.services.sas;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,11 +9,11 @@ import org.springframework.context.ConfigurableApplicationContext;
 
 @EnableDiscoveryClient
 @SpringBootApplication(scanBasePackages = "de.buw.tmdt.plasma")
-public class DataProcessingApplication {
-	private static final Logger logger = LoggerFactory.getLogger(DataProcessingApplication.class);
+public class SchemaAnalysisService {
+	private static final Logger logger = LoggerFactory.getLogger(SchemaAnalysisService.class);
 
 	public static void main(String[] args) {
-		final ConfigurableApplicationContext context = SpringApplication.run(DataProcessingApplication.class, args);
+		final ConfigurableApplicationContext context = SpringApplication.run(SchemaAnalysisService.class, args);
 		final String applicationName = context.getEnvironment().getProperty("spring.application.name");
 		logger.info("{}: Booting successful", applicationName);
 	}
