@@ -69,7 +69,7 @@ export class PlsConceptDialogComponent implements OnInit, OnDestroy {
 
   getSemanticNodeTemplates(): void {
     this.loadingEntityConcepts = true;
-    this.modelingService.getElements(this.modelId, this.entitySearchControl.value).subscribe((res) => {
+    this.modelingService.getElements(this.modelId, undefined, this.entitySearchControl.value).subscribe((res) => {
       this.semanticModelNodes = res;
       this.loadingEntityConcepts = false;
     });
@@ -77,7 +77,7 @@ export class PlsConceptDialogComponent implements OnInit, OnDestroy {
 
   getRelationTemplates(): void {
     this.loadingRelationConcepts = true;
-    this.modelingService.getRelations(this.modelId, this.relationSearchControl.value).subscribe((res) => {
+    this.modelingService.getRelations(this.modelId, undefined, this.relationSearchControl.value).subscribe((res) => {
       this.relations = res;
       this.loadingRelationConcepts = false;
     }, error => this.notification.error('Error during fetch of concept and relations', 'Could not retrieve data from service. '));
