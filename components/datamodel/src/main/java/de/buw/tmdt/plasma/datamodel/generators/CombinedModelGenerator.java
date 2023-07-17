@@ -1,5 +1,6 @@
-package de.buw.tmdt.plasma.datamodel;
+package de.buw.tmdt.plasma.datamodel.generators;
 
+import de.buw.tmdt.plasma.datamodel.CombinedModel;
 import de.buw.tmdt.plasma.datamodel.modification.operation.DataType;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.Class;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.*;
@@ -59,6 +60,8 @@ public class CombinedModelGenerator {
         Class flightClass = new Class(namespace + "flight", "flight", "A scheduled flight of an airplane");
 
         Literal flightTypeLiteral = new Literal("domestic");
+        flightTypeLiteral.setXCoordinate(100.0);
+        flightTypeLiteral.setYCoordinate(100.0);
 
         Class identifierClass = new Class(namespace + "identifier", "identifier", "Identifies a certain object");
         Instance identifierInstance = new Instance(identifierClass.getLabel(), null);

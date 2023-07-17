@@ -1,10 +1,9 @@
 package de.buw.tmdt.plasma.services.dps.conversion.rdf;
 
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.buw.tmdt.plasma.datamodel.CombinedModel;
-import de.buw.tmdt.plasma.services.dps.CombinedModelGenerator;
+import de.buw.tmdt.plasma.datamodel.generators.AdvancedCombinedModelGenerator;
 import de.buw.tmdt.plasma.services.dps.conversion.ConversionException;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
@@ -18,18 +17,22 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
-
-import static de.buw.tmdt.plasma.services.dps.CombinedModelGenerator.asTurtle;
+import java.io.StringWriter;
 
 public class DataConverterTest {
 
-    private CombinedModelGenerator combinedModelGenerator;
+    private AdvancedCombinedModelGenerator combinedModelGenerator;
+
+    public static String asTurtle(Model model) {
+        StringWriter out = new StringWriter();
+        model.write(out, "TURTLE");
+        return out.toString();
+    }
 
     @BeforeEach
     public void setup() {
-        combinedModelGenerator = new CombinedModelGenerator();
+        combinedModelGenerator = new AdvancedCombinedModelGenerator();
     }
-
 
     @Test
     public void testConversionWithoutMappedList() throws IOException, ConversionException {
@@ -40,7 +43,7 @@ public class DataConverterTest {
         JsonNode jsonNode = mapper.readTree(is);
 
         PrefixMapping prefixMapping = new PrefixMappingImpl();
-        prefixMapping.setNsPrefix("local", CombinedModelGenerator.namespace);
+        prefixMapping.setNsPrefix("local", AdvancedCombinedModelGenerator.namespace);
         prefixMapping.setNsPrefix("plcm", PLCM.getURI());
         prefixMapping.setNsPrefix("plsm", "http://plasma.uni-wuppertal.de/sm/");
         prefixMapping.setNsPrefix("plasma", "http://plasma.uni-wuppertal.de/ontology#");
@@ -65,7 +68,7 @@ public class DataConverterTest {
         JsonNode jsonNode = mapper.readTree(is);
 
         PrefixMapping prefixMapping = new PrefixMappingImpl();
-        prefixMapping.setNsPrefix("local", CombinedModelGenerator.namespace);
+        prefixMapping.setNsPrefix("local", AdvancedCombinedModelGenerator.namespace);
         prefixMapping.setNsPrefix("plcm", PLCM.getURI());
         prefixMapping.setNsPrefix("plsm", "http://plasma.uni-wuppertal.de/sm/");
         prefixMapping.setNsPrefix("plasma", "http://plasma.uni-wuppertal.de/ontology#");
@@ -90,7 +93,7 @@ public class DataConverterTest {
         JsonNode jsonNode = mapper.readTree(is);
 
         PrefixMapping prefixMapping = new PrefixMappingImpl().withDefaultMappings(PrefixMapping.Standard);
-        prefixMapping.setNsPrefix("local", CombinedModelGenerator.namespace);
+        prefixMapping.setNsPrefix("local", AdvancedCombinedModelGenerator.namespace);
         prefixMapping.setNsPrefix("plcm", PLCM.getURI());
         prefixMapping.setNsPrefix("plsm", "http://plasma.uni-wuppertal.de/sm/");
         prefixMapping.setNsPrefix("plasma", "http://plasma.uni-wuppertal.de/ontology#");
@@ -118,37 +121,7 @@ public class DataConverterTest {
         JsonNode jsonNode = mapper.readTree(is);
 
         PrefixMapping prefixMapping = new PrefixMappingImpl().withDefaultMappings(PrefixMapping.Standard);
-        prefixMapping.setNsPrefix("local", CombinedModelGenerator.namespace);
-        prefixMapping.setNsPrefix("plcm", PLCM.getURI());
-        prefixMapping.setNsPrefix("plsm", "http://plasma.uni-wuppertal.de/sm/");
-        prefixMapping.setNsPrefix("plasma", "http://plasma.uni-wuppertal.de/ontology#");
-
-
-        RDFConverter converter = new RDFConverter(prefixMapping);
-
-        jsonNode = jsonNode.get(0);
-        Model converted = converter.convertToRDF(combinedModel, jsonNode);
-
-        String output = asTurtle(converted);
-
-        System.out.println(output);
-    }
-
-    @Test
-    @Disabled
-    public void testConversionWith2ndLayerArray() throws IOException, ConversionException {
-        combinedModelGenerator.setMapVesselInformation(false);
-        combinedModelGenerator.setMapStaffInstance(true);
-        combinedModelGenerator.setMapTagInstance(true);
-
-        CombinedModel combinedModel = combinedModelGenerator.getFlightModel();
-
-        ObjectMapper mapper = new ObjectMapper();
-        InputStream is = DataConverterTest.class.getResourceAsStream("/flight.json");
-        JsonNode jsonNode = mapper.readTree(is);
-
-        PrefixMapping prefixMapping = new PrefixMappingImpl().withDefaultMappings(PrefixMapping.Standard);
-        prefixMapping.setNsPrefix("local", CombinedModelGenerator.namespace);
+        prefixMapping.setNsPrefix("local", AdvancedCombinedModelGenerator.namespace);
         prefixMapping.setNsPrefix("plcm", PLCM.getURI());
         prefixMapping.setNsPrefix("plsm", "http://plasma.uni-wuppertal.de/sm/");
         prefixMapping.setNsPrefix("plasma", "http://plasma.uni-wuppertal.de/ontology#");
@@ -179,6 +152,36 @@ public class DataConverterTest {
             newModel.add(stmt);
         }
         return newModel;
+    }
+
+    @Test
+    @Disabled
+    public void testConversionWith2ndLayerArray() throws IOException, ConversionException {
+        combinedModelGenerator.setMapVesselInformation(false);
+        combinedModelGenerator.setMapStaffInstance(true);
+        combinedModelGenerator.setMapTagInstance(true);
+
+        CombinedModel combinedModel = combinedModelGenerator.getFlightModel();
+
+        ObjectMapper mapper = new ObjectMapper();
+        InputStream is = DataConverterTest.class.getResourceAsStream("/flight.json");
+        JsonNode jsonNode = mapper.readTree(is);
+
+        PrefixMapping prefixMapping = new PrefixMappingImpl().withDefaultMappings(PrefixMapping.Standard);
+        prefixMapping.setNsPrefix("local", AdvancedCombinedModelGenerator.namespace);
+        prefixMapping.setNsPrefix("plcm", PLCM.getURI());
+        prefixMapping.setNsPrefix("plsm", "http://plasma.uni-wuppertal.de/sm/");
+        prefixMapping.setNsPrefix("plasma", "http://plasma.uni-wuppertal.de/ontology#");
+
+
+        RDFConverter converter = new RDFConverter(prefixMapping);
+
+        jsonNode = jsonNode.get(0);
+        Model converted = converter.convertToRDF(combinedModel, jsonNode);
+
+        String output = asTurtle(converted);
+
+        System.out.println(output);
     }
 
 

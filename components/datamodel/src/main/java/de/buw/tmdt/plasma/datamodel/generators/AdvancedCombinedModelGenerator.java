@@ -1,13 +1,11 @@
-package de.buw.tmdt.plasma.services.dps;
+package de.buw.tmdt.plasma.datamodel.generators;
 
 import de.buw.tmdt.plasma.datamodel.CombinedModel;
 import de.buw.tmdt.plasma.datamodel.modification.operation.DataType;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.Class;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.*;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.*;
-import org.apache.jena.rdf.model.Model;
 
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -15,9 +13,9 @@ import java.util.UUID;
 import static de.buw.tmdt.plasma.datamodel.syntaxmodel.SyntaxNode.ARRAY_PATH_TOKEN;
 import static de.buw.tmdt.plasma.datamodel.syntaxmodel.SyntaxNode.ROOT_PATH_TOKEN;
 
-public class CombinedModelGenerator {
+public class AdvancedCombinedModelGenerator {
 
-    public static final String namespace = "http://local.host/ontology#";
+    public static final String namespace = "http://plasma.uni-wuppertal.de/ontology#";
 
     private boolean mapIdentificationNumbers = false;
     private boolean mapIdentificationNumberInstance = false;
@@ -168,6 +166,8 @@ public class CombinedModelGenerator {
             mapSemanticNode(staffClass, staffObjectNode);
             Literal staffNameLiteral = new Literal("name");
             mapSemanticNode(staffNameLiteral, staffNameNode);
+            staffNameLiteral.setXCoordinate(100.0);
+            staffNameLiteral.setYCoordinate(100.0);
             Relation staffNameRelation = new DataProperty(staffClass.getUuid(), staffNameLiteral.getUuid(), namespace + "hasName");
             staffNameRelation.setArrayContext(true);
             Class seatClass = new Class(namespace + "seat_number", "seat", "Identifier for a specific place on a vehicle or in a room");
@@ -207,12 +207,6 @@ public class CombinedModelGenerator {
         ArrayList<String> newList = new ArrayList<>(parent); // copy list to avoid side effects
         newList.add(token);
         return newList;
-    }
-
-    public static String asTurtle(Model model) {
-        StringWriter out = new StringWriter();
-        model.write(out, "TURTLE");
-        return out.toString();
     }
 
     public boolean isMapIdentificationNumbers() {

@@ -72,7 +72,7 @@ public class SemanticModelHandler {
         }
         SemanticModel restoredSM = CMToRDFMapper.convertToSemanticModel(
                 retrievedModel,
-                this::lookupElementByURI,
+                this::lookupNodeByURI,
                 this::lookupRelationByURI);
         return restoredSM;
     }

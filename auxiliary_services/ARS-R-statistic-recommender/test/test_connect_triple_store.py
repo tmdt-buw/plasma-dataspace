@@ -45,7 +45,7 @@ def get_semantic_models() -> Graph:
 
         kg.__iadd__(g)
         count += 1
-    print(len(kg))
+        print(len(kg))
     return kg
 
 

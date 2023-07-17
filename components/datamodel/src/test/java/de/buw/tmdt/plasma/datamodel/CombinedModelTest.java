@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Random;
 import java.util.UUID;
 
-import static de.buw.tmdt.plasma.datamodel.CombinedModelGenerator.getCombinedModel;
+import static de.buw.tmdt.plasma.datamodel.generators.CombinedModelGenerator.getCombinedModel;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 

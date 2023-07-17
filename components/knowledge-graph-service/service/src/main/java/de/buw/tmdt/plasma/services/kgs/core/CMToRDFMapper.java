@@ -62,8 +62,7 @@ public class CMToRDFMapper {
                         instanceURI = originInstanceURI + "_" + counter++;
                         res = ResourceFactory.createResource(instanceURI);
                     }
-                    resource =
-                            m.createResource(instanceURI); // will reuse if already existent
+                    resource = m.createResource(instanceURI); // will reuse if already existent
                     resource.addProperty(PLCM.label, m.createLiteral(i.getLabel()));
                     if (i.getDescription() != null && !i.getDescription().isBlank()) {
                         resource.addProperty(PLCM.description, m.createLiteral(i.getDescription()));
@@ -78,7 +77,7 @@ public class CMToRDFMapper {
                     resource.addProperty(PLCM.originalLabel, m.createLiteral(clazz.getMappedSyntaxNodeLabel()));
                 }
 
-                resource.addProperty(RDF.type, m.createResource(m.expandPrefix(clazz.getURI())));
+                resource.addProperty(RDF.type, m.createResource(clazz.getURI()));
 
                 if (clazz.getXCoordinate() != null) {
                     resource.addProperty(PLCM.xCoordinate, m.createLiteral(String.valueOf(clazz.getXCoordinate())));
@@ -91,22 +90,11 @@ public class CMToRDFMapper {
             } else if (node instanceof Literal) {
                 Literal l = (Literal) node;
                 rdfNode = m.createLiteral(l.getValue());
-                // specify position information
-                // this is done in a more complicated way as we cannot use the literal as a triple subject
-                // TOFO RDF-star
-                Resource bNode = m.createResource();
-                if (l.getXCoordinate() != null) {
-                    bNode.addProperty(PLCM.xCoordinate, m.createLiteral(String.valueOf(l.getXCoordinate())));
-                }
-                if (l.getYCoordinate() != null) {
-                    bNode.addProperty(PLCM.yCoordinate, m.createLiteral(String.valueOf(l.getYCoordinate())));
-                }
-                bNode.addProperty(PLCM.definesLiteral, rdfNode);
             } else if (node instanceof NamedEntity) {
                 NamedEntity ne = (NamedEntity) node;
                 // create a resource which describes the named entity
                 // this will later be elevated to the ontology
-                Resource neResource = m.createResource(m.expandPrefix(ne.getURI()));
+                Resource neResource = m.createResource(ne.getURI());
                 neResource.addProperty(RDF.type, PLCM.NamedEntity);
                 neResource.addProperty(PLCM.label, m.createLiteral(ne.getLabel()));
                 if (ne.getDescription() != null && !ne.getDescription().isBlank()) {
@@ -137,22 +125,32 @@ public class CMToRDFMapper {
             RDFNode fromNode = uuidtoResource.get(from.getUuid());
             RDFNode toNode = uuidtoResource.get(to.getUuid());
 
-            Property property = ResourceFactory.createProperty(m.expandPrefix(r.getURI()));
+            Property property = ResourceFactory.createProperty(r.getURI());
             fromNode.asResource().addProperty(property, toNode);
 
+            Statement stmt = null;
+            Resource stmtResource = null;
+
+            // specify array context information using rdf-star
+            if (r.isArrayContext()) {
+                stmt = m.listStatements(fromNode.asResource(), property, toNode).nextStatement();
+                stmtResource = m.createResource(stmt);
+                stmtResource.addProperty(PLCM.arrayContext, m.createTypedLiteral(true));
+            }
 
             if (to instanceof Literal) {
-                // specify position information for literals
-                // use RDF-star to annotate the DatatypeProperty
-                Statement stmt = m.listStatements(fromNode.asResource(), property, toNode).nextStatement();
-                Resource stmtResource = m.createResource(stmt);
+                if (stmt == null) {
+                    stmt = m.listStatements(fromNode.asResource(), property, toNode).nextStatement();
+                    stmtResource = m.createResource(stmt);
+                }
+                // specify position information for literals using rdf-star
+
                 if (to.getXCoordinate() != null) {
                     stmtResource.addProperty(PLCM.xCoordinate, m.createLiteral(String.valueOf(to.getXCoordinate())));
                 }
                 if (to.getYCoordinate() != null) {
                     stmtResource.addProperty(PLCM.yCoordinate, m.createLiteral(String.valueOf(to.getYCoordinate())));
                 }
-
             }
 
         });

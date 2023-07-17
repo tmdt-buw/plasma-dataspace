@@ -13,8 +13,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-import static de.buw.tmdt.plasma.datamodel.CombinedModelGenerator.generateResourceURI;
-import static de.buw.tmdt.plasma.datamodel.CombinedModelGenerator.getCombinedModel;
+import static de.buw.tmdt.plasma.datamodel.generators.CombinedModelGenerator.generateResourceURI;
+import static de.buw.tmdt.plasma.datamodel.generators.CombinedModelGenerator.getCombinedModel;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class CombinedModelSemanticModificationTest {

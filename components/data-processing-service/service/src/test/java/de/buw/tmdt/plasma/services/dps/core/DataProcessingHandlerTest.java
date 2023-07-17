@@ -1,7 +1,7 @@
 package de.buw.tmdt.plasma.services.dps.core;
 
 import de.buw.tmdt.plasma.datamodel.CombinedModel;
-import de.buw.tmdt.plasma.services.dps.CombinedModelGenerator;
+import de.buw.tmdt.plasma.datamodel.generators.AdvancedCombinedModelGenerator;
 import de.buw.tmdt.plasma.services.dps.api.SampleDTO;
 import de.buw.tmdt.plasma.services.kgs.shared.feignclient.OntologyApiClient;
 import org.apache.commons.io.IOUtils;
@@ -38,7 +38,7 @@ class DataProcessingHandlerTest {
     @BeforeEach
     public void setup(@Mock OntologyApiClient ontologyApiClient) {
         Map<String, String> prefixes = new HashMap<>();
-        prefixes.put("local", CombinedModelGenerator.namespace);
+        prefixes.put("local", AdvancedCombinedModelGenerator.namespace);
         prefixes.put("plsm", "http://plasma.uni-wuppertal.de/sm/");
         prefixes.put("plcm", "http://plasma.uni-wuppertal.de/cm#");
         prefixes.put("plasma", "http://plasma.uni-wuppertal.de/ontology#");
@@ -58,15 +58,15 @@ class DataProcessingHandlerTest {
         String dataId = sample.getDataId();
         assertNotNull(dataId);
         log.info("DataId: {}", dataId);
-        CombinedModelGenerator combinedModelGenerator = new CombinedModelGenerator();
+        AdvancedCombinedModelGenerator combinedModelGenerator = new AdvancedCombinedModelGenerator();
         CombinedModel flightModel = combinedModelGenerator.getFlightModel();
         String result = processingHandler.processFile(flightModel, dataId, null);
         InputStream convertedInputStream = DataProcessingHandlerTest.class.getClassLoader().getResourceAsStream("flight_converted.ttl");
         assert convertedInputStream != null;
         Model expected = ModelFactory.createDefaultModel();
-        expected.read(convertedInputStream, CombinedModelGenerator.namespace, "TTL");
+        expected.read(convertedInputStream, AdvancedCombinedModelGenerator.namespace, "TTL");
         Model actual = ModelFactory.createDefaultModel();
-        actual.read(IOUtils.toInputStream(result, "UTF-8"), CombinedModelGenerator.namespace, "TTL");
+        actual.read(IOUtils.toInputStream(result, "UTF-8"), AdvancedCombinedModelGenerator.namespace, "TTL");
         assertEquals(expected.size(), actual.size(), "Expected result for dataId " + dataId + " did not match");
         assertEquals(expected.listObjects().toList().size(), actual.listObjects().toList().size(), "Expected result for dataId " + dataId + " did not match");
         assertEquals(expected.listSubjects().toList().size(), actual.listSubjects().toList().size(), "Expected result for dataId " + dataId + " did not match");
