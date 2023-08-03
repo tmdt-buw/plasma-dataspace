@@ -2,6 +2,7 @@ import os
 import uuid
 from typing import Dict
 
+import schedule
 import uvicorn
 from fastapi import FastAPI
 from rdflib import XSD
@@ -10,7 +11,6 @@ import modelbuilder.modelbuilder
 from linkedmodelextension import linked_model_extender as lme
 from schemas import CombinedModel, DeltaModification, SemanticModelNode, Literal, NamedEntity, Relation
 from util.namespaces import PLSM, PLCM
-import schedule
 
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
@@ -29,12 +29,21 @@ resettime = "02:30"
 async def recommend(combinedModel: CombinedModel, uuid: str = None, configId: str = None, configToken: str = None):
     global initialized
     if not initialized:
-        init()
-        initialized = True
+        return
 
     schedule.run_pending()  # check if we should nuke the cache and rebuild
 
     return generate_recommendations(combinedModel)
+
+
+@app.on_event("startup")
+async def initialize():
+    global initialized
+    if not initialized:
+        init()
+        initialized = True
+
+    schedule.run_pending()  # check if we should nuke the cache and rebuild
 
 
 # noinspection PyPep8Naming
@@ -60,7 +69,7 @@ def generate_recommendations(combinedModel: CombinedModel) -> CombinedModel:
 
             # check if a similar object already exists
             for node in combinedModel.semanticModel.nodes:
-                if node.uri == o:
+                if node.uri == o and not str(node.uri).startswith(str(XSD)):
                     o_smn = node
                     break
 

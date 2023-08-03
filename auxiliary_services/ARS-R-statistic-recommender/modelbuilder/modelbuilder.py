@@ -21,7 +21,7 @@ def get_models():
 
     sparql = SPARQLWrapper(host)
     sparql.setQuery(PREFIXES + """
-        SELECT ?id WHERE {
+        SELECT DISTINCT ?id WHERE {
           ?model plcm:cmUuid ?id .
         } LIMIT 100
     """)
@@ -50,21 +50,21 @@ def get_models():
 
         model_graph: Graph = sparql.queryAndConvert()
 
-        for triple in model_graph.triples((None, PLCM.cmUuid, None)):
-            model_graph.remove(triple)
-
-        for triple in model_graph.triples((None, PLCM.hasNode, None)):
-            model_graph.remove(triple)
-
-        triples = list(model_graph.triples((None, None, None)))
+        triples = list(
+            [triple for triple in model_graph.triples((None, None, None)) if not str(triple[1]).startswith(PLCM)])
+        if len(triples) == 0:
+            continue
         print('model size', len(triples))
 
         model_graph = uninstanciate_graph(model_graph)
 
-        triples = list(model_graph.triples((None, None, None)))
+        triples = list(
+            [triple for triple in model_graph.triples((None, None, None)) if not str(triple[1]).startswith(PLCM)])
         print('uninstanciated model size', len(triples))
 
         triples = get_triples_from_model(model_graph)
+        triples = list(
+            [triple for triple in triples if not str(triple[1]).startswith(PLCM)])
         models.append(triples)
 
     with open(config.CACHE.RAW_MODELS_PATH, "w") as file:
