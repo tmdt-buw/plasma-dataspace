@@ -14,18 +14,22 @@
 
     <properties>
         <geotools.version>26.3</geotools.version>
+        <com.opencsv.version>3.5</com.opencsv.version>
+        <org.json.version>20190722</org.json.version>
+        <commons.io.version>2.6</commons.io.version>
+        <org.junit.jupiter.version>5.8.2</org.junit.jupiter.version>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>com.opencsv</groupId>
             <artifactId>opencsv</artifactId>
-            <version>3.5</version>
+            <version>${com.opencsv.version}</version>
         </dependency>
         <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
-            <version>20190722</version>
+            <version>${org.json.version}</version>
         </dependency>
 
         <dependency>
@@ -55,15 +59,16 @@
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
-            <version>2.6</version>
+            <version>${commons.io.version}</version>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
             <scope>test</scope>
-            <version>5.8.2</version>
+            <version>${org.junit.jupiter.version}</version>
         </dependency>
     </dependencies>
+
     <repositories>
         <repository>
             <id>osgeo</id>
