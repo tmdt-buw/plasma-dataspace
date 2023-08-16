@@ -271,7 +271,7 @@ public class ModelingHandler {
         List<SemanticModelNode> availableElements;
         try {
             availableElements =
-                    ontologyApiClient.getElements(modeling.getSelectedOntologies(), prefix, infix, null);
+                    ontologyApiClient.getElements(modeling.getSelectedOntologies(), prefix, infix, null, 50);
         } catch (FeignException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Ontology service currently unavailable.");
         }
@@ -306,7 +306,7 @@ public class ModelingHandler {
         List<Relation> availableRelations;
         try {
             availableRelations =
-                    ontologyApiClient.getRelations(modeling.getSelectedOntologies(), prefix, infix, null);
+                    ontologyApiClient.getRelations(modeling.getSelectedOntologies(), prefix, infix, null, 50);
         } catch (FeignException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Ontology service currently unavailable.");
         }

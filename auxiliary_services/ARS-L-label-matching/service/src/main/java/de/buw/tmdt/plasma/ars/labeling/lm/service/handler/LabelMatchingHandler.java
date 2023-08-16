@@ -41,7 +41,7 @@ public class LabelMatchingHandler {
                 continue;
             }
             String label = node.getLabel();
-            Collection<SemanticModelNode> candidates = ontologyApi.getElements(null,label, null, null);
+            Collection<SemanticModelNode> candidates = ontologyApi.getElements(null,label, null, null, 50);
             List<Class> classes = candidates.stream()
                     .filter(c -> c instanceof Class)
                     .map(c -> (Class) c)
