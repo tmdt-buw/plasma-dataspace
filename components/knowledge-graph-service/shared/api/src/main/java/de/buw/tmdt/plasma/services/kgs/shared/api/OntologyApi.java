@@ -22,26 +22,27 @@ public interface OntologyApi {
      * If a URI is specified, this takes precedence over the prefix and infix, thus, only an exact matching concept is returned or an empty list.
      *
      * @param ontologyLabels A list of ontology labels to indicate which ontologies to search
-     * @param prefix The prefix to search for, can be a partial match but is only evaluated at the start of the label
-     * @param infix  The infix/substring to search for
-     * @param uri    The uri to match. Has to be an exact match to the specified URI of the concept.
+     * @param prefix         The prefix to search for, can be a partial match but is only evaluated at the start of the label
+     * @param infix          The infix/substring to search for
+     * @param uri            The uri to match. Has to be an exact match to the specified URI of the concept.
      * @return A list of matching {@link SemanticModelNode}s
      */
     @GetMapping(value = "/nodes", produces = MediaType.APPLICATION_JSON_VALUE)
     @NotNull List<SemanticModelNode> getElements(
             @RequestParam(value = "ontologyLabels", defaultValue = "") List<String> ontologyLabels,
-            @RequestParam(value = "prefix",  required = false) String prefix,
-            @RequestParam(value = "infix",  required = false) String infix,
-            @RequestParam(value = "uri",  required = false) String uri);
+            @RequestParam(value = "prefix", required = false) String prefix,
+            @RequestParam(value = "infix", required = false) String infix,
+            @RequestParam(value = "uri", required = false) String uri,
+            @RequestParam(value = "limit", defaultValue = "50") long limit);
 
     /**
      * Find {@link Relation}s filtered by a given prefix, infix or uri.
      * If a URI is specified, this takes precedence over the prefix and infix, thus, only an exact matching concept is returned or an empty list.
      *
      * @param ontologyLabels A list of ontology labels to indicate which ontologies to search
-     * @param prefix The prefix to search for, can be a partial match but is only evaluated at the start of the label
-     * @param infix  The infix/substring to search for
-     * @param uri    The uri to match. Has to be an exact match to the specified URI of the concept
+     * @param prefix         The prefix to search for, can be a partial match but is only evaluated at the start of the label
+     * @param infix          The infix/substring to search for
+     * @param uri            The uri to match. Has to be an exact match to the specified URI of the concept
      * @return A list of matching {@link Relation}s
      */
     @GetMapping(value = "/relations", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -49,7 +50,8 @@ public interface OntologyApi {
             @RequestParam(value = "ontologyLabels", defaultValue = "") List<String> ontologyLabels,
             @RequestParam(value = "prefix", required = false) String prefix,
             @RequestParam(value = "infix", required = false) String infix,
-            @RequestParam(value = "uri", required = false) String uri);
+            @RequestParam(value = "uri", required = false) String uri,
+            @RequestParam(value = "limit", defaultValue = "50") long limit);
 
     /**
      * Add ontology.
@@ -93,6 +95,7 @@ public interface OntologyApi {
      * Validate the given URI.
      * Checks if the given URI is valid according to RFC3987 and 3986.
      * Also checks if this URI is already taken in the local ontology.
+     *
      * @param uri The uri to check
      * @throws org.springframework.web.server.ResponseStatusException 406 if the URI is not valid
      * @throws org.springframework.web.server.ResponseStatusException 409 if an element with that URI already exists

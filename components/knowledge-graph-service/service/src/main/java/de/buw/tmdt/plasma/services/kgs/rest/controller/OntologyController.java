@@ -43,20 +43,20 @@ public class OntologyController implements OntologyApi {
     }
 
     @Override
-    public @NotNull List<SemanticModelNode> getElements(List<String> ontologyLabels, String prefix, String infix, String uri) {
+    public @NotNull List<SemanticModelNode> getElements(List<String> ontologyLabels, String prefix, String infix, String uri, long limit) {
         List<SemanticModelNode> elements = ontologyHandler.getElements(ontologyLabels, prefix, infix, uri);
         elements.stream()
                 .filter(Objects::nonNull)
                 .forEach(element -> ((NodeTemplate) element).convertToTemplate());
-        return elements.stream().limit(50).collect(Collectors.toList());
+        return elements.stream().limit(limit).collect(Collectors.toList());
     }
 
     @Override
-    public @NotNull List<Relation> getRelations(List<String> ontologyLabels, String prefix, String infix, String uri) {
+    public @NotNull List<Relation> getRelations(List<String> ontologyLabels, String prefix, String infix, String uri, long limit) {
         List<Relation> relations = ontologyHandler.getRelations(ontologyLabels, prefix, infix, uri);
         return relations.stream()
                 .filter(Objects::nonNull)
-                .limit(50)
+                .limit(limit)
                 .map(Relation::convertToTemplate)
                 .collect(Collectors.toList());
     }
@@ -103,11 +103,11 @@ public class OntologyController implements OntologyApi {
             throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "The URI provided is not valid according to RFC3987");
         }
 
-        if (!getElements(List.of(localOntologyLabel), null, null, uri).isEmpty()) {
+        if (!getElements(List.of(localOntologyLabel), null, null, uri, 50).isEmpty()) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "The URI provided is already in use in the local ontology");
         }
 
-        if (!getRelations(List.of(localOntologyLabel), null, null, uri).isEmpty()) {
+        if (!getRelations(List.of(localOntologyLabel), null, null, uri, 50).isEmpty()) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "The URI provided is already in use in the local ontology");
         }
     }
