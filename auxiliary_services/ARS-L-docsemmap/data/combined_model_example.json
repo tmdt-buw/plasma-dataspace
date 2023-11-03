@@ -1,0 +1,237 @@
+{
+    "id": "e74c66d3-982a-4f3e-ad8c-e21b5df03ca7",
+    "syntaxModel": {
+        "root": "2e09fe44-ff40-4b94-b91d-f59e38ed9c87",
+        "nodes": [
+            {
+                "_class": "PrimitiveNode",
+                "uuid": "a386978d-6ee5-4e67-9093-3994318bd7ea",
+                "label": "latitude",
+                "path": [
+                    "",
+                    "latitude"
+                ],
+                "x": 706.6356048583984,
+                "y": 98.0,
+                "datatype": "String",
+                "examples": [
+                    ""
+                ],
+                "pattern": "",
+                "visible": true,
+                "disabled": false,
+                "depth": 0,
+                "pathAsJSONPointer": "/latitude"
+            },
+            {
+                "_class": "PrimitiveNode",
+                "uuid": "9ff98622-d073-4068-9ec0-23386f5a241c",
+                "label": "type",
+                "path": [
+                    "",
+                    "type"
+                ],
+                "x": 845.418701171875,
+                "y": 98.0,
+                "datatype": "String",
+                "examples": [
+                    ""
+                ],
+                "pattern": "",
+                "visible": true,
+                "disabled": false,
+                "depth": 0,
+                "pathAsJSONPointer": "/type"
+            },
+            {
+                "_class": "PrimitiveNode",
+                "uuid": "b28d53c6-87a8-45e7-8831-3fed8b00f088",
+                "label": "tvm_identifier",
+                "path": [
+                    "",
+                    "tvm_identifier"
+                ],
+                "x": 355.79095458984375,
+                "y": 98.0,
+                "datatype": "String",
+                "examples": [
+                    ""
+                ],
+                "pattern": "",
+                "visible": true,
+                "disabled": false,
+                "depth": 0,
+                "pathAsJSONPointer": "/tvm_identifier"
+            },
+            {
+                "_class": "ObjectNode",
+                "uuid": "2e09fe44-ff40-4b94-b91d-f59e38ed9c87",
+                "label": "ROOT",
+                "path": [
+                    ""
+                ],
+                "x": 556.4566650390625,
+                "y": 0.0,
+                "visible": true,
+                "disabled": false,
+                "depth": 0,
+                "pathAsJSONPointer": ""
+            },
+            {
+                "_class": "PrimitiveNode",
+                "uuid": "0664dbec-6dc6-40e6-b337-30c02715c471",
+                "label": "pay_by_credit_card",
+                "path": [
+                    "",
+                    "pay_by_credit_card"
+                ],
+                "x": 0.0,
+                "y": 98.0,
+                "datatype": "String",
+                "examples": [
+                    ""
+                ],
+                "pattern": "",
+                "visible": true,
+                "disabled": false,
+                "depth": 0,
+                "pathAsJSONPointer": "/pay_by_credit_card"
+            },
+            {
+                "_class": "PrimitiveNode",
+                "uuid": "4dccbda8-1ae2-465a-a761-67e920bae976",
+                "label": "address",
+                "path": [
+                    "",
+                    "address"
+                ],
+                "x": 213.57191467285156,
+                "y": 98.0,
+                "datatype": "String",
+                "examples": [
+                    ""
+                ],
+                "pattern": "",
+                "visible": true,
+                "disabled": false,
+                "depth": 0,
+                "pathAsJSONPointer": "/address"
+            },
+            {
+                "_class": "PrimitiveNode",
+                "uuid": "76112ae3-5bc1-44fb-aeef-c38208d86815",
+                "label": "pay_by_cash",
+                "path": [
+                    "",
+                    "pay_by_cash"
+                ],
+                "x": 534.0157318115234,
+                "y": 98.0,
+                "datatype": "String",
+                "examples": [
+                    ""
+                ],
+                "pattern": "",
+                "visible": true,
+                "disabled": false,
+                "depth": 0,
+                "pathAsJSONPointer": "/pay_by_cash"
+            },
+            {
+                "_class": "PrimitiveNode",
+                "uuid": "efe28ae9-48b2-44c8-bab0-4852cc63c030",
+                "label": "longitude",
+                "path": [
+                    "",
+                    "longitude"
+                ],
+                "x": 963.1352386474609,
+                "y": 98.0,
+                "datatype": "String",
+                "examples": [
+                    ""
+                ],
+                "pattern": "",
+                "visible": true,
+                "disabled": false,
+                "depth": 0,
+                "pathAsJSONPointer": "/longitude"
+            }
+        ],
+        "edges": [
+            {
+                "uuid": "bad3325a-40ad-4c6b-a112-1fafbb7192e1",
+                "label": "",
+                "from": "2e09fe44-ff40-4b94-b91d-f59e38ed9c87",
+                "to": "0664dbec-6dc6-40e6-b337-30c02715c471",
+                "annotations": null,
+                "disabled": false,
+                "visible": true
+            },
+            {
+                "uuid": "f3696309-fa68-41c6-a0f7-8194d5692e42",
+                "label": "",
+                "from": "2e09fe44-ff40-4b94-b91d-f59e38ed9c87",
+                "to": "4dccbda8-1ae2-465a-a761-67e920bae976",
+                "annotations": null,
+                "disabled": false,
+                "visible": true
+            },
+            {
+                "uuid": "a397decf-9709-47d9-bd0b-9f3fc20050fc",
+                "label": "",
+                "from": "2e09fe44-ff40-4b94-b91d-f59e38ed9c87",
+                "to": "b28d53c6-87a8-45e7-8831-3fed8b00f088",
+                "annotations": null,
+                "disabled": false,
+                "visible": true
+            },
+            {
+                "uuid": "b6aabf2b-508b-40b1-9ca9-090b4e68345d",
+                "label": "",
+                "from": "2e09fe44-ff40-4b94-b91d-f59e38ed9c87",
+                "to": "76112ae3-5bc1-44fb-aeef-c38208d86815",
+                "annotations": null,
+                "disabled": false,
+                "visible": true
+            },
+            {
+                "uuid": "905e892c-f802-439c-b744-81b3ad7f516f",
+                "label": "",
+                "from": "2e09fe44-ff40-4b94-b91d-f59e38ed9c87",
+                "to": "a386978d-6ee5-4e67-9093-3994318bd7ea",
+                "annotations": null,
+                "disabled": false,
+                "visible": true
+            },
+            {
+                "uuid": "6337e65e-3310-464d-b12a-f23dff772be3",
+                "label": "",
+                "from": "2e09fe44-ff40-4b94-b91d-f59e38ed9c87",
+                "to": "9ff98622-d073-4068-9ec0-23386f5a241c",
+                "annotations": null,
+                "disabled": false,
+                "visible": true
+            },
+            {
+                "uuid": "213f1f3f-ad20-473c-b98c-cb4b448bc466",
+                "label": "",
+                "from": "2e09fe44-ff40-4b94-b91d-f59e38ed9c87",
+                "to": "efe28ae9-48b2-44c8-bab0-4852cc63c030",
+                "annotations": null,
+                "disabled": false,
+                "visible": true
+            }
+        ]
+    },
+    "semanticModel": {
+        "id": null,
+        "nodes": [],
+        "edges": []
+    },
+    "recommendations": [],
+    "lastModification": null,
+    "finalized": false,
+    "provisionalElements": [],
+    "provisionalRelations": []
+}
