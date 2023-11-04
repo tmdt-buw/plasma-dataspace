@@ -7,15 +7,14 @@ import uuid
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from pipeline_manager import PipelineManager
-from schemas import CombinedModel, RecommendationRequest, SemanticModel, SemanticModelNode, MappableSemanticModelNode
+from schemas import CombinedModel, RecommendationRequest, SemanticModel, SemanticModelNode, MappableSemanticModelNode, \
+    Instance
 
 
 class LabelRequest(BaseModel):
     description: str
     attributes: list
 
-
-os.environ["SERVICE_PORT"] = "8221"
 
 app = FastAPI()
 app.pipeline_manager = None
@@ -36,12 +35,16 @@ async def predict(label_request: LabelRequest):
 
 
 @app.post("/recommendation")
-async def recommend(recommendationRequest: RecommendationRequest, configId: str = None, configToken: str = None):
-    return generate_recommendation(recommendationRequest.combinedModel, recommendationRequest.uuid)
+async def recommend(combinedModel: CombinedModel, configId: str = None, configToken: str = None, uuid: str = None):
+    return generate_recommendation(combinedModel, uuid)
 
 
 def generate_recommendation(combinedModel: CombinedModel, uuid: str = None) -> CombinedModel:
-    endpoint = 'http://localhost:8888/api/plasma-dms/modelings/'  # TODO: add as config
+    host = os.getenv('DMS_MODELINGS_ENDPOINT')
+    if not host:
+        print("WARN", "No DMS endpoint defined to request modelings. 'DMS_MODELINGS_ENDPOINT' is empty.")
+        return combinedModel
+    endpoint = host
     modelings = requests.get(endpoint).json()
 
     for model in modelings:
@@ -55,7 +58,7 @@ def generate_recommendation(combinedModel: CombinedModel, uuid: str = None) -> C
         results = app.pipeline_manager.run_pipeline(description, attributes)
 
         return update_combined_model(combinedModel, results)
-    return []
+    return combinedModel
 
 
 def fetch_data_source_details():
@@ -85,7 +88,13 @@ def update_combined_model(combinedModel: CombinedModel, mappings: dict):
                     mapped=True,
                     uri=mappings[key][1],
                     label=mappings[key][0],
-                    _class='Class'
+                    _class='Class',
+                    instance=Instance(
+                        uuid=str(uuid.uuid4()),
+                        label=syntaxNode.label
+                    ),
+                    x=syntaxNode.x,
+                    y=syntaxNode.y
                 )
                 combinedModel.semanticModel.nodes.append(semanticNode)
                 break
@@ -96,6 +105,6 @@ def update_combined_model(combinedModel: CombinedModel, mappings: dict):
 if __name__ == "__main__":
     port: int = int(os.getenv("SERVICE_PORT"))
     if not port:
-        print("INFO", "No service port specified via 'SERVICE_PORT' env variable. Defaulting to 8221.")
+        print("INFO", "No service port specified via 'SERVICE_PORT' env variable. Defaulting to 8222.")
         port = 8222
     uvicorn.run("service:app", host="0.0.0.0", port=port, reload=True)

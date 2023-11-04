@@ -4,7 +4,7 @@ import os
 
 
 class HistoryProcessing:
-    HISTORY_FILE = 'vcslam_history.json'
+    HISTORY_FILE = 'data/vcslam_history.json'
 
     mappings = None
 

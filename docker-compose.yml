@@ -145,7 +145,8 @@ services:
     ports:
       - "8190:8190"
     environment:
-      - plasma.ars.labeling.urls=http://plasma-ars-l-lm:8201/api/plasma-ars-l-lm
+#      - plasma.ars.labeling.urls=http://plasma-ars-l-lm:8201/api/plasma-ars-l-lm
+      - plasma.ars.labeling.urls=http://plasma-ars-l-dms:8222/recommendation
       - plasma.ars.modeling.url=
       - plasma.ars.refinement.urls=http://plasma-ars-r-sr:8221/recommendation
 
@@ -187,10 +188,26 @@ services:
     ports:
       - "8221:8221"
 
+  ars-l-dsm:
+    build: ./auxiliary_services/ARS-L-docsemmap
+    image: "plasma/ars-l-dsm:${PLASMA_VERSION}"
+    hostname: plasma-ars-l-dsm
+    restart: unless-stopped
+    environment:
+      - SERVICE_PORT=8222
+      - DMS_MODELINGS_ENDPOINT=http://dms:8186/api/plasma-dms/modelings
+      - KGS_ONTOLGIES_ENDPOINT=http://kgs:8181/api/plasma-kgs/ontologies/nodes
+    depends_on:
+      - fuseki
+    volumes:
+      - configs:/var/plasma/configs
+    ports:
+      - "8222:8222"
+
 
 volumes:
   fuseki_data:
-  mariadb_sas:   
+  mariadb_sas:
   mariadb_dms:
   configs:
   kgs_ontologies:

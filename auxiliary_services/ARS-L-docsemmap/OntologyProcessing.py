@@ -3,6 +3,7 @@ from Levenshtein import distance
 import requests
 import codecs
 import json
+import os
 
 from FlairProcessing import FlairProcessing
 
@@ -127,11 +128,15 @@ class OntologyProcessing:
         return list(set(final_set))
 
     def query_kgs(self):
+        host = os.getenv('KGS_ONTOLOGIES_ENDPOINT')
+        if not host:
+            print("WARN", "No KGS endpoint defined to request ontologies. 'KGS_ONTOLOGIES_ENDPOINT' is empty.")
+            return
         if standalone:
             with codecs.open('data/kgs_response_example.json', encoding='utf8', mode='r') as f:
                 response = json.load(f)
         else:
-            endpoint = 'http://localhost:8888/api/plasma-kgs/ontologies/nodes?limit=1000'  # TODO: add as config
+            endpoint = host+'?limit=1000'
             response = requests.get(endpoint).json()
         for entry in response:
             self.concepts[entry['label']] = {

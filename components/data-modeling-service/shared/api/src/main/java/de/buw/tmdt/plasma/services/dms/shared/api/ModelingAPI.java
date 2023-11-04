@@ -17,7 +17,7 @@ public interface ModelingAPI {
 
     //############################################### Schema Definition ###############################################
 
-    @PostMapping(value = "/", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     ModelingInfo createNewModeling(
             @Nullable @RequestParam(value = "modelId", required = false) String modelId,
             @NotNull @RequestBody CombinedModel combinedModel,
@@ -26,7 +26,7 @@ public interface ModelingAPI {
             @RequestParam(required = false) String description,
             @RequestParam(required = false) String dataId);
 
-    @GetMapping(value = "/", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "", produces = MediaType.APPLICATION_JSON_VALUE)
     List<ModelingInfo> listModelings();
 
     @PatchMapping(value = "/{modelId}/info", produces = MediaType.APPLICATION_JSON_VALUE)
