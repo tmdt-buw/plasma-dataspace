@@ -1233,13 +1233,51 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
         nodeDialogRef.recommendationSelect.subscribe(recommendation => {
           this.hideRecommendations();
           if (recommendation !== null) {
+
             this.showRecommendation(recommendation);
           }
         });
         nodeDialogRef.recommendationAccept.subscribe(recommendation => {
-          this.hideRecommendations();
-          this.selectedElementOnRecommendationAccept = id;
-          this.recommendationAccepted.emit(recommendation);
+          if (recommendation.entities?.length === 1 && recommendation.entities[0]._class === 'Literal') {
+            const recLiteral = recommendation.entities[0];
+            const coordinate = this.paper.localToClientPoint(recLiteral.x, recLiteral.y);
+            this.literalValueModalRef = this.modal.create({
+              nzStyle: {
+                position: 'absolute',
+                top: (coordinate.y - 30) + 'px',
+                left: (coordinate.x - 150) + 'px',
+                width: '300px',
+                height: '200px'
+              },
+              nzBodyStyle: {
+                padding: '3px'
+              },
+              // nzTitle: 'Enter literal value',
+              nzContent: this.literalValueModalTpl,
+              nzClosable: false,
+              nzOnOk: () => {
+                if (!this.tmpLiteralValue) {
+                  this.literalDefinitionError = 'Empty string is not allowed.';
+                  return false;
+                }
+                recLiteral.label = this.tmpLiteralValue;
+                this.literalDefinitionError = undefined;
+                this.tmpLiteralValue = undefined;
+                this.hideRecommendations();
+                this.selectedElementOnRecommendationAccept = id;
+                this.recommendationAccepted.emit(recommendation);
+              },
+              nzOnCancel: () => {
+                this.hideRecommendations();
+                this.literalDefinitionError = undefined;
+                this.tmpLiteralValue = undefined;
+              }
+            });
+          } else {
+            this.hideRecommendations();
+            this.selectedElementOnRecommendationAccept = id;
+            this.recommendationAccepted.emit(recommendation);
+          }
         });
         nodeDialogRef.nodeEdited.subscribe((node: SemanticModelNode) => {
           const element = this.graph.getElements().find(el => el.attributes.id === id);
@@ -1255,6 +1293,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
           this.graph.addCell(links);
         });
         break;
+
       case Nodes.namedEntityName:
         const namedEntityNode = this.findSemanticNodeById(id);
         const namedEntityTitle = `${namedEntityNode.label} (${namedEntityNode.uri})`;
