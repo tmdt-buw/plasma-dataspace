@@ -11,7 +11,7 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>components/data-modeling-service</module>
+        <module>components/semantic-modeling-service</module>
         <module>components/knowledge-graph-service</module>
         <module>components/schema-analysis-service</module>
         <module>components/spring-boot-admin</module>
