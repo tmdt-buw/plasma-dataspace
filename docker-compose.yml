@@ -35,13 +35,13 @@ services:
     ports:
       - "3307:3306"
 
-  mariadb-dms:
+  mariadb-sms:
     image: mariadb:latest
-    hostname: mariadb-dms
+    hostname: mariadb-sms
     restart: unless-stopped
     command: mariadbd --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
     environment:
-      - MYSQL_DATABASE=plasma-dms
+      - MYSQL_DATABASE=plasma-sms
       - MYSQL_ROOT_PASSWORD=plasma
     volumes:
       - mariadb_dms:/var/lib/mysql
@@ -107,20 +107,20 @@ services:
     ports:
       - "8189:8189"
 
-  dms:
-    image: "plasma/dms:${PLASMA_VERSION}"
-    hostname: plasma-dms
+  sms:
+    image: "plasma/sms:${PLASMA_VERSION}"
+    hostname: plasma-sms
     restart: unless-stopped
     volumes:
       - configs:/var/plasma/configs
     depends_on:
       - discovery
-      - mariadb-dms
+      - mariadb-sms
     ports:
       - "8186:8186"
     environment:
-      - plasma.dms.feature.recommendations.enabled=true
-      - plasma.dms.feature.finalizemodels.enabled=true
+      - plasma.sms.feature.recommendations.enabled=true
+      - plasma.sms.feature.finalizemodels.enabled=true
 
   dps:
     image: "plasma/dps:${PLASMA_VERSION}"
@@ -208,7 +208,7 @@ services:
 volumes:
   fuseki_data:
   mariadb_sas:
-  mariadb_dms:
+  mariadb_sms:
   configs:
   kgs_ontologies:
   dps_storage:
