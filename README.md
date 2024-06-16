@@ -11,7 +11,6 @@ PLASMA currently consists of the following (micro)services:
 
 * **Data Modeling Service**: Service for semantic model creation 
 * **Knowledge Graph Service**: Stores ontologies and created semantic models
-* **Schema Analysis Service**: Analyses sample data to extract a syntactic schema on which the semantic model can be built
 * **Semantic Recommendation Service**: Connecting service for all auxiliary services
 * **Data Processing Service**: Processes files and converts JSON data to RDF
 * Semantic Modeling UI: A modeling UI with focus on simplifying the modeling process
@@ -49,12 +48,12 @@ The included web-based frontend is written using Angular 13.
 ### Starting PLASMA
 * Optional: Adjust environment variables in the docker-compose.yml file. 
 For an explanation of most parameters, check the individual README files of those services
-* To start, execute the `docker-compose` script, e.g. `docker-compose up -d`
+* To start, execute the `docker compose` script, e.g. `docker compose up -d`
 * Access the UI at `localhost:80`
 
 ### Stopping PLASMA
 
-* PLASMA can be stopped by halting all Docker containers, e.g. `docker-compose down`
+* PLASMA can be stopped by halting all Docker containers, e.g. `docker compose down`
 
 ## Development Setup
 
@@ -84,20 +83,17 @@ an overview of the services and ports occupied and is for information purposes o
 Infrastructure
 ------------------
 Discovery     8761
-Spring Admin  8080
 Gateway       8888
 
 Databases
 ------------------
-SAS           3307
-DMS           3308
+SMS           3308
 
 Components
 ------------------
-DMS           8186
+SMS           8186
 KGS           8181
 SRS           8190
-SAS           8189
 DPS           8193
 Frontend      80
            
