@@ -19,6 +19,8 @@ import { NzNotificationService } from 'ng-zorro-antd/notification';
 import { HttpErrorResponse, HttpStatusCode } from '@angular/common/http';
 import { ManageOntologiesDialogComponent } from './dialogs/manage-ontologies-dialog/manage-ontologies-dialog.component';
 import { ArsSelectionDialogComponent } from './dialogs/ars-selection-dialog/ars-selection-dialog.component';
+import { ModelRecommendationDialogComponent } from './dialogs/model-recommendation-dialog/model-recommendation-dialog.component';
+
 
 @Component({
   selector: 'pls-modeling',
@@ -68,6 +70,7 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
   $layout = new Subject<any>();
   $filter = new BehaviorSubject<Filter>(Filter.ALL);
   $URIMode = new BehaviorSubject<boolean>(false);
+  $recommendation = new BehaviorSubject<DeltaModification>(null);
 
   exportIncludeMappings: boolean = true;
   exportIncludePositions: boolean = false;
@@ -87,9 +90,11 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
   private copySemanticModelDialogRef: NzModalRef<any, any>;
   private manageOntolggiesDialogRef: NzModalRef<any, any>;
   private arsSelectionDialogRef: NzModalRef<any, any>;
+  private modelRecommendationsDialogRef: NzModalRef<any, any>;
 
   // tools
   recommendationsEnabled = true;
+
 
   get isFullscreen(): boolean {
     return !!this.main?.fullScreenIsActive;
@@ -523,10 +528,28 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
       return;
     }
     this.modelingService.performSemanticModeling(this.modelId).subscribe(combinedModel => {
-      this.combinedModel = combinedModel;
-      this.notification.success('Semantic Modeling', 'Requested a semantic modeling. The result has been applied.');
+      this.notification.success('Semantic Modeling', 'Semantic Relation Inference complete.');
+
+      const rect: DOMRect = this.modelingArea.nativeElement.getBoundingClientRect();
+      const config: ModalOptions = {
+        nzStyle: {position: 'absolute', top: `${rect.bottom - 380}px`, right: `1%`, width: '20%', bottom: '15px'},
+        nzClassName: 'pls-model-recommendations',
+        nzTitle: 'Model Recommendations',
+        nzContent: ModelRecommendationDialogComponent,
+        nzComponentParams: {
+          combinedModel: combinedModel
+        }
+      };
+      this.modelRecommendationsDialogRef = this.modal.create(Object.assign(config, ModalMouseEnabledConfig));
+      this.modelRecommendationsDialogRef.afterClose.subscribe(() => {
+        this.modelRecommendationsDialogRef = undefined;
+      });
+      this.modelRecommendationsDialogRef.getContentComponent().recommendationSelect.subscribe(rec => {
+       this.$recommendation.next(rec);
+
+      });
     }, error => {
-      this.notification.error('Could not perform semantic modeling', error.error.message);
+      this.notification.error('Could not perform Semantic Relation Inference', error.error.message);
     });
   }
 

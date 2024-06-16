@@ -1,0 +1,21 @@
+<div fxLayout="column" fxLayoutAlign="space-between start"      fxLayoutGap="10px">
+  <div (mouseenter)="showRecommendation(recommendation)" (mouseleave)="hideRecommendation()" *ngFor="let recommendation of combinedModel.recommendations"
+       class="recommendation-box" fxLayout="row"
+       fxLayoutAlign="space-between center" fxLayoutGap="5px">
+
+    <!--    <span nz-typography> {{node.node.label}}-->
+    <!--      <i nz-icon nz-typography nzType="right"></i>-->
+    <!--      {{recommendation.relations[0].label}}-->
+    <!--      <i nz-icon nz-typography nzType="right"></i>-->
+    <!--      {{ recommendation.entities[0].label }}</span>-->
+    <span nz-typography>{{recommendation.reference}}</span>
+    <div fxLayout="row" fxLayoutAlign="end" fxLayoutGap="5px">
+      <button (click)="acceptRecommendation(recommendation)" nz-button nzType="default">
+        <i class="green-icon" nz-icon
+           nz-typography nzType="check"></i>
+      </button>
+      <!--      <i (click)="rejectRecommendation(recommendation)" nz-typography nz-icon-->
+      <!--         nzType="close"></i>-->
+    </div>
+  </div>
+</div>

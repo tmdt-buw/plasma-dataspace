@@ -51,6 +51,7 @@ import { NzDescriptionsModule } from 'ng-zorro-antd/descriptions';
 import { UriGeneratorComponent } from './modeling/dialogs/common/uri-generator/uri-generator.component';
 import { NzPopoverModule } from 'ng-zorro-antd/popover';
 import { ArsSelectionDialogComponent } from './modeling/dialogs/ars-selection-dialog/ars-selection-dialog.component';
+import { ModelRecommendationDialogComponent } from './modeling/dialogs/model-recommendation-dialog/model-recommendation-dialog.component';
 
 
 @NgModule({
@@ -59,7 +60,8 @@ import { ArsSelectionDialogComponent } from './modeling/dialogs/ars-selection-di
     PlsSemanticNodeDetailsComponent, PlsConceptDialogComponent, PlsEditEntityDialogComponent,
     PlsEditRelationDialogComponent, PlsImportDialogComponent,
     InlineInputEditComponent, PlsSemanticClassMenuComponent, PlsRelationConceptMenuComponent, PlsFullscreenDirective,
-    PlsNamedEntityMenuComponent, PlsLiteralMenuComponent, UploadOntologyComponent, CopySemanticModelComponent, ManageOntologiesDialogComponent, UriGeneratorComponent, ArsSelectionDialogComponent
+    PlsNamedEntityMenuComponent, PlsLiteralMenuComponent, UploadOntologyComponent, CopySemanticModelComponent, ManageOntologiesDialogComponent, UriGeneratorComponent, ArsSelectionDialogComponent,
+    ModelRecommendationDialogComponent
   ],
   imports: [
     // Plasma

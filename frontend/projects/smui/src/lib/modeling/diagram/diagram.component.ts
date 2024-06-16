@@ -45,6 +45,8 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
   @Input() $layout: Subject<any>;
   @Input() $filter: BehaviorSubject<Filter>;
   @Input() $URIMode: BehaviorSubject<boolean>;
+  @Input() $recommendation!: BehaviorSubject<DeltaModification>;
+
   private literalValueModalRef: NzModalRef<any>;
   // data
   initializing = true;
@@ -158,6 +160,12 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
       distinctUntilChanged()
     ).subscribe((showURI) => {
       this.createGraph(showURI);
+    });
+    this.$recommendation.subscribe(rec => {
+      this.hideRecommendations();
+      if (rec !== null){
+        this.showRecommendation(rec);
+      }
     });
   }
 
@@ -1039,6 +1047,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
    * @param recommendation the recommendation
    */
   private showRecommendation(recommendation: DeltaModification): void {
+    console.log("show recommendation", recommendation);
     const opacity = 1.0;
     recommendation.entities.forEach(node => {
       let icon = '';
