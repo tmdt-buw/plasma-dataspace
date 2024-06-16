@@ -9,11 +9,11 @@ import org.springframework.context.ConfigurableApplicationContext;
 
 @EnableDiscoveryClient
 @SpringBootApplication(scanBasePackages = "de.buw.tmdt.plasma")
-public class DataModelingService {
-	private static final Logger logger = LoggerFactory.getLogger(DataModelingService.class);
+public class SemanticModelingService {
+	private static final Logger logger = LoggerFactory.getLogger(SemanticModelingService.class);
 
 	public static void main(String[] args) {
-		final ConfigurableApplicationContext context = SpringApplication.run(DataModelingService.class, args);
+		final ConfigurableApplicationContext context = SpringApplication.run(SemanticModelingService.class, args);
 		final String applicationName = context.getEnvironment().getProperty("spring.application.name");
 		logger.info("{}: Booting successful", applicationName);
 	}
