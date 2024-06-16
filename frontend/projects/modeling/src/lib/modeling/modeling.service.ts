@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { DeltaModification, Relation } from '../api/generated/dms';
+import { DeltaModification, Relation } from '../api/generated/sms';
 import { BehaviorSubject } from 'rxjs';
 
 @Injectable({

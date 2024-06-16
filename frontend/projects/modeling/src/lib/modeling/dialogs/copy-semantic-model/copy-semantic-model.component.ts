@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { CombinedModel, ModelingControllerService } from '../../../api/generated/dms';
+import { CombinedModel, ModelingControllerService } from '../../../api/generated/sms';
 import { BehaviorSubject, Subject } from 'rxjs';
 import { Filter } from '../../model/common/filter';
 import { NzNotificationService } from 'ng-zorro-antd/notification';

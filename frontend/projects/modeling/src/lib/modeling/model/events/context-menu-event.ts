@@ -1,4 +1,4 @@
-import { Relation, SemanticModelNode } from '../../../api/generated/dms';
+import { Relation, SemanticModelNode } from '../../../api/generated/sms';
 
 export class ContextMenuEvent {
   type: ContextMenuEventType;

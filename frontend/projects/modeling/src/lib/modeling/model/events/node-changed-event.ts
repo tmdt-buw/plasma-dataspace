@@ -1,4 +1,4 @@
-import { SemanticModelNode } from '../../../api/generated/dms';
+import { SemanticModelNode } from '../../../api/generated/sms';
 import { NodeType, SyntaxNode } from '../configuration/node';
 
 export class NodeChangedEvent {

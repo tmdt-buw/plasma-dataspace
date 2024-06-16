@@ -1,5 +1,5 @@
 import { dia } from 'jointjs';
-import { Relation } from '../../../api/generated/dms';
+import { Relation } from '../../../api/generated/sms';
 import { Links } from './link';
 import { Nodes } from './node';
 import sorting = dia.Paper.sorting;

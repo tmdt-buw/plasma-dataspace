@@ -1,7 +1,7 @@
 import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { NzModalRef } from 'ng-zorro-antd/modal';
-import { ModelingControllerService, ObjectProperty, Relation } from '../../../api/generated/dms';
+import { ModelingControllerService, ObjectProperty, Relation } from '../../../api/generated/sms';
 import { BehaviorSubject, Subject } from 'rxjs';
 import { UriGeneratorComponent } from '../common/uri-generator/uri-generator.component';
 import { OntologyControllerService } from '../../../api/generated/kgs';

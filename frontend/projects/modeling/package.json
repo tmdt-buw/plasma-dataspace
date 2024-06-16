@@ -1,7 +1,7 @@
 {
-  "name": "@tmdt/dms",
+  "name": "@tmdt/smui",
   "version": "0.0.0-PLACEHOLDER",
-  "author": "TMDT <tlanger@uni-wuppertal.de>",
+  "author": "TMDT <paulus@uni-wuppertal.de>",
   "license": "GPL-3.0",
   "peerDependencies": {
     "@angular/cdk": ">=10.0.0",

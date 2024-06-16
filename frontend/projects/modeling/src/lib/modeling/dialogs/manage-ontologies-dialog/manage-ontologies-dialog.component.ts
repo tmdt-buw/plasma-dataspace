@@ -3,7 +3,7 @@ import { ModalOptions, NzModalRef, NzModalService } from 'ng-zorro-antd/modal';
 import { UploadOntologyComponent } from '../upload-ontology/upload-ontology.component';
 import { ModalMouseEnabledConfig } from '../common/modal.base-config';
 import { OntologyControllerService, OntologyInfo, SemanticModelControllerService } from '../../../api/generated/kgs';
-import { ModelingControllerService } from '../../../api/generated/dms';
+import { ModelingControllerService } from '../../../api/generated/sms';
 import { ContextMenuService } from '../../context-menu/context-menu.service';
 import { NzNotificationService } from 'ng-zorro-antd/notification';
 

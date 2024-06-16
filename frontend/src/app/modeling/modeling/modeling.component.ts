@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ModelingControllerService, ModelingInfo } from '@tmdt/dms';
+import { ModelingControllerService, ModelingInfo } from '@tmdt/smui';
 
 @Component({
   selector: 'app-modeling',

@@ -10,7 +10,7 @@ Please note that this library does still need the backend services to run and ca
 as a standalone library!
 
 ## Building the frontend
-Build the UI by running `npm run build:dms` and `npm run build`
+Build the UI by running `npm run build:smui` and `npm run build`
 
 ## Building the frontend Docker container
 Build the docker container using the `Dockerfile`. Pay attention to the correct name and version.
@@ -21,11 +21,11 @@ automatically.
 
 ### Client generation from backend
 
-Run `npm run gen:dms`, `npm run gen:kgs`, `npm run gen:sas` to generate updated http-client and model from backend openapi-specs.
-The DMS, KGS and SAS have to be up and running to do so.
+Run `npm run gen:sms`, `npm run gen:kgs`, `npm run gen:dps` to generate updated http-client and model from backend openapi-specs.
+The SMS, KGS and DPS have to be up and running to do so.
 
 ### Development server
 
-Run `npm run watch:dms` to build the library. The library will automatically reload if you change any of the source files.
+Run `npm run watch:smui` to build the library. The library will automatically reload if you change any of the source files.
 
 Run `npm start` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.

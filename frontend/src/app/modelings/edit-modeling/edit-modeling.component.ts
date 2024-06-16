@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { ModelingInfo } from '../../../../projects/modeling/src/lib/api/generated/dms';
+import { ModelingInfo } from '@tmdt/smui';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { NzModalRef } from 'ng-zorro-antd/modal';
 

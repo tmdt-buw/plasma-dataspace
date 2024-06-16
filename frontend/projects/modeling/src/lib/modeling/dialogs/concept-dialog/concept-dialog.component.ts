@@ -12,7 +12,7 @@ import {
   ObjectProperty,
   Relation,
   SemanticModelNode
-} from '../../../api/generated/dms';
+} from '../../../api/generated/sms';
 import { ModelingService } from '../../modeling.service';
 import { ModalBaseConfig } from '../common/modal.base-config';
 import { PlsEditEntityDialogComponent } from '../edit-entity-dialog/edit-entity-dialog.component';

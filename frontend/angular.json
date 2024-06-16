@@ -153,7 +153,7 @@
         }
       }
     },
-    "modeling": {
+    "smui": {
       "projectType": "library",
       "root": "projects/modeling",
       "sourceRoot": "projects/modeling/src",

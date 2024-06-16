@@ -6,7 +6,7 @@ import {
   SchemaNode,
   SemanticModelNode,
   SetNode
-} from '../../../api/generated/dms';
+} from '../../../api/generated/sms';
 
 
 /**

@@ -16,9 +16,8 @@
       "dom"
     ],
     "paths": {
-      "@tmdt/dms": [
-        "dist/@tmdt/dms/@tmdt/dms",
-        "dist/@tmdt/dms"
+      "@tmdt/smui": [
+        "dist/@tmdt/smui"
       ]
     }
   }

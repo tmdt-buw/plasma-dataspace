@@ -13,7 +13,7 @@ import {
   Relation,
   SchemaNode,
   SemanticModelNode
-} from '../api/generated/dms';
+} from '../api/generated/sms';
 import { OntologyControllerService, OntologyInfo, SemanticModelControllerService } from '../api/generated/kgs';
 import { ContextMenuService } from './context-menu/context-menu.service';
 import { ModalMouseEnabledConfig } from './dialogs/common/modal.base-config';

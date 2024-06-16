@@ -8,7 +8,7 @@ import {
   ModelingControllerService,
   NamedEntity,
   SemanticModelNode
-} from '../../../api/generated/dms';
+} from '../../../api/generated/sms';
 import { EditState } from './model/edit-state';
 import { FormBuilder, Validators } from '@angular/forms';
 import { Icons } from '../../model/configuration/icons';

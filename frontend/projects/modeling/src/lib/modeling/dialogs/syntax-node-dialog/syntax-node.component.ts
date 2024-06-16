@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { PrimitiveNode, SchemaNode } from '../../../api/generated/dms';
+import { PrimitiveNode, SchemaNode } from '../../../api/generated/sms';
 
 @Component({
   selector: 'pls-syntax-node-details',

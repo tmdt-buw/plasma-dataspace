@@ -6,7 +6,6 @@ import de.buw.tmdt.plasma.datamodel.syntaxmodel.ObjectNode;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.SchemaNode;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.SyntaxModel;
 import de.buw.tmdt.plasma.services.sms.core.model.Modeling;
-import de.buw.tmdt.plasma.services.sms.core.repository.ModelingRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;

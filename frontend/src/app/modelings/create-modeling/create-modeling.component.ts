@@ -1,12 +1,11 @@
 import { Component, EventEmitter, Output, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { CombinedModel, ModelingControllerService, ModelingInfo, SyntaxModel } from '@tmdt/dms';
+import { CombinedModel, ModelingControllerService, ModelingInfo, SyntaxModel, AnalysisControllerService } from '@tmdt/smui';
 import { v4 as uuidv4 } from 'uuid';
 import { NzNotificationService } from 'ng-zorro-antd/notification';
 import { Router} from '@angular/router';
 import { appRoutesNames } from '../../app.routes.names';
 import { DataProcessingControllerService } from '../../dataprocessing/api/generated';
-import { AnalysisControllerService } from '../../schema-analysis/api/generated';
 import { Subscription } from 'rxjs';
 import { SchemaAnalysisComponent } from '../../schema-analysis/schema-analysis/schema-analysis.component';
 

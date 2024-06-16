@@ -1,6 +1,6 @@
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { Router } from '@angular/router';
-import { ModelingControllerService, ModelingInfo } from '@tmdt/dms';
+import { ModelingControllerService, ModelingInfo } from '@tmdt/smui';
 import { DatePipe } from '@angular/common';
 import { ModalOptions, NzModalRef, NzModalService } from 'ng-zorro-antd/modal';
 import { appRoutesNames } from '../../app.routes.names';

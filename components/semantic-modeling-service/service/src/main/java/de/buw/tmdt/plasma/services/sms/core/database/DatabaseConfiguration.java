@@ -9,8 +9,8 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @Configuration
-@EntityScan(basePackages = "de.buw.tmdt.plasma.services.dms.core.model")
-@EnableJpaRepositories(basePackages = "de.buw.tmdt.plasma.services.dms.core.repository")
+@EntityScan(basePackages = "de.buw.tmdt.plasma.services.sms")
+@EnableJpaRepositories(basePackages = {"de.buw.tmdt.plasma.services.sms"})
 @EnableTransactionManagement
 public class DatabaseConfiguration {
 

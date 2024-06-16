@@ -7,7 +7,7 @@ import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { RouterModule } from '@angular/router';
 import { MODELINGS_ROUTES } from './modelings.routes';
-import { ApiModule, Configuration } from '@tmdt/dms';
+import { ApiModule, Configuration } from '@tmdt/smui';
 import { CreateModelingComponent } from './create-modeling/create-modeling.component';
 import { NzAlertModule } from 'ng-zorro-antd/alert';
 import { NzFormModule } from 'ng-zorro-antd/form';

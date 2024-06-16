@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { Subscription } from 'rxjs';
-import { AnalysisControllerService, SchemaAnalysisDataProvisionDTO, SyntaxModel } from '../api/generated';
+import { AnalysisControllerService, SchemaAnalysisDataProvisionDTO, SyntaxModel } from '@tmdt/smui';
 import { NzNotificationService } from 'ng-zorro-antd/notification';
 import { HttpStatusCode } from '@angular/common/http';
 

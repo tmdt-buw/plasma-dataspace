@@ -36,7 +36,7 @@ import {
   SemanticModelNode,
   SetNode,
   SyntaxModel
-} from '../../api/generated/dms';
+} from '../../api/generated/sms';
 import { ContextMenuService } from '../context-menu/context-menu.service';
 import { PlsSemanticClassMenuComponent } from '../context-menu/semantic-class-menu/semantic-class-menu.component';
 import { PlsRelationConceptMenuComponent } from '../context-menu/relation-menu/relation-menu.component';

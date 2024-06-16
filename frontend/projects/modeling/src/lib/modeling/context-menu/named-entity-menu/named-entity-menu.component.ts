@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { NamedEntity } from '../../../api/generated/dms';
+import { NamedEntity } from '../../../api/generated/sms';
 import { ContextMenuEvent, ContextMenuEventType } from '../../model/events/context-menu-event';
 import { ContextMenuService } from '../context-menu.service';
 

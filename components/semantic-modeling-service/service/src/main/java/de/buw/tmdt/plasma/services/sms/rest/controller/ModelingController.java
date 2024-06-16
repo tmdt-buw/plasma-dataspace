@@ -4,11 +4,11 @@ import de.buw.tmdt.plasma.datamodel.*;
 import de.buw.tmdt.plasma.datamodel.modification.DeltaModification;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.Relation;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.SemanticModelNode;
-import de.buw.tmdt.plasma.services.sms.core.handler.ModelingHandler;
+import de.buw.tmdt.plasma.services.sms.core.ModelingHandler;
 import de.buw.tmdt.plasma.services.sms.core.model.Modeling;
-import de.buw.tmdt.plasma.services.sms.core.repository.ModelingRepository;
-import de.buw.tmdt.plasma.services.sms.shared.api.api.ModelingAPI;
-import de.buw.tmdt.plasma.services.sms.shared.api.api.ModelingInfo;
+import de.buw.tmdt.plasma.services.sms.core.database.ModelingRepository;
+import de.buw.tmdt.plasma.services.sms.shared.api.ModelingAPI;
+import de.buw.tmdt.plasma.services.sms.shared.api.ModelingInfo;
 import io.swagger.v3.oas.annotations.Operation;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -33,7 +33,7 @@ public class ModelingController implements ModelingAPI {
     private final ModelingHandler modelingHandler;
     private final ModelingRepository modelingRepository;
 
-    @Value("${plasma.dms.feature.finalizemodels.enabled:true}")
+    @Value("${plasma.sms.feature.finalizemodels.enabled:true}")
     private Boolean finalizeModelsEnabled;
 
     @Autowired

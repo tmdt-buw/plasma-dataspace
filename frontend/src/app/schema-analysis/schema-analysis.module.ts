@@ -12,7 +12,7 @@ import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzSpinModule } from 'ng-zorro-antd/spin';
 import { NzTypographyModule } from 'ng-zorro-antd/typography';
 import { FormsModule} from '@angular/forms';
-import { ApiModule, Configuration } from './api/generated';
+import { ApiModule, Configuration } from '../../../projects/modeling/src/lib/api/generated/sms';
 import { NzAlertModule } from 'ng-zorro-antd/alert';
 import { NzModalModule } from 'ng-zorro-antd/modal';
 import { environment } from '../../environments/environment';
