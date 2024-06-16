@@ -155,28 +155,28 @@
     },
     "smui": {
       "projectType": "library",
-      "root": "projects/modeling",
-      "sourceRoot": "projects/modeling/src",
+      "root": "projects/smui",
+      "sourceRoot": "projects/smui/src",
       "prefix": "pls",
       "architect": {
         "build": {
           "builder": "@angular-devkit/build-angular:ng-packagr",
           "options": {
-            "tsConfig": "projects/modeling/tsconfig.lib.json",
-            "project": "projects/modeling/ng-package.json"
+            "tsConfig": "projects/smui/tsconfig.lib.json",
+            "project": "projects/smui/ng-package.json"
           },
           "configurations": {
             "production": {
-              "tsConfig": "projects/modeling/tsconfig.lib.prod.json"
+              "tsConfig": "projects/smui/tsconfig.lib.prod.json"
             }
           }
         },
         "test": {
           "builder": "@angular-devkit/build-angular:karma",
           "options": {
-            "main": "projects/modeling/src/test.ts",
-            "tsConfig": "projects/modeling/tsconfig.spec.json",
-            "karmaConfig": "projects/modeling/karma.conf.js"
+            "main": "projects/smui/src/test.ts",
+            "tsConfig": "projects/smui/tsconfig.spec.json",
+            "karmaConfig": "projects/smui/karma.conf.js"
           }
         }
       }

@@ -2,8 +2,8 @@ import { Component, Input, OnInit } from '@angular/core';
 import { CombinedModel, ModelingControllerService, ModelingInfo } from '@tmdt/smui';
 import { DataProcessingControllerService } from '../api/generated';
 import { NzNotificationService } from 'ng-zorro-antd/notification';
-import { Util } from '../../../../projects/modeling/src/lib/modeling/model/common/util';
 import { Subscription } from 'rxjs';
+import { Util } from '../../../../projects/smui/src/lib/modeling/model/common/util';
 
 @Component({
   selector: 'app-conversion-dialog',

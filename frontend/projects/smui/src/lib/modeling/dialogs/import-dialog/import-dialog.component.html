@@ -1,0 +1,10 @@
+<nz-upload
+  (nzChange)="handleChange($event)"
+  [nzMultiple]="false"
+  nzType="drag"
+>
+  <ng-container>
+    <i [nzType]="loading ? 'loading' : 'plus'" class="upload-icon" nz-icon></i>
+    <div class="ant-upload-text">Upload</div>
+  </ng-container>
+</nz-upload>

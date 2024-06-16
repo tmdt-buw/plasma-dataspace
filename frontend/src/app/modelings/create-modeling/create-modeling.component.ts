@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Output, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { CombinedModel, ModelingControllerService, ModelingInfo, SyntaxModel, AnalysisControllerService } from '@tmdt/smui';
+import { CombinedModel, ModelingControllerService, ModelingInfo, SyntaxModel, SchemaAnalysisControllerService } from '@tmdt/smui';
 import { v4 as uuidv4 } from 'uuid';
 import { NzNotificationService } from 'ng-zorro-antd/notification';
 import { Router} from '@angular/router';
@@ -43,7 +43,7 @@ export class CreateModelingComponent {
 
   constructor(private modelingController: ModelingControllerService,
               private processingService: DataProcessingControllerService,
-              private schemaAnalysisController: AnalysisControllerService,
+              private schemaAnalysisController: SchemaAnalysisControllerService,
               private notification: NzNotificationService,
               private router: Router) {
     this.dataId = uuidv4();

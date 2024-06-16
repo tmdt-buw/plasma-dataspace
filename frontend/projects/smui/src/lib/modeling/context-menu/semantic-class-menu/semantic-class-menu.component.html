@@ -1,0 +1,16 @@
+<nz-card class="menu-card">
+  <ul nz-menu nzSelectable>
+    <li *ngIf="node" nz-menu-group nzTitle="Edit class">
+      <ul>
+        <li (click)="unmap()" *ngIf="node.syntaxNodeUuid" nz-menu-item><i class="context-icon" nz-icon
+                                                                          nzType="disconnect"></i>Remove mapping
+        </li>
+        <li (click)="removeInstance()" *ngIf="node.instance" nz-menu-item><i
+          class="context-icon" nz-icon nzType="clear"></i>Remove customization
+        </li>
+        <li (click)="remove()" nz-menu-item nzDanger><i class="context-icon" nz-icon nzType="delete"></i>Remove class
+        </li>
+      </ul>
+    </li>
+  </ul>
+</nz-card>

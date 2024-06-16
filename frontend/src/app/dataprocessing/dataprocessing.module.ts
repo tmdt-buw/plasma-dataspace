@@ -8,7 +8,7 @@ import { NzUploadModule } from 'ng-zorro-antd/upload';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { CommonModule } from '@angular/common';
 import { NzButtonModule } from 'ng-zorro-antd/button';
-import { Configuration } from '../../../projects/modeling/src/lib/api/generated/sms';
+import { Configuration } from '@tmdt/smui';
 import { environment } from '../../environments/environment';
 import { ArraycontextInfoComponent } from './arraycontext-info/arraycontext-info.component';
 import { NzPageHeaderModule } from 'ng-zorro-antd/page-header';

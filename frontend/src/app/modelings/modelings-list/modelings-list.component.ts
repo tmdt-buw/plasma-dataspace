@@ -10,12 +10,12 @@ import { Configuration, DataProcessingControllerService } from '../../dataproces
 import {
   ModalBaseConfig,
   ModalMouseEnabledConfig
-} from '../../../../projects/modeling/src/lib/modeling/dialogs/common/modal.base-config';
+} from 'projects/smui/src/lib/modeling/dialogs/common/modal.base-config';
 import { ConversionDialogComponent } from '../../dataprocessing/conversion-dialog/conversion-dialog.component';
-import { OntologyControllerService } from '../../../../projects/modeling/src/lib/api/generated/kgs';
-import { Util } from 'projects/modeling/src/lib/modeling/model/common/util';
+import { Util } from 'projects/smui/src/lib/modeling/model/common/util';
 import { EditModelingComponent } from '../edit-modeling/edit-modeling.component';
 import { environment } from '../../../environments/environment';
+import { OntologyControllerService } from '../../../../projects/smui/src/lib/api/generated/kgs';
 
 @Component({
   selector: 'app-modelings-list',

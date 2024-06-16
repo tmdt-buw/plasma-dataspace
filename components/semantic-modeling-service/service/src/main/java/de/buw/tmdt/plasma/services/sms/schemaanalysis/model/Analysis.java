@@ -3,34 +3,26 @@ package de.buw.tmdt.plasma.services.sms.schemaanalysis.model;
 import de.buw.tmdt.plasma.services.sms.schemaanalysis.model.syntaxmodel.Node;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
-@Entity
+
 public class Analysis {
 
-	public UUID getUuid() {
-		return uuid;
-	}
+	protected String id;
 
-	@Id
-	@Column(nullable = false, unique = true, length = 16)
-	protected UUID uuid;
+	protected Date creation;
 
-	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Node> subAnalyses;
 
-	@OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
 	private Node result;
 
 	protected Analysis() {
-
+		this.creation = new Date();
 	}
 
-	public Analysis(UUID uuid) {
-		this.uuid = uuid;
+	public Analysis(String id) {
+		this();
+		this.id = id;
 		this.subAnalyses = new ArrayList<>();
 	}
 
@@ -48,5 +40,9 @@ public class Analysis {
 
 	public Node getResult() {
 		return result;
+	}
+
+	public String getUuid() {
+		return id;
 	}
 }

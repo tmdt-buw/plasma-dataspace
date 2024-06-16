@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { Subscription } from 'rxjs';
-import { AnalysisControllerService, SchemaAnalysisDataProvisionDTO, SyntaxModel } from '@tmdt/smui';
+import { SyntaxModel, SchemaAnalysisControllerService } from '@tmdt/smui';
 import { NzNotificationService } from 'ng-zorro-antd/notification';
 import { HttpStatusCode } from '@angular/common/http';
 
@@ -29,7 +29,7 @@ export class SchemaAnalysisComponent implements OnInit, OnDestroy {
   displayErrorModal: boolean = false;
   displaySchemaModal: boolean = false;
 
-  constructor(private schemaService: AnalysisControllerService, private notification: NzNotificationService) {
+  constructor(private schemaService: SchemaAnalysisControllerService, private notification: NzNotificationService) {
   }
 
   ngOnInit(): void {
@@ -70,10 +70,10 @@ export class SchemaAnalysisComponent implements OnInit, OnDestroy {
     if (Array.isArray(data)) {
       const sendDataDto = [];
       data.forEach(sample => {
-        sendDataDto.push({data: JSON.stringify(sample)});
+        sendDataDto.push(JSON.stringify(sample));
       });
 
-      this.schemaService.addDataPoints(this.dataId, sendDataDto).subscribe(() => {
+      this.schemaService.addSamples(this.dataId, sendDataDto).subscribe(() => {
         sendDataDto.forEach(x => {
           this.lastDataPoints.push(x.data);
         });
@@ -87,8 +87,7 @@ export class SchemaAnalysisComponent implements OnInit, OnDestroy {
 
   addSample(sample: any): void {
     const sampleString = JSON.stringify(sample);
-    const sendDataDto: SchemaAnalysisDataProvisionDTO = {data: sampleString};
-    this.schemaService.addDataPoint(this.dataId, sendDataDto).subscribe(() => {
+    this.schemaService.addSample(this.dataId, sampleString).subscribe(() => {
       this.lastDataPoints.push(sampleString);
     }, error => this.handleError(error));
   }

@@ -1,0 +1,59 @@
+<form (submit)="submit()" [formGroup]="form" fxLayout="column" nz-form>
+
+  <nz-form-item>
+    <nz-form-label [nzSpan]="3" nzFor="type" nzRequired>Type</nz-form-label>
+    <nz-radio-group [(ngModel)]="relationType" [nzDisabled]="!!editRelation" formControlName="type"
+                    fxLayoutAlign="start center">
+      <label [nz-tooltip]="'Creates a relation that can be used to link classes or named entities.'" nz-radio
+             nzValue="ObjectProperty">ObjectProperty</label>
+      <label
+        [nz-tooltip]="'Creates a relation that can be used to add (string) literals to existing classes or named entities.'"
+        nz-radio
+        nzValue="DataProperty">DatatypeProperty</label>
+    </nz-radio-group>
+  </nz-form-item>
+
+  <nz-form-item>
+    <nz-form-label [nzSpan]="3" nzFor="label" nzRequired>Label</nz-form-label>
+    <nz-form-control nzErrorTip="Label is required"
+                     nzExtra="This will identify the concept in multiple modelings, so it should be independent from your current data.">
+      <input (change)="onLabelEdited($event)" formControlName="label" nz-input/>
+    </nz-form-control>
+  </nz-form-item>
+
+  <nz-form-item>
+    <nz-form-label [nzSpan]="3" nzFor="description" nzRequired>Description</nz-form-label>
+    <nz-form-control nzErrorTip="Description is required"
+                     nzExtra="Detailed description of the entity concept.">
+      <textarea [nzAutosize]="{ minRows: 3}" formControlName="description" nz-input></textarea>
+    </nz-form-control>
+  </nz-form-item>
+
+
+  <span *ngIf="uriWarning" nz-typography nzType="warning" style="text-align: center">If URI is changed, the existing relation will be updated!</span>
+
+  <nz-form-item fxFlex>
+    <nz-form-label [nzSpan]="3" nzFor="uri" nzRequired>URI</nz-form-label>
+    <nz-form-control
+      [nzErrorTip]="uriError"
+      [nzValidateStatus]="uriCheckStatus"
+      [nzValidatingTip]="'Validating...'">
+      <pls-uri-generator #uri_generator (URIChanged)="updateURI($event)" [disableAutoGeneration]="!!editRelation"
+                         [identifierUpdate]="identifier" [namespaces]="namespaces"
+                         [uri]="editRelation?.uri"></pls-uri-generator>
+    </nz-form-control>
+
+  </nz-form-item>
+
+</form>
+
+<div fxLayout="column" fxLayoutGap="5px">
+  <nz-alert *ngIf="error" nzType="error">{{ error }}</nz-alert>
+  <div fxLayout="row" fxLayoutAlign="end" fxLayoutGap="5px">
+    <button (click)="cancel()" nz-button>Cancel</button>
+    <button (click)="submit()"
+            [disabled]="!form.valid"
+            nz-button nzType="primary">Save
+    </button>
+  </div>
+</div>
