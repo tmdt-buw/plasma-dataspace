@@ -20,7 +20,7 @@ export interface PrimitiveNode extends PositionedCombinedModelElement {
     visible?: boolean;
     disabled?: boolean;
     depth?: number;
-    pathAsJSONPointer?: string;
+    pathAsJSONPath?: string;
 }
 export namespace PrimitiveNode {
     export type DatatypeEnum = 'Unknown' | 'String' | 'Boolean' | 'Number' | 'Binary';

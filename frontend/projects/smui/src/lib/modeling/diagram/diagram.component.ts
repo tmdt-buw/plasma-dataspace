@@ -6,7 +6,7 @@ import { dia, g, highlighters, layout } from 'jointjs';
 import { ModalOptions, NzModalRef, NzModalService } from 'ng-zorro-antd/modal';
 import { BehaviorSubject, Subject } from 'rxjs';
 import { auditTime, distinctUntilChanged, pairwise, skip } from 'rxjs/operators';
-import { Class, CombinedModel, DataProperty, DeltaModification, Instance, Literal, ModelMapping, NamedEntity, ObjectProperty, PrimitiveNode, Relation, SemanticModel, SemanticNode, SetNode, SyntaxModel, SyntaxNode } from '../../api/generated/sms';
+import { Class, CombinedModel, DataProperty, DeltaModification, Instance, Literal, ModelLinking, NamedEntity, ObjectNode, ObjectProperty, PrimitiveNode, Relation, SemanticModel, SemanticNode, SetNode, SyntaxModel, SyntaxNode } from '../../api/generated/sms';
 import { ContextMenuService } from '../context-menu/context-menu.service';
 import { PlsSemanticClassMenuComponent } from '../context-menu/semantic-class-menu/semantic-class-menu.component';
 import { PlsRelationConceptMenuComponent } from '../context-menu/relation-menu/relation-menu.component';
@@ -49,7 +49,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
   // data
   initializing = true;
   _combinedModel: CombinedModel;
-  _modelMappings: ModelMapping[];
+  _modelMappings: ModelLinking[];
   _arrayContexts: string[][];
 
   // graph elements
@@ -87,7 +87,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
     this._arrayContexts = arrayContexts;
   }
 
-  @Input() set modelMappings(modelMappings: ModelMapping[]) {
+  @Input() set modelMappings(modelMappings: ModelLinking[]) {
     this._modelMappings = modelMappings;
   }
 
@@ -215,11 +215,11 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
           return (el.id !== clazzId);
         });
         if (Nodes.isClass(elementView) && elementBelow) {
-          // map an existing class to a syntax node
+          // link an existing class to a syntax node
           const syntaxNode = this.findSyntaxNodeById(elementBelow.id as string);
           const classNode = this.findSemanticNodeById(clazzId as string) as Class;
 
-          if ((syntaxNode._class === 'PrimitiveNode' || syntaxNode._class === 'SetNode' || syntaxNode._class === 'ObjectNode')
+          if ((syntaxNode._class === 'SetNode' || syntaxNode._class === 'ObjectNode')
             && !classNode.syntaxNodeUuid && !syntaxNode.disabled) {
             if (!classNode.instance) {
               classNode.instance = {
@@ -229,12 +229,12 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
             }
             classNode.syntaxNodeUuid = syntaxNode.uuid;
             classNode.syntaxLabel = syntaxNode.label;
-            classNode.syntaxPath = syntaxNode.pathAsJSONPointer;
             classNode.instance.label = syntaxNode.label;
             classNode.x = syntaxNode.x;
             classNode.y = syntaxNode.y;
             const nodeChanges = {entities: [classNode]};
             this.nodeChanged.emit(nodeChanges);
+            console.log("created linking");
             return;
           }
         } else if (Nodes.isLiteral(elementView) && elementBelow) {
@@ -246,7 +246,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
             && !literal.syntaxNodeUuid && !syntaxNode.disabled) {
             literal.syntaxNodeUuid = syntaxNode.uuid;
             literal.syntaxLabel = syntaxNode.label;
-            literal.syntaxPath = syntaxNode.pathAsJSONPointer;
+            literal.syntaxPath = syntaxNode.pathAsJSONPath;
             literal.label = syntaxNode.label;
             literal.value = syntaxNode.label;
             literal.x = syntaxNode.x;
@@ -266,7 +266,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
       // Highlights for modeling
       'element:mouseover': (elementView: dia.ElementView) => {
         // console.log('element:mouseover');
-        if (this.modelNode?._class === 'Class' && this.getIfMappableNode(elementView)) {
+        if ((this.modelNode?._class === 'Class' && this.getIfLinkableNode(elementView)) || (this.modelNode?._class === 'Literal' && this.getIfMappableNode(elementView)))  {
           elementView.highlight();
           this.hoveredElement = elementView;
         }
@@ -403,7 +403,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
               uuid: uuidv4(),
               syntaxNodeUuid: syntaxNode.uuid,
               syntaxLabel: syntaxNode.label,
-              syntaxPath: syntaxNode.pathAsJSONPointer,
+              syntaxPath: syntaxNode.pathAsJSONPath,
             };
             const from = source;
             const to = literal.uuid;
@@ -561,7 +561,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
             x: position.x,
             y: position.y,
             syntaxLabel: node.label,
-            syntaxPath: node.pathAsJSONPointer,
+            syntaxPath: node.pathAsJSONPath,
             syntaxNodeUuid: node.uuid,
             instance
           };
@@ -1092,6 +1092,20 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
     if (Nodes.isSyntaxNode(elementView)) {
       const node = this.findSyntaxNodeById(elementView.model.id.toString());
       if ((node._class === 'PrimitiveNode' || node._class === 'SetNode' || node._class === 'ObjectNode') && !node.disabled) {
+        return node;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Returns a node as a LinkableSyntaxNode if the given node is of that type
+   * @param elementView search element
+   */
+  private getIfLinkableNode(elementView: dia.ElementView): (ObjectNode | SetNode) {
+    if (Nodes.isSyntaxNode(elementView)) {
+      const node = this.findSyntaxNodeById(elementView.model.id.toString());
+      if ((node._class === 'SetNode' || node._class === 'ObjectNode') && !node.disabled) {
         return node;
       }
     }

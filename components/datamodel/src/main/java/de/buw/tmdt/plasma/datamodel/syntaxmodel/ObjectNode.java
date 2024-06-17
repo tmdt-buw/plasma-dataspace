@@ -14,7 +14,7 @@ import java.util.UUID;
  * All outgoing edges are to be considered child nodes are to be considered to represent attributes.
  */
 @JsonTypeName("ObjectNode")
-public class ObjectNode extends MappableSyntaxNode {
+public class ObjectNode extends LinkableSyntaxNode {
 
     private static final long serialVersionUID = 8596616883718165165L;
 

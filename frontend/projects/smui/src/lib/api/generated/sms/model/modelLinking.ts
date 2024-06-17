@@ -11,7 +11,7 @@
  */
 
 
-export interface ModelMapping { 
+export interface ModelLinking { 
     schemaNodeUuid?: string;
     semanticNodeUuid?: string;
     parentUuid?: string;

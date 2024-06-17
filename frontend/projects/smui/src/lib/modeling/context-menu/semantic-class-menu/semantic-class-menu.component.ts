@@ -23,7 +23,6 @@ export class PlsSemanticClassMenuComponent {
   unmap(): void {
     this.node.syntaxNodeUuid = undefined;
     this.node.syntaxLabel = undefined;
-    this.node.syntaxPath = undefined;
     this.contextMenu.close(new ContextMenuEvent(ContextMenuEventType.updateEntity, this.node));
   }
 

@@ -259,10 +259,10 @@ public class ModelingService {
     }
 
     @NotNull
-    public List<ModelMapping> getModelMappings(@NotNull String modelId) {
+    public List<ModelLinking> getModelMappings(@NotNull String modelId) {
         CombinedModel combinedModel = getCombinedModel(modelId);
-        List<ModelMapping> modelMappings = combinedModel.generateModelMappings();
-        return modelMappings;
+        List<ModelLinking> modelLinkings = combinedModel.generateModelLinkings();
+        return modelLinkings;
     }
 
     /**

@@ -57,7 +57,7 @@ class CombinedModelTest {
 
         assertEquals(model.getRecommendations().size(), cloned.getRecommendations().size());
 
-        assertEquals(model.generateModelMappings().size(), cloned.generateModelMappings().size());
+        assertEquals(model.generateModelLinkings().size(), cloned.generateModelLinkings().size());
 
         assertEquals(model.getProvisionalElements().size(), cloned.getProvisionalElements().size());
         //assertEquals(model.getProvisionalRelationConcepts().size(), cloned.getProvisionalRelationConcepts().size());

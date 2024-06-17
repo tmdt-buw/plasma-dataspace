@@ -63,34 +63,28 @@ public class CombinedModelGenerator {
         flightTypeLiteral.setXCoordinate(100.0);
         flightTypeLiteral.setYCoordinate(100.0);
 
-        Class identifierClass = new Class(namespace + "identifier", "identifier", "Identifies a certain object");
-        Instance identifierInstance = new Instance(identifierClass.getLabel(), null);
-        identifierClass.setMappedSyntaxNodeLabel(identifierNode.getLabel());
-        identifierClass.setMappedSyntaxNodeUuid(identifierNode.getUuid());
-        identifierClass.setInstance(identifierInstance);
+        Literal identifierLiteral = new Literal(namespace + "identifier");
+        identifierLiteral.setMappedSyntaxNodeLabel(identifierNode.getLabel());
+        identifierLiteral.setMappedSyntaxNodeUuid(identifierNode.getUuid());
 
         Class airlineClass = new Class(namespace + "airline", "airline", "A company that provides air travel services");
 
-        Class nameClass = new Class(namespace + "name", "name", "A commonly known but not unique identifier of something");
-        Instance nameInstance = new Instance(nameClass.getLabel(), null);
-        nameClass.setMappedSyntaxNodeLabel(nameNode.getLabel());
-        nameClass.setMappedSyntaxNodeUuid(nameNode.getUuid());
-        nameClass.setInstance(nameInstance);
+        Literal nameLiteral = new Literal(namespace + "name");
+        nameLiteral.setMappedSyntaxNodeLabel(nameNode.getLabel());
+        nameLiteral.setMappedSyntaxNodeUuid(nameNode.getUuid());
 
-        Class iataCodeClass = new Class(namespace + "iata_code", "IATA code", "A unique identifier issued by the IATA");
-        Instance iataCodeInstance = new Instance(iataCodeClass.getLabel(), null);
-        iataCodeClass.setMappedSyntaxNodeLabel(codeNode.getLabel());
-        iataCodeClass.setMappedSyntaxNodeUuid(codeNode.getUuid());
-        iataCodeClass.setInstance(iataCodeInstance);
+        Literal iataCodeLiteral = new Literal(namespace + "iata_code");
+        iataCodeLiteral.setMappedSyntaxNodeLabel(codeNode.getLabel());
+        iataCodeLiteral.setMappedSyntaxNodeUuid(codeNode.getUuid());
 
         NamedEntity iataClass = new NamedEntity(namespace + "IATA", "IATA", "The International Air Transport Association");
 
-        List<SemanticNode> elements = Arrays.asList(identifierClass, flightClass, flightTypeLiteral, airlineClass, nameClass, iataCodeClass, iataClass);
+        List<SemanticNode> elements = Arrays.asList(identifierLiteral, flightClass, flightTypeLiteral, airlineClass, nameLiteral, iataCodeLiteral, iataClass);
 
-        Relation flightIdentifierRelation = new ObjectProperty(flightClass.getUuid(), identifierClass.getUuid(), namespace + "has");
-        Relation airlineNameRelation = new ObjectProperty(airlineClass.getUuid(), nameClass.getUuid(), namespace + "has");
-        Relation airlineIATACodeRelation = new ObjectProperty(airlineClass.getUuid(), iataCodeClass.getUuid(), namespace + "has");
-        Relation iataCodeIATARelation = new ObjectProperty(iataCodeClass.getUuid(), iataClass.getUuid(), namespace + "issuedBy");
+        Relation flightIdentifierRelation = new ObjectProperty(flightClass.getUuid(), identifierLiteral.getUuid(), namespace + "has");
+        Relation airlineNameRelation = new ObjectProperty(airlineClass.getUuid(), nameLiteral.getUuid(), namespace + "has");
+        Relation airlineIATACodeRelation = new ObjectProperty(airlineClass.getUuid(), iataCodeLiteral.getUuid(), namespace + "has");
+        Relation iataCodeIATARelation = new ObjectProperty(iataCodeLiteral.getUuid(), iataClass.getUuid(), namespace + "issuedBy");
         Relation flightTypeRelation = new DataProperty(flightClass.getUuid(), flightTypeLiteral.getUuid(), namespace + "flightType");
         Relation flightAirlineRelation = new ObjectProperty(airlineClass.getUuid(), flightClass.getUuid(), namespace + "operates");
 

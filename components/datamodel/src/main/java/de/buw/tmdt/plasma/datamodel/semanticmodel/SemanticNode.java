@@ -91,4 +91,7 @@ public abstract class SemanticNode extends PositionedCombinedModelElement implem
         return false;
     }
 
+    public boolean isLinked(){
+        return false;
+    }
 }

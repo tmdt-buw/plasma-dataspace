@@ -115,9 +115,9 @@ public class SemanticModel implements Serializable {
      */
     public void validate() throws CombinedModelIntegrityException {
         List<String> errors = new ArrayList<>();
-        for (SemanticNode smn : getNodes()) {
+        for (SemanticNode sn : getNodes()) {
             try {
-                smn.validate();
+                sn.validate();
             } catch (CombinedModelIntegrityException cmie) {
                 errors.add(cmie.getMessage());
             }

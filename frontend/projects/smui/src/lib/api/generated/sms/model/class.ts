@@ -19,7 +19,6 @@ export interface Class extends PositionedCombinedModelElement {
     description?: string;
     syntaxNodeUuid?: string;
     syntaxLabel?: string;
-    syntaxPath?: string;
     instance?: Instance;
     provisional?: boolean;
     mapped?: boolean;

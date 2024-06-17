@@ -18,7 +18,7 @@ export interface PrimitiveNodeAllOf {
     visible?: boolean;
     disabled?: boolean;
     depth?: number;
-    pathAsJSONPointer?: string;
+    pathAsJSONPath?: string;
 }
 export namespace PrimitiveNodeAllOf {
     export type DatatypeEnum = 'Unknown' | 'String' | 'Boolean' | 'Number' | 'Binary';

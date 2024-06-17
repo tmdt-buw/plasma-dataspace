@@ -9,7 +9,7 @@ import org.jetbrains.annotations.Nullable;
 import java.io.Serializable;
 import java.util.Objects;
 
-public class Class extends MappableSemanticNode implements Serializable, Customizable {
+public class Class extends LinkableSemanticNode implements Serializable, Customizable {
     private static final long serialVersionUID = 2351939502355153654L;
 
     public static final String DESCRIPTION_PROPERTY = "description";
@@ -28,11 +28,11 @@ public class Class extends MappableSemanticNode implements Serializable, Customi
             @NotNull String label,
             @Nullable String description
     ) {
-        this(null, uri, label, description, null, null, null, null, null, null, false);
+        this(null, uri, label, description, null, null, null,  null, null, false);
     }
 
     public Class(String uri, String label, String description, Double xCoordinate, Double yCoordinate, String uuid) {
-        this(uuid, uri, label, description, xCoordinate, yCoordinate, null, null, null, null, false);
+        this(uuid, uri, label, description, xCoordinate, yCoordinate, null, null, null, false);
     }
 
     @JsonCreator
@@ -45,11 +45,10 @@ public class Class extends MappableSemanticNode implements Serializable, Customi
             @Nullable @JsonProperty(YCOORDINATE_PROPERTY) Double yCoordinate,
             @Nullable @JsonProperty(MAPPED_SYNTAX_NODE_UUID_PROPERTY) String mappedSyntaxNodeUuid,
             @Nullable @JsonProperty(MAPPED_SYNTAX_NODE_LABEL_PROPERTY) String mappedSyntaxNodeLabel,
-            @Nullable @JsonProperty(MAPPED_SYNTAX_NODE_PATH_PROPERTY) String mappedSyntaxNodePath,
             @Nullable @JsonProperty(INSTANCE_PROPERTY) Instance instance,
             @JsonProperty(PROVISIONAL_PROPERTY) boolean provisional
     ) {
-        super(uri, label, xCoordinate, yCoordinate, mappedSyntaxNodeUuid, mappedSyntaxNodeLabel, mappedSyntaxNodePath, uuid);
+        super(uri, label, xCoordinate, yCoordinate, mappedSyntaxNodeUuid, mappedSyntaxNodeLabel, uuid);
         this.description = description;
         this.instance = instance;
         this.setProvisional(provisional);
@@ -87,7 +86,6 @@ public class Class extends MappableSemanticNode implements Serializable, Customi
                 getYCoordinate(),
                 getMappedSyntaxNodeUuid(),
                 getMappedSyntaxNodeLabel(),
-                getMappedSyntaxNodePath(),
                 getInstance(),
                 isProvisional());
     }
@@ -147,7 +145,7 @@ public class Class extends MappableSemanticNode implements Serializable, Customi
     }
 
     public void validate() throws CombinedModelIntegrityException {
-        if (getLabel().trim().length() < 1) {
+        if (getLabel().trim().isEmpty()) {
             throw new CombinedModelIntegrityException("Label of Class '" + getLabel() + "' must not be shorter than 1 characters.");
         }
         if (getURI().trim().length() < 3) {
@@ -173,7 +171,6 @@ public class Class extends MappableSemanticNode implements Serializable, Customi
         this.instance = null;
         setMappedSyntaxNodeUuid(null);
         setMappedSyntaxNodeLabel(null);
-        setMappedSyntaxNodePath(null);
         return this;
     }
 }

@@ -13,7 +13,7 @@
 
 import { Inject, Injectable, Optional }                      from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams,
-         HttpResponse, HttpEvent, HttpParameterCodec, HttpContext 
+         HttpResponse, HttpEvent, HttpParameterCodec, HttpContext
         }       from '@angular/common/http';
 import { CustomHttpParameterCodec }                          from '../encoder';
 import { Observable }                                        from 'rxjs';
@@ -31,7 +31,7 @@ import { DataProperty } from '../model/dataProperty';
 // @ts-ignore
 import { DeltaModification } from '../model/deltaModification';
 // @ts-ignore
-import { ModelMapping } from '../model/modelMapping';
+import { ModelLinking } from '../model/modelLinking';
 // @ts-ignore
 import { ModelingInfo } from '../model/modelingInfo';
 // @ts-ignore
@@ -111,8 +111,8 @@ export class ModelingControllerService {
 
     /**
      * Accepts a recommendation and adds the contents to the semantic model.
-     * @param modelId 
-     * @param deltaModification 
+     * @param modelId
+     * @param deltaModification
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
@@ -182,8 +182,8 @@ export class ModelingControllerService {
 
     /**
      * Adds a new provisional node to the cache of the modeling.
-     * @param modelId 
-     * @param semanticNode 
+     * @param modelId
+     * @param semanticNode
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
@@ -253,8 +253,8 @@ export class ModelingControllerService {
 
     /**
      * Adds a new provisional relation to the cache of the modeling.
-     * @param modelId 
-     * @param dataPropertyObjectProperty 
+     * @param modelId
+     * @param dataPropertyObjectProperty
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
@@ -324,7 +324,7 @@ export class ModelingControllerService {
 
     /**
      * Clone an existing modeling.
-     * @param modelId 
+     * @param modelId
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
@@ -382,8 +382,8 @@ export class ModelingControllerService {
 
     /**
      * Copy the semantic model from source model to target model
-     * @param modelId 
-     * @param sourceModelId 
+     * @param modelId
+     * @param sourceModelId
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
@@ -450,12 +450,12 @@ export class ModelingControllerService {
 
     /**
      * Initializes a new modeling.
-     * @param combinedModel 
-     * @param modelId 
-     * @param performInitialModeling 
-     * @param name 
-     * @param description 
-     * @param dataId 
+     * @param combinedModel
+     * @param modelId
+     * @param performInitialModeling
+     * @param name
+     * @param description
+     * @param dataId
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
@@ -545,8 +545,8 @@ export class ModelingControllerService {
 
     /**
      * Removes a cached element identified by the given URI
-     * @param modelId 
-     * @param uri 
+     * @param modelId
+     * @param uri
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
@@ -612,8 +612,8 @@ export class ModelingControllerService {
 
     /**
      * Removes a cached relation identified by the given URI
-     * @param modelId 
-     * @param uri 
+     * @param modelId
+     * @param uri
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
@@ -679,7 +679,7 @@ export class ModelingControllerService {
 
     /**
      * Deletes an existing modeling
-     * @param modelId 
+     * @param modelId
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
@@ -735,7 +735,7 @@ export class ModelingControllerService {
 
     /**
      * End modelling process and finalize model.
-     * @param modelId 
+     * @param modelId
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
@@ -846,7 +846,7 @@ export class ModelingControllerService {
 
     /**
      * Requests all array context represented by element ids (nodes and edges) for the given model
-     * @param modelId 
+     * @param modelId
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
@@ -903,7 +903,7 @@ export class ModelingControllerService {
 
     /**
      * Returns the current combined model of the specified modeling.
-     * @param modelId 
+     * @param modelId
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
@@ -960,9 +960,9 @@ export class ModelingControllerService {
 
     /**
      * Returns all elements either persistent in the knowledge base or cached for the referenced model sorted alphabetically.
-     * @param modelId 
-     * @param prefix 
-     * @param infix 
+     * @param modelId
+     * @param prefix
+     * @param infix
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
@@ -1030,13 +1030,13 @@ export class ModelingControllerService {
 
     /**
      * Requests all model mappings for the given model
-     * @param modelId 
+     * @param modelId
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public getModelMappings(modelId: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext}): Observable<Array<ModelMapping>>;
-    public getModelMappings(modelId: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext}): Observable<HttpResponse<Array<ModelMapping>>>;
-    public getModelMappings(modelId: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext}): Observable<HttpEvent<Array<ModelMapping>>>;
+    public getModelMappings(modelId: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext}): Observable<Array<ModelLinking>>;
+    public getModelMappings(modelId: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext}): Observable<HttpResponse<Array<ModelLinking>>>;
+    public getModelMappings(modelId: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext}): Observable<HttpEvent<Array<ModelLinking>>>;
     public getModelMappings(modelId: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext}): Observable<any> {
         if (modelId === null || modelId === undefined) {
             throw new Error('Required parameter modelId was null or undefined when calling getModelMappings.');
@@ -1073,7 +1073,7 @@ export class ModelingControllerService {
             }
         }
 
-        return this.httpClient.get<Array<ModelMapping>>(`${this.configuration.basePath}/api/sms/modelings/${encodeURIComponent(String(modelId))}/mappings`,
+        return this.httpClient.get<Array<ModelLinking>>(`${this.configuration.basePath}/api/sms/modelings/${encodeURIComponent(String(modelId))}/mappings`,
             {
                 context: localVarHttpContext,
                 responseType: <any>responseType_,
@@ -1086,7 +1086,7 @@ export class ModelingControllerService {
     }
 
     /**
-     * @param modelId 
+     * @param modelId
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
@@ -1143,9 +1143,9 @@ export class ModelingControllerService {
 
     /**
      * Returns all relations either persistent in the knowledge base or cached for the referenced model sorted alphabetically.
-     * @param modelId 
-     * @param prefix 
-     * @param infix 
+     * @param modelId
+     * @param prefix
+     * @param infix
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
@@ -1212,7 +1212,7 @@ export class ModelingControllerService {
     }
 
     /**
-     * @param modelId 
+     * @param modelId
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
@@ -1322,8 +1322,8 @@ export class ModelingControllerService {
 
     /**
      * Performs a modification of the CombinedModel.
-     * @param modelId 
-     * @param deltaModification 
+     * @param modelId
+     * @param deltaModification
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
@@ -1392,7 +1392,7 @@ export class ModelingControllerService {
     }
 
     /**
-     * @param modelId 
+     * @param modelId
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
@@ -1448,7 +1448,7 @@ export class ModelingControllerService {
     }
 
     /**
-     * @param modelId 
+     * @param modelId
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
@@ -1505,7 +1505,7 @@ export class ModelingControllerService {
 
     /**
      * push last element from model stack
-     * @param modelId 
+     * @param modelId
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
@@ -1563,7 +1563,7 @@ export class ModelingControllerService {
 
     /**
      * pop last element from model stack
-     * @param modelId 
+     * @param modelId
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
@@ -1621,10 +1621,10 @@ export class ModelingControllerService {
 
     /**
      * Update secondary information of a modeling.
-     * @param modelId 
-     * @param name 
-     * @param description 
-     * @param dataId 
+     * @param modelId
+     * @param name
+     * @param description
+     * @param dataId
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
@@ -1697,8 +1697,8 @@ export class ModelingControllerService {
 
     /**
      * Stores the position of all provided elements.
-     * @param modelId 
-     * @param updatePositionsRequestInner 
+     * @param modelId
+     * @param updatePositionsRequestInner
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
@@ -1767,8 +1767,8 @@ export class ModelingControllerService {
 
     /**
      * Updates the preferred services for a model
-     * @param modelId 
-     * @param preferredServices 
+     * @param modelId
+     * @param preferredServices
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
@@ -1837,9 +1837,9 @@ export class ModelingControllerService {
 
     /**
      * Updates provisional node in the cache of the modeling.
-     * @param modelId 
-     * @param semanticNode 
-     * @param oldURI 
+     * @param modelId
+     * @param semanticNode
+     * @param oldURI
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
@@ -1916,9 +1916,9 @@ export class ModelingControllerService {
 
     /**
      * Updates provisional relation in the cache of the modeling.
-     * @param modelId 
-     * @param dataPropertyObjectProperty 
-     * @param oldURI 
+     * @param modelId
+     * @param dataPropertyObjectProperty
+     * @param oldURI
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
@@ -1994,8 +1994,8 @@ export class ModelingControllerService {
     }
 
     /**
-     * @param modelId 
-     * @param labels 
+     * @param modelId
+     * @param labels
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */

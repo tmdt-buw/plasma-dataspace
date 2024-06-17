@@ -20,7 +20,7 @@ export interface SyntaxNode {
     visible?: boolean;
     disabled?: boolean;
     depth?: number;
-    pathAsJSONPointer?: string;
+    pathAsJSONPath?: string;
     _class: string;
 }
 

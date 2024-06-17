@@ -4,7 +4,7 @@ import { FormControl } from '@angular/forms';
 import { ModalOptions, NzModalRef, NzModalService } from 'ng-zorro-antd/modal';
 import { BehaviorSubject, forkJoin, Observable, Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, tap } from 'rxjs/operators';
-import { ArrayContext, CombinedModel, DeltaModification, ModelingControllerService, ModelMapping, Relation, SemanticNode, SyntaxNode } from '../api/generated/sms';
+import { ArrayContext, CombinedModel, DeltaModification, ModelingControllerService, ModelLinking, Relation, SemanticNode, SyntaxNode } from '../api/generated/sms';
 import { OntologyControllerService, OntologyInfo, SemanticModelControllerService } from '../api/generated/sms';
 import { ContextMenuService } from './context-menu/context-menu.service';
 import { ModalMouseEnabledConfig } from './dialogs/common/modal.base-config';
@@ -76,7 +76,7 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
   combinedModel: CombinedModel;
   // ArrayContexts represented as an array of arrays of uuids of relations and nodes in an array context
   arrayContexts: ArrayContext[];
-  modelMappings: ModelMapping[];
+  modelMappings: ModelLinking[];
   loading: boolean = true;
 
   finalizing: boolean = false;
@@ -172,7 +172,7 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
       mm: this.modelingService.getModelMappings(this.modelId)
     });
     // TODO find more elegant solution to avoid triggering tap every time for each subscription
-    const obs2 = obs.pipe(tap((res: { ac: ArrayContext[]; mm: ModelMapping[]; cm: CombinedModel; }) => {
+    const obs2 = obs.pipe(tap((res: { ac: ArrayContext[]; mm: ModelLinking[]; cm: CombinedModel; }) => {
           this.arrayContexts = res.ac;
           this.modelMappings = res.mm;
           this.combinedModel = res.cm;

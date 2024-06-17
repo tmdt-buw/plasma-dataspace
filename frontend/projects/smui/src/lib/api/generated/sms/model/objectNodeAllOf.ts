@@ -16,6 +16,6 @@ export interface ObjectNodeAllOf {
     visible?: boolean;
     disabled?: boolean;
     depth?: number;
-    pathAsJSONPointer?: string;
+    pathAsJSONPath?: string;
 }
 

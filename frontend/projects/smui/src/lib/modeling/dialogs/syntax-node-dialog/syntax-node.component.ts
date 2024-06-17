@@ -14,7 +14,7 @@ export class PlsSyntaxNodeDetailsComponent {
   }
 
   getDescription(): string {
-    if (this.node._class === 'ObjectNode' && this.node.pathAsJSONPointer === '/') {
+    if (this.node._class === 'ObjectNode' && this.node.pathAsJSONPath === '$') {
       return 'The ROOT node is the beginning syntax node of your data source.';
     }
     if (this.node._class === 'SetNode') {
@@ -39,7 +39,7 @@ export class PlsSyntaxNodeDetailsComponent {
   }
 
   getLabel(): string {
-    if (this.node._class === 'ObjectNode' && this.node.pathAsJSONPointer === '/') {
+    if (this.node._class === 'ObjectNode' && this.node.pathAsJSONPath === '$') {
       return 'Root object node';
     }
     if (this.node._class === 'SetNode') {

@@ -293,7 +293,7 @@ public class CombinedModel implements Serializable {
                 .sorted((n1, n2) -> Integer.compare(n2.getPath().size(), n1.getPath().size()))
                 .map(node -> (SetNode) node)
                 .forEach(setNode -> {
-                    if (isMappedSchemaNode(setNode)) {
+                    if (isLinkedSyntaxNode(setNode)) {
                         setStatusOfChildElements(setNode, true, false, true);
                     } else {
                         setStatusOfChildElements(setNode, false, false, false);
@@ -347,35 +347,35 @@ public class CombinedModel implements Serializable {
                         childNode.setVisible(visible);
                     }
                     if (unmap) {
-                        MappableSemanticNode mappingNode = getMappingSemanticNode(childNode);
-                        if (mappingNode != null) {
-                            mappingNode.unmap();
+                        LinkableSemanticNode linkedNode = getLinkingSemanticNode(childNode);
+                        if (linkedNode != null) {
+                            linkedNode.unmap();
                         }
                     }
                     setStatusOfChildElements(childNode, disabled, visible, unmap);
                 });
     }
 
-    private boolean isMappedSchemaNode(SyntaxNode sn) {
-        return getMappingSemanticNode(sn) != null;
+    private boolean isLinkedSyntaxNode(SyntaxNode sn) {
+        return getLinkingSemanticNode(sn) != null;
     }
 
-    private MappableSemanticNode getMappingSemanticNode(SyntaxNode sn) {
+    private LinkableSemanticNode getLinkingSemanticNode(SyntaxNode sn) {
         return semanticModel.getNodes().stream()
-                .filter(smNode -> smNode instanceof MappableSemanticNode)
-                .map(smNode -> (MappableSemanticNode) smNode)
-                .filter(MappableSemanticNode::isMapped)
+                .filter(smNode -> smNode instanceof LinkableSemanticNode)
+                .map(smNode -> (LinkableSemanticNode) smNode)
+                .filter(LinkableSemanticNode::isMapped)
                 .filter(smNode -> smNode.getMappedSyntaxNodeUuid().equals(sn.getUuid()))
                 .findFirst().orElse(null);
     }
 
 
-    public List<ModelMapping> generateModelMappings() {
+    public List<ModelLinking> generateModelLinkings() {
         return getSemanticModel().getNodes().stream()
-                .filter(node -> node instanceof MappableSemanticNode)
-                .map(node -> (MappableSemanticNode) node)
+                .filter(node -> node instanceof LinkableSemanticNode)
+                .map(node -> (LinkableSemanticNode) node)
                 .filter(SemanticNode::isMapped)
-                .map(this::createExplicitMapping)
+                .map(this::createLinking)
                 .collect(Collectors.toList());
     }
 
@@ -399,8 +399,8 @@ public class CombinedModel implements Serializable {
                 if (!semanticNode.isMapped()) {
                     continue;
                 }
-                MappableSemanticNode mappedNode = (MappableSemanticNode) semanticNode;
-                SyntaxNode syntaxNode = this.getSyntaxModel().getNode(mappedNode.getMappedSyntaxNodeUuid());
+                LinkableSemanticNode linkedNode = (LinkableSemanticNode) semanticNode;
+                SyntaxNode syntaxNode = this.getSyntaxModel().getNode(linkedNode.getMappedSyntaxNodeUuid());
                 if (!syntaxNode.getPath().contains(ARRAY_PATH_TOKEN)) {
                     continue;
                 }
@@ -422,35 +422,35 @@ public class CombinedModel implements Serializable {
     }
 
     /**
-     * Creates an explicit {@link ModelMapping} for the given {@link Class} with an {@link Instance} or a {@link Literal} and a {@link SyntaxNode}.
-     * The syntax node is identified by {@link MappableSemanticNode#getMappedSyntaxNodeUuid()}.
+     * Creates an explicit {@link ModelLinking} for the given {@link Class} with an {@link Instance} or a {@link Literal} and a {@link SyntaxNode}.
+     * The syntax node is identified by {@link LinkableSemanticNode#getMappedSyntaxNodeUuid()}.
      *
      * @param mappedNode The class to map
      * @return The new mapping
      */
-    private ModelMapping createExplicitMapping(MappableSemanticNode mappedNode) {
+    private ModelLinking createLinking(LinkableSemanticNode mappedNode) {
         if (syntaxModel == null) {
             throw new UnsupportedOperationException("Syntax Model cannot be null if a modification is applied");
         }
         if (!mappedNode.isMapped()) {
-            throw new UnsupportedOperationException("Cannot create explicit mapping for unmapped node");
+            throw new UnsupportedOperationException("Cannot create explicit linking for unlinked node");
         }
         String syntaxNodeId = mappedNode.getMappedSyntaxNodeUuid();
         SyntaxNode syntaxNode = syntaxModel.getNodes().stream()
                 .filter(schemaNode -> schemaNode.getUuid().equals(syntaxNodeId))
                 .findFirst()
                 .orElseThrow(() -> new CombinedModelIntegrityException("No schema node found for syntax id " + syntaxNodeId));
-        if (!(syntaxNode instanceof MappableSyntaxNode)) {
-            throw new UnsupportedOperationException("Cannot map to syntax node " + syntaxNode.getUuid() + ". Not a primitive node.");
+        if (!(syntaxNode instanceof LinkableSyntaxNode)) {
+            throw new UnsupportedOperationException("Cannot link to syntax node " + syntaxNode.getUuid() + ". Not a primitive node.");
         }
         if (syntaxNode.getUuid().equals(syntaxModel.getRoot())) {
             // if root node, skip the parent node (as there is none)
-            return new ModelMapping(syntaxNode.getUuid(), mappedNode.getUuid(), "");
+            return new ModelLinking(syntaxNode.getUuid(), mappedNode.getUuid(), "");
         }
         // now get parent
         SyntaxNode parentNode = syntaxModel.getParentNodeFor(syntaxNode.getUuid());
         // create new explicit mapping
-        return new ModelMapping(syntaxNode.getUuid(), mappedNode.getUuid(), parentNode.getUuid());
+        return new ModelLinking(syntaxNode.getUuid(), mappedNode.getUuid(), parentNode.getUuid());
     }
 
     /**
@@ -507,7 +507,7 @@ public class CombinedModel implements Serializable {
                     SyntaxNode targetNode = getSyntaxModel().findNode(id);
                     if (targetNode == null) {
                         errors.add("Node references non-existing syntax node " + id);
-                    } else if (!(targetNode instanceof MappableSyntaxNode)) {
+                    } else if (!(targetNode instanceof LinkableSyntaxNode)) {
                         errors.add("Node references non-mappable syntax node " + id);
                     }
 

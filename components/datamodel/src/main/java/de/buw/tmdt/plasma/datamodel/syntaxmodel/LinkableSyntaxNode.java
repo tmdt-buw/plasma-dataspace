@@ -13,12 +13,12 @@ import java.util.List;
         @JsonSubTypes.Type(value = SetNode.class, name = "SetNode"),
         @JsonSubTypes.Type(value = ObjectNode.class, name = "ObjectNode"),
 })
-public abstract class MappableSyntaxNode extends SyntaxNode {
-    public MappableSyntaxNode(@NotNull String label) {
+public abstract class LinkableSyntaxNode extends SyntaxNode {
+    public LinkableSyntaxNode(@NotNull String label) {
         super(label);
     }
 
-    public MappableSyntaxNode(@NotNull String uuid, @NotNull String label, @Nullable List<String> path, @Nullable Double xCoordinate, @Nullable Double yCoordinate, boolean visible, boolean disabled) {
+    public LinkableSyntaxNode(@NotNull String uuid, @NotNull String label, @Nullable List<String> path, @Nullable Double xCoordinate, @Nullable Double yCoordinate, boolean visible, boolean disabled) {
         super(uuid, label, path, xCoordinate, yCoordinate, visible, disabled);
     }
 }

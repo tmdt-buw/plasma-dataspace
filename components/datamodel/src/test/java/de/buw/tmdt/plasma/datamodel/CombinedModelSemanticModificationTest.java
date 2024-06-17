@@ -3,7 +3,7 @@ package de.buw.tmdt.plasma.datamodel;
 import de.buw.tmdt.plasma.datamodel.modification.DeltaModification;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.Class;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.*;
-import de.buw.tmdt.plasma.datamodel.syntaxmodel.MappableSyntaxNode;
+import de.buw.tmdt.plasma.datamodel.syntaxmodel.LinkableSyntaxNode;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.PrimitiveNode;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.SyntaxNode;
 import org.junit.jupiter.api.Disabled;
@@ -139,7 +139,7 @@ public class CombinedModelSemanticModificationTest {
 
         // check that the node is not already mapped for some reason
         assertTrue(timeNode instanceof PrimitiveNode);
-        assertTrue(model.generateModelMappings().stream().noneMatch(mapping -> mapping.getPrimitiveUUID().equals(timeNode.getUuid())));
+        assertTrue(model.generateModelLinkings().stream().noneMatch(mapping -> mapping.getPrimitiveUUID().equals(timeNode.getUuid())));
         assertTrue(model.getSemanticModel().getNodes().stream()
                 .filter(node -> node instanceof MappableSemanticNode)
                 .map(node -> (MappableSemanticNode) node)
@@ -172,7 +172,7 @@ public class CombinedModelSemanticModificationTest {
         assertEquals(timeNode.getUuid(), mappedNode.getMappedSyntaxNodeUuid(), "New node's mapping uuid is not set properly");
 
         // ensure that the explicit mapping from class and instance to syntax has been created
-        assertTrue(model.generateModelMappings().stream().anyMatch(mapping -> mapping.getNodeUUID().equals(mappedNode.getUuid())));
+        assertTrue(model.generateModelLinkings().stream().anyMatch(mapping -> mapping.getNodeUUID().equals(mappedNode.getUuid())));
     }
 
     @Test
@@ -182,13 +182,13 @@ public class CombinedModelSemanticModificationTest {
 
         // get the target node we want to map to
         SyntaxNode syntaxNode = model.getSyntaxModel().getNodes().stream()
-                .filter(node -> !(node instanceof MappableSyntaxNode))
+                .filter(node -> !(node instanceof LinkableSyntaxNode))
                 .findFirst()
                 .orElseThrow();
 
         // check that the node is a valid candidate
         assertFalse(syntaxNode instanceof PrimitiveNode);
-        assertTrue(model.generateModelMappings().stream().noneMatch(mapping -> mapping.getPrimitiveUUID().equals(syntaxNode.getUuid())));
+        assertTrue(model.generateModelLinkings().stream().noneMatch(mapping -> mapping.getPrimitiveUUID().equals(syntaxNode.getUuid())));
         assertTrue(model.getSemanticModel().getNodes().stream()
                 .filter(node -> node instanceof MappableSemanticNode)
                 .map(node -> (MappableSemanticNode) node)
@@ -239,7 +239,7 @@ public class CombinedModelSemanticModificationTest {
         assertEquals(getCombinedModel().getSemanticModel().getEdges().size(), model.getSemanticModel().getEdges().size(), "Number of expected relations does not match");
 
         // ensure that the explicit mapping from entity to syntax node does not get generated
-        assertTrue(model.generateModelMappings().stream()
+        assertTrue(model.generateModelLinkings().stream()
                 .noneMatch(mapping -> mapping.getNodeUUID().equals(retrievedReplacementClass.getUuid())));
     }
 
@@ -285,7 +285,7 @@ public class CombinedModelSemanticModificationTest {
         assertEquals(getCombinedModel().getSemanticModel().getEdges().size() - 3, model.getSemanticModel().getEdges().size(), "Number of expected relations does not match");
 
         // ensure that the mapping from name to syntax has been deleted
-        assertTrue(model.generateModelMappings().stream().noneMatch(mapping -> mapping.getNodeUUID().equals(nameClass.getUuid())));
+        assertTrue(model.generateModelLinkings().stream().noneMatch(mapping -> mapping.getNodeUUID().equals(nameClass.getUuid())));
     }
 
 

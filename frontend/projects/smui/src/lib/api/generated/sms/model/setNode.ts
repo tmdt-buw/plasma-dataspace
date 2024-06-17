@@ -18,6 +18,6 @@ export interface SetNode extends PositionedCombinedModelElement {
     visible?: boolean;
     disabled?: boolean;
     depth?: number;
-    pathAsJSONPointer?: string;
+    pathAsJSONPath?: string;
 }
 

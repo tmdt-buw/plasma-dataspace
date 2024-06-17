@@ -24,17 +24,10 @@ public class AdvancedCombinedModelGenerator {
     private boolean mapTagInstance = false;
 
 
-    private static void mapSemanticNode(MappableSemanticNode semanticNode, MappableSyntaxNode schemaNode) {
+    private static void mapSemanticNode(MappableSemanticNode semanticNode, LinkableSyntaxNode schemaNode) {
         semanticNode.setMappedSyntaxNodeLabel(schemaNode.getLabel());
         semanticNode.setMappedSyntaxNodeUuid(schemaNode.getUuid());
         semanticNode.setMappedSyntaxNodePath(schemaNode.getPathAsJSONPath());
-        if (semanticNode instanceof Class) {
-            Class clazz = (Class) semanticNode;
-            if (clazz.getInstance() != null) {
-                Instance instance = new Instance(schemaNode.getLabel(), null);
-                clazz.setInstance(instance);
-            }
-        }
     }
 
     public CombinedModel getFlightModel() {
@@ -126,10 +119,10 @@ public class AdvancedCombinedModelGenerator {
         elements.add(flightTypeLiteral);
         relations.add(flightTypeProperty);
 
-        Class identifierClass = new Class(namespace + "identifier", "identifier", "Identifies a certain object");
-        mapSemanticNode(identifierClass, identifierNode);
-        Relation flightIdentifierRelation = new ObjectProperty(flightClass.getUuid(), identifierClass.getUuid(), namespace + "has");
-        elements.add(identifierClass);
+        Literal identifierLiteral = new Literal(namespace + "identifier");
+        mapSemanticNode(identifierLiteral, identifierNode);
+        Relation flightIdentifierRelation = new DataProperty(flightClass.getUuid(), identifierLiteral.getUuid(), namespace + "identifier");
+        elements.add(identifierLiteral);
         relations.add(flightIdentifierRelation);
 
         if (this.mapVesselInformation) {
@@ -147,51 +140,51 @@ public class AdvancedCombinedModelGenerator {
             relations.addAll(List.of(flightVesselProperty, vesselNameProperty, vesselAirlineProperty, airlineNameRelation));
 
             if (this.mapIdentificationNumbers) {
-                Class identificationNumbersClass = new Class(namespace + "ident_numbers", "identification numbers", "Some numbers");
-                mapSemanticNode(identificationNumbersClass, identificationNumbersNode);
-                elements.add(identificationNumbersClass);
-                ObjectProperty airportNumbersProperty = new ObjectProperty(airlineClass.getUuid(), identificationNumbersClass.getUuid(), namespace + "identNumbers");
+                Literal identificationNumbersLiteral = new Literal(namespace + "ident_numbers");
+                mapSemanticNode(identificationNumbersLiteral, identificationNumbersNode);
+                elements.add(identificationNumbersLiteral);
+                ObjectProperty airportNumbersProperty = new ObjectProperty(airlineClass.getUuid(), identificationNumbersLiteral.getUuid(), namespace + "identNumbers");
                 relations.add(airportNumbersProperty);
             } else if (this.mapIdentificationNumberInstance) {
-                Class identificationNumbersInstanceClass = new Class(namespace + "ident_number", "identification number", "A single number");
-                mapSemanticNode(identificationNumbersInstanceClass, identificationNumberNode);
-                elements.add(identificationNumbersInstanceClass);
-                ObjectProperty airportNumberInstanceProperty = new ObjectProperty(airlineClass.getUuid(), identificationNumbersInstanceClass.getUuid(), namespace + "identNum");
+                Literal identificationNumbersInstanceLiteral = new Literal(namespace + "ident_number");
+                mapSemanticNode(identificationNumbersInstanceLiteral, identificationNumberNode);
+                elements.add(identificationNumbersInstanceLiteral);
+                ObjectProperty airportNumberInstanceProperty = new ObjectProperty(airlineClass.getUuid(), identificationNumbersInstanceLiteral.getUuid(), namespace + "identNum");
                 relations.add(airportNumberInstanceProperty);
             }
         }
 
         if (this.mapStaffInstance) {
-            Class staffClass = new Class(namespace + "staff", "staff", "Personnel that fulfills a task in a company.");
-            mapSemanticNode(staffClass, staffObjectNode);
+            Literal staffLiteral = new Literal(namespace + "staff");
+            mapSemanticNode(staffLiteral, staffObjectNode);
             Literal staffNameLiteral = new Literal("name");
             mapSemanticNode(staffNameLiteral, staffNameNode);
             staffNameLiteral.setXCoordinate(100.0);
             staffNameLiteral.setYCoordinate(100.0);
-            Relation staffNameRelation = new DataProperty(staffClass.getUuid(), staffNameLiteral.getUuid(), namespace + "hasName");
+            Relation staffNameRelation = new DataProperty(staffLiteral.getUuid(), staffNameLiteral.getUuid(), namespace + "hasName");
             staffNameRelation.setArrayContext(true);
-            Class seatClass = new Class(namespace + "seat_number", "seat", "Identifier for a specific place on a vehicle or in a room");
-            mapSemanticNode(seatClass, staffSeatNode);
-            Relation staffSeatRelation = new ObjectProperty(staffClass.getUuid(), seatClass.getUuid(), namespace + "seatedAt");
+            Literal seatLiteral = new Literal(namespace + "seat_number");
+            mapSemanticNode(seatLiteral, staffSeatNode);
+            Relation staffSeatRelation = new ObjectProperty(staffLiteral.getUuid(), seatLiteral.getUuid(), namespace + "seatedAt");
             staffSeatRelation.setArrayContext(true);
             // connect this bloc to the flight
-            Relation flightStaffRelation = new ObjectProperty(flightClass.getUuid(), staffClass.getUuid(), namespace + "hasStaff");
-            Relation staffFlightRelation = new ObjectProperty(staffClass.getUuid(), flightClass.getUuid(), namespace + "scheduledFor");
-            elements.addAll(List.of(staffClass, staffNameLiteral, seatClass));
+            Relation flightStaffRelation = new ObjectProperty(flightClass.getUuid(), staffLiteral.getUuid(), namespace + "hasStaff");
+            Relation staffFlightRelation = new ObjectProperty(staffLiteral.getUuid(), flightClass.getUuid(), namespace + "scheduledFor");
+            elements.addAll(List.of(staffLiteral, staffNameLiteral, seatLiteral));
             relations.addAll(List.of(flightStaffRelation, staffFlightRelation, staffNameRelation, staffSeatRelation));
             if (this.mapTagInstance) {
-                Class tagsClass = new Class(namespace + "tag", "tag", "A special term.");
-                mapSemanticNode(tagsClass, tagsObjectNode);
+                Literal tagsLiteral = new Literal(namespace + "tag");
+                mapSemanticNode(tagsLiteral, tagsObjectNode);
                 Literal tagKeyLiteral = new Literal("key");
                 mapSemanticNode(tagKeyLiteral, tagsKeyNode);
-                Relation tagKeyRelation = new DataProperty(tagsClass.getUuid(), tagKeyLiteral.getUuid(), namespace + "key");
+                Relation tagKeyRelation = new DataProperty(tagsLiteral.getUuid(), tagKeyLiteral.getUuid(), namespace + "key");
                 tagKeyRelation.setArrayContext(true);
                 Literal tagValueLiteral = new Literal("value");
                 mapSemanticNode(tagValueLiteral, tagsValueNode);
-                Relation tagValueRelation = new ObjectProperty(tagsClass.getUuid(), tagValueLiteral.getUuid(), namespace + "value");
+                Relation tagValueRelation = new ObjectProperty(tagsLiteral.getUuid(), tagValueLiteral.getUuid(), namespace + "value");
                 tagValueRelation.setArrayContext(true);
-                Relation staffTagsRelation = new ObjectProperty(staffClass.getUuid(), tagsClass.getUuid(), namespace + "tags");
-                elements.addAll(List.of(tagsClass, tagKeyLiteral, tagValueLiteral));
+                Relation staffTagsRelation = new ObjectProperty(staffLiteral.getUuid(), tagsLiteral.getUuid(), namespace + "tags");
+                elements.addAll(List.of(tagsLiteral, tagKeyLiteral, tagValueLiteral));
                 relations.addAll(List.of(staffTagsRelation, tagKeyRelation, tagValueRelation));
             }
         }

@@ -18,8 +18,8 @@ export interface SemanticNode {
     label?: string;
     uri?: string;
     provisional?: boolean;
-    x?: number;
     y?: number;
+    x?: number;
     _class: string;
 }
 

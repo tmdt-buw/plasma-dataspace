@@ -12,7 +12,7 @@ import java.util.List;
  * Represents a set. All outgoing {@link Edge}s' target nodes represent members of that set.
  */
 @JsonTypeName("SetNode")
-public class SetNode extends MappableSyntaxNode {
+public class SetNode extends LinkableSyntaxNode {
 
     private static final long serialVersionUID = -5424468053886038114L;
 

@@ -141,7 +141,7 @@ public class ModelingController implements ModelingAPI {
     @NotNull
     @Override
     @Operation(description = "Requests all model mappings for the given model")
-    public List<ModelMapping> getModelMappings(@NotNull String modelId) {
+    public List<ModelLinking> getModelMappings(@NotNull String modelId) {
         return modelingService.getModelMappings(modelId);
     }
 

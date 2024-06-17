@@ -10,7 +10,7 @@ import java.io.Serializable;
  * Contains mappings needed to render supplementary edges in the frontend.
  * Only used for frontend issues, can be ignored everywhere else
  */
-public class ModelMapping implements Serializable {
+public class ModelLinking implements Serializable {
 
     private static final long serialVersionUID = -6888269571341658964L;
 
@@ -32,7 +32,7 @@ public class ModelMapping implements Serializable {
     private String parentUUID;
 
     @JsonCreator
-    public ModelMapping(
+    public ModelLinking(
             @JsonProperty(PRIMITIVE_PROPERTY) @NotNull String primitiveUUID,
             @JsonProperty(NODE_PROPERTY) @NotNull String nodeUUID,
             @JsonProperty(PARENT_PROPERTY) @NotNull String parentUUID
@@ -78,8 +78,8 @@ public class ModelMapping implements Serializable {
      *
      * @return The cloned entity
      */
-    public ModelMapping copy() {
-        return new ModelMapping(getPrimitiveUUID(), getNodeUUID(), getParentUUID());
+    public ModelLinking copy() {
+        return new ModelLinking(getPrimitiveUUID(), getNodeUUID(), getParentUUID());
     }
 
     @Override

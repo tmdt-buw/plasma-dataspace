@@ -314,7 +314,7 @@ public class RDFConverter {
     }
 
     private RDFList buildRDFListForArrayContext(MappableSemanticNode indexNode, SemanticModel arrayContext) throws ConversionException {
-        MappableSyntaxNode syntaxNode = findMappedSyntaxNode(indexNode);
+        LinkableSyntaxNode syntaxNode = findMappedSyntaxNode(indexNode);
         ArrayList<String> mappedSyntaxNodePath = new ArrayList<>(syntaxNode.getPath());
 
         PointerFactory pf = new PointerFactory(mappedSyntaxNodePath);
@@ -359,10 +359,10 @@ public class RDFConverter {
     }
 
 
-    private MappableSyntaxNode findMappedSyntaxNode(MappableSemanticNode node) {
+    private LinkableSyntaxNode findMappedSyntaxNode(MappableSemanticNode node) {
         return combinedModel.getSyntaxModel().getNodes().stream()
                 .filter(n -> n.getUuid().equals(node.getMappedSyntaxNodeUuid()))
-                .map(n -> (MappableSyntaxNode) n)
+                .map(n -> (LinkableSyntaxNode) n)
                 .findFirst().orElseThrow();
     }
 

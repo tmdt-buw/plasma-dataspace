@@ -49,7 +49,7 @@ public interface ModelingAPI {
 
     @NotNull
     @GetMapping(value = "/{modelId}/mappings", produces = MediaType.APPLICATION_JSON_VALUE)
-    List<ModelMapping> getModelMappings(@NotNull @PathVariable("modelId") String modelId);
+    List<ModelLinking> getModelMappings(@NotNull @PathVariable("modelId") String modelId);
 
     @NotNull
     @GetMapping(value = "/{modelId}/labeling", produces = MediaType.APPLICATION_JSON_VALUE)

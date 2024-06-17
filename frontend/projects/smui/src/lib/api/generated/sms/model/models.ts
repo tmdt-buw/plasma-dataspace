@@ -10,7 +10,7 @@ export * from './edge';
 export * from './instance';
 export * from './literal';
 export * from './literalAllOf';
-export * from './modelMapping';
+export * from './modelLinking';
 export * from './modelingInfo';
 export * from './namedEntity';
 export * from './namedEntityAllOf';
