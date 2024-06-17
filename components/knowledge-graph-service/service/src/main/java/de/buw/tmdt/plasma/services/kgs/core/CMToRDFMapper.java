@@ -148,7 +148,6 @@ public class CMToRDFMapper {
                     stmtResource = m.createResource(stmt);
                 }
                 // specify position information for literals using rdf-star
-
                 if (to.getXCoordinate() != null) {
                     stmtResource.addProperty(PLCM.xCoordinate, m.createLiteral(String.valueOf(to.getXCoordinate())));
                 }

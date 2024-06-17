@@ -151,6 +151,8 @@ public class SemanticModelHandler {
             if (object.isResource() && Objects.equals(object.asResource(), PLCM.SemanticModel)) {
                 continue;
             }
+            // information regarding arraycontexts is not propagated to the output
+
             cleansedModel.add(stmt);
 
         }
