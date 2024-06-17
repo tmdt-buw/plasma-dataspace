@@ -12,8 +12,6 @@ model/arrayContext.ts
 model/cacheRelationRequest.ts
 model/class.ts
 model/classAllOf.ts
-model/collisionSchema.ts
-model/collisionSchemaAllOf.ts
 model/combinedModel.ts
 model/combinedModelElement.ts
 model/dataProperty.ts
@@ -34,10 +32,10 @@ model/positionedCombinedModelElement.ts
 model/primitiveNode.ts
 model/primitiveNodeAllOf.ts
 model/relation.ts
-model/schemaNode.ts
 model/semanticModel.ts
-model/semanticModelNode.ts
+model/semanticNode.ts
 model/setNode.ts
 model/syntaxModel.ts
+model/syntaxNode.ts
 model/updatePositionsRequestInner.ts
 variables.ts

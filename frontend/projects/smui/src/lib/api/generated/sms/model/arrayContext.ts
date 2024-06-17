@@ -11,11 +11,11 @@
  */
 
 
-export interface ArrayContext {
-  relations?: Array<string>;
-  nodes?: Array<string>;
-  rootPath?: string;
-  indexNodeUuid?: string;
-  depth?: number;
+export interface ArrayContext { 
+    relations?: Array<string>;
+    nodes?: Array<string>;
+    rootPath?: string;
+    indexNodeUuid?: string;
+    depth?: number;
 }
 

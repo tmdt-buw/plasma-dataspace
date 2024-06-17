@@ -11,11 +11,11 @@
  */
 
 
-export interface NamedEntityAllOf {
-  uri?: string;
-  description?: string;
-  provisional?: boolean;
-  template?: boolean;
-  mapped?: boolean;
+export interface NamedEntityAllOf { 
+    uri?: string;
+    description?: string;
+    provisional?: boolean;
+    template?: boolean;
+    mapped?: boolean;
 }
 

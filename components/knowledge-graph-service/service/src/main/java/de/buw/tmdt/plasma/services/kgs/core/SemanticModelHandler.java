@@ -99,7 +99,7 @@ public class SemanticModelHandler {
         return out.toString();
     }
 
-    public @NotNull ResponseEntity<String> exportSemanticModel(@NotNull String id, @NotNull ExportFormat format, boolean includeMappings) {
+    public @NotNull ResponseEntity<String> exportSemanticModel(@NotNull String id, @NotNull ExportFormat format, boolean includeMappings, boolean includePositions) {
         Model retrievedModel = ops.queryModel(id);
 
         if (retrievedModel.isEmpty()) {
@@ -108,10 +108,10 @@ public class SemanticModelHandler {
         String timestamp = LocalDateTime.now().format(exportTimestampFormatter);
 
         HttpHeaders headers = generateFilenameHeader(timestamp + "-" + id + ".ttl");
-        return new ResponseEntity<>(prepareForExport(retrievedModel, format, includeMappings), headers, HttpStatus.OK);
+        return new ResponseEntity<>(prepareForExport(retrievedModel, format, includeMappings, includePositions), headers, HttpStatus.OK);
     }
 
-    public @NotNull ResponseEntity<String> convertSemanticModel(@NotNull CombinedModel combinedModel, @NotNull ExportFormat format, boolean includeMappings) {
+    public @NotNull ResponseEntity<String> convertSemanticModel(@NotNull CombinedModel combinedModel, @NotNull ExportFormat format, boolean includeMappings, boolean includePositions) {
         if (combinedModel.getSemanticModel().getId() == null) {
             combinedModel.getSemanticModel().setId(UUID.randomUUID().toString().substring(0, 5));
         }
@@ -125,11 +125,10 @@ public class SemanticModelHandler {
         String timestamp = LocalDateTime.now().format(exportTimestampFormatter);
 
         HttpHeaders headers = generateFilenameHeader(timestamp + "-" + modelId + ".ttl");
-        return new ResponseEntity<>(prepareForExport(cmModel, format, includeMappings), headers, HttpStatus.OK);
+        return new ResponseEntity<>(prepareForExport(cmModel, format, includeMappings, includePositions), headers, HttpStatus.OK);
     }
 
-    private String prepareForExport(Model model, ExportFormat format, boolean includeMappings) {
-        // remove all relations that are from the PLCM namespace
+    private String prepareForExport(Model model, ExportFormat format, boolean includeMappings, boolean includePositions) {
         Model cleansedModel = ModelFactory.createDefaultModel();
         cleansedModel.setNsPrefixes(model.getNsPrefixMap());
 
@@ -138,13 +137,17 @@ public class SemanticModelHandler {
             Statement stmt = stmtIterator.nextStatement();
             Property predicate = stmt.getPredicate();
             RDFNode object = stmt.getObject();
-            if (predicate.getNameSpace().equals(PLCM.getURI())) {
-                if (includeMappings && predicate.equals(PLCM.originalLabel)) {
-                    // exception if we want to include the mapping information
-                } else {
+            if (predicate.equals(PLCM.originalLabel)) {
+                if (!includeMappings) {
                     continue;
                 }
             }
+            if (predicate.equals(PLCM.xCoordinate) || predicate.equals(PLCM.yCoordinate)) {
+                if (!includePositions) {
+                    continue;
+                }
+            }
+            // filter out all semantic model meta information
             if (object.isResource() && Objects.equals(object.asResource(), PLCM.SemanticModel)) {
                 continue;
             }

@@ -111,7 +111,10 @@
       </button>
       <nz-dropdown-menu #exportDropdown="nzDropdownMenu">
         <div class="export-dropdown" fxLayout="column" nz-menu>
-          <label [(ngModel)]="exportIncludeMappings" nz-checkbox>Include Mappings</label>
+          <div>
+            <span [(ngModel)]="exportIncludeMappings" nz-checkbox>Include Mappings</span>
+          </div>
+          <span [(ngModel)]="exportIncludePositions" nz-checkbox>Include Positions</span>
           <button (click)="exportModel()" nz-menu-item><a class="dropdown-icon" nz-icon nzType="download"></a>Export model</button>
         </div>
       </nz-dropdown-menu>

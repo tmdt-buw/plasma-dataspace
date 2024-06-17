@@ -17,8 +17,8 @@ model/models.ts
 model/objectProperty.ts
 model/ontologyInfo.ts
 model/relation.ts
-model/schemaNode.ts
 model/semanticModel.ts
-model/semanticModelNode.ts
+model/semanticNode.ts
 model/syntaxModel.ts
+model/syntaxNode.ts
 variables.ts

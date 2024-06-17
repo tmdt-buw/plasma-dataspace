@@ -42,21 +42,21 @@ public class SemanticModelController implements SemanticModelApi {
     }
 
     @Operation(description = "Returns a stored semantic model in a specified format.")
-    public @NotNull ResponseEntity<String> exportStoredSemanticModel(@NotNull String id, @NotNull ExportFormat format, boolean includeMappings) {
-        return semanticModelHandler.exportSemanticModel(id, format, includeMappings);
+    public @NotNull ResponseEntity<String> exportStoredSemanticModel(@NotNull String id, @NotNull ExportFormat format, boolean includeMappings, boolean includePositions) {
+        return semanticModelHandler.exportSemanticModel(id, format, includeMappings, includePositions);
     }
 
     public @NotNull ResponseEntity<String> exportStoredSemanticModel(@NotNull String id, @NotNull ExportFormat format) {
-        return semanticModelHandler.exportSemanticModel(id, format, false);
+        return semanticModelHandler.exportSemanticModel(id, format, false, false);
     }
 
     @Operation(description = "Returns the given semantic model in a specified format.")
-    public @NotNull ResponseEntity<String> convertSemanticModel(@NotNull CombinedModel combinedModel, @NotNull ExportFormat format, boolean includeMappings) {
-        return semanticModelHandler.convertSemanticModel(combinedModel, format, includeMappings);
+    public @NotNull ResponseEntity<String> convertSemanticModel(@NotNull CombinedModel combinedModel, @NotNull ExportFormat format, boolean includeMappings, boolean includePositions) {
+        return semanticModelHandler.convertSemanticModel(combinedModel, format, includeMappings, includePositions);
     }
 
     public @NotNull ResponseEntity<String> convertSemanticModel(@NotNull CombinedModel combinedModel, @NotNull ExportFormat format) {
-        return semanticModelHandler.convertSemanticModel(combinedModel, format, false);
+        return semanticModelHandler.convertSemanticModel(combinedModel, format, false, false);
     }
 
     @Override

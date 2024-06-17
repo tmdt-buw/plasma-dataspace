@@ -9,7 +9,6 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import { CollisionSchema } from './collisionSchema';
 import { PrimitiveNode } from './primitiveNode';
 import { NamedEntity } from './namedEntity';
 import { SetNode } from './setNode';
@@ -18,11 +17,11 @@ import { Literal } from './literal';
 import { Class } from './class';
 
 
-export interface PositionedCombinedModelElement {
-  uuid?: string;
-  label?: string;
-  x?: number;
-  y?: number;
-  _class: string;
+export interface PositionedCombinedModelElement { 
+    uuid?: string;
+    label?: string;
+    x?: number;
+    y?: number;
+    _class: string;
 }
 

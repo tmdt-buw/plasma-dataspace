@@ -12,6 +12,6 @@
 import { Relation } from './relation';
 
 
-export interface DataProperty extends Relation {
+export interface DataProperty extends Relation { 
 }
 

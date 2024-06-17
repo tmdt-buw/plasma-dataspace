@@ -11,10 +11,10 @@
  */
 
 
-export interface Instance {
-  uuid?: string;
-  uri?: string;
-  label?: string;
-  description?: string;
+export interface Instance { 
+    uuid?: string;
+    uri?: string;
+    label?: string;
+    description?: string;
 }
 

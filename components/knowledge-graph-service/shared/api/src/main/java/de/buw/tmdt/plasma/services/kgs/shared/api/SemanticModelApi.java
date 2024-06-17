@@ -41,7 +41,8 @@ public interface SemanticModelApi {
     @NotNull ResponseEntity<String> exportStoredSemanticModel(
             @NotNull @PathVariable("id") String id,
             @NotNull @RequestParam(name = "format", defaultValue = "TURTLE") ExportFormat format,
-            @RequestParam(name = "includeMappings", defaultValue = "false") boolean includeMappings
+            @RequestParam(name = "includeMappings", defaultValue = "false") boolean includeMappings,
+            @RequestParam(name = "includePositions", defaultValue = "false") boolean includePositions
     );
 
     /**
@@ -55,7 +56,8 @@ public interface SemanticModelApi {
     @NotNull ResponseEntity<String> convertSemanticModel(
             @NotNull @RequestBody CombinedModel combinedModel,
             @NotNull @RequestParam(name = "format", defaultValue = "TURTLE") ExportFormat format,
-            @RequestParam(name = "includeMappings", defaultValue = "false") boolean includeMappings
+            @RequestParam(name = "includeMappings", defaultValue = "false") boolean includeMappings,
+            @RequestParam(name = "includePositions", defaultValue = "false") boolean includePositions
     );
 
     /* ################################ PREDEFINED QUERY FUNCTIONS ############################### */

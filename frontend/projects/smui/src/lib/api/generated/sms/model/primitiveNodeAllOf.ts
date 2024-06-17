@@ -11,26 +11,24 @@
  */
 
 
-export interface PrimitiveNodeAllOf {
-  path?: Array<string>;
-  datatype?: PrimitiveNodeAllOf.DatatypeEnum;
-  examples?: Array<string>;
-  pattern?: string;
-  visible?: boolean;
-  disabled?: boolean;
-  depth?: number;
-  pathAsJSONPointer?: string;
+export interface PrimitiveNodeAllOf { 
+    path?: Array<string>;
+    datatype?: PrimitiveNodeAllOf.DatatypeEnum;
+    examples?: Array<string>;
+    visible?: boolean;
+    disabled?: boolean;
+    depth?: number;
+    pathAsJSONPointer?: string;
 }
-
 export namespace PrimitiveNodeAllOf {
-  export type DatatypeEnum = 'Unknown' | 'String' | 'Boolean' | 'Number' | 'Binary';
-  export const DatatypeEnum = {
-    Unknown: 'Unknown' as DatatypeEnum,
-    String: 'String' as DatatypeEnum,
-    Boolean: 'Boolean' as DatatypeEnum,
-    Number: 'Number' as DatatypeEnum,
-    Binary: 'Binary' as DatatypeEnum
-  };
+    export type DatatypeEnum = 'Unknown' | 'String' | 'Boolean' | 'Number' | 'Binary';
+    export const DatatypeEnum = {
+        Unknown: 'Unknown' as DatatypeEnum,
+        String: 'String' as DatatypeEnum,
+        Boolean: 'Boolean' as DatatypeEnum,
+        Number: 'Number' as DatatypeEnum,
+        Binary: 'Binary' as DatatypeEnum
+    };
 }
 
 

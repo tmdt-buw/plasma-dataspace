@@ -85,11 +85,15 @@ public class CMToRDFMapper {
                 if (clazz.getYCoordinate() != null) {
                     resource.addProperty(PLCM.yCoordinate, m.createLiteral(String.valueOf(clazz.getYCoordinate())));
                 }
-                // resource.addProperty(PLCM.cmUuid, m.createLiteral(clazz.getUuid()));
                 rdfNode = resource;
             } else if (node instanceof Literal) {
                 Literal l = (Literal) node;
-                rdfNode = m.createLiteral(l.getValue());
+                if(l.isMapped()) {
+                    rdfNode = m.createLiteral(l.getMappedSyntaxNodePath());
+                } else {
+                    rdfNode = m.createLiteral(l.getValue());
+                }
+
             } else if (node instanceof NamedEntity) {
                 NamedEntity ne = (NamedEntity) node;
                 // create a resource which describes the named entity
@@ -277,7 +281,7 @@ public class CMToRDFMapper {
 
     private static Class createClass(Resource res, Class superclass) {
 
-        String uuid = res.getRequiredProperty(PLCM.cmUuid).getString();
+        String uuid = getPropertyOrNull(res,PLCM.cmUuid);
         Double xCoordinate = getPropertyAsDoubleOrNull(res, PLCM.xCoordinate);
         Double yCoordinate = getPropertyAsDoubleOrNull(res, PLCM.yCoordinate);
         String syntaxNodeId = getPropertyOrNull(res, PLCM.syntaxNodeId);

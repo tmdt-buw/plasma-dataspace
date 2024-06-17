@@ -9,7 +9,6 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import { CollisionSchema } from './collisionSchema';
 import { PrimitiveNode } from './primitiveNode';
 import { NamedEntity } from './namedEntity';
 import { SetNode } from './setNode';
@@ -23,5 +22,5 @@ import { Class } from './class';
  * @type UpdatePositionsRequestInner
  * @export
  */
-export type UpdatePositionsRequestInner = Class | CollisionSchema | Literal | NamedEntity | ObjectNode | PrimitiveNode | SetNode;
+export type UpdatePositionsRequestInner = Class | Literal | NamedEntity | ObjectNode | PrimitiveNode | SetNode;
 

@@ -11,8 +11,8 @@
  */
 
 
-export interface CombinedModelElement {
-  uuid?: string;
-  label?: string;
+export interface CombinedModelElement { 
+    uuid?: string;
+    label?: string;
 }
 

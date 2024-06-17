@@ -13,26 +13,24 @@ import { PrimitiveNodeAllOf } from './primitiveNodeAllOf';
 import { PositionedCombinedModelElement } from './positionedCombinedModelElement';
 
 
-export interface PrimitiveNode extends PositionedCombinedModelElement {
-  path?: Array<string>;
-  datatype?: PrimitiveNode.DatatypeEnum;
-  examples?: Array<string>;
-  pattern?: string;
-  visible?: boolean;
-  disabled?: boolean;
-  depth?: number;
-  pathAsJSONPointer?: string;
+export interface PrimitiveNode extends PositionedCombinedModelElement { 
+    path?: Array<string>;
+    datatype?: PrimitiveNode.DatatypeEnum;
+    examples?: Array<string>;
+    visible?: boolean;
+    disabled?: boolean;
+    depth?: number;
+    pathAsJSONPointer?: string;
 }
-
 export namespace PrimitiveNode {
-  export type DatatypeEnum = 'Unknown' | 'String' | 'Boolean' | 'Number' | 'Binary';
-  export const DatatypeEnum = {
-    Unknown: 'Unknown' as DatatypeEnum,
-    String: 'String' as DatatypeEnum,
-    Boolean: 'Boolean' as DatatypeEnum,
-    Number: 'Number' as DatatypeEnum,
-    Binary: 'Binary' as DatatypeEnum
-  };
+    export type DatatypeEnum = 'Unknown' | 'String' | 'Boolean' | 'Number' | 'Binary';
+    export const DatatypeEnum = {
+        Unknown: 'Unknown' as DatatypeEnum,
+        String: 'String' as DatatypeEnum,
+        Boolean: 'Boolean' as DatatypeEnum,
+        Number: 'Number' as DatatypeEnum,
+        Binary: 'Binary' as DatatypeEnum
+    };
 }
 
 

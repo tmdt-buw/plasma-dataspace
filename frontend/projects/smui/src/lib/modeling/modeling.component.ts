@@ -70,6 +70,7 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
   $URIMode = new BehaviorSubject<boolean>(false);
 
   exportIncludeMappings: boolean = true;
+  exportIncludePositions: boolean = false;
 
   // combined model
   combinedModel: CombinedModel;
@@ -349,7 +350,7 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
 
   exportModel(): void {
     if (this.combinedModel.semanticModel.id) {
-      this.semanticModelService.exportStoredSemanticModel(this.combinedModel.semanticModel.id, 'TURTLE', false, 'response')
+      this.semanticModelService.exportStoredSemanticModel(this.combinedModel.semanticModel.id, 'TURTLE', false, false, 'response')
         .subscribe((res) => {
             const filename = res.headers.get('filename');
             Util.download(filename ? filename : 'model.ttl', res.body);
@@ -357,7 +358,7 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
           () => this.notification.error('Could not export model', 'An error occurred during model export. Please try again in a few seconds.')
         );
     } else {
-      this.semanticModelService.convertSemanticModel(this.combinedModel, 'TURTLE', this.exportIncludeMappings, 'response')
+      this.semanticModelService.convertSemanticModel(this.combinedModel, 'TURTLE', this.exportIncludeMappings, this.exportIncludePositions, 'response')
         .subscribe((res) => {
           const filename = res.headers.get('filename');
           Util.download(filename ? filename : 'model.ttl', res.body);

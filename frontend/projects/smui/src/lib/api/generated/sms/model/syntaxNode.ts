@@ -11,16 +11,16 @@
  */
 
 
-export interface SyntaxNode {
-  uuid?: string;
-  label?: string;
-  path?: Array<string>;
-  x?: number;
-  y?: number;
-  visible?: boolean;
-  disabled?: boolean;
-  depth?: number;
-  pathAsJSONPointer?: string;
-  _class: string;
+export interface SyntaxNode { 
+    uuid?: string;
+    label?: string;
+    path?: Array<string>;
+    x?: number;
+    y?: number;
+    visible?: boolean;
+    disabled?: boolean;
+    depth?: number;
+    pathAsJSONPointer?: string;
+    _class: string;
 }
 

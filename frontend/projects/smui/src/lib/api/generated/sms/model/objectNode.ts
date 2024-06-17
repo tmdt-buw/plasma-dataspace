@@ -13,11 +13,11 @@ import { ObjectNodeAllOf } from './objectNodeAllOf';
 import { PositionedCombinedModelElement } from './positionedCombinedModelElement';
 
 
-export interface ObjectNode extends PositionedCombinedModelElement {
-  path?: Array<string>;
-  visible?: boolean;
-  disabled?: boolean;
-  depth?: number;
-  pathAsJSONPointer?: string;
+export interface ObjectNode extends PositionedCombinedModelElement { 
+    path?: Array<string>;
+    visible?: boolean;
+    disabled?: boolean;
+    depth?: number;
+    pathAsJSONPointer?: string;
 }
 

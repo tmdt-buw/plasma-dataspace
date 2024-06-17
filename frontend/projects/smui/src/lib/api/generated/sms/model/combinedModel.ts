@@ -16,14 +16,14 @@ import { SyntaxModel } from './syntaxModel';
 import { DeltaModification } from './deltaModification';
 
 
-export interface CombinedModel {
-  id?: string;
-  syntaxModel?: SyntaxModel;
-  semanticModel?: SemanticModel;
-  recommendations?: Array<DeltaModification>;
-  lastModification?: DeltaModification;
-  finalized?: boolean;
-  provisionalElements?: Array<SemanticNode>;
-  provisionalRelations?: Array<CacheRelationRequest>;
+export interface CombinedModel { 
+    id?: string;
+    syntaxModel?: SyntaxModel;
+    semanticModel?: SemanticModel;
+    recommendations?: Array<DeltaModification>;
+    lastModification?: DeltaModification;
+    finalized?: boolean;
+    provisionalElements?: Array<SemanticNode>;
+    provisionalRelations?: Array<CacheRelationRequest>;
 }
 

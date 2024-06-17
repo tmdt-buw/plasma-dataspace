@@ -13,9 +13,9 @@ import { CacheRelationRequest } from './cacheRelationRequest';
 import { SemanticNode } from './semanticNode';
 
 
-export interface SemanticModel {
-  id?: string;
-  nodes?: Array<SemanticNode>;
-  edges?: Array<CacheRelationRequest>;
+export interface SemanticModel { 
+    id?: string;
+    nodes?: Array<SemanticNode>;
+    edges?: Array<CacheRelationRequest>;
 }
 

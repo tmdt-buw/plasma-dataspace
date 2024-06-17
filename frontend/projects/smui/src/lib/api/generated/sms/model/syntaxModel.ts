@@ -13,9 +13,9 @@ import { SyntaxNode } from './syntaxNode';
 import { Edge } from './edge';
 
 
-export interface SyntaxModel {
-  root?: string;
-  nodes?: Array<SyntaxNode>;
-  edges?: Array<Edge>;
+export interface SyntaxModel { 
+    root?: string;
+    nodes?: Array<SyntaxNode>;
+    edges?: Array<Edge>;
 }
 

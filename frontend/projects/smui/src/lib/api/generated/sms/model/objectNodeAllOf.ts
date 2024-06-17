@@ -11,11 +11,11 @@
  */
 
 
-export interface ObjectNodeAllOf {
-  path?: Array<string>;
-  visible?: boolean;
-  disabled?: boolean;
-  depth?: number;
-  pathAsJSONPointer?: string;
+export interface ObjectNodeAllOf { 
+    path?: Array<string>;
+    visible?: boolean;
+    disabled?: boolean;
+    depth?: number;
+    pathAsJSONPointer?: string;
 }
 
