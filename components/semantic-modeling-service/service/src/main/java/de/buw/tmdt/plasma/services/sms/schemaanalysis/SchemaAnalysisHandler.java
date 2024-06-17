@@ -11,19 +11,25 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.*;
+
+import static java.util.concurrent.TimeUnit.*;
 
 @Service
 public class SchemaAnalysisHandler {
 
+    private final Logger log = LoggerFactory.getLogger(SchemaAnalysisHandler.class);
+    private static final int ANALYSIS_REMOVAL_TIME_H = 24;
+
     private HashMap<String, Analysis> analyses;
 
     private final StructureIdentificationService identificationService;
-
-    private final Logger log = LoggerFactory.getLogger(SchemaAnalysisHandler.class);
 
     @Autowired
     public SchemaAnalysisHandler(StructureIdentificationService identificationService) {
@@ -158,5 +164,15 @@ public class SchemaAnalysisHandler {
 
     public boolean exists(String id) {
         return analyses.containsKey(id);
+    }
+
+    @Scheduled(cron="0 1 * * *")
+    public void cleanUpAnalyses() {
+        LocalDateTime now = LocalDateTime.now();
+        int before = analyses.size();
+        analyses.entrySet().removeIf(entry ->
+           Duration.between(entry.getValue().getCreation().toInstant(), now).toHours() > ANALYSIS_REMOVAL_TIME_H
+        );
+        log.info("Cleaned {} stale analyses.", before - analyses.size());
     }
 }

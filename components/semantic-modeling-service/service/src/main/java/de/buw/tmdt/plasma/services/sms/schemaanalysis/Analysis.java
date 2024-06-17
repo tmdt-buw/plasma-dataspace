@@ -44,4 +44,9 @@ public class Analysis {
 	public String getUuid() {
 		return id;
 	}
+
+	public Date getCreation() {
+		return creation;
+	}
+
 }
