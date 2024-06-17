@@ -201,7 +201,7 @@ public class RDFConverter {
             }
             // identify the array json node
             SyntaxNode syntaxNode = combinedModel.getSyntaxModel().getNode(indexNode.getMappedSyntaxNodeUuid());
-            JsonPointer tmpPointer = JsonPointer.compile(syntaxNode.getPathAsJSONPointer());
+            JsonPointer tmpPointer = JsonPointer.compile(syntaxNode.getPathAsJSONPath());
             JsonPointer arrayPointer = null;
             JsonPointer tailPointer = tmpPointer;
             while (arrayPointer == null) {
@@ -270,17 +270,17 @@ public class RDFConverter {
                 List<String> nodePath = syntaxNode.getPath();
                 if (ARRAY_PATH_TOKEN.equals(nodePath.get(nodePath.size() - 1))) {
                     // this is a child node of an array, refer back to parent node to build list
-                    JsonNode arrayNode = datum.at(JsonPointer.compile(syntaxNode.getPathAsJSONPointer()).head());
+                    JsonNode arrayNode = datum.at(JsonPointer.compile(syntaxNode.getPathAsJSONPath()).head());
                     if (!(arrayNode instanceof ArrayNode)) {
-                        throw new ConversionException("Node " + JsonPointer.compile(syntaxNode.getPathAsJSONPointer()).head() + " is not an array node!");
+                        throw new ConversionException("Node " + JsonPointer.compile(syntaxNode.getPathAsJSONPath()).head() + " is not an array node!");
                     }
-                    RDFList list = buildRDFListFromArray(arrayNode, clazz, JsonPointer.compile(syntaxNode.getPathAsJSONPointer()).head().toString());
+                    RDFList list = buildRDFListFromArray(arrayNode, clazz, JsonPointer.compile(syntaxNode.getPathAsJSONPath()).head().toString());
                     arrayExpansionMap.put(clazz, list.asJavaList());
                     resultNode = list;
                 } else if (syntaxNode instanceof SetNode) {
-                    JsonNode arrayNode = datum.at(JsonPointer.compile(syntaxNode.getPathAsJSONPointer()));
+                    JsonNode arrayNode = datum.at(JsonPointer.compile(syntaxNode.getPathAsJSONPath()));
                     if (!(arrayNode instanceof ArrayNode)) {
-                        throw new ConversionException("Node " + JsonPointer.compile(syntaxNode.getPathAsJSONPointer()) + " is not an array node!");
+                        throw new ConversionException("Node " + JsonPointer.compile(syntaxNode.getPathAsJSONPath()) + " is not an array node!");
                     }
                     String value = readJSONArray((ArrayNode) arrayNode);
                     resultNode = m.createLiteral(value);
@@ -447,11 +447,11 @@ public class RDFConverter {
                 } else
                  */
                 if (syntaxNode instanceof SetNode) {
-                    String jsonPointerPath = syntaxNode.getPathAsJSONPointer();
+                    String jsonPointerPath = syntaxNode.getPathAsJSONPath();
                     jsonPointerPath = jsonPointerPath.replaceFirst(relativePath, "");
                     JsonNode arrayNode = datum.at(JsonPointer.compile(jsonPointerPath));
                     if (!(arrayNode instanceof ArrayNode)) {
-                        throw new ConversionException("Node " + JsonPointer.compile(syntaxNode.getPathAsJSONPointer()) + " is not an array node!");
+                        throw new ConversionException("Node " + JsonPointer.compile(syntaxNode.getPathAsJSONPath()) + " is not an array node!");
                     }
                     String value = readJSONArray((ArrayNode) arrayNode);
                     resultNode = m.createLiteral(value);
@@ -507,11 +507,11 @@ public class RDFConverter {
         if (l.isMapped()) {
             String syntaxNodeUuid = l.getMappedSyntaxNodeUuid();
             SyntaxNode syntaxNode = combinedModel.getSyntaxModel().getNode(syntaxNodeUuid);
-            String jsonPointerPath = syntaxNode.getPathAsJSONPointer();
+            String jsonPointerPath = syntaxNode.getPathAsJSONPath();
             jsonPointerPath = jsonPointerPath.replaceFirst(relativePath, "");
             JsonNode valueNode = datum.at(JsonPointer.compile(jsonPointerPath));
             if (!valueNode.isValueNode()) {
-                throw new ConversionException("Node " + JsonPointer.compile(syntaxNode.getPathAsJSONPointer()) + " is not a value node!");
+                throw new ConversionException("Node " + JsonPointer.compile(syntaxNode.getPathAsJSONPath()) + " is not a value node!");
             }
             if (valueNode.isMissingNode()) {
                 // throw new ConversionException("Could not find value for syntaxId " + syntaxNodeUuid + " on model " + combinedModel.getId());
@@ -580,11 +580,11 @@ public class RDFConverter {
                 // ignore the mapping, this is just for clarification
                 return resource;
             }
-            String jsonPointerPath = syntaxNode.getPathAsJSONPointer();
+            String jsonPointerPath = syntaxNode.getPathAsJSONPath();
             jsonPointerPath = jsonPointerPath.replaceFirst(relativePath, "");
             JsonNode valueNode = datum.at(JsonPointer.compile(jsonPointerPath));
             if (!valueNode.isValueNode()) {
-                throw new ConversionException("Node " + JsonPointer.compile(syntaxNode.getPathAsJSONPointer()) + " is not a value node!");
+                throw new ConversionException("Node " + JsonPointer.compile(syntaxNode.getPathAsJSONPath()) + " is not a value node!");
             }
             org.apache.jena.rdf.model.Literal valueLiteral;
             if (valueNode.isMissingNode()) {

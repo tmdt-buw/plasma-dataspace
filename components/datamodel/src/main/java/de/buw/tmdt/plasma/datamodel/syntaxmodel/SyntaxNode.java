@@ -23,8 +23,9 @@ public abstract class SyntaxNode extends PositionedCombinedModelElement {
 
     private static final long serialVersionUID = 8398288916936841021L;
 
-    public static final String ARRAY_PATH_TOKEN = "0";
-    public static final String ROOT_PATH_TOKEN = "";
+    public static final String ARRAY_PATH_TOKEN = "*";
+    public static final String ROOT_PATH_TOKEN = "$";
+    public static final String JSONPATH_DELIMITER_TOKEN = ".";
     public static final String ARRAY_LABEL = "##array";
     public static final String OBJECT_LABEL = "##object";
     public static final String VALUE_LABEL = "##value";
@@ -103,14 +104,15 @@ public abstract class SyntaxNode extends PositionedCombinedModelElement {
 
     /**
      * JSON Path (RFC6901) identifier of that node.
-     * Arrays will always be represented with index 0, e.g. /list/0/value in that path as the length of said list is
+     * Arrays will always be represented by a '*', e.g. $.objects.*.value in that path as the length of said list is
      * not available at creation time.
      */
-    public String getPathAsJSONPointer() {
+    public String getPathAsJSONPath() {
         return path.stream()
                 .map(component -> component.replaceAll("~", "~0"))
                 .map(component -> component.replaceAll("/", "~1"))
-                .collect(Collectors.joining("/"));
+                .map(component -> component.replaceAll("\\.", "~2"))
+                .collect(Collectors.joining(JSONPATH_DELIMITER_TOKEN));
     }
 
     public void setVisible(boolean visible) {

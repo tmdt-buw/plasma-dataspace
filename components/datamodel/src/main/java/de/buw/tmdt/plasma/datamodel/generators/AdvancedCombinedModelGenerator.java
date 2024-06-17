@@ -27,7 +27,7 @@ public class AdvancedCombinedModelGenerator {
     private static void mapSemanticNode(MappableSemanticNode semanticNode, MappableSyntaxNode schemaNode) {
         semanticNode.setMappedSyntaxNodeLabel(schemaNode.getLabel());
         semanticNode.setMappedSyntaxNodeUuid(schemaNode.getUuid());
-        semanticNode.setMappedSyntaxNodePath(schemaNode.getPathAsJSONPointer());
+        semanticNode.setMappedSyntaxNodePath(schemaNode.getPathAsJSONPath());
         if (semanticNode instanceof Class) {
             Class clazz = (Class) semanticNode;
             if (clazz.getInstance() != null) {

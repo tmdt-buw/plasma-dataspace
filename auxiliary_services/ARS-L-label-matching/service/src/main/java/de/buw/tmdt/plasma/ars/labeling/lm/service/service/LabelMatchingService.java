@@ -86,7 +86,7 @@ public class LabelMatchingService {
                 clazz.createInstance();
                 clazz.setMappedSyntaxNodeLabel(node.getLabel());
                 clazz.setMappedSyntaxNodeUuid(node.getUuid());
-                clazz.setMappedSyntaxNodePath(node.getPathAsJSONPointer());
+                clazz.setMappedSyntaxNodePath(node.getPathAsJSONPath());
                 clazz.setXCoordinate(node.getXCoordinate());
                 clazz.setYCoordinate(node.getYCoordinate());
                 if (clazz.getInstance() != null) {

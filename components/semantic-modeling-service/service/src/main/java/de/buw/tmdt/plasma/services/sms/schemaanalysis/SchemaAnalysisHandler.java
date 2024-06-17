@@ -19,8 +19,6 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
 
-import static java.util.concurrent.TimeUnit.*;
-
 @Service
 public class SchemaAnalysisHandler {
 
@@ -98,9 +96,9 @@ public class SchemaAnalysisHandler {
             } else {
                 mergedSchema.getNodes().stream().filter(node -> node instanceof PrimitiveNode)
                         .forEach(primitiveNode -> {
-                            String path = primitiveNode.getPathAsJSONPointer();
+                            String path = primitiveNode.getPathAsJSONPath();
                             Optional<PrimitiveNode> match = sampleModel.getNodes().stream()
-                                    .filter(sample -> sample.getPathAsJSONPointer().equals(path))
+                                    .filter(sample -> sample.getPathAsJSONPath().equals(path))
                                     .map(node -> (PrimitiveNode) node)
                                     .findFirst();
                             if (match.isEmpty()) {

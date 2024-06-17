@@ -271,8 +271,8 @@ public class CombinedModel implements Serializable {
                         if (Math.max(mappedToNode.getDepth(), mappedFromNode.getDepth()) > 1) {
                             return;
                         }
-                        if (mappedFromNode.getPathAsJSONPointer().contains(mappedToNode.getPathAsJSONPointer()) ||
-                                mappedToNode.getPathAsJSONPointer().contains(mappedFromNode.getPathAsJSONPointer())) {
+                        if (mappedFromNode.getPathAsJSONPath().contains(mappedToNode.getPathAsJSONPath()) ||
+                                mappedToNode.getPathAsJSONPath().contains(mappedFromNode.getPathAsJSONPath())) {
                             // both belong to the same array
                             relation.setArrayContext(true);
                         }
