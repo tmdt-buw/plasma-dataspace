@@ -48,9 +48,9 @@ public class SemanticModelHandler {
 
         ops.persistModel(cmModel);
 
-        List<SemanticModelNode> resources = semanticModel.getNodes().stream()
+        List<SemanticNode> resources = semanticModel.getNodes().stream()
                 .filter(smn -> smn instanceof NamedEntity || smn instanceof Class)
-                .filter(SemanticModelNode::isProvisional)
+                .filter(SemanticNode::isProvisional)
                 .collect(Collectors.toList());
         List<Relation> relations = semanticModel.getEdges().stream()
                 .filter(Relation::isProvisional)
@@ -74,7 +74,7 @@ public class SemanticModelHandler {
         return restoredSM;
     }
 
-    private SemanticModelNode lookupNodeByURI(String uri) {
+    private SemanticNode lookupNodeByURI(String uri) {
         return ontologyHandler.getElements(Collections.emptyList(), null, null, uri).stream()
                 .findFirst()
                 .orElse(null);

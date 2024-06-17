@@ -1,5 +1,4 @@
-import { ObjectNode, PrimitiveNode, SetNode } from '../../../api/generated/sms';
-import { SyntaxNode } from './node';
+import { PrimitiveNode, SyntaxNode } from '../../../api/generated/sms';
 
 /**
  * Abstract class that provides configs for icons

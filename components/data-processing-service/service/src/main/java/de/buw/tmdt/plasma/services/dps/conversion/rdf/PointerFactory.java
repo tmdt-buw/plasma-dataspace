@@ -6,7 +6,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 
-import static de.buw.tmdt.plasma.datamodel.syntaxmodel.SchemaNode.ARRAY_PATH_TOKEN;
+import static de.buw.tmdt.plasma.datamodel.syntaxmodel.SyntaxNode.ARRAY_PATH_TOKEN;
 
 public class PointerFactory {
 

@@ -4,16 +4,7 @@ import { FormControl } from '@angular/forms';
 import { ModalOptions, NzModalRef, NzModalService } from 'ng-zorro-antd/modal';
 import { BehaviorSubject, forkJoin, Observable, Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, tap } from 'rxjs/operators';
-import {
-  ArrayContext,
-  CombinedModel,
-  DeltaModification,
-  ModelingControllerService,
-  ModelMapping,
-  Relation,
-  SchemaNode,
-  SemanticModelNode
-} from '../api/generated/sms';
+import { ArrayContext, CombinedModel, DeltaModification, ModelingControllerService, ModelMapping, Relation, SemanticNode, SyntaxNode } from '../api/generated/sms';
 import { OntologyControllerService, OntologyInfo, SemanticModelControllerService } from '../api/generated/kgs';
 import { ContextMenuService } from './context-menu/context-menu.service';
 import { ModalMouseEnabledConfig } from './dialogs/common/modal.base-config';
@@ -239,7 +230,7 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
     this.clickedNode.emit(event);
   }
 
-  onNodeChanged(event: { entities?: Array<SemanticModelNode>, nodes?: Array<SchemaNode> }): void {
+  onNodeChanged(event: { entities?: Array<SemanticNode>, nodes?: Array<SyntaxNode> }): void {
     const delta: DeltaModification = {
       nodes: event.nodes,
       entities: event.entities
@@ -247,7 +238,7 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
     this.modelingService.modifyModel(this.modelId, delta).subscribe((res) => this.getCombinedModel());
   }
 
-  onSemanticElementsAdded(event: { entities?: Array<SemanticModelNode>, relations?: Array<Relation> }): void {
+  onSemanticElementsAdded(event: { entities?: Array<SemanticNode>, relations?: Array<Relation> }): void {
     const arrayContextRelationSum = this.arrayContexts?.map(context => context.relations.length).reduce((sum, current) => sum + current, 0);
     const delta: DeltaModification = {
       relations: event.relations,
@@ -266,7 +257,7 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
       }));
   }
 
-  onSemanticElementsRemoved(event: { entities?: Array<SemanticModelNode>, relations?: Array<Relation> }): void {
+  onSemanticElementsRemoved(event: { entities?: Array<SemanticNode>, relations?: Array<Relation> }): void {
     const delta: DeltaModification = {
       relations: event.relations,
       entities: event.entities,

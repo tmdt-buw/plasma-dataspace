@@ -31,7 +31,7 @@ public class CombinedModelGenerator {
     }
 
     public static CombinedModel getCombinedModel(String namespace) {
-        SchemaNode root = new ObjectNode("ROOT");
+        SyntaxNode root = new ObjectNode("ROOT");
         List<String> examples = Arrays.asList("10-11;suffix1", "20-21;suffix2", "test-test;suffix3");
         PrimitiveNode identifierNode = new PrimitiveNode("ident",  DataType.String, examples, null);
         PrimitiveNode timeNode = new PrimitiveNode("time",  DataType.String, null, null);
@@ -41,7 +41,7 @@ public class CombinedModelGenerator {
         SetNode codesNode = new SetNode();
         PrimitiveNode codeNode = new PrimitiveNode("codes1",  DataType.String, null, null);
 
-        List<SchemaNode> nodes = Arrays.asList(root, identifierNode, timeNode, companyNode, nameNode, codesNode, codeNode);
+        List<SyntaxNode> nodes = Arrays.asList(root, identifierNode, timeNode, companyNode, nameNode, codesNode, codeNode);
 
         Edge rootIdentifierEdge = new Edge(root.getUuid(), identifierNode.getUuid());
         Edge rootTimeEdge = new Edge(root.getUuid(), timeNode.getUuid());
@@ -82,7 +82,7 @@ public class CombinedModelGenerator {
 
         NamedEntity iataClass = new NamedEntity(namespace + "IATA", "IATA", "The International Air Transport Association");
 
-        List<SemanticModelNode> elements = Arrays.asList(identifierClass, flightClass, flightTypeLiteral, airlineClass, nameClass, iataCodeClass, iataClass);
+        List<SemanticNode> elements = Arrays.asList(identifierClass, flightClass, flightTypeLiteral, airlineClass, nameClass, iataCodeClass, iataClass);
 
         Relation flightIdentifierRelation = new ObjectProperty(flightClass.getUuid(), identifierClass.getUuid(), namespace + "has");
         Relation airlineNameRelation = new ObjectProperty(airlineClass.getUuid(), nameClass.getUuid(), namespace + "has");

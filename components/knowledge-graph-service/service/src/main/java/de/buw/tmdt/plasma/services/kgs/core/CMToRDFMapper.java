@@ -121,8 +121,8 @@ public class CMToRDFMapper {
 
         });
         semanticModel.getEdges().forEach(r -> {
-            SemanticModelNode from = semanticModel.getNode(r.getFrom());
-            SemanticModelNode to = semanticModel.getNode(r.getTo());
+            SemanticNode from = semanticModel.getNode(r.getFrom());
+            SemanticNode to = semanticModel.getNode(r.getTo());
             RDFNode fromNode = uuidtoResource.get(from.getUuid());
             RDFNode toNode = uuidtoResource.get(to.getUuid());
             fromNode.asResource().addProperty(ResourceFactory.createProperty(m.expandPrefix(r.getURI())), toNode);
@@ -131,12 +131,12 @@ public class CMToRDFMapper {
     }
 
 
-    public static SemanticModel convertToSemanticModel(Model model, Function<String, SemanticModelNode> nodeRetrieverByURI,
+    public static SemanticModel convertToSemanticModel(Model model, Function<String, SemanticNode> nodeRetrieverByURI,
                                                        Function<String, Relation> relationRetrieverByURI) {
         String modelId = null;
-        List<SemanticModelNode> nodes = new ArrayList<>();
+        List<SemanticNode> nodes = new ArrayList<>();
         List<Relation> relations = new ArrayList<>();
-        Map<Resource, SemanticModelNode> mappedNodes = new HashMap<>();
+        Map<Resource, SemanticNode> mappedNodes = new HashMap<>();
 
         StmtIterator stmtIterator = model.listStatements();
         while (stmtIterator.hasNext()) {
@@ -151,12 +151,12 @@ public class CMToRDFMapper {
             }
 
             // handle subject
-            SemanticModelNode convertedSubject = mappedNodes.get(s);
+            SemanticNode convertedSubject = mappedNodes.get(s);
 
             if (convertedSubject == null) {
                 // we have to create a new one
                 Resource superclass = s.getRequiredProperty(RDF.type).getObject().asResource();
-                SemanticModelNode supernode = nodeRetrieverByURI.apply(superclass.getURI());
+                SemanticNode supernode = nodeRetrieverByURI.apply(superclass.getURI());
                 convertedSubject = createSemanticModelNode(s, supernode);
                 nodes.add(convertedSubject);
                 mappedNodes.put(s, convertedSubject);
@@ -169,7 +169,7 @@ public class CMToRDFMapper {
             }
 
             // handle object before predicate
-            SemanticModelNode convertedObject;
+            SemanticNode convertedObject;
             if (o.isResource()) {
                 Resource object = o.asResource();
                 // check if this already exist
@@ -177,7 +177,7 @@ public class CMToRDFMapper {
                 if (convertedObject == null) {
                     // we have to create a new one
                     Resource superclass = object.getRequiredProperty(RDF.type).getObject().asResource();
-                    SemanticModelNode supernode = nodeRetrieverByURI.apply(superclass.getURI());
+                    SemanticNode supernode = nodeRetrieverByURI.apply(superclass.getURI());
                     convertedObject = createSemanticModelNode(object, supernode);
                     nodes.add(convertedObject);
                     mappedNodes.put(object, convertedObject);
@@ -219,7 +219,7 @@ public class CMToRDFMapper {
 
     }
 
-    private static SemanticModelNode createSemanticModelNode(Resource res, SemanticModelNode entityFromOntology) {
+    private static SemanticNode createSemanticModelNode(Resource res, SemanticNode entityFromOntology) {
         if (entityFromOntology instanceof NamedEntity) {
             try {
                 return createNamedEntity(res, (NamedEntity) entityFromOntology);
@@ -275,14 +275,14 @@ public class CMToRDFMapper {
         return l;
     }
 
-    public static List<SemanticModelNode> convertOntologyResourcesToSemanticModelNodes(List<Resource> resources) {
+    public static List<SemanticNode> convertOntologyResourcesToSemanticModelNodes(List<Resource> resources) {
         return resources.stream()
                 .map(CMToRDFMapper::convertOntologyResourceToSemanticModelNode)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
     }
 
-    public static SemanticModelNode convertOntologyResourceToSemanticModelNode(Resource resource) {
+    public static SemanticNode convertOntologyResourceToSemanticModelNode(Resource resource) {
         try {
             String label = resource.getRequiredProperty(RDFS.label).getString();
             String description = getPropertyOrNull(resource, RDFS.comment);

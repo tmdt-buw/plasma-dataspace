@@ -5,7 +5,7 @@ import de.buw.tmdt.plasma.datamodel.semanticmodel.Class;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.*;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.MappableSyntaxNode;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.PrimitiveNode;
-import de.buw.tmdt.plasma.datamodel.syntaxmodel.SchemaNode;
+import de.buw.tmdt.plasma.datamodel.syntaxmodel.SyntaxNode;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
@@ -135,15 +135,15 @@ public class CombinedModelSemanticModificationTest {
         CombinedModel model = getCombinedModel();
 
         // get the target node we want to map to
-        SchemaNode timeNode = model.getSyntaxModel().getNodes().stream().filter(schemaNode -> schemaNode.getLabel().equals("time")).findFirst().orElseThrow();
+        SyntaxNode timeNode = model.getSyntaxModel().getNodes().stream().filter(schemaNode -> schemaNode.getLabel().equals("time")).findFirst().orElseThrow();
 
         // check that the node is not already mapped for some reason
         assertTrue(timeNode instanceof PrimitiveNode);
         assertTrue(model.generateModelMappings().stream().noneMatch(mapping -> mapping.getPrimitiveUUID().equals(timeNode.getUuid())));
         assertTrue(model.getSemanticModel().getNodes().stream()
-                .filter(node -> node instanceof MappableSemanticModelNode)
-                .map(node -> (MappableSemanticModelNode) node)
-                .filter(MappableSemanticModelNode::isMapped)
+                .filter(node -> node instanceof MappableSemanticNode)
+                .map(node -> (MappableSemanticNode) node)
+                .filter(MappableSemanticNode::isMapped)
                 .noneMatch(node -> Objects.equals(node.getMappedSyntaxNodeUuid(), timeNode.getUuid())));
 
         // create the new class to assign
@@ -161,10 +161,10 @@ public class CombinedModelSemanticModificationTest {
         assertEquals(getCombinedModel().getSemanticModel().getEdges().size(), model.getSemanticModel().getEdges().size(), "Number of expected relations does not match");
 
         // check if the class has been added
-        MappableSemanticModelNode mappedNode = model.getSemanticModel().getNodes().stream()
-                .filter(node -> node instanceof MappableSemanticModelNode)
-                .map(node -> (MappableSemanticModelNode) node)
-                .filter(MappableSemanticModelNode::isMapped)
+        MappableSemanticNode mappedNode = model.getSemanticModel().getNodes().stream()
+                .filter(node -> node instanceof MappableSemanticNode)
+                .map(node -> (MappableSemanticNode) node)
+                .filter(MappableSemanticNode::isMapped)
                 .filter(node -> Objects.equals(node.getUuid(), timeClass.getUuid()))
                 .findFirst().orElseThrow();
         assertEquals(timeClass.getUuid(), mappedNode.getUuid(), "Added class does not have the same id as added class");
@@ -181,28 +181,28 @@ public class CombinedModelSemanticModificationTest {
         CombinedModel model = getCombinedModel();
 
         // get the target node we want to map to
-        SchemaNode schemaNode = model.getSyntaxModel().getNodes().stream()
+        SyntaxNode syntaxNode = model.getSyntaxModel().getNodes().stream()
                 .filter(node -> !(node instanceof MappableSyntaxNode))
                 .findFirst()
                 .orElseThrow();
 
         // check that the node is a valid candidate
-        assertFalse(schemaNode instanceof PrimitiveNode);
-        assertTrue(model.generateModelMappings().stream().noneMatch(mapping -> mapping.getPrimitiveUUID().equals(schemaNode.getUuid())));
+        assertFalse(syntaxNode instanceof PrimitiveNode);
+        assertTrue(model.generateModelMappings().stream().noneMatch(mapping -> mapping.getPrimitiveUUID().equals(syntaxNode.getUuid())));
         assertTrue(model.getSemanticModel().getNodes().stream()
-                .filter(node -> node instanceof MappableSemanticModelNode)
-                .map(node -> (MappableSemanticModelNode) node)
-                .filter(MappableSemanticModelNode::isMapped)
-                .noneMatch(node -> Objects.equals(node.getMappedSyntaxNodeUuid(), schemaNode.getUuid())));
+                .filter(node -> node instanceof MappableSemanticNode)
+                .map(node -> (MappableSemanticNode) node)
+                .filter(MappableSemanticNode::isMapped)
+                .noneMatch(node -> Objects.equals(node.getMappedSyntaxNodeUuid(), syntaxNode.getUuid())));
 
         // create the new type and concept
         Class timeClass = new Class(generateResourceURI("time"), "time", "A time");
-        timeClass.setMappedSyntaxNodeUuid(schemaNode.getUuid());
-        timeClass.setMappedSyntaxNodeLabel(schemaNode.getLabel());
+        timeClass.setMappedSyntaxNodeUuid(syntaxNode.getUuid());
+        timeClass.setMappedSyntaxNodeLabel(syntaxNode.getLabel());
 
         DeltaModification modification = new DeltaModification("mod_testApplyMapOneEntityToNonPrimitiveNode", Collections.singletonList(timeClass), null, null, null, 0.0);
 
-        assertThrows(CombinedModelIntegrityException.class, () -> model.apply(modification), "Error message not thrown when mapping to non-primitive node " + schemaNode.getUuid());
+        assertThrows(CombinedModelIntegrityException.class, () -> model.apply(modification), "Error message not thrown when mapping to non-primitive node " + syntaxNode.getUuid());
     }
 
     @Test

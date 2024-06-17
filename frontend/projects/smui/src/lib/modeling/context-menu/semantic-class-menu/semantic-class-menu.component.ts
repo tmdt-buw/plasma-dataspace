@@ -1,8 +1,7 @@
 import { Component, Input } from '@angular/core';
-import { Class } from '../../../api/generated/sms';
+import { Class, SyntaxNode } from '../../../api/generated/sms';
 import { ContextMenuEvent, ContextMenuEventType } from '../../model/events/context-menu-event';
 import { ContextMenuService } from '../context-menu.service';
-import { SyntaxNode } from '../../model/configuration/node';
 
 @Component({
   selector: 'pls-entity-concept-menu',

@@ -10,12 +10,12 @@
  * Do not edit the class manually.
  */
 import { CacheRelationRequest } from './cacheRelationRequest';
-import { SemanticModelNode } from './semanticModelNode';
+import { SemanticNode } from './semanticNode';
 
 
 export interface SemanticModel {
   id?: string;
-  nodes?: Array<SemanticModelNode>;
+  nodes?: Array<SemanticNode>;
   edges?: Array<CacheRelationRequest>;
 }
 

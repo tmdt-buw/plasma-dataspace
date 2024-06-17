@@ -11,7 +11,7 @@ import org.jetbrains.annotations.Nullable;
         @JsonSubTypes.Type(value = Class.class, name = "Class"),
         @JsonSubTypes.Type(value = Literal.class, name = "Literal"),
 })
-public abstract class MappableSemanticModelNode extends SemanticModelNode {
+public abstract class MappableSemanticNode extends SemanticNode {
 
     public static final String MAPPED_SYNTAX_NODE_UUID_PROPERTY = "syntaxNodeUuid";
     public static final String MAPPED_SYNTAX_NODE_LABEL_PROPERTY = "syntaxLabel";
@@ -36,19 +36,19 @@ public abstract class MappableSemanticModelNode extends SemanticModelNode {
      */
     private String mappedSyntaxNodePath;
 
-    public MappableSemanticModelNode(@Nullable String uri, @NotNull String label) {
+    public MappableSemanticNode(@Nullable String uri, @NotNull String label) {
         super(uri, label, null, null, null);
     }
 
-    public MappableSemanticModelNode(@Nullable String uri, @NotNull String label, @Nullable Double xCoordinate, @Nullable Double yCoordinate) {
+    public MappableSemanticNode(@Nullable String uri, @NotNull String label, @Nullable Double xCoordinate, @Nullable Double yCoordinate) {
         super(uri, label, xCoordinate, yCoordinate, null);
     }
 
-    public MappableSemanticModelNode(@Nullable String uri, @NotNull String label, @Nullable Double xCoordinate, @Nullable Double yCoordinate, @Nullable String uuid) {
+    public MappableSemanticNode(@Nullable String uri, @NotNull String label, @Nullable Double xCoordinate, @Nullable Double yCoordinate, @Nullable String uuid) {
         super(uri, label, xCoordinate, yCoordinate, uuid);
     }
 
-    public MappableSemanticModelNode(@Nullable String uri, @NotNull String label, @Nullable Double xCoordinate, @Nullable Double yCoordinate, String mappedSyntaxNodeUuid, String mappedSyntaxNodeLabel, String mappedSyntaxNodePath, @Nullable String uuid) {
+    public MappableSemanticNode(@Nullable String uri, @NotNull String label, @Nullable Double xCoordinate, @Nullable Double yCoordinate, String mappedSyntaxNodeUuid, String mappedSyntaxNodeLabel, String mappedSyntaxNodePath, @Nullable String uuid) {
         super(uri, label, xCoordinate, yCoordinate, uuid);
         setMappedSyntaxNodeUuid(mappedSyntaxNodeUuid);
         setMappedSyntaxNodeLabel(mappedSyntaxNodeLabel);

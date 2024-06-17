@@ -4,7 +4,7 @@ import de.buw.tmdt.plasma.datamodel.*;
 import de.buw.tmdt.plasma.datamodel.modification.DeltaModification;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.Class;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.*;
-import de.buw.tmdt.plasma.datamodel.syntaxmodel.SchemaNode;
+import de.buw.tmdt.plasma.datamodel.syntaxmodel.SyntaxNode;
 import de.buw.tmdt.plasma.services.config.ConfigServiceClient;
 import de.buw.tmdt.plasma.services.sms.core.model.Modeling;
 import de.buw.tmdt.plasma.services.sms.core.database.ModelingRepository;
@@ -238,10 +238,10 @@ public class ModelingHandler {
                         null,
                         null,
                         sm.getNodes().stream()
-                                .filter(SemanticModelNode::isMapped)
-                                .map(node -> (MappableSemanticModelNode) node)
+                                .filter(SemanticNode::isMapped)
+                                .map(node -> (MappableSemanticNode) node)
                                 .map(node -> combinedModel.getSyntaxModel().getNode(node.getMappedSyntaxNodeUuid()))
-                                .map(SchemaNode::getDepth)
+                                .map(SyntaxNode::getDepth)
                                 .max(Long::compare)
                                 .orElse(-1L)
                 ))
@@ -257,18 +257,18 @@ public class ModelingHandler {
     }
 
     /**
-     * Retrieves all available {@link SemanticModelNode}s, from the KGS as well as the current model.
+     * Retrieves all available {@link SemanticNode}s, from the KGS as well as the current model.
      *
      * @param modelId The modeling uuid
      * @param prefix  A search prefix
      * @param infix   A search infix
-     * @return The resulting list of matching {@link SemanticModelNode}s
+     * @return The resulting list of matching {@link SemanticNode}s
      */
     @SuppressFBWarnings("NP_NONNULL_RETURN_VIOLATION") // stream collector does not return null
     @NotNull
-    public List<SemanticModelNode> getElements(@NotNull String modelId, @Nullable String prefix, @Nullable String infix) {
+    public List<SemanticNode> getElements(@NotNull String modelId, @Nullable String prefix, @Nullable String infix) {
         Modeling modeling = findModelingOrThrow(modelId);
-        List<SemanticModelNode> availableElements;
+        List<SemanticNode> availableElements;
         try {
             availableElements =
                     ontologyApiClient.getElements(modeling.getSelectedOntologies(), prefix, infix, null, 50);
@@ -294,7 +294,7 @@ public class ModelingHandler {
                 .forEach(availableElements::add);
 
         return availableElements.stream()
-                .sorted(Comparator.comparing(SemanticModelNode::getLabel))
+                .sorted(Comparator.comparing(SemanticNode::getLabel))
                 .collect(Collectors.toList());
     }
 
@@ -336,28 +336,28 @@ public class ModelingHandler {
     /* SYNTAX NODE OPERATIONS */
 
     /**
-     * Updates the position of a {@link SchemaNode} in the {@link CombinedModel}.
+     * Updates the position of a {@link SyntaxNode} in the {@link CombinedModel}.
      *
      * @param modelId        The modeling uuid identifying the {@link CombinedModel}
-     * @param schemaNode     The {@link SchemaNode} to place
-     * @param schemaNodeUuid The reference uuid of the existing {@link SchemaNode} to update
+     * @param syntaxNode     The {@link SyntaxNode} to place
+     * @param schemaNodeUuid The reference uuid of the existing {@link SyntaxNode} to update
      * @deprecated Legacy function, use {@link #applyModification(String, DeltaModification)} instead
      */
     @Deprecated
-    public void placeSchemaNode(@NotNull String modelId, @NotNull UUID schemaNodeUuid, @NotNull SchemaNode schemaNode) {
-        if (!schemaNodeUuid.toString().equals(schemaNode.getUuid())) {
+    public void placeSchemaNode(@NotNull String modelId, @NotNull UUID schemaNodeUuid, @NotNull SyntaxNode syntaxNode) {
+        if (!schemaNodeUuid.toString().equals(syntaxNode.getUuid())) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
                     "Passed uuid in syntax model node is inconsistent to resource to update. "
-                            + "Resource: " + schemaNodeUuid + " Payload: " + schemaNode.getUuid()
+                            + "Resource: " + schemaNodeUuid + " Payload: " + syntaxNode.getUuid()
             );
         }
-        if (schemaNode.getXCoordinate() == null || schemaNode.getYCoordinate() == null) {
+        if (syntaxNode.getXCoordinate() == null || syntaxNode.getYCoordinate() == null) {
             StringJoiner stringJoiner = new StringJoiner(" and ", "Missing ", " coordinate in SchemaNode.");
-            if (schemaNode.getXCoordinate() == null) {
+            if (syntaxNode.getXCoordinate() == null) {
                 stringJoiner.add("X");
             }
-            if (schemaNode.getYCoordinate() == null) {
+            if (syntaxNode.getYCoordinate() == null) {
                 stringJoiner.add("Y");
             }
             //noinspection HardcodedFileSeparator
@@ -367,7 +367,7 @@ public class ModelingHandler {
             );
         }
 
-        updatePositions(modelId, Collections.singletonList(schemaNode));
+        updatePositions(modelId, Collections.singletonList(syntaxNode));
     }
 
 
@@ -440,7 +440,7 @@ public class ModelingHandler {
 
 
     @NotNull
-    public SemanticModelNode cacheNode(@NotNull String modelId, @NotNull SemanticModelNode element) {
+    public SemanticNode cacheNode(@NotNull String modelId, @NotNull SemanticNode element) {
 
         element.validate();
 
@@ -452,7 +452,7 @@ public class ModelingHandler {
         CombinedModel combinedModel = getCombinedModel(modeling, true);
 
         if (element instanceof Class || element instanceof NamedEntity) {
-            final SemanticModelNode usedElement = getAndUpdateCache(
+            final SemanticNode usedElement = getAndUpdateCache(
                     element,
                     n -> Objects.equals(n.getURI(), element.getURI()),
                     combinedModel.getProvisionalElements());
@@ -466,7 +466,7 @@ public class ModelingHandler {
     }
 
     @NotNull
-    public SemanticModelNode updateCachedNode(@NotNull String modelId, @NotNull SemanticModelNode node, @Nullable String oldURI) {
+    public SemanticNode updateCachedNode(@NotNull String modelId, @NotNull SemanticNode node, @Nullable String oldURI) {
 
         node.validate();
 
@@ -481,7 +481,7 @@ public class ModelingHandler {
         }
         String refURI = oldURI;
         if (node instanceof Class || node instanceof NamedEntity) {
-            final SemanticModelNode usedElement = getAndUpdateCache(
+            final SemanticNode usedElement = getAndUpdateCache(
                     node,
                     n -> Objects.equals(n.getURI(), refURI),
                     combinedModel.getProvisionalElements());

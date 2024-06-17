@@ -1,13 +1,4 @@
 import { dia, shapes } from 'jointjs';
-import {
-  CollisionSchema,
-  ObjectNode,
-  PrimitiveNode,
-  SchemaNode,
-  SemanticModelNode,
-  SetNode
-} from '../../../api/generated/sms';
-
 
 /**
  * Node type defs
@@ -22,8 +13,6 @@ export type NodeType =
   | 'custom.HighlightedExtendedSemanticClassNode'
   | 'custom.HighlightedLiteralNode'
   | 'custom.HighlightedNamedEntityNode';
-export type SyntaxNode = SchemaNode | CollisionSchema | ObjectNode | PrimitiveNode | SetNode;
-export type SemanticNode = SemanticModelNode;
 
 /**
  * Abstract class that provides configs for nodes

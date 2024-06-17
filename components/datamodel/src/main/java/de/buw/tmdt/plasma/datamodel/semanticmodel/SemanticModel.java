@@ -21,7 +21,7 @@ public class SemanticModel implements Serializable {
     public static final String NODES_PROPERTY = "nodes";
     public static final String EDGES_PROPERTY = "edges";
 
-    private final List<SemanticModelNode> nodes;
+    private final List<SemanticNode> nodes;
     private final List<Relation> edges;
     /**
      * Knowledge base ID, set once sent to the KGS.
@@ -35,7 +35,7 @@ public class SemanticModel implements Serializable {
     @JsonCreator
     public SemanticModel(
             @Nullable @JsonProperty(ID_PROPERTY) String id,
-            @Nullable @JsonProperty(NODES_PROPERTY) List<SemanticModelNode> nodes,
+            @Nullable @JsonProperty(NODES_PROPERTY) List<SemanticNode> nodes,
             @Nullable @JsonProperty(EDGES_PROPERTY) List<Relation> edges
     ) {
         this.id = id;
@@ -54,7 +54,7 @@ public class SemanticModel implements Serializable {
     }
 
     @JsonProperty(NODES_PROPERTY)
-    public List<SemanticModelNode> getNodes() {
+    public List<SemanticNode> getNodes() {
         return nodes;
     }
 
@@ -64,13 +64,13 @@ public class SemanticModel implements Serializable {
     }
 
     /**
-     * Retrieves a {@link SemanticModelNode} from the model.
+     * Retrieves a {@link SemanticNode} from the model.
      *
      * @param elementUuid The element's uuid
      * @return a matching element or null if not found
      */
     @JsonIgnore
-    public SemanticModelNode getNode(@NotNull String elementUuid) {
+    public SemanticNode getNode(@NotNull String elementUuid) {
         return getNodes().stream()
                 .filter(node -> elementUuid.equals(node.getUuid()))
                 .findFirst().orElseThrow();
@@ -115,7 +115,7 @@ public class SemanticModel implements Serializable {
      */
     public void validate() throws CombinedModelIntegrityException {
         List<String> errors = new ArrayList<>();
-        for (SemanticModelNode smn : getNodes()) {
+        for (SemanticNode smn : getNodes()) {
             try {
                 smn.validate();
             } catch (CombinedModelIntegrityException cmie) {
@@ -151,7 +151,7 @@ public class SemanticModel implements Serializable {
      * @param visited The list of already visited / processed nodes
      * @return A {@link SemanticModel} submodel that contains all nodes of the array context
      */
-    public SemanticModel getArrayContext(SemanticModelNode node, List<String> visited) {
+    public SemanticModel getArrayContext(SemanticNode node, List<String> visited) {
         SemanticModel submodel = new SemanticModel();
         return getArrayContext(node, visited, submodel);
     }
@@ -165,7 +165,7 @@ public class SemanticModel implements Serializable {
      * @param submodel An existing model that may already contain nodes of that specific context.
      * @return A {@link SemanticModel} submodel that contains all nodes of the array context
      */
-    private SemanticModel getArrayContext(SemanticModelNode node, List<String> visited, SemanticModel submodel) {
+    private SemanticModel getArrayContext(SemanticNode node, List<String> visited, SemanticModel submodel) {
         visited.add(node.getUuid());
         if (submodel == null) {
             submodel = new SemanticModel();
@@ -183,7 +183,7 @@ public class SemanticModel implements Serializable {
                 .filter(rel -> rel.getFrom().equals(node.getUuid()))
                 .collect(Collectors.toList());
 
-        List<SemanticModelNode> unvisitedNeighbors = in.stream()
+        List<SemanticNode> unvisitedNeighbors = in.stream()
                 .filter(rel -> !visited.contains(rel.getFrom()))
                 .peek(submodel.getEdges()::add)
                 .map(rel -> getNode(rel.getFrom()))
@@ -196,7 +196,7 @@ public class SemanticModel implements Serializable {
                 .forEach(unvisitedNeighbors::add);
 
         // build the iteration context using recursion
-        for (SemanticModelNode neighbor : unvisitedNeighbors) {
+        for (SemanticNode neighbor : unvisitedNeighbors) {
             getArrayContext(neighbor, visited, submodel);
         }
 
@@ -212,7 +212,7 @@ public class SemanticModel implements Serializable {
         return new SemanticModel(
                 getId(),
                 CollectionUtilities.map(getNodes(),
-                        SemanticModelNode::copy,
+                        SemanticNode::copy,
                         ArrayList::new),
                 CollectionUtilities.map(getEdges(),
                         Relation::copy,

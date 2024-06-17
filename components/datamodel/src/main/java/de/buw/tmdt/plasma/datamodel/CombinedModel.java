@@ -20,7 +20,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static de.buw.tmdt.plasma.datamodel.syntaxmodel.SchemaNode.ARRAY_PATH_TOKEN;
+import static de.buw.tmdt.plasma.datamodel.syntaxmodel.SyntaxNode.ARRAY_PATH_TOKEN;
 
 /**
  * The combined model contains all elements that model the current state of the syntactic
@@ -44,11 +44,11 @@ public class CombinedModel implements Serializable {
     private final SemanticModel semanticModel;
 
     /**
-     * Stores provisional {@link SemanticModelNode}s that the user created but are not yet in the knowledge base.
+     * Stores provisional {@link SemanticNode}s that the user created but are not yet in the knowledge base.
      * Only valid for this model.
      */
     @NotNull
-    private final List<SemanticModelNode> provisionalElements;
+    private final List<SemanticNode> provisionalElements;
 
     /**
      * Stores provisional {@link Relation}s that the user created but are not yet in the knowledge base.
@@ -100,7 +100,7 @@ public class CombinedModel implements Serializable {
             @JsonProperty(RECOMMENDATIONS_PROPERTY) @Nullable List<DeltaModification> recommendations,
             @JsonProperty(LASTMODIFICATION_PROPERTY) DeltaModification lastModification,
             @JsonProperty(value = FINALIZED_PROPERTY, defaultValue = "false") boolean finalized,
-            @JsonProperty(PROVISIONAL_ELEMENTS_PROPERTY) @Nullable List<SemanticModelNode> provisionalElements,
+            @JsonProperty(PROVISIONAL_ELEMENTS_PROPERTY) @Nullable List<SemanticNode> provisionalElements,
             @JsonProperty(PROVISIONAL_RELATIONS_PROPERTY) @Nullable List<Relation> provisionalRelations
 
     ) {
@@ -161,7 +161,7 @@ public class CombinedModel implements Serializable {
      */
     @NotNull
     @JsonProperty(PROVISIONAL_ELEMENTS_PROPERTY)
-    public List<SemanticModelNode> getProvisionalElements() {
+    public List<SemanticNode> getProvisionalElements() {
         return provisionalElements;
     }
 
@@ -196,7 +196,7 @@ public class CombinedModel implements Serializable {
 
         // apply syntactic modifications
         // update nodes
-        List<SchemaNode> nodesToBeReplaced;
+        List<SyntaxNode> nodesToBeReplaced;
         if (CollectionUtilities.hasElements(delta.getNodes())) {
             if (delta.isDeletion()) {
                 throw new UnsupportedOperationException("Cannot remove syntax nodes");
@@ -231,12 +231,12 @@ public class CombinedModel implements Serializable {
                 // now add the new ones with the same uuids but new content
                 semanticModel.getNodes().removeAll(delta.getEntities());
             } else {
-                List<SemanticModelNode> modifiedEntities = new ArrayList<>();
-                for (SemanticModelNode entity : delta.getEntities()) {
+                List<SemanticNode> modifiedEntities = new ArrayList<>();
+                for (SemanticNode entity : delta.getEntities()) {
                     // check if entity is valid
                     entity.validate();
                     // get node that is to be overwritten (i.e. uuids match)
-                    SemanticModelNode replacedNode = semanticModel.getNodes().stream()
+                    SemanticNode replacedNode = semanticModel.getNodes().stream()
                             .filter(entityType -> entityType.getUuid().equals(entity.getUuid()))
                             .findFirst()
                             .orElse(null);
@@ -259,13 +259,13 @@ public class CombinedModel implements Serializable {
                 semanticModel.getEdges().addAll(delta.getRelations());
                 // for each of those relations, check if an array context might apply
                 delta.getRelations().forEach(relation -> {
-                    SemanticModelNode from = getSemanticModel().getNode(relation.getFrom());
-                    SemanticModelNode to = getSemanticModel().getNode(relation.getTo());
+                    SemanticNode from = getSemanticModel().getNode(relation.getFrom());
+                    SemanticNode to = getSemanticModel().getNode(relation.getTo());
                     // check if both of those two nodes are mapped to a sub-array node
                     // otherwise skip as we do not want to automatically add context nodes to arraycontext
                     if (from.isMapped() && to.isMapped()) {
-                        SchemaNode mappedFromNode = this.syntaxModel.getNode(((MappableSemanticModelNode) to).getMappedSyntaxNodeUuid());
-                        SchemaNode mappedToNode = this.syntaxModel.getNode(((MappableSemanticModelNode) from).getMappedSyntaxNodeUuid());
+                        SyntaxNode mappedFromNode = this.syntaxModel.getNode(((MappableSemanticNode) to).getMappedSyntaxNodeUuid());
+                        SyntaxNode mappedToNode = this.syntaxModel.getNode(((MappableSemanticNode) from).getMappedSyntaxNodeUuid());
 
                         // prevent array contexts with depth > 1 (remove with #68)
                         if (Math.max(mappedToNode.getDepth(), mappedFromNode.getDepth()) > 1) {
@@ -315,8 +315,8 @@ public class CombinedModel implements Serializable {
         }
         // check the consistency of all arraycontexts
         for (SemanticModel arrayContext : getArrayContexts()) {
-            boolean hasMappedArrayNode = arrayContext.getNodes().stream().filter(SemanticModelNode::isMapped)
-                    .map(node -> (MappableSemanticModelNode) node)
+            boolean hasMappedArrayNode = arrayContext.getNodes().stream().filter(SemanticNode::isMapped)
+                    .map(node -> (MappableSemanticNode) node)
                     .map(node -> syntaxModel.getNode(node.getMappedSyntaxNodeUuid()))
                     .anyMatch(node -> node.getPath().contains(ARRAY_PATH_TOKEN));
             if (!hasMappedArrayNode) {
@@ -328,7 +328,7 @@ public class CombinedModel implements Serializable {
         lastModification = delta;
     }
 
-    private void setStatusOfChildElements(SchemaNode node, Boolean disabled, Boolean visible, boolean unmap) {
+    private void setStatusOfChildElements(SyntaxNode node, Boolean disabled, Boolean visible, boolean unmap) {
         syntaxModel.getEdges().stream()
                 .filter(e -> e.getFromId().equals(node.getUuid()))
                 .forEach(edge -> {
@@ -339,7 +339,7 @@ public class CombinedModel implements Serializable {
                         edge.setVisible(visible);
                     }
                     // process the child nodes
-                    SchemaNode childNode = syntaxModel.getNode(edge.getToId());
+                    SyntaxNode childNode = syntaxModel.getNode(edge.getToId());
                     if (disabled != null) {
                         childNode.setDisabled(disabled);
                     }
@@ -347,7 +347,7 @@ public class CombinedModel implements Serializable {
                         childNode.setVisible(visible);
                     }
                     if (unmap) {
-                        MappableSemanticModelNode mappingNode = getMappingSemanticNode(childNode);
+                        MappableSemanticNode mappingNode = getMappingSemanticNode(childNode);
                         if (mappingNode != null) {
                             mappingNode.unmap();
                         }
@@ -356,15 +356,15 @@ public class CombinedModel implements Serializable {
                 });
     }
 
-    private boolean isMappedSchemaNode(SchemaNode sn) {
+    private boolean isMappedSchemaNode(SyntaxNode sn) {
         return getMappingSemanticNode(sn) != null;
     }
 
-    private MappableSemanticModelNode getMappingSemanticNode(SchemaNode sn) {
+    private MappableSemanticNode getMappingSemanticNode(SyntaxNode sn) {
         return semanticModel.getNodes().stream()
-                .filter(smNode -> smNode instanceof MappableSemanticModelNode)
-                .map(smNode -> (MappableSemanticModelNode) smNode)
-                .filter(MappableSemanticModelNode::isMapped)
+                .filter(smNode -> smNode instanceof MappableSemanticNode)
+                .map(smNode -> (MappableSemanticNode) smNode)
+                .filter(MappableSemanticNode::isMapped)
                 .filter(smNode -> smNode.getMappedSyntaxNodeUuid().equals(sn.getUuid()))
                 .findFirst().orElse(null);
     }
@@ -372,9 +372,9 @@ public class CombinedModel implements Serializable {
 
     public List<ModelMapping> generateModelMappings() {
         return getSemanticModel().getNodes().stream()
-                .filter(node -> node instanceof MappableSemanticModelNode)
-                .map(node -> (MappableSemanticModelNode) node)
-                .filter(SemanticModelNode::isMapped)
+                .filter(node -> node instanceof MappableSemanticNode)
+                .map(node -> (MappableSemanticNode) node)
+                .filter(SemanticNode::isMapped)
                 .map(this::createExplicitMapping)
                 .collect(Collectors.toList());
     }
@@ -385,7 +385,7 @@ public class CombinedModel implements Serializable {
     @JsonIgnore
     public List<SemanticModel> getArrayContexts() {
         List<SemanticModel> arrayContexts = new ArrayList<>();
-        for (SemanticModelNode unprocessedNode : this.getSemanticModel().getNodes()) {
+        for (SemanticNode unprocessedNode : this.getSemanticModel().getNodes()) {
             // check that this node is not part of any existing iteration context
             if (arrayContexts.stream()
                     .flatMap(ic -> ic.getNodes().stream())
@@ -395,13 +395,13 @@ public class CombinedModel implements Serializable {
             SemanticModel arrayContext = this.getSemanticModel().getArrayContext(unprocessedNode, new ArrayList<>());
             if (arrayContext.getNodes().size() == 1) {
                 // check if this node is actually mapped below an array
-                SemanticModelNode semanticModelNode = arrayContext.getNodes().get(0);
-                if (!semanticModelNode.isMapped()) {
+                SemanticNode semanticNode = arrayContext.getNodes().get(0);
+                if (!semanticNode.isMapped()) {
                     continue;
                 }
-                MappableSemanticModelNode mappedNode = (MappableSemanticModelNode) semanticModelNode;
-                SchemaNode schemaNode = this.getSyntaxModel().getNode(mappedNode.getMappedSyntaxNodeUuid());
-                if (!schemaNode.getPath().contains(ARRAY_PATH_TOKEN)) {
+                MappableSemanticNode mappedNode = (MappableSemanticNode) semanticNode;
+                SyntaxNode syntaxNode = this.getSyntaxModel().getNode(mappedNode.getMappedSyntaxNodeUuid());
+                if (!syntaxNode.getPath().contains(ARRAY_PATH_TOKEN)) {
                     continue;
                 }
             }
@@ -411,24 +411,24 @@ public class CombinedModel implements Serializable {
         return arrayContexts;
     }
 
-    public int getArrayDepthOfNode(SemanticModelNode semanticModelNode) {
-        if (!semanticModelNode.isMapped()) {
+    public int getArrayDepthOfNode(SemanticNode semanticNode) {
+        if (!semanticNode.isMapped()) {
             return -1;
         }
-        MappableSemanticModelNode mappedNode = (MappableSemanticModelNode) semanticModelNode;
-        SchemaNode schemaNode = getSyntaxModel().getNode(mappedNode.getMappedSyntaxNodeUuid());
-        return (int) schemaNode.getPath().stream().filter(ARRAY_PATH_TOKEN::equals)
+        MappableSemanticNode mappedNode = (MappableSemanticNode) semanticNode;
+        SyntaxNode syntaxNode = getSyntaxModel().getNode(mappedNode.getMappedSyntaxNodeUuid());
+        return (int) syntaxNode.getPath().stream().filter(ARRAY_PATH_TOKEN::equals)
                 .count();
     }
 
     /**
-     * Creates an explicit {@link ModelMapping} for the given {@link Class} with an {@link Instance} or a {@link Literal} and a {@link SchemaNode}.
-     * The syntax node is identified by {@link MappableSemanticModelNode#getMappedSyntaxNodeUuid()}.
+     * Creates an explicit {@link ModelMapping} for the given {@link Class} with an {@link Instance} or a {@link Literal} and a {@link SyntaxNode}.
+     * The syntax node is identified by {@link MappableSemanticNode#getMappedSyntaxNodeUuid()}.
      *
      * @param mappedNode The class to map
      * @return The new mapping
      */
-    private ModelMapping createExplicitMapping(MappableSemanticModelNode mappedNode) {
+    private ModelMapping createExplicitMapping(MappableSemanticNode mappedNode) {
         if (syntaxModel == null) {
             throw new UnsupportedOperationException("Syntax Model cannot be null if a modification is applied");
         }
@@ -436,7 +436,7 @@ public class CombinedModel implements Serializable {
             throw new UnsupportedOperationException("Cannot create explicit mapping for unmapped node");
         }
         String syntaxNodeId = mappedNode.getMappedSyntaxNodeUuid();
-        SchemaNode syntaxNode = syntaxModel.getNodes().stream()
+        SyntaxNode syntaxNode = syntaxModel.getNodes().stream()
                 .filter(schemaNode -> schemaNode.getUuid().equals(syntaxNodeId))
                 .findFirst()
                 .orElseThrow(() -> new CombinedModelIntegrityException("No schema node found for syntax id " + syntaxNodeId));
@@ -448,7 +448,7 @@ public class CombinedModel implements Serializable {
             return new ModelMapping(syntaxNode.getUuid(), mappedNode.getUuid(), "");
         }
         // now get parent
-        SchemaNode parentNode = syntaxModel.getParentNodeFor(syntaxNode.getUuid());
+        SyntaxNode parentNode = syntaxModel.getParentNodeFor(syntaxNode.getUuid());
         // create new explicit mapping
         return new ModelMapping(syntaxNode.getUuid(), mappedNode.getUuid(), parentNode.getUuid());
     }
@@ -469,7 +469,7 @@ public class CombinedModel implements Serializable {
                 getLastModification(),
                 isFinalized(),
                 CollectionUtilities.map(getProvisionalElements(),
-                        SemanticModelNode::copy,
+                        SemanticNode::copy,
                         ArrayList::new),
                 CollectionUtilities.map(getProvisionalRelations(),
                         Relation::copy,
@@ -499,12 +499,12 @@ public class CombinedModel implements Serializable {
 
         // Validate links between the models
         getSemanticModel().getNodes().stream()
-                .filter(node -> node instanceof MappableSemanticModelNode)
-                .map(node -> (MappableSemanticModelNode) node)
-                .map(MappableSemanticModelNode::getMappedSyntaxNodeUuid)
+                .filter(node -> node instanceof MappableSemanticNode)
+                .map(node -> (MappableSemanticNode) node)
+                .map(MappableSemanticNode::getMappedSyntaxNodeUuid)
                 .filter(Objects::nonNull)
                 .forEach(id -> {
-                    SchemaNode targetNode = getSyntaxModel().findNode(id);
+                    SyntaxNode targetNode = getSyntaxModel().findNode(id);
                     if (targetNode == null) {
                         errors.add("Node references non-existing syntax node " + id);
                     } else if (!(targetNode instanceof MappableSyntaxNode)) {
@@ -577,7 +577,7 @@ public class CombinedModel implements Serializable {
                 }
             }
 
-            for (SemanticModelNode smn : recommendation.getEntities()) {
+            for (SemanticNode smn : recommendation.getEntities()) {
                 try {
                     smn.validate();
                 } catch (CombinedModelIntegrityException cmie) {
@@ -596,9 +596,9 @@ public class CombinedModel implements Serializable {
             }
             // Validate links between the models
             recommendation.getEntities().stream()
-                    .filter(node -> node instanceof MappableSemanticModelNode)
-                    .map(node -> (MappableSemanticModelNode) node)
-                    .filter(MappableSemanticModelNode::isMapped)
+                    .filter(node -> node instanceof MappableSemanticNode)
+                    .map(node -> (MappableSemanticNode) node)
+                    .filter(MappableSemanticNode::isMapped)
                     .forEach(node -> {
                         if (Stream.concat(modelSyntaxUuids.stream(), recommendationSyntaxUuids.stream())
                                 .noneMatch(uuid -> uuid.equals(node.getMappedSyntaxNodeUuid()))) {

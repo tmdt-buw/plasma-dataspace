@@ -3,16 +3,7 @@ import { FormControl } from '@angular/forms';
 import { ModalOptions, NzModalService } from 'ng-zorro-antd/modal';
 import { NzTabChangeEvent } from 'ng-zorro-antd/tabs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
-import {
-  Class,
-  DataProperty,
-  DeltaModification,
-  ModelingControllerService,
-  NamedEntity,
-  ObjectProperty,
-  Relation,
-  SemanticModelNode
-} from '../../../api/generated/sms';
+import { Class, DataProperty, DeltaModification, ModelingControllerService, NamedEntity, ObjectProperty, Relation, SemanticNode } from '../../../api/generated/sms';
 import { ModelingService } from '../../modeling.service';
 import { ModalBaseConfig } from '../common/modal.base-config';
 import { PlsEditEntityDialogComponent } from '../edit-entity-dialog/edit-entity-dialog.component';
@@ -40,7 +31,7 @@ export class PlsConceptDialogComponent implements OnInit, OnDestroy {
   loadingEntityConcepts = true;
   loadingRelationConcepts = true;
 
-  semanticModelNodes: SemanticModelNode[] = [];
+  semanticModelNodes: SemanticNode[] = [];
   relations: Relation[] = [];
 
 
@@ -142,7 +133,7 @@ export class PlsConceptDialogComponent implements OnInit, OnDestroy {
     this.modeling.recommendation.next(recommendation);
   }
 
-  editProvisionalNode(e: MouseEvent, node: SemanticModelNode): void {
+  editProvisionalNode(e: MouseEvent, node: SemanticNode): void {
     const config: ModalOptions = {
       nzStyle: {width: '50%'},
       nzTitle: 'Edit modeling element',
@@ -161,7 +152,7 @@ export class PlsConceptDialogComponent implements OnInit, OnDestroy {
     });
   }
 
-  deleteProvisionalNode(e: MouseEvent, node: SemanticModelNode): void {
+  deleteProvisionalNode(e: MouseEvent, node: SemanticNode): void {
     this.modal.confirm({
       nzTitle: 'Remove provisional element?',
       nzContent: `Do you want to remove the provisional node '${node.uri}'?`,
@@ -208,7 +199,7 @@ export class PlsConceptDialogComponent implements OnInit, OnDestroy {
     });
   }
 
-  getDescription(element: SemanticModelNode): string {
+  getDescription(element: SemanticNode): string {
     if (element._class === 'Class') {
       return (element as Class).description;
     }

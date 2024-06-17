@@ -2,10 +2,10 @@ package de.buw.tmdt.plasma.ars.labeling.lm.service.handler;
 
 import de.buw.tmdt.plasma.datamodel.CombinedModel;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.Class;
-import de.buw.tmdt.plasma.datamodel.semanticmodel.MappableSemanticModelNode;
-import de.buw.tmdt.plasma.datamodel.semanticmodel.SemanticModelNode;
+import de.buw.tmdt.plasma.datamodel.semanticmodel.MappableSemanticNode;
+import de.buw.tmdt.plasma.datamodel.semanticmodel.SemanticNode;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.PrimitiveNode;
-import de.buw.tmdt.plasma.datamodel.syntaxmodel.SchemaNode;
+import de.buw.tmdt.plasma.datamodel.syntaxmodel.SyntaxNode;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.SyntaxModel;
 import de.buw.tmdt.plasma.services.kgs.shared.api.OntologyApi;
 import org.slf4j.Logger;
@@ -31,17 +31,17 @@ public class LabelMatchingHandler {
 
     public CombinedModel performLabeling(String id, String configId, String configToken, CombinedModel combined) {
         List<String> mappedPrimitiveNodeIds = combined.getSemanticModel().getNodes().stream()
-                .filter(SemanticModelNode::isMapped)
-                .map(n -> (MappableSemanticModelNode) n)
-                .map(MappableSemanticModelNode::getMappedSyntaxNodeUuid)
+                .filter(SemanticNode::isMapped)
+                .map(n -> (MappableSemanticNode) n)
+                .map(MappableSemanticNode::getMappedSyntaxNodeUuid)
                 .collect(Collectors.toList());
         SyntaxModel syntaxModel = combined.getSyntaxModel();
-        for (SchemaNode node : syntaxModel.getNodes()) {
+        for (SyntaxNode node : syntaxModel.getNodes()) {
             if (!(node instanceof PrimitiveNode) || mappedPrimitiveNodeIds.contains(node.getUuid())) {
                 continue;
             }
             String label = node.getLabel();
-            Collection<SemanticModelNode> candidates = ontologyApi.getElements(null,label, null, null, 50);
+            Collection<SemanticNode> candidates = ontologyApi.getElements(null,label, null, null, 50);
             List<Class> classes = candidates.stream()
                     .filter(c -> c instanceof Class)
                     .map(c -> (Class) c)

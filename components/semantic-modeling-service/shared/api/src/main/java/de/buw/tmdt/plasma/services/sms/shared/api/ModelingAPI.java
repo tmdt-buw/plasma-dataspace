@@ -3,7 +3,7 @@ package de.buw.tmdt.plasma.services.sms.shared.api;
 import de.buw.tmdt.plasma.datamodel.*;
 import de.buw.tmdt.plasma.datamodel.modification.DeltaModification;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.Relation;
-import de.buw.tmdt.plasma.datamodel.semanticmodel.SemanticModelNode;
+import de.buw.tmdt.plasma.datamodel.semanticmodel.SemanticNode;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.http.MediaType;
@@ -64,9 +64,9 @@ public interface ModelingAPI {
 
     @NotNull
     @GetMapping(value = "/{modelId}/elements", produces = MediaType.APPLICATION_JSON_VALUE)
-    List<SemanticModelNode> getElements(@NotNull @PathVariable("modelId") String modelId,
-                                        @Nullable @RequestParam(value = "prefix", required = false) String prefix,
-                                        @Nullable @RequestParam(value = "infix", required = false) String infix);
+    List<SemanticNode> getElements(@NotNull @PathVariable("modelId") String modelId,
+                                   @Nullable @RequestParam(value = "prefix", required = false) String prefix,
+                                   @Nullable @RequestParam(value = "infix", required = false) String infix);
 
     @NotNull
     @GetMapping(value = "/{modelId}/relations", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -78,11 +78,11 @@ public interface ModelingAPI {
 
     @NotNull
     @PostMapping(value = "/{modelId}/cache/nodes", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    CombinedModelElement cacheElement(@NotNull @PathVariable("modelId") String modelId, @NotNull @RequestBody SemanticModelNode node);
+    CombinedModelElement cacheElement(@NotNull @PathVariable("modelId") String modelId, @NotNull @RequestBody SemanticNode node);
 
     @NotNull
     @PatchMapping(value = "/{modelId}/cache/nodes", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    CombinedModelElement updateProvisionalNode(@NotNull @PathVariable("modelId") String modelId, @NotNull @RequestBody SemanticModelNode node, @RequestParam(value = "oldURI", required = false) String oldURI);
+    CombinedModelElement updateProvisionalNode(@NotNull @PathVariable("modelId") String modelId, @NotNull @RequestBody SemanticNode node, @RequestParam(value = "oldURI", required = false) String oldURI);
 
 
     @DeleteMapping(value = "/{modelId}/cache/nodes")

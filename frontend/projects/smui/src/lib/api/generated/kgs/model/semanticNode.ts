@@ -1,6 +1,6 @@
 /**
- * PLASMA SMS Service
- * Service for modeling data sources
+ * PLASMA KGS Service
+ * Service for maintaining the Knowledge Graph
  *
  * The version of the OpenAPI document: 1.5.4
  * Contact: pomp@uni-wuppertal.de
@@ -11,16 +11,15 @@
  */
 
 
-export interface SchemaNode {
+export interface SemanticNode {
+  mapped?: boolean;
+  template?: boolean;
   uuid?: string;
   label?: string;
-  path?: Array<string>;
-  x?: number;
+  uri?: string;
+  provisional?: boolean;
   y?: number;
-  visible?: boolean;
-  disabled?: boolean;
-  depth?: number;
-  pathAsJSONPointer?: string;
+  x?: number;
   _class: string;
 }
 

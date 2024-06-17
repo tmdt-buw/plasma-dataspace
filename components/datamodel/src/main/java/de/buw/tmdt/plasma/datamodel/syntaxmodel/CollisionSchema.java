@@ -9,7 +9,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 @JsonTypeName("CollisionSchema")
-public class CollisionSchema extends SchemaNode {
+public class CollisionSchema extends SyntaxNode {
 
     private static final long serialVersionUID = 5329441916665293203L;
 

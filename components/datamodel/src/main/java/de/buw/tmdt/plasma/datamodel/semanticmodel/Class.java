@@ -9,7 +9,7 @@ import org.jetbrains.annotations.Nullable;
 import java.io.Serializable;
 import java.util.Objects;
 
-public class Class extends MappableSemanticModelNode implements Serializable, Customizable {
+public class Class extends MappableSemanticNode implements Serializable, Customizable {
     private static final long serialVersionUID = 2351939502355153654L;
 
     public static final String DESCRIPTION_PROPERTY = "description";
@@ -93,7 +93,7 @@ public class Class extends MappableSemanticModelNode implements Serializable, Cu
     }
 
     @Override
-    public SemanticModelNode instanciate() {
+    public SemanticNode instanciate() {
         Class newClass = copy();
         newClass.setInstance(null);
         newClass.setXCoordinate(null);
@@ -106,7 +106,7 @@ public class Class extends MappableSemanticModelNode implements Serializable, Cu
     }
 
     @Override
-    public boolean sameAs(SemanticModelNode o) {
+    public boolean sameAs(SemanticNode o) {
         if (this == o) {
             return true;
         } else if (o != null && this.getClass().equals(o.getClass())) {
@@ -168,7 +168,7 @@ public class Class extends MappableSemanticModelNode implements Serializable, Cu
     }
 
     @Override
-    public SemanticModelNode convertToTemplate() {
+    public SemanticNode convertToTemplate() {
         removeUuid();
         this.instance = null;
         setMappedSyntaxNodeUuid(null);

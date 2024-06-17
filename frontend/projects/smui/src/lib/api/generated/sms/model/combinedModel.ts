@@ -11,7 +11,7 @@
  */
 import { CacheRelationRequest } from './cacheRelationRequest';
 import { SemanticModel } from './semanticModel';
-import { SemanticModelNode } from './semanticModelNode';
+import { SemanticNode } from './semanticNode';
 import { SyntaxModel } from './syntaxModel';
 import { DeltaModification } from './deltaModification';
 
@@ -23,7 +23,7 @@ export interface CombinedModel {
   recommendations?: Array<DeltaModification>;
   lastModification?: DeltaModification;
   finalized?: boolean;
-  provisionalElements?: Array<SemanticModelNode>;
+  provisionalElements?: Array<SemanticNode>;
   provisionalRelations?: Array<CacheRelationRequest>;
 }
 

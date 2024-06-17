@@ -9,13 +9,13 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import { SchemaNode } from './schemaNode';
+import { SyntaxNode } from './syntaxNode';
 import { Edge } from './edge';
 
 
 export interface SyntaxModel {
   root?: string;
-  nodes?: Array<SchemaNode>;
+  nodes?: Array<SyntaxNode>;
   edges?: Array<Edge>;
 }
 

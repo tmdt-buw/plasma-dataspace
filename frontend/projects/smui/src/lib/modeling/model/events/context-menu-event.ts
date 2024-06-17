@@ -1,10 +1,10 @@
-import { Relation, SemanticModelNode } from '../../../api/generated/sms';
+import { Relation, SemanticNode } from '../../../api/generated/sms';
 
 export class ContextMenuEvent {
   type: ContextMenuEventType;
-  target: SemanticModelNode | Relation;
+  target: SemanticNode | Relation;
 
-  constructor(type: ContextMenuEventType, template: SemanticModelNode | Relation) {
+  constructor(type: ContextMenuEventType, template: SemanticNode | Relation) {
     this.type = type;
     this.target = template;
   }

@@ -1,56 +1,23 @@
 import { Overlay } from '@angular/cdk/overlay';
-import {
-  AfterViewInit,
-  ChangeDetectionStrategy,
-  Component,
-  ElementRef,
-  EventEmitter,
-  HostListener,
-  Input,
-  OnInit,
-  Output,
-  ViewChild,
-  ViewContainerRef,
-  ViewEncapsulation
-} from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, EventEmitter, HostListener, Input, OnInit, Output, ViewChild, ViewContainerRef, ViewEncapsulation } from '@angular/core';
 import * as dagre from 'dagre';
 import * as graphlib from 'graphlib';
 import { dia, g, highlighters, layout } from 'jointjs';
 import { ModalOptions, NzModalRef, NzModalService } from 'ng-zorro-antd/modal';
 import { BehaviorSubject, Subject } from 'rxjs';
 import { auditTime, distinctUntilChanged, pairwise, skip } from 'rxjs/operators';
-import {
-  Class,
-  CombinedModel,
-  DataProperty,
-  DeltaModification,
-  Instance,
-  Literal,
-  ModelMapping,
-  NamedEntity,
-  ObjectProperty,
-  PrimitiveNode,
-  Relation,
-  SchemaNode,
-  SemanticModel,
-  SemanticModelNode,
-  SetNode,
-  SyntaxModel
-} from '../../api/generated/sms';
+import { Class, CombinedModel, DataProperty, DeltaModification, Instance, Literal, ModelMapping, NamedEntity, ObjectProperty, PrimitiveNode, Relation, SemanticModel, SemanticNode, SetNode, SyntaxModel, SyntaxNode } from '../../api/generated/sms';
 import { ContextMenuService } from '../context-menu/context-menu.service';
 import { PlsSemanticClassMenuComponent } from '../context-menu/semantic-class-menu/semantic-class-menu.component';
 import { PlsRelationConceptMenuComponent } from '../context-menu/relation-menu/relation-menu.component';
 import { ModalMouseEnabledConfig } from '../dialogs/common/modal.base-config';
-import {
-  PlsSemanticNodeDetailsComponent,
-  PlsSemanticNodeDetailsData
-} from '../dialogs/semantic-node-dialog/semantic-node.component';
+import { PlsSemanticNodeDetailsComponent, PlsSemanticNodeDetailsData } from '../dialogs/semantic-node-dialog/semantic-node.component';
 import { PlsSyntaxNodeDetailsComponent } from '../dialogs/syntax-node-dialog/syntax-node.component';
 import { Filter } from '../model/common/filter';
 import { Graphs } from '../model/configuration/graph';
 import { Icons } from '../model/configuration/icons';
 import { Links } from '../model/configuration/link';
-import { Nodes, NodeType, SemanticNode, SyntaxNode } from '../model/configuration/node';
+import { Nodes, NodeType } from '../model/configuration/node';
 import { Papers } from '../model/configuration/paper';
 import { NodeChangedEvent } from '../model/events/node-changed-event';
 import { ModelingService } from '../modeling.service';
@@ -125,7 +92,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
   }
 
   // modeling
-  modelNode: SemanticModelNode; // currently selected node template
+  modelNode: SemanticNode; // currently selected node template
   relation: Relation; // currently selected relation template
   relationTarget = false;
   hoveredElement;
@@ -137,9 +104,9 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
 
   // events
   @Output() graphLaidOut = new EventEmitter<CombinedModel>();
-  @Output() semanticModelElementsAdded = new EventEmitter<{ entities?: Array<SemanticModelNode>, relations?: Array<Relation> }>();
-  @Output() semanticModelElementsRemoved = new EventEmitter<{ entities?: Array<SemanticModelNode>, relations?: Array<Relation> }>();
-  @Output() nodeChanged = new EventEmitter<{ entities?: Array<SemanticModelNode>, nodes?: Array<SchemaNode> }>();
+  @Output() semanticModelElementsAdded = new EventEmitter<{ entities?: Array<SemanticNode>, relations?: Array<Relation> }>();
+  @Output() semanticModelElementsRemoved = new EventEmitter<{ entities?: Array<SemanticNode>, relations?: Array<Relation> }>();
+  @Output() nodeChanged = new EventEmitter<{ entities?: Array<SemanticNode>, nodes?: Array<SyntaxNode> }>();
   @Output() nodePositionChanged = new EventEmitter<NodeChangedEvent>();
   @Output() nodeClicked = new EventEmitter<string>();
   @Output() recommendationAccepted = new EventEmitter<DeltaModification>();
@@ -562,43 +529,12 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
     });
   }
 
-  private isArrayContextAvailable(link: Relation): boolean {
-    const from: SemanticModelNode = this.combinedModel.semanticModel.nodes.find(n => n.uuid === link.from);
-    const to: SemanticModelNode = this.combinedModel.semanticModel.nodes.find(n => n.uuid === link.to);
-    // console.log('checking link', from, to);
-    // check if any of those two nodes is mapped to a sub-array node
-    if (from.mapped && ['Class', 'Literal'].includes(to._class)) {
-      // treating as literal here as we only need the mapping info and openapi does not provide the shared abstract class
-      const mappedNodeUuid = (from as Literal).syntaxNodeUuid;
-      const mappedFrom: SyntaxNode = this.combinedModel.syntaxModel.nodes.find(n => n.uuid === mappedNodeUuid);
-      const depthFrom = mappedFrom.path.filter(v => v === '0').length;
-      // console.log('depthFrom', depthFrom);
-      if (depthFrom > 0) {
-        // prevent array contexts with depth > 1 (remove with #68)
-        if (depthFrom > 1) {
-          return false;
-        }
-        return true;
-      }
-    }
-    if (to.mapped && ['Class', 'Literal'].includes(to._class)) {
-      // treating as literal here as we only need the mapping info and openapi does not provide the shared abstract class
-      const mappedNodeUuid = (to as Literal).syntaxNodeUuid;
-      const mappedTo: SyntaxNode = this.combinedModel.syntaxModel.nodes.find(n => n.uuid === mappedNodeUuid);
-      const depthTo = mappedTo.path.filter(v => v === '0').length;
-      if (depthTo > 0) {
-        // prevent array contexts with depth > 1 (remove with #68)
-        if (depthTo > 1) {
-          return false;
-        }
-        return true;
-      }
-    }
-    // check if any of from/to nodes are part of an array context
-    // console.log(this._arrayContexts, this.combinedModel);
-    const b = this._arrayContexts.some(ac => ac.some(id => id === from.uuid || id === to.uuid));
-    // console.log(b);
-    return b;
+  /**
+   * Setter for entity node
+   * @param node - the new node
+   */
+  setSelectedModelNode(node: SemanticNode): void {
+    this.modelNode = node;
   }
 
   /**
@@ -681,12 +617,43 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
     this.unhighlightAll();
   }
 
-  /**
-   * Setter for entity node
-   * @param node - the new node
-   */
-  setSelectedModelNode(node: SemanticModelNode): void {
-    this.modelNode = node;
+  private isArrayContextAvailable(link: Relation): boolean {
+    const from: SemanticNode = this.combinedModel.semanticModel.nodes.find(n => n.uuid === link.from);
+    const to: SemanticNode = this.combinedModel.semanticModel.nodes.find(n => n.uuid === link.to);
+    // console.log('checking link', from, to);
+    // check if any of those two nodes is mapped to a sub-array node
+    if (from.mapped && ['Class', 'Literal'].includes(to._class)) {
+      // treating as literal here as we only need the mapping info and openapi does not provide the shared abstract class
+      const mappedNodeUuid = (from as Literal).syntaxNodeUuid;
+      const mappedFrom: SyntaxNode = this.combinedModel.syntaxModel.nodes.find(n => n.uuid === mappedNodeUuid);
+      const depthFrom = mappedFrom.path.filter(v => v === '0').length;
+      // console.log('depthFrom', depthFrom);
+      if (depthFrom > 0) {
+        // prevent array contexts with depth > 1 (remove with #68)
+        if (depthFrom > 1) {
+          return false;
+        }
+        return true;
+      }
+    }
+    if (to.mapped && ['Class', 'Literal'].includes(to._class)) {
+      // treating as literal here as we only need the mapping info and openapi does not provide the shared abstract class
+      const mappedNodeUuid = (to as Literal).syntaxNodeUuid;
+      const mappedTo: SyntaxNode = this.combinedModel.syntaxModel.nodes.find(n => n.uuid === mappedNodeUuid);
+      const depthTo = mappedTo.path.filter(v => v === '0').length;
+      if (depthTo > 0) {
+        // prevent array contexts with depth > 1 (remove with #68)
+        if (depthTo > 1) {
+          return false;
+        }
+        return true;
+      }
+    }
+    // check if any of from/to nodes are part of an array context
+    // console.log(this._arrayContexts, this.combinedModel);
+    const b = this._arrayContexts.some(ac => ac.some(id => id === from.uuid || id === to.uuid));
+    // console.log(b);
+    return b;
   }
 
   /**
@@ -1279,7 +1246,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
             this.recommendationAccepted.emit(recommendation);
           }
         });
-        nodeDialogRef.nodeEdited.subscribe((node: SemanticModelNode) => {
+        nodeDialogRef.nodeEdited.subscribe((node: SemanticNode) => {
           const element = this.graph.getElements().find(el => el.attributes.id === id);
           let icon;
           if ((node as Class).syntaxNodeUuid) {
@@ -1325,7 +1292,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
           finalized: this.isViewerMode()
         }));
         nodeDialogRef = this.nodeDialogRef.componentInstance as PlsSemanticNodeDetailsComponent;
-        nodeDialogRef.nodeEdited.subscribe((node: SemanticModelNode) => {
+        nodeDialogRef.nodeEdited.subscribe((node: SemanticNode) => {
           const element = this.graph.getElements().find(el => el.attributes.id === id);
           const dims = this.calcDimensionsForLabel(node.label, true);
           element.attributes.size = {width: dims[0], height: dims[1]};

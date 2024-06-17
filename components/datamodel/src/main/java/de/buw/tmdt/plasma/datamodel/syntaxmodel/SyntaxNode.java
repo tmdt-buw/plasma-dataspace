@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
         @JsonSubTypes.Type(value = SetNode.class, name = "SetNode"),
         @JsonSubTypes.Type(value = CollisionSchema.class, name = "CollisionSchema")
 })
-public abstract class SchemaNode extends PositionedCombinedModelElement {
+public abstract class SyntaxNode extends PositionedCombinedModelElement {
 
     private static final long serialVersionUID = 8398288916936841021L;
 
@@ -30,8 +30,6 @@ public abstract class SchemaNode extends PositionedCombinedModelElement {
     public static final String OBJECT_LABEL = "##object";
     public static final String VALUE_LABEL = "##value";
     public static final List<String> PREDEFINED_LABELS = List.of(ARRAY_LABEL, OBJECT_LABEL, VALUE_LABEL);
-
-    public static final String VALID_PROPERTY = "valid";
     public static final String PATH_PROPERTY = "path";
     public static final String VISIBLE_PROPERTY = "visible";
     public static final String DISABLED_PROPERTY = "disabled";
@@ -41,14 +39,14 @@ public abstract class SchemaNode extends PositionedCombinedModelElement {
 
     private List<String> path;
 
-    public SchemaNode(
+    public SyntaxNode(
             @NotNull String label
     ) {
         super(label);
         this.path = new ArrayList<>();
     }
 
-    public SchemaNode(
+    public SyntaxNode(
             @NotNull String uuid,
             @NotNull String label,
             @Nullable List<String> path,
@@ -62,7 +60,7 @@ public abstract class SchemaNode extends PositionedCombinedModelElement {
     }
 
     @JsonCreator
-    public SchemaNode(
+    public SyntaxNode(
             @NotNull @JsonProperty(UUID_PROPERTY) String uuid,
             @NotNull @JsonProperty(LABEL_PROPERTY) String label,
             @Nullable @JsonProperty(PATH_PROPERTY) List<String> path,
@@ -129,7 +127,7 @@ public abstract class SchemaNode extends PositionedCombinedModelElement {
      *
      * @return The cloned entity
      */
-    public abstract SchemaNode copy();
+    public abstract SyntaxNode copy();
 
     @Override
     public int hashCode() {
@@ -141,10 +139,10 @@ public abstract class SchemaNode extends PositionedCombinedModelElement {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof SchemaNode)) {
+        if (!(o instanceof SyntaxNode)) {
             return false;
         }
-        SchemaNode that = (SchemaNode) o;
+        SyntaxNode that = (SyntaxNode) o;
         return Objects.equals(getUuid(), that.getUuid());
     }
 

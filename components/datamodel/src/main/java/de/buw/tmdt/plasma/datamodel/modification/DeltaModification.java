@@ -3,9 +3,9 @@ package de.buw.tmdt.plasma.datamodel.modification;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.Relation;
-import de.buw.tmdt.plasma.datamodel.semanticmodel.SemanticModelNode;
+import de.buw.tmdt.plasma.datamodel.semanticmodel.SemanticNode;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.Edge;
-import de.buw.tmdt.plasma.datamodel.syntaxmodel.SchemaNode;
+import de.buw.tmdt.plasma.datamodel.syntaxmodel.SyntaxNode;
 import de.buw.tmdt.plasma.utilities.collections.CollectionUtilities;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -43,7 +43,7 @@ public class DeltaModification implements Serializable {
      * The set of modified semantic entities.
      */
     @NotNull
-    private List<SemanticModelNode> entities;
+    private List<SemanticNode> entities;
 
     /**
      * The set of modified semantic relations.
@@ -55,7 +55,7 @@ public class DeltaModification implements Serializable {
      * The set of modified syntactic nodes.
      */
     @NotNull
-    private List<SchemaNode> nodes;
+    private List<SyntaxNode> nodes;
 
     /**
      * The set of modified syntactic edges.
@@ -78,17 +78,17 @@ public class DeltaModification implements Serializable {
     }
 
     public DeltaModification(@NotNull String reference,
-                             @Nullable List<SemanticModelNode> entities,
+                             @Nullable List<SemanticNode> entities,
                              @Nullable List<Relation> relations,
-                             @Nullable List<SchemaNode> nodes,
+                             @Nullable List<SyntaxNode> nodes,
                              @Nullable List<Edge> edges) {
         this(reference, false, entities, relations, nodes, edges, null, 0.0);
     }
 
     public DeltaModification(@NotNull String reference,
-                             @Nullable List<SemanticModelNode> entities,
+                             @Nullable List<SemanticNode> entities,
                              @Nullable List<Relation> relations,
-                             @Nullable List<SchemaNode> nodes,
+                             @Nullable List<SyntaxNode> nodes,
                              @Nullable List<Edge> edges,
                              @Nullable Double confidence) {
         this(reference, false, entities, relations, nodes, edges, null, confidence);
@@ -97,9 +97,9 @@ public class DeltaModification implements Serializable {
     @JsonCreator
     public DeltaModification(@JsonProperty(REFERENCE_PROPERTY) String reference,
                              @JsonProperty(value = DELETION_PROPERTY, defaultValue = "false") boolean deletion,
-                             @JsonProperty(ENTITIES_PROPERTY) @Nullable List<SemanticModelNode> entities,
+                             @JsonProperty(ENTITIES_PROPERTY) @Nullable List<SemanticNode> entities,
                              @JsonProperty(RELATIONS_PROPERTY) @Nullable List<Relation> relations,
-                             @JsonProperty(NODES_PROPERTY) @Nullable List<SchemaNode> nodes,
+                             @JsonProperty(NODES_PROPERTY) @Nullable List<SyntaxNode> nodes,
                              @JsonProperty(EDGES_PROPERTY) @Nullable List<Edge> edges,
                              @JsonProperty(ANCHORS_PROPERTY) @Nullable List<String> anchors,
                              @JsonProperty(CONFIDENCE_PROPERTY) @Nullable Double confidence) {
@@ -125,17 +125,17 @@ public class DeltaModification implements Serializable {
 
     @NotNull
     @JsonProperty(ENTITIES_PROPERTY)
-    public List<SemanticModelNode> getEntities() {
+    public List<SemanticNode> getEntities() {
         return entities;
     }
 
-    public void setEntities(@NotNull List<SemanticModelNode> entities) {
+    public void setEntities(@NotNull List<SemanticNode> entities) {
         this.entities = entities;
     }
 
     @NotNull
     @JsonProperty(NODES_PROPERTY)
-    public List<SchemaNode> getNodes() {
+    public List<SyntaxNode> getNodes() {
         return nodes;
     }
 
@@ -171,7 +171,7 @@ public class DeltaModification implements Serializable {
         this.relations = objectProperties;
     }
 
-    public void setNodes(@NotNull List<SchemaNode> nodes) {
+    public void setNodes(@NotNull List<SyntaxNode> nodes) {
         this.nodes = nodes;
     }
 
@@ -200,20 +200,20 @@ public class DeltaModification implements Serializable {
     /**
      * Creates a deep clone of the current entity.
      *
-     * @return The cloned entity with also the {@link SemanticModelNode}s, {@link Relation}s, {@link SchemaNode}s and {@link Edge}s cloned
+     * @return The cloned entity with also the {@link SemanticNode}s, {@link Relation}s, {@link SyntaxNode}s and {@link Edge}s cloned
      */
     public DeltaModification copy() {
         return new DeltaModification(
                 getReference(),
                 isDeletion(),
                 CollectionUtilities.map(getEntities(),
-                        SemanticModelNode::copy,
+                        SemanticNode::copy,
                         ArrayList::new),
                 CollectionUtilities.map(getRelations(),
                         Relation::copy,
                         ArrayList::new),
                 CollectionUtilities.map(getNodes(),
-                        SchemaNode::copy,
+                        SyntaxNode::copy,
                         ArrayList::new),
                 CollectionUtilities.map(getEdges(),
                         Edge::copy,

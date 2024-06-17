@@ -8,7 +8,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
-public class Literal extends MappableSemanticModelNode {
+public class Literal extends MappableSemanticNode {
 
     public static final String VALUE_PROPERTY = "value";
 
@@ -57,7 +57,7 @@ public class Literal extends MappableSemanticModelNode {
     }
 
     @Override
-    public boolean sameAs(SemanticModelNode o) {
+    public boolean sameAs(SemanticNode o) {
         if (this == o) {
             return true;
         } else if (o != null && this.getClass().equals(o.getClass())) {

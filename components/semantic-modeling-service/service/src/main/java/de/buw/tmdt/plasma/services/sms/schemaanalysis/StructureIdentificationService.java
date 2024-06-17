@@ -1,14 +1,8 @@
 package de.buw.tmdt.plasma.services.sms.schemaanalysis;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ContainerNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.ValueNode;
-import de.buw.tmdt.plasma.datamodel.CombinedModel;
 import de.buw.tmdt.plasma.datamodel.modification.operation.DataType;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.*;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -16,11 +10,9 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import static de.buw.tmdt.plasma.datamodel.syntaxmodel.SchemaNode.*;
-import java.io.Serializable;
+import static de.buw.tmdt.plasma.datamodel.syntaxmodel.SyntaxNode.*;
+
 import java.util.*;
-
-
 
 /**
  * Analyzes the given {@link JsonNode} tree to create a representation as a {@link SyntaxModel}.
@@ -29,7 +21,6 @@ import java.util.*;
 public class StructureIdentificationService {
 	private static final Logger logger = LoggerFactory.getLogger(StructureIdentificationService.class);
 	private static final int EXAMPLE_VALUE_LENGTH = 255;
-	private static final int NUMBER_OF_EXAMPLE_VALUES_PER_TYPE = 6;
 	private static final int NODE_LABEL_LENGTH = 254;
 
 	/**
@@ -41,7 +32,7 @@ public class StructureIdentificationService {
 	@NotNull
 	public SyntaxModel convertRootNode(@NotNull JsonNode root) {
 		@NotNull SerializationContext serializationContext = new SerializationContext();
-		SchemaNode syntaxRoot;
+		SyntaxNode syntaxRoot;
 		List<String> path = new ArrayList<>();
 
 		if (root.isArray()) {
@@ -83,21 +74,21 @@ public class StructureIdentificationService {
 		return root;
 	}
 
-	private void createArrayChild(@NotNull SchemaNode parentNode, @NotNull JsonNode child, List<String> nodePath, @NotNull SerializationContext serializationContext) {
-		SchemaNode schemaNode;
+	private void createArrayChild(@NotNull SyntaxNode parentNode, @NotNull JsonNode child, List<String> nodePath, @NotNull SerializationContext serializationContext) {
+		SyntaxNode syntaxNode;
 
 		nodePath = new ArrayList<>(nodePath); // copy list again to ensure child does get a new instance
 		if (child.isArray()) {
-			schemaNode = convertArrayNode((ArrayNode) child, ARRAY_LABEL, ARRAY_PATH_TOKEN, nodePath, serializationContext);
+			syntaxNode = convertArrayNode((ArrayNode) child, ARRAY_LABEL, ARRAY_PATH_TOKEN, nodePath, serializationContext);
 		} else if (child.isObject()) {
-			schemaNode = convertObjectNode((com.fasterxml.jackson.databind.node.ObjectNode) child, OBJECT_LABEL, ARRAY_PATH_TOKEN, nodePath, serializationContext);
+			syntaxNode = convertObjectNode((com.fasterxml.jackson.databind.node.ObjectNode) child, OBJECT_LABEL, ARRAY_PATH_TOKEN, nodePath, serializationContext);
 		} else if (child.isValueNode()) {
-			schemaNode = convertValueNode((ValueNode) child, VALUE_LABEL, ARRAY_PATH_TOKEN, nodePath);
+			syntaxNode = convertValueNode((ValueNode) child, VALUE_LABEL, ARRAY_PATH_TOKEN, nodePath);
 		} else {
 			throw new IllegalArgumentException("Unsupported sub-type of " + JsonNode.class + " found: " + child.getClass());
 		}
-		serializationContext.nodeLookUp.put(schemaNode.getUuid(), schemaNode);
-		serializationContext.edges.add(new Edge(parentNode.getUuid(), schemaNode.getUuid()));
+		serializationContext.nodeLookUp.put(syntaxNode.getUuid(), syntaxNode);
+		serializationContext.edges.add(new Edge(parentNode.getUuid(), syntaxNode.getUuid()));
 	}
 
 	@NotNull
@@ -125,19 +116,19 @@ public class StructureIdentificationService {
 								   String pathToken,
 								   List<String> nodePath,
 								   @NotNull SerializationContext serializationContext) {
-		SchemaNode schemaNode;
+		SyntaxNode syntaxNode;
 		nodePath = new ArrayList<>(nodePath); // copy list again to ensure child does get a new instance
 		if (child.isArray()) {
-			schemaNode = convertArrayNode((ArrayNode) child, label, pathToken, nodePath, serializationContext);
+			syntaxNode = convertArrayNode((ArrayNode) child, label, pathToken, nodePath, serializationContext);
 		} else if (child.isObject()) {
-			schemaNode = convertObjectNode((com.fasterxml.jackson.databind.node.ObjectNode) child, label, pathToken, nodePath, serializationContext);
+			syntaxNode = convertObjectNode((com.fasterxml.jackson.databind.node.ObjectNode) child, label, pathToken, nodePath, serializationContext);
 		} else if (child.isValueNode()) {
-			schemaNode = convertValueNode((ValueNode) child, label, pathToken, nodePath);
+			syntaxNode = convertValueNode((ValueNode) child, label, pathToken, nodePath);
 		} else {
 			throw new IllegalArgumentException("Unsupported sub-type of " + JsonNode.class + " found: " + child.getClass());
 		}
-		serializationContext.nodeLookUp.put(schemaNode.getUuid(), schemaNode);
-		serializationContext.edges.add(new Edge(parentObjectNode.getUuid(), schemaNode.getUuid()));
+		serializationContext.nodeLookUp.put(syntaxNode.getUuid(), syntaxNode);
+		serializationContext.edges.add(new Edge(parentObjectNode.getUuid(), syntaxNode.getUuid()));
 	}
 
 	@NotNull
@@ -173,7 +164,7 @@ public class StructureIdentificationService {
 	 * Contains the current state of converted elements.
 	 */
 	private static class SerializationContext {
-		private final HashMap<@NotNull String, @NotNull SchemaNode> nodeLookUp;
+		private final HashMap<@NotNull String, @NotNull SyntaxNode> nodeLookUp;
 		private final ArrayList<@NotNull Edge> edges;
 
 		public SerializationContext(

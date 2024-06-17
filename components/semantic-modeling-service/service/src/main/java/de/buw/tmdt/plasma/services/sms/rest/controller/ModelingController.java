@@ -3,7 +3,7 @@ package de.buw.tmdt.plasma.services.sms.rest.controller;
 import de.buw.tmdt.plasma.datamodel.*;
 import de.buw.tmdt.plasma.datamodel.modification.DeltaModification;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.Relation;
-import de.buw.tmdt.plasma.datamodel.semanticmodel.SemanticModelNode;
+import de.buw.tmdt.plasma.datamodel.semanticmodel.SemanticNode;
 import de.buw.tmdt.plasma.services.sms.core.ModelingHandler;
 import de.buw.tmdt.plasma.services.sms.core.model.Modeling;
 import de.buw.tmdt.plasma.services.sms.core.database.ModelingRepository;
@@ -151,7 +151,7 @@ public class ModelingController implements ModelingAPI {
     @NotNull
     @Override
     @Operation(description = "Returns all elements either persistent in the knowledge base or cached for the referenced model sorted alphabetically.")
-    public List<SemanticModelNode> getElements(@NotNull String modelId, @Nullable String prefix, @Nullable String infix) {
+    public List<SemanticNode> getElements(@NotNull String modelId, @Nullable String prefix, @Nullable String infix) {
         return modelingHandler.getElements(modelId, prefix, infix);
     }
 
@@ -165,14 +165,14 @@ public class ModelingController implements ModelingAPI {
     @NotNull
     @Override
     @Operation(description = "Adds a new provisional node to the cache of the modeling.")
-    public CombinedModelElement cacheElement(@NotNull String modelingId, @NotNull SemanticModelNode node) {
+    public CombinedModelElement cacheElement(@NotNull String modelingId, @NotNull SemanticNode node) {
         return modelingHandler.cacheNode(modelingId, node);
     }
 
     @NotNull
     @Override
     @Operation(description = "Updates provisional node in the cache of the modeling.")
-    public CombinedModelElement updateProvisionalNode(@NotNull String modelingId, @NotNull SemanticModelNode node, @Nullable String oldURI) {
+    public CombinedModelElement updateProvisionalNode(@NotNull String modelingId, @NotNull SemanticNode node, @Nullable String oldURI) {
         return modelingHandler.updateCachedNode(modelingId, node, oldURI);
     }
 

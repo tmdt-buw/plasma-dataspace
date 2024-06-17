@@ -2,7 +2,7 @@ package de.buw.tmdt.plasma.services.kgs.core;
 
 import de.buw.tmdt.plasma.datamodel.CombinedModelElement;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.Relation;
-import de.buw.tmdt.plasma.datamodel.semanticmodel.SemanticModelNode;
+import de.buw.tmdt.plasma.datamodel.semanticmodel.SemanticNode;
 import de.buw.tmdt.plasma.services.kgs.shared.model.ExportFormat;
 import org.apache.commons.lang.StringUtils;
 import org.apache.jena.ontology.OntClass;
@@ -43,13 +43,13 @@ public class OntologyHandler {
     }
 
     @NotNull
-    public List<SemanticModelNode> getElements(@NotNull List<String> ontologyLabels,
-                                               @Nullable String prefix,
-                                               @Nullable String infix,
-                                               @Nullable String uri
+    public List<SemanticNode> getElements(@NotNull List<String> ontologyLabels,
+                                          @Nullable String prefix,
+                                          @Nullable String infix,
+                                          @Nullable String uri
     ) {
         List<OntModel> filteredOntologyModels = ontologyManagement.getFilteredOntologyModels(ontologyLabels);
-        List<SemanticModelNode> nodes = new ArrayList<>();
+        List<SemanticNode> nodes = new ArrayList<>();
         if (uri != null && !uri.isBlank()) {
             findClasses(filteredOntologyModels, clazz -> uri.equals(clazz.getURI())).stream()
                     .map(CMToRDFMapper::convertOntologyClassToClass)

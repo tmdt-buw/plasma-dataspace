@@ -12,8 +12,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import static de.buw.tmdt.plasma.datamodel.syntaxmodel.SchemaNode.ARRAY_PATH_TOKEN;
-import static de.buw.tmdt.plasma.datamodel.syntaxmodel.SchemaNode.ROOT_PATH_TOKEN;
+import static de.buw.tmdt.plasma.datamodel.syntaxmodel.SyntaxNode.ARRAY_PATH_TOKEN;
+import static de.buw.tmdt.plasma.datamodel.syntaxmodel.SyntaxNode.ROOT_PATH_TOKEN;
 
 public class CombinedModelGenerator {
 
@@ -26,7 +26,7 @@ public class CombinedModelGenerator {
     private boolean mapTagInstance = false;
 
 
-    private static void mapSemanticNode(MappableSemanticModelNode semanticNode, MappableSyntaxNode schemaNode) {
+    private static void mapSemanticNode(MappableSemanticNode semanticNode, MappableSyntaxNode schemaNode) {
         semanticNode.setMappedSyntaxNodeLabel(schemaNode.getLabel());
         semanticNode.setMappedSyntaxNodeUuid(schemaNode.getUuid());
         semanticNode.setMappedSyntaxNodePath(schemaNode.getPathAsJSONPointer());
@@ -41,9 +41,9 @@ public class CombinedModelGenerator {
 
     public CombinedModel getFlightModel() {
 
-        List<SchemaNode> nodes = new ArrayList<>();
+        List<SyntaxNode> nodes = new ArrayList<>();
         List<Edge> edges = new ArrayList<>();
-        SchemaNode root = new ObjectNode("root", List.of(ROOT_PATH_TOKEN), null, null);
+        SyntaxNode root = new ObjectNode("root", List.of(ROOT_PATH_TOKEN), null, null);
         nodes.add(root);
         PrimitiveNode identifierNode = new PrimitiveNode("id", List.of(ROOT_PATH_TOKEN, "id"), DataType.String, List.of("AL0025-20201123-1456-1634"), null);
         Edge rootIdentifierEdge = new Edge(root.getUuid(), identifierNode.getUuid());
@@ -102,7 +102,7 @@ public class CombinedModelGenerator {
         // 2nd level array
         SetNode tagsArrayNode = new SetNode(UUID.randomUUID().toString(), "tags", null, null, null, true, false);
         tagsArrayNode.setPath(appendPathToken(staffObjectNode.getPath(), tagsArrayNode.getLabel()));
-        ObjectNode tagsObjectNode = new ObjectNode(UUID.randomUUID().toString(), SchemaNode.OBJECT_LABEL, null, null, null, true, false);
+        ObjectNode tagsObjectNode = new ObjectNode(UUID.randomUUID().toString(), SyntaxNode.OBJECT_LABEL, null, null, null, true, false);
         tagsObjectNode.setPath(appendPathToken(tagsArrayNode.getPath(), ARRAY_PATH_TOKEN));
         PrimitiveNode tagsKeyNode = new PrimitiveNode("key", DataType.String, List.of("Tag Key"), null);
         tagsKeyNode.setPath(appendPathToken(tagsObjectNode.getPath(), tagsKeyNode.getLabel()));
@@ -118,7 +118,7 @@ public class CombinedModelGenerator {
         SyntaxModel syntaxModel = new SyntaxModel(root.getUuid(), nodes, edges);
 
         // generate semantic model
-        List<SemanticModelNode> elements = new ArrayList<>();
+        List<SemanticNode> elements = new ArrayList<>();
         List<Relation> relations = new ArrayList<>();
         Class flightClass = new Class(namespace + "flight", "flight", "A scheduled flight of an airplane");
         elements.add(flightClass);

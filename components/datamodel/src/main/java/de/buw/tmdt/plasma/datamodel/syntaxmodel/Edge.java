@@ -24,13 +24,13 @@ public class Edge extends CombinedModelElement {
     public static final String DISABLED_PROPERTY = "disabled";
 
     /**
-     * An identifier of the origin node, references to a {@link SchemaNode#getUuid()}.
+     * An identifier of the origin node, references to a {@link SyntaxNode#getUuid()}.
      */
     @NotNull
     private String fromId;
 
     /**
-     * An identifier of the target node, references to a {@link SchemaNode#getUuid()}.
+     * An identifier of the target node, references to a {@link SyntaxNode#getUuid()}.
      */
     @NotNull
     private String toId;

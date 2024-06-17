@@ -2,7 +2,7 @@ package de.buw.tmdt.plasma.services.kgs.rest.controller;
 
 import de.buw.tmdt.plasma.datamodel.semanticmodel.NodeTemplate;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.Relation;
-import de.buw.tmdt.plasma.datamodel.semanticmodel.SemanticModelNode;
+import de.buw.tmdt.plasma.datamodel.semanticmodel.SemanticNode;
 import de.buw.tmdt.plasma.services.kgs.core.OntologyHandler;
 import de.buw.tmdt.plasma.services.kgs.core.OntologyManagement;
 import de.buw.tmdt.plasma.services.kgs.shared.api.OntologyApi;
@@ -43,8 +43,8 @@ public class OntologyController implements OntologyApi {
     }
 
     @Override
-    public @NotNull List<SemanticModelNode> getElements(List<String> ontologyLabels, String prefix, String infix, String uri, long limit) {
-        List<SemanticModelNode> elements = ontologyHandler.getElements(ontologyLabels, prefix, infix, uri);
+    public @NotNull List<SemanticNode> getElements(List<String> ontologyLabels, String prefix, String infix, String uri, long limit) {
+        List<SemanticNode> elements = ontologyHandler.getElements(ontologyLabels, prefix, infix, uri);
         elements.stream()
                 .filter(Objects::nonNull)
                 .forEach(element -> ((NodeTemplate) element).convertToTemplate());

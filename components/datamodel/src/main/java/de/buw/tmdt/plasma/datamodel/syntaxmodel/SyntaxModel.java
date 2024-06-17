@@ -22,7 +22,7 @@ public class SyntaxModel implements Serializable {
 	private static final long serialVersionUID = -7924812162247359979L;
 
 	private final String root;
-	private final ArrayList<SchemaNode> nodes;
+	private final ArrayList<SyntaxNode> nodes;
 	private final ArrayList<Edge> edges;
 
 	public SyntaxModel() {
@@ -33,7 +33,7 @@ public class SyntaxModel implements Serializable {
 
 	public SyntaxModel(
 			@JsonProperty(ROOT_PROPERTY) @NotNull String root,
-			@JsonProperty(NODES_PROPERTY) @NotNull List<SchemaNode> nodes,
+			@JsonProperty(NODES_PROPERTY) @NotNull List<SyntaxNode> nodes,
 			@JsonProperty(EDGES_PROPERTY) @NotNull List<Edge> edges
 	) {
 		this.root = root;
@@ -53,7 +53,7 @@ public class SyntaxModel implements Serializable {
 	}
 
 	@JsonProperty(NODES_PROPERTY)
-	public List<SchemaNode> getNodes() {
+	public List<SyntaxNode> getNodes() {
 		return nodes;
 	}
 
@@ -65,7 +65,7 @@ public class SyntaxModel implements Serializable {
     @SuppressFBWarnings("NP_NONNULL_RETURN_VIOLATION") // throws if not present
     @NotNull
     @JsonIgnore
-    public SchemaNode getParentNodeFor(String nodeUuid) {
+    public SyntaxNode getParentNodeFor(String nodeUuid) {
         Edge edgeToParent = getEdges().stream()
 		        .filter(edge -> edge.getToId().equals(nodeUuid))
                 .findFirst().orElseThrow();
@@ -77,7 +77,7 @@ public class SyntaxModel implements Serializable {
     @SuppressFBWarnings("NP_NONNULL_RETURN_VIOLATION")
     @NotNull
     @JsonIgnore
-    public List<SchemaNode> getChildNodesForNode(String nodeUuid) {
+    public List<SyntaxNode> getChildNodesForNode(String nodeUuid) {
         List<String> childNodeUuids = getEdges().stream()
 		        .filter(edge -> edge.getFromId().equals(nodeUuid))
 		        .map(Edge::getToId)
@@ -88,7 +88,7 @@ public class SyntaxModel implements Serializable {
     }
 
 	@JsonIgnore
-	public SchemaNode getNode(@NotNull String nodeUuid) {
+	public SyntaxNode getNode(@NotNull String nodeUuid) {
 		return getNodes().stream()
 				.filter(schemaNode -> nodeUuid.equals(schemaNode.getUuid()))
 				.findFirst().orElse(null);
@@ -97,7 +97,7 @@ public class SyntaxModel implements Serializable {
 	/**
 	 * Validates the internal integrity of the {@link SyntaxModel}
 	 * Checks that:
-	 * 1. All {@link Edge}s have valid (existing and unique) 'from' and 'to' ids matching existing {@link SchemaNode} ids
+	 * 1. All {@link Edge}s have valid (existing and unique) 'from' and 'to' ids matching existing {@link SyntaxNode} ids
 	 *
 	 * @throws CombinedModelIntegrityException If one or more errors occur
 	 */
@@ -122,13 +122,13 @@ public class SyntaxModel implements Serializable {
 	/**
 	 * Creates a deep clone of the current entity.
 	 *
-	 * @return The cloned entity with also the {@link SchemaNode}s and {@link Edge}s cloned
+	 * @return The cloned entity with also the {@link SyntaxNode}s and {@link Edge}s cloned
 	 */
 	public SyntaxModel copy() {
 		return new SyntaxModel(
 				getRoot(),
 				CollectionUtilities.map(getNodes(),
-						SchemaNode::copy,
+						SyntaxNode::copy,
 						ArrayList::new),
 				CollectionUtilities.map(getEdges(),
 						Edge::copy,
@@ -166,7 +166,7 @@ public class SyntaxModel implements Serializable {
                 + '}';
     }
 
-    public SchemaNode findNode(String nodeUuid) {
+    public SyntaxNode findNode(String nodeUuid) {
         return getNodes().stream()
                 .filter(schemaNode -> schemaNode.getUuid().equals(nodeUuid))
                 .findFirst()

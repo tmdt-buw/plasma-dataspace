@@ -12,10 +12,7 @@
 /* tslint:disable:no-unused-variable member-ordering */
 
 import { Inject, Injectable, Optional } from '@angular/core';
-import {
-  HttpClient, HttpHeaders, HttpParams,
-  HttpResponse, HttpEvent, HttpParameterCodec, HttpContext
-} from '@angular/common/http';
+import { HttpClient, HttpContext, HttpEvent, HttpHeaders, HttpParameterCodec, HttpParams, HttpResponse } from '@angular/common/http';
 import { CustomHttpParameterCodec } from '../encoder';
 import { Observable } from 'rxjs';
 
@@ -38,7 +35,7 @@ import { ModelingInfo } from '../model/modelingInfo';
 // @ts-ignore
 import { ObjectProperty } from '../model/objectProperty';
 // @ts-ignore
-import { SemanticModelNode } from '../model/semanticModelNode';
+import { SemanticNode } from '../model/semanticNode';
 // @ts-ignore
 import { UpdatePositionsRequestInner } from '../model/updatePositionsRequestInner';
 
@@ -185,10 +182,10 @@ export class ModelingControllerService {
    * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
    * @param reportProgress flag to report request and response progress.
    */
-  public cacheElement(modelId: string, semanticModelNode: SemanticModelNode, observe?: 'body', reportProgress?: boolean, options?: { httpHeaderAccept?: 'application/json', context?: HttpContext }): Observable<CombinedModelElement>;
-  public cacheElement(modelId: string, semanticModelNode: SemanticModelNode, observe?: 'response', reportProgress?: boolean, options?: { httpHeaderAccept?: 'application/json', context?: HttpContext }): Observable<HttpResponse<CombinedModelElement>>;
-  public cacheElement(modelId: string, semanticModelNode: SemanticModelNode, observe?: 'events', reportProgress?: boolean, options?: { httpHeaderAccept?: 'application/json', context?: HttpContext }): Observable<HttpEvent<CombinedModelElement>>;
-  public cacheElement(modelId: string, semanticModelNode: SemanticModelNode, observe: any = 'body', reportProgress: boolean = false, options?: { httpHeaderAccept?: 'application/json', context?: HttpContext }): Observable<any> {
+  public cacheElement(modelId: string, semanticModelNode: SemanticNode, observe?: 'body', reportProgress?: boolean, options?: { httpHeaderAccept?: 'application/json', context?: HttpContext }): Observable<CombinedModelElement>;
+  public cacheElement(modelId: string, semanticModelNode: SemanticNode, observe?: 'response', reportProgress?: boolean, options?: { httpHeaderAccept?: 'application/json', context?: HttpContext }): Observable<HttpResponse<CombinedModelElement>>;
+  public cacheElement(modelId: string, semanticModelNode: SemanticNode, observe?: 'events', reportProgress?: boolean, options?: { httpHeaderAccept?: 'application/json', context?: HttpContext }): Observable<HttpEvent<CombinedModelElement>>;
+  public cacheElement(modelId: string, semanticModelNode: SemanticNode, observe: any = 'body', reportProgress: boolean = false, options?: { httpHeaderAccept?: 'application/json', context?: HttpContext }): Observable<any> {
     if (modelId === null || modelId === undefined) {
       throw new Error('Required parameter modelId was null or undefined when calling cacheElement.');
     }
@@ -961,9 +958,9 @@ export class ModelingControllerService {
    * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
    * @param reportProgress flag to report request and response progress.
    */
-  public getElements(modelId: string, prefix?: string, infix?: string, observe?: 'body', reportProgress?: boolean, options?: { httpHeaderAccept?: 'application/json', context?: HttpContext }): Observable<Array<SemanticModelNode>>;
-  public getElements(modelId: string, prefix?: string, infix?: string, observe?: 'response', reportProgress?: boolean, options?: { httpHeaderAccept?: 'application/json', context?: HttpContext }): Observable<HttpResponse<Array<SemanticModelNode>>>;
-  public getElements(modelId: string, prefix?: string, infix?: string, observe?: 'events', reportProgress?: boolean, options?: { httpHeaderAccept?: 'application/json', context?: HttpContext }): Observable<HttpEvent<Array<SemanticModelNode>>>;
+  public getElements(modelId: string, prefix?: string, infix?: string, observe?: 'body', reportProgress?: boolean, options?: { httpHeaderAccept?: 'application/json', context?: HttpContext }): Observable<Array<SemanticNode>>;
+  public getElements(modelId: string, prefix?: string, infix?: string, observe?: 'response', reportProgress?: boolean, options?: { httpHeaderAccept?: 'application/json', context?: HttpContext }): Observable<HttpResponse<Array<SemanticNode>>>;
+  public getElements(modelId: string, prefix?: string, infix?: string, observe?: 'events', reportProgress?: boolean, options?: { httpHeaderAccept?: 'application/json', context?: HttpContext }): Observable<HttpEvent<Array<SemanticNode>>>;
   public getElements(modelId: string, prefix?: string, infix?: string, observe: any = 'body', reportProgress: boolean = false, options?: { httpHeaderAccept?: 'application/json', context?: HttpContext }): Observable<any> {
     if (modelId === null || modelId === undefined) {
       throw new Error('Required parameter modelId was null or undefined when calling getElements.');
@@ -1010,7 +1007,7 @@ export class ModelingControllerService {
       }
     }
 
-    return this.httpClient.get<Array<SemanticModelNode>>(`${this.configuration.basePath}/api/plasma-sms/modelings/${encodeURIComponent(String(modelId))}/elements`,
+    return this.httpClient.get<Array<SemanticNode>>(`${this.configuration.basePath}/api/plasma-sms/modelings/${encodeURIComponent(String(modelId))}/elements`,
       {
         context: localVarHttpContext,
         params: localVarQueryParameters,
@@ -1711,10 +1708,10 @@ export class ModelingControllerService {
    * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
    * @param reportProgress flag to report request and response progress.
    */
-  public updateProvisionalNode(modelId: string, semanticModelNode: SemanticModelNode, oldURI?: string, observe?: 'body', reportProgress?: boolean, options?: { httpHeaderAccept?: 'application/json', context?: HttpContext }): Observable<CombinedModelElement>;
-  public updateProvisionalNode(modelId: string, semanticModelNode: SemanticModelNode, oldURI?: string, observe?: 'response', reportProgress?: boolean, options?: { httpHeaderAccept?: 'application/json', context?: HttpContext }): Observable<HttpResponse<CombinedModelElement>>;
-  public updateProvisionalNode(modelId: string, semanticModelNode: SemanticModelNode, oldURI?: string, observe?: 'events', reportProgress?: boolean, options?: { httpHeaderAccept?: 'application/json', context?: HttpContext }): Observable<HttpEvent<CombinedModelElement>>;
-  public updateProvisionalNode(modelId: string, semanticModelNode: SemanticModelNode, oldURI?: string, observe: any = 'body', reportProgress: boolean = false, options?: { httpHeaderAccept?: 'application/json', context?: HttpContext }): Observable<any> {
+  public updateProvisionalNode(modelId: string, semanticModelNode: SemanticNode, oldURI?: string, observe?: 'body', reportProgress?: boolean, options?: { httpHeaderAccept?: 'application/json', context?: HttpContext }): Observable<CombinedModelElement>;
+  public updateProvisionalNode(modelId: string, semanticModelNode: SemanticNode, oldURI?: string, observe?: 'response', reportProgress?: boolean, options?: { httpHeaderAccept?: 'application/json', context?: HttpContext }): Observable<HttpResponse<CombinedModelElement>>;
+  public updateProvisionalNode(modelId: string, semanticModelNode: SemanticNode, oldURI?: string, observe?: 'events', reportProgress?: boolean, options?: { httpHeaderAccept?: 'application/json', context?: HttpContext }): Observable<HttpEvent<CombinedModelElement>>;
+  public updateProvisionalNode(modelId: string, semanticModelNode: SemanticNode, oldURI?: string, observe: any = 'body', reportProgress: boolean = false, options?: { httpHeaderAccept?: 'application/json', context?: HttpContext }): Observable<any> {
     if (modelId === null || modelId === undefined) {
       throw new Error('Required parameter modelId was null or undefined when calling updateProvisionalNode.');
     }

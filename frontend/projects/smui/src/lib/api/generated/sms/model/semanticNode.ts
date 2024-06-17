@@ -11,7 +11,7 @@
  */
 
 
-export interface SemanticModelNode {
+export interface SemanticNode {
   mapped?: boolean;
   template?: boolean;
   uuid?: string;

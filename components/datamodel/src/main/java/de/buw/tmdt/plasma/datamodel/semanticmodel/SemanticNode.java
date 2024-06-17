@@ -16,7 +16,7 @@ import java.util.Objects;
         @JsonSubTypes.Type(value = Class.class, name = "Class"),
         @JsonSubTypes.Type(value = NamedEntity.class, name = "NamedEntity")
 })
-public abstract class SemanticModelNode extends PositionedCombinedModelElement implements NodeTemplate {
+public abstract class SemanticNode extends PositionedCombinedModelElement implements NodeTemplate {
 
     public static final String URI_PROPERTY = "uri";
     public static final String PROVISIONAL_PROPERTY = "provisional";
@@ -25,28 +25,28 @@ public abstract class SemanticModelNode extends PositionedCombinedModelElement i
 
     private boolean provisional = false;
 
-    public SemanticModelNode(@Nullable String uri, @NotNull String label) {
+    public SemanticNode(@Nullable String uri, @NotNull String label) {
         this(uri, label, null, null, null);
     }
 
-    public SemanticModelNode(@Nullable String uri, @NotNull String label, @Nullable Double xCoordinate, @Nullable Double yCoordinate) {
+    public SemanticNode(@Nullable String uri, @NotNull String label, @Nullable Double xCoordinate, @Nullable Double yCoordinate) {
         this(uri, label, xCoordinate, yCoordinate, null);
     }
 
-    public SemanticModelNode(@Nullable String uri, @NotNull String label, @Nullable Double xCoordinate, @Nullable Double yCoordinate, @Nullable String uuid) {
+    public SemanticNode(@Nullable String uri, @NotNull String label, @Nullable Double xCoordinate, @Nullable Double yCoordinate, @Nullable String uuid) {
         super(uuid, label, xCoordinate, yCoordinate);
         this.uri = uri;
     }
 
     /**
-     * Identifies if two {@link SemanticModelNode}s represent the same entity.
-     * Needed as there might exist multiple {@link SemanticModelNode} instances that actually represent the same concept
+     * Identifies if two {@link SemanticNode}s represent the same entity.
+     * Needed as there might exist multiple {@link SemanticNode} instances that actually represent the same concept
      * or class but have different uuids.
      *
-     * @param ec The {@link SemanticModelNode} to check
+     * @param ec The {@link SemanticNode} to check
      * @return true of the {@code uri}s of both instances match
      */
-    public boolean sameAs(SemanticModelNode ec) {
+    public boolean sameAs(SemanticNode ec) {
         return Objects.equals(getURI(), ec.getURI());
     }
 
@@ -68,14 +68,14 @@ public abstract class SemanticModelNode extends PositionedCombinedModelElement i
         this.provisional = provisional;
     }
 
-    public abstract SemanticModelNode copy();
+    public abstract SemanticNode copy();
 
-    public abstract SemanticModelNode instanciate();
+    public abstract SemanticNode instanciate();
 
     public abstract void validate() throws CombinedModelIntegrityException;
 
     @Override
-    public SemanticModelNode convertToTemplate() {
+    public SemanticNode convertToTemplate() {
         removeUuid();
         return this;
     }

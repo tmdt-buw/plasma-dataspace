@@ -5,7 +5,6 @@ import de.buw.tmdt.plasma.datamodel.modification.operation.DataType;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.Class;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.SemanticModel;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.*;
-import de.buw.tmdt.plasma.services.sms.core.model.Modeling;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -160,9 +159,9 @@ class ModelingTest {
 
 
     private CombinedModel getCombinedModel() {
-        SchemaNode root = new ObjectNode("root");
+        SyntaxNode root = new ObjectNode("root");
 
-        SchemaNode node = new PrimitiveNode(
+        SyntaxNode node = new PrimitiveNode(
                 "node-" + counter++,
                 DataType.Unknown
         );

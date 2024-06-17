@@ -11,7 +11,7 @@ import java.io.Serializable;
 import java.util.Objects;
 
 @JsonTypeName("NamedEntity")
-public class NamedEntity extends SemanticModelNode implements Serializable, NodeTemplate {
+public class NamedEntity extends SemanticNode implements Serializable, NodeTemplate {
 
     public static final String DESCRIPTION_PROPERTY = "description";
 
@@ -66,7 +66,7 @@ public class NamedEntity extends SemanticModelNode implements Serializable, Node
     }
 
     @Override
-    public boolean sameAs(SemanticModelNode o) {
+    public boolean sameAs(SemanticNode o) {
         if (this == o) {
             return true;
         } else if (o != null && this.getClass().equals(o.getClass())) {

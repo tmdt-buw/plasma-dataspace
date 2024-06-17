@@ -3,7 +3,7 @@ package de.buw.tmdt.plasma.services.sms.core.database;
 import de.buw.tmdt.plasma.datamodel.CombinedModel;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.Class;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.ObjectNode;
-import de.buw.tmdt.plasma.datamodel.syntaxmodel.SchemaNode;
+import de.buw.tmdt.plasma.datamodel.syntaxmodel.SyntaxNode;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.SyntaxModel;
 import de.buw.tmdt.plasma.services.sms.core.model.Modeling;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +27,7 @@ public class ModelingPersistenceTest {
     public void testCreateModeling() {
         Modeling dsm = new Modeling();
 
-        SchemaNode root = new ObjectNode("root");
+        SyntaxNode root = new ObjectNode("root");
 
         CombinedModel combinedModel = new CombinedModel("test", new SyntaxModel(
                 root.getUuid(),

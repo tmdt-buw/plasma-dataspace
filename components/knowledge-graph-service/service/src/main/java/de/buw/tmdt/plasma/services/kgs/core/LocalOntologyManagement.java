@@ -51,7 +51,7 @@ public class LocalOntologyManagement {
         getInternalOntology();
     }
 
-    public void addResourcesToOntology(List<SemanticModelNode> resources, List<Relation> relations) {
+    public void addResourcesToOntology(List<SemanticNode> resources, List<Relation> relations) {
         Model m = ModelFactory.createDefaultModel();
         m.setNsPrefixes(PREFIXES);
         if (resources == null) {
@@ -60,7 +60,7 @@ public class LocalOntologyManagement {
         if (relations == null) {
             relations = new ArrayList<>();
         }
-        for (SemanticModelNode resource : resources) {
+        for (SemanticNode resource : resources) {
             Resource r = m.createResource(m.expandPrefix(resource.getURI()));
             if (resource instanceof NamedEntity) {
                 NamedEntity ne = (NamedEntity) resource;
@@ -113,7 +113,7 @@ public class LocalOntologyManagement {
         return localModel.get();
     }
 
-    public SemanticModelNode findElementsByURI(String uri) {
+    public SemanticNode findElementsByURI(String uri) {
         DescribeBuilder describeBuilder = new DescribeBuilder();
         describeBuilder.addPrefixes(PREFIXES)
                 .addVar("?class")
@@ -124,12 +124,12 @@ public class LocalOntologyManagement {
         ;
         QueryExecution query = QueryExecutionFactory.create(describeBuilder.build(), getInternalOntology());
         Model model1 = query.execDescribe();
-        List<SemanticModelNode> elements = CMToRDFMapper.convertOntologyResourcesToSemanticModelNodes(model1.listSubjects().toList());
+        List<SemanticNode> elements = CMToRDFMapper.convertOntologyResourcesToSemanticModelNodes(model1.listSubjects().toList());
         return elements.stream().findFirst().orElse(null);
     }
 
 
-    public List<SemanticModelNode> findElementsByLabelPrefix(String prefix) {
+    public List<SemanticNode> findElementsByLabelPrefix(String prefix) {
         DescribeBuilder describeBuilder = new DescribeBuilder();
         describeBuilder.addPrefixes(PREFIXES)
                 .addVar("?class")
@@ -141,11 +141,11 @@ public class LocalOntologyManagement {
         QueryExecution query = QueryExecutionFactory.create(describeBuilder.build(), getInternalOntology());
         Model model1 = query.execDescribe();
 
-        List<SemanticModelNode> elements = CMToRDFMapper.convertOntologyResourcesToSemanticModelNodes(model1.listSubjects().toList());
+        List<SemanticNode> elements = CMToRDFMapper.convertOntologyResourcesToSemanticModelNodes(model1.listSubjects().toList());
         return elements;
     }
 
-    public List<SemanticModelNode> findElementsByLabelInfix(String infix) {
+    public List<SemanticNode> findElementsByLabelInfix(String infix) {
         DescribeBuilder describeBuilder = new DescribeBuilder();
         describeBuilder.addPrefixes(PREFIXES)
                 .addVar("?class")
@@ -156,11 +156,11 @@ public class LocalOntologyManagement {
 
         QueryExecution query = QueryExecutionFactory.create(describeBuilder.build(), getInternalOntology());
         Model model1 = query.execDescribe();
-        List<SemanticModelNode> elements = CMToRDFMapper.convertOntologyResourcesToSemanticModelNodes(model1.listSubjects().toList());
+        List<SemanticNode> elements = CMToRDFMapper.convertOntologyResourcesToSemanticModelNodes(model1.listSubjects().toList());
         return elements;
     }
 
-    public List<SemanticModelNode> findElementsByNamespace(String namespace) {
+    public List<SemanticNode> findElementsByNamespace(String namespace) {
         DescribeBuilder describeBuilder = new DescribeBuilder();
         describeBuilder.addPrefixes(PREFIXES)
                 .addVar("?class")
@@ -171,7 +171,7 @@ public class LocalOntologyManagement {
 
         QueryExecution query = QueryExecutionFactory.create(describeBuilder.build(), getInternalOntology());
         Model model1 = query.execDescribe();
-        List<SemanticModelNode> elements = CMToRDFMapper.convertOntologyResourcesToSemanticModelNodes(model1.listSubjects().toList());
+        List<SemanticNode> elements = CMToRDFMapper.convertOntologyResourcesToSemanticModelNodes(model1.listSubjects().toList());
         return elements;
     }
 

@@ -1,21 +1,13 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
-import {
-  Class,
-  DeltaModification,
-  Instance,
-  Literal,
-  ModelingControllerService,
-  NamedEntity,
-  SemanticModelNode
-} from '../../../api/generated/sms';
+import { Class, DeltaModification, Instance, Literal, ModelingControllerService, NamedEntity, SemanticNode } from '../../../api/generated/sms';
 import { EditState } from './model/edit-state';
 import { FormBuilder, Validators } from '@angular/forms';
 import { Icons } from '../../model/configuration/icons';
 
 export interface PlsSemanticNodeDetailsData {
   modelId: string;
-  node: SemanticModelNode;
+  node: SemanticNode;
   recommendations: DeltaModification[];
   examples: string[];
   finalized: boolean;
@@ -44,7 +36,7 @@ export class PlsSemanticNodeDetailsComponent implements OnInit {
   @Output()
   public recommendationReject: EventEmitter<DeltaModification> = new EventEmitter();
   @Output()
-  public nodeEdited: EventEmitter<SemanticModelNode> = new EventEmitter<SemanticModelNode>();
+  public nodeEdited: EventEmitter<SemanticNode> = new EventEmitter<SemanticNode>();
   public literalTypes: Array<{ uri: string, label: string }> = [
     {uri: 'http://www.w3.org/2001/XMLSchema#string', label: 'string'},
     {uri: 'http://www.w3.org/2001/XMLSchema#date', label: 'date'},
