@@ -166,7 +166,7 @@ public class SchemaAnalysisHandler {
         return analyses.containsKey(id);
     }
 
-    @Scheduled(cron="0 1 * * *")
+    @Scheduled(cron="0 0 1 * * * ")
     public void cleanUpAnalyses() {
         LocalDateTime now = LocalDateTime.now();
         int before = analyses.size();
