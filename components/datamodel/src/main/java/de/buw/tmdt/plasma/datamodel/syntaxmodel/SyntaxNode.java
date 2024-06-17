@@ -17,8 +17,7 @@ import java.util.stream.Collectors;
 @JsonSubTypes({
         @JsonSubTypes.Type(value = PrimitiveNode.class, name = "PrimitiveNode"),
         @JsonSubTypes.Type(value = ObjectNode.class, name = "ObjectNode"),
-        @JsonSubTypes.Type(value = SetNode.class, name = "SetNode"),
-        @JsonSubTypes.Type(value = CollisionSchema.class, name = "CollisionSchema")
+        @JsonSubTypes.Type(value = SetNode.class, name = "SetNode")
 })
 public abstract class SyntaxNode extends PositionedCombinedModelElement {
 
