@@ -16,11 +16,9 @@ public class PrimitiveNode extends MappableSyntaxNode {
 
     private static final long serialVersionUID = -144653268470507986L;
 
-    public static final String CLEANSING_PATTERN_PROPERTY = "pattern";
     public static final String DATATYPE_PROPERTY = "datatype";
     public static final String EXAMPLES_PROPERTY = "examples";
 
-    private String cleansingPattern;
     private List<String> examples;
     private DataType dataType;
 
@@ -40,7 +38,6 @@ public class PrimitiveNode extends MappableSyntaxNode {
         super(label);
         this.dataType = dataType;
         this.examples = examples != null ? new ArrayList<>(examples) : new ArrayList<>();
-        this.cleansingPattern = cleansingPattern;
     }
 
     public PrimitiveNode(
@@ -53,7 +50,6 @@ public class PrimitiveNode extends MappableSyntaxNode {
         super(label);
         this.dataType = dataType;
         this.examples = examples != null ? new ArrayList<>(examples) : new ArrayList<>();
-        this.cleansingPattern = cleansingPattern;
         this.setPath(path);
     }
 
@@ -66,23 +62,12 @@ public class PrimitiveNode extends MappableSyntaxNode {
             @JsonProperty(YCOORDINATE_PROPERTY) Double yCoordinate,
             @NotNull @JsonProperty(DATATYPE_PROPERTY) DataType dataType,
             @JsonProperty(EXAMPLES_PROPERTY) List<String> examples,
-            @JsonProperty(CLEANSING_PATTERN_PROPERTY) String cleansingPattern,
             @JsonProperty(VISIBLE_PROPERTY) boolean visible,
             @JsonProperty(DISABLED_PROPERTY) boolean disabled
     ) {
         super(uuid, label, path, xCoordinate, yCoordinate, visible, disabled);
         this.dataType = dataType;
         this.examples = examples != null ? new ArrayList<>(examples) : new ArrayList<>();
-        this.cleansingPattern = cleansingPattern;
-    }
-
-    @JsonProperty(CLEANSING_PATTERN_PROPERTY)
-    public String getCleansingPattern() {
-        return cleansingPattern;
-    }
-
-    public void setCleansingPattern(String cleansingPattern) {
-        this.cleansingPattern = cleansingPattern;
     }
 
     @JsonProperty(EXAMPLES_PROPERTY)
@@ -113,7 +98,6 @@ public class PrimitiveNode extends MappableSyntaxNode {
                 getYCoordinate(),
                 getDataType(),
                 getExamples(),
-                getCleansingPattern(),
                 isVisible(),
                 isDisabled());
 
@@ -129,7 +113,7 @@ public class PrimitiveNode extends MappableSyntaxNode {
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), cleansingPattern, dataType);
+        return Objects.hash(super.hashCode(), dataType);
     }
 
     public boolean equals(Object o) {

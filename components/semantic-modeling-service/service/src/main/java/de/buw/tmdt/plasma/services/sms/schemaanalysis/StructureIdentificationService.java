@@ -5,84 +5,182 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ContainerNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import de.buw.tmdt.plasma.services.sms.schemaanalysis.model.exception.SchemaAnalysisException;
-import de.buw.tmdt.plasma.services.sms.schemaanalysis.model.syntaxmodel.Node;
-import de.buw.tmdt.plasma.services.sms.schemaanalysis.model.syntaxmodel.PrimitiveNode;
-import de.buw.tmdt.plasma.services.sms.schemaanalysis.model.syntaxmodel.SetNode;
+import com.fasterxml.jackson.databind.node.ValueNode;
+import de.buw.tmdt.plasma.datamodel.CombinedModel;
+import de.buw.tmdt.plasma.datamodel.modification.operation.DataType;
+import de.buw.tmdt.plasma.datamodel.syntaxmodel.*;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-
+import static de.buw.tmdt.plasma.datamodel.syntaxmodel.SchemaNode.*;
 import java.io.Serializable;
 import java.util.*;
 
+
+
+/**
+ * Analyzes the given {@link JsonNode} tree to create a representation as a {@link SyntaxModel}.
+ */
 @Service
 public class StructureIdentificationService {
-
+	private static final Logger logger = LoggerFactory.getLogger(StructureIdentificationService.class);
 	private static final int EXAMPLE_VALUE_LENGTH = 255;
-
 	private static final int NUMBER_OF_EXAMPLE_VALUES_PER_TYPE = 6;
-
 	private static final int NODE_LABEL_LENGTH = 254;
 
-	public Node execute(String translationOutput) throws JsonProcessingException, JsonMappingException, SchemaAnalysisException {
+	/**
+	 * Converts given tree to a {@link SyntaxModel}.
+	 *
+	 * @param root The root element of the json tree
+	 * @return The resulting {@link SyntaxModel}
+	 */
+	@NotNull
+	public SyntaxModel convertRootNode(@NotNull JsonNode root) {
+		@NotNull SerializationContext serializationContext = new SerializationContext();
+		SchemaNode syntaxRoot;
+		List<String> path = new ArrayList<>();
 
-		return parseJsonElement(new ObjectMapper().readTree(translationOutput));
-	}
-
-	private Node parseJsonElement(JsonNode jsonNode) throws SchemaAnalysisException {
-		if (jsonNode.isNull()) {
-			return null;
-		} else if (jsonNode.isValueNode()) {
-			return parseJSONPrimitive(jsonNode);
-		} else if (jsonNode.isObject()) {
-			return parseJSONObject((ObjectNode) jsonNode);
-		} else if (jsonNode.isArray()) {
-			return parseJsonArray((ArrayNode) jsonNode);
+		if (root.isArray()) {
+			syntaxRoot = convertArrayNode((ArrayNode) root, "ROOT", ROOT_PATH_TOKEN, path, serializationContext);
+		} else if (root.isObject()) {
+			syntaxRoot = convertObjectNode((com.fasterxml.jackson.databind.node.ObjectNode) root, "ROOT", ROOT_PATH_TOKEN, path, serializationContext);
+		} else {
+			throw new IllegalArgumentException(root.toString());
 		}
-		throw new SchemaAnalysisException("Unknown JSON SubType: \"" + jsonNode + "\".");
+		SyntaxModel syntaxModel = new SyntaxModel(
+				syntaxRoot.getUuid(),
+				new ArrayList<>(serializationContext.nodeLookUp.values()),
+				serializationContext.edges
+		);
+		syntaxModel.validate();
+		return syntaxModel;
 	}
 
+	@NotNull
+	@SuppressFBWarnings(value = "NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE", justification = "Explicit check that value is not null")
+	private de.buw.tmdt.plasma.datamodel.syntaxmodel.SetNode convertArrayNode(@NotNull ArrayNode arrayNode, @NotNull String label, String pathToken, List<String> parentPath, @NotNull SerializationContext serializationContext) {
 
-	// Works fine
-	private PrimitiveNode parseJSONPrimitive(JsonNode jsonNode) {
-		String exampleValue = jsonNode.asText();
+		List<String> nodePath = new ArrayList<>(parentPath);
+		nodePath.add(pathToken);
+
+		SetNode root =
+				new de.buw.tmdt.plasma.datamodel.syntaxmodel.SetNode(
+						UUID.randomUUID().toString(),
+						label,
+						nodePath,
+						null, null,
+						true, false);
+
+		nodePath = new ArrayList<>(nodePath); // copy list again to ensure child does get a new instance
+
+		for (JsonNode child : arrayNode) {
+			createArrayChild(root, child, nodePath, serializationContext);
+		}
+		return root;
+	}
+
+	private void createArrayChild(@NotNull SchemaNode parentNode, @NotNull JsonNode child, List<String> nodePath, @NotNull SerializationContext serializationContext) {
+		SchemaNode schemaNode;
+
+		nodePath = new ArrayList<>(nodePath); // copy list again to ensure child does get a new instance
+		if (child.isArray()) {
+			schemaNode = convertArrayNode((ArrayNode) child, ARRAY_LABEL, ARRAY_PATH_TOKEN, nodePath, serializationContext);
+		} else if (child.isObject()) {
+			schemaNode = convertObjectNode((com.fasterxml.jackson.databind.node.ObjectNode) child, OBJECT_LABEL, ARRAY_PATH_TOKEN, nodePath, serializationContext);
+		} else if (child.isValueNode()) {
+			schemaNode = convertValueNode((ValueNode) child, VALUE_LABEL, ARRAY_PATH_TOKEN, nodePath);
+		} else {
+			throw new IllegalArgumentException("Unsupported sub-type of " + JsonNode.class + " found: " + child.getClass());
+		}
+		serializationContext.nodeLookUp.put(schemaNode.getUuid(), schemaNode);
+		serializationContext.edges.add(new Edge(parentNode.getUuid(), schemaNode.getUuid()));
+	}
+
+	@NotNull
+	@SuppressFBWarnings(value = "NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE", justification = "Explicit check that value is not null")
+	private de.buw.tmdt.plasma.datamodel.syntaxmodel.ObjectNode convertObjectNode(@NotNull com.fasterxml.jackson.databind.node.ObjectNode objectNode, @NotNull String label, @NotNull String pathToken, List<String> parentPath, @NotNull SerializationContext serializationContext) {
+		List<String> nodePath = new ArrayList<>(parentPath);
+		nodePath.add(pathToken);
+		de.buw.tmdt.plasma.datamodel.syntaxmodel.ObjectNode object = new de.buw.tmdt.plasma.datamodel.syntaxmodel.ObjectNode(label, nodePath, null, null);
+
+		serializationContext.nodeLookUp.put(object.getUuid(), object);
+		nodePath = new ArrayList<>(nodePath); // copy list again to ensure child does gut a new instance
+
+		for (Iterator<Map.Entry<String, JsonNode>> it = objectNode.fields(); it.hasNext(); ) {
+			Map.Entry<String, JsonNode> entry = it.next();
+			String nodeLabel = entry.getKey().substring(0, Math.min(entry.getKey().length(), NODE_LABEL_LENGTH));
+			createObjectChild(object, entry.getValue(), nodeLabel, entry.getKey(), nodePath, serializationContext);
+		}
+
+		return object;
+	}
+
+	private void createObjectChild(@NotNull de.buw.tmdt.plasma.datamodel.syntaxmodel.ObjectNode parentObjectNode,
+								   @NotNull JsonNode child,
+								   String label,
+								   String pathToken,
+								   List<String> nodePath,
+								   @NotNull SerializationContext serializationContext) {
+		SchemaNode schemaNode;
+		nodePath = new ArrayList<>(nodePath); // copy list again to ensure child does get a new instance
+		if (child.isArray()) {
+			schemaNode = convertArrayNode((ArrayNode) child, label, pathToken, nodePath, serializationContext);
+		} else if (child.isObject()) {
+			schemaNode = convertObjectNode((com.fasterxml.jackson.databind.node.ObjectNode) child, label, pathToken, nodePath, serializationContext);
+		} else if (child.isValueNode()) {
+			schemaNode = convertValueNode((ValueNode) child, label, pathToken, nodePath);
+		} else {
+			throw new IllegalArgumentException("Unsupported sub-type of " + JsonNode.class + " found: " + child.getClass());
+		}
+		serializationContext.nodeLookUp.put(schemaNode.getUuid(), schemaNode);
+		serializationContext.edges.add(new Edge(parentObjectNode.getUuid(), schemaNode.getUuid()));
+	}
+
+	@NotNull
+	@SuppressFBWarnings(value = "NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE", justification = "Explicit check that value is not null")
+	private PrimitiveNode convertValueNode(
+			@NotNull ValueNode valueNode,
+			@NotNull String label,
+			String pathToken,
+			List<String> parentPath
+	) {
+		List<String> nodePath = new ArrayList<>(parentPath);
+		nodePath.add(pathToken);
+
+		String exampleValue = valueNode.asText();
 		String truncatedExampleValue = exampleValue.substring(0, Math.min(exampleValue.length(), EXAMPLE_VALUE_LENGTH));
 		List<String> exampleValues = new ArrayList<>();
 		exampleValues.add(truncatedExampleValue);
-		return new PrimitiveNode(PrimitiveNode.DataType.UNKNOWN, exampleValues);
+
+		return new PrimitiveNode(
+				UUID.randomUUID().toString(),
+				label,
+				nodePath,
+				null,
+				null,
+				DataType.Unknown,
+				exampleValues,
+				true,
+				false
+		);
 	}
 
+	/**
+	 * Contains the current state of converted elements.
+	 */
+	private static class SerializationContext {
+		private final HashMap<@NotNull String, @NotNull SchemaNode> nodeLookUp;
+		private final ArrayList<@NotNull Edge> edges;
 
-	// children.put is wrong -> check merging
-	private de.buw.tmdt.plasma.services.sms.schemaanalysis.model.syntaxmodel.ObjectNode parseJSONObject(ObjectNode object) throws SchemaAnalysisException {
-
-		Map<String, Node> children = new HashMap<>();
-		de.buw.tmdt.plasma.services.sms.schemaanalysis.model.syntaxmodel.ObjectNode objectNode =
-				new de.buw.tmdt.plasma.services.sms.schemaanalysis.model.syntaxmodel.ObjectNode(children, null);
-
-		for (Iterator<Map.Entry<String, JsonNode>> it = object.fields(); it.hasNext();) {
-			Map.Entry<String, JsonNode> entry = it.next();
-			String nodeLabel = entry.getKey().substring(0, Math.min(entry.getKey().length(), NODE_LABEL_LENGTH));
-			objectNode.mergeChild(nodeLabel, parseJsonElement(entry.getValue()));
-
+		public SerializationContext(
+		) {
+			this.nodeLookUp = new HashMap<>();
+			this.edges = new ArrayList<>();
 		}
-		return objectNode;
-	}
-
-	// children.add is wrong --> check merging
-	private SetNode parseJsonArray(ArrayNode array) throws SchemaAnalysisException {
-		int primitiveCounter = 0;
-		Set<Node> children = new HashSet<>();
-		SetNode setNode = new SetNode(children);
-		for (JsonNode node : array) {
-			if (!node.isValueNode()) {
-				setNode.mergeChild(parseJsonElement(node));
-			} else if (primitiveCounter < NUMBER_OF_EXAMPLE_VALUES_PER_TYPE) {
-				primitiveCounter++;
-				setNode.mergeChild(parseJsonElement(node));
-			}
-		}
-		return setNode;
 	}
 
 }

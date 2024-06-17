@@ -1,8 +1,7 @@
-package de.buw.tmdt.plasma.services.sms.schemaanalysis.model;
+package de.buw.tmdt.plasma.services.sms.schemaanalysis;
 
-import de.buw.tmdt.plasma.services.sms.schemaanalysis.model.syntaxmodel.Node;
+import de.buw.tmdt.plasma.datamodel.syntaxmodel.SyntaxModel;
 
-import javax.persistence.*;
 import java.util.*;
 
 
@@ -12,9 +11,9 @@ public class Analysis {
 
 	protected Date creation;
 
-	private List<Node> subAnalyses;
+	private List<SyntaxModel> subAnalyses;
 
-	private Node result;
+	private SyntaxModel result;
 
 	protected Analysis() {
 		this.creation = new Date();
@@ -26,19 +25,19 @@ public class Analysis {
 		this.subAnalyses = new ArrayList<>();
 	}
 
-	public void addSubAnalysis(Node node) {
-		subAnalyses.add(node);
+	public void addSubAnalysis(SyntaxModel model) {
+		subAnalyses.add(model);
 	}
 
-	public void setResult(Node result) {
+	public void setResult(SyntaxModel result) {
 		this.result = result;
 	}
 
-	public List<Node> getSubAnalyses() {
+	public List<SyntaxModel> getSampleModels() {
 		return Collections.unmodifiableList(subAnalyses);
 	}
 
-	public Node getResult() {
+	public SyntaxModel getResult() {
 		return result;
 	}
 
