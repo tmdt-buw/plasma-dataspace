@@ -10,6 +10,7 @@ import de.buw.tmdt.plasma.datamodel.syntaxmodel.SyntaxModel;
 import de.buw.tmdt.plasma.services.kgs.shared.api.OntologyApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
@@ -22,6 +23,9 @@ import java.util.stream.Collectors;
 public class LabelMatchingHandler {
 
     private static final Logger log = LoggerFactory.getLogger(LabelMatchingHandler.class);
+
+    @Value("${plasma.sms.address:plasma-sms}")
+    private String smsAddress;
 
     final OntologyApi ontologyApi;
 
@@ -41,7 +45,7 @@ public class LabelMatchingHandler {
                 continue;
             }
             String label = node.getLabel();
-            Collection<SemanticNode> candidates = ontologyApi.getElements(null,label, null, null, 50);
+            Collection<SemanticNode> candidates = ontologyApi.getElements(null, label, null, null, 50);
             List<Class> classes = candidates.stream()
                     .filter(c -> c instanceof Class)
                     .map(c -> (Class) c)

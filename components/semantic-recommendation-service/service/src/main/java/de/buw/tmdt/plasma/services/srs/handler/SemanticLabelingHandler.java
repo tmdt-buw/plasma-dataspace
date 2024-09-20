@@ -24,7 +24,7 @@ public class SemanticLabelingHandler {
 
     private static final Logger log = LoggerFactory.getLogger(SemanticLabelingHandler.class);
 
-    @Value("${plasma.ars.labeling.prefix:ARS-L-}")
+
     private String prefix;
 
     private List<String> urls = new ArrayList<>();
