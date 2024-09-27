@@ -1,9 +1,12 @@
 package de.buw.tmdt.plasma.services.sms.shared.api;
 
+import java.time.LocalDateTime;
+
 public class RecommendationServiceRegistration {
     private String serviceName;
     private String message;
     private String url;
+    private LocalDateTime lastActive;
 
     public String getUrl() {
         return url;
@@ -29,12 +32,20 @@ public class RecommendationServiceRegistration {
         this.message = message;
     }
 
+    public LocalDateTime getLastActive() {
+        return lastActive;
+    }
+
+    public void setLastActive(LocalDateTime lastActive) {
+        this.lastActive = lastActive;
+    }
+
+    // DO NOT DELETE
     public RecommendationServiceRegistration() {
     }
 
-    public RecommendationServiceRegistration(String serviceName, String message, String url) {
+    public RecommendationServiceRegistration(String serviceName, String url) {
         this.serviceName = serviceName;
-        this.message = message;
         this.url = url;
     }
 
