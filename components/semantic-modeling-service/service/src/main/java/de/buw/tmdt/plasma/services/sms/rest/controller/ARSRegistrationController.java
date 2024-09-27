@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController("ARS Registration Controller")
 public class ARSRegistrationController implements ARSRegistrationAPI {
     private final ARSRegistrationHandler arsRegistrationHandler;
@@ -17,7 +19,13 @@ public class ARSRegistrationController implements ARSRegistrationAPI {
     }
 
     @Override
-    public RecommendationServiceRegistration ARSRegistration(@RequestBody RecommendationServiceRegistration registration) {
-        return arsRegistrationHandler.register(registration);
+    public void ARSRegistration(@RequestBody RecommendationServiceRegistration registration) {
+        arsRegistrationHandler.register(registration);
+    }
+
+    // debug. remove later
+    @Override
+    public List<RecommendationServiceRegistration> ARSList() {
+        return arsRegistrationHandler.getServicesAlive();
     }
 }
