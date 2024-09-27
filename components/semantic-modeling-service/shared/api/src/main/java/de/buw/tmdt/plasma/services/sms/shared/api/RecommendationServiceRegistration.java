@@ -4,7 +4,6 @@ import java.time.LocalDateTime;
 
 public class RecommendationServiceRegistration {
     private String serviceName;
-    private String message;
     private String url;
     private LocalDateTime lastActive;
 
@@ -22,14 +21,6 @@ public class RecommendationServiceRegistration {
 
     public void setServiceName(String serviceName) {
         this.serviceName = serviceName;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
     }
 
     public LocalDateTime getLastActive() {

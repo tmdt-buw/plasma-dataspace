@@ -18,7 +18,6 @@ public class ARSRegistrationHandler {
         for (RecommendationServiceRegistration service : servicesAlive) {
             if (service.getServiceName().equals(registration.getServiceName())) return;
         }
-        registration.setMessage("Registered");
         registration.setLastActive(LocalDateTime.now());
         servicesAlive.add(registration);
     }
