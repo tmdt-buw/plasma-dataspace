@@ -29,11 +29,18 @@ public class ARSRegistrationHandler {
                 try {
                     URL serviceUrl = new URL(service.getUrl());
                     HttpURLConnection connection = (HttpURLConnection) serviceUrl.openConnection();
+
                     connection.setRequestMethod("GET");
                     connection.setConnectTimeout(3000);
                     connection.setReadTimeout(3000);
-                    connection.connect();
+
+                    int responseCode = connection.getResponseCode();
+
+                    if (responseCode != HttpURLConnection.HTTP_OK) {
+                        throw new Exception("Service response not okay: "+ responseCode);
+                    }
                 } catch (Exception ex) {
+                    System.err.println(ex.getMessage());
                     iteration.remove();
                 }
             }
