@@ -7,8 +7,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -27,7 +27,7 @@ public class ARSRegistrationHandler {
             while (iteration.hasNext()) {
                 RecommendationServiceRegistration service = iteration.next();
                 try {
-                    URL serviceUrl = new URL(service.getUrl());
+                    URL serviceUrl = service.getUrl();
                     HttpURLConnection connection = (HttpURLConnection) serviceUrl.openConnection();
 
                     connection.setRequestMethod("GET");
@@ -39,9 +39,10 @@ public class ARSRegistrationHandler {
                     if (responseCode != HttpURLConnection.HTTP_OK) {
                         throw new Exception("Service response not okay: "+ responseCode);
                     }
+                    service.setLastActive(LocalDateTime.now());
                 } catch (Exception ex) {
                     System.err.println(ex.getMessage());
-                    iteration.remove();
+                    // iteration.remove();
                 }
             }
         }

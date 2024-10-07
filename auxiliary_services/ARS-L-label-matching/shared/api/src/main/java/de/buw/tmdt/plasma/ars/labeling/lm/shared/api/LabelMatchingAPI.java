@@ -4,6 +4,7 @@ import de.buw.tmdt.plasma.datamodel.CombinedModel;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -18,5 +19,6 @@ public interface LabelMatchingAPI {
                                   @RequestParam(value = "configId", required = false) String configId,
                                   @RequestParam(value = "configToken", required = false) String configToken,
                                   @NotNull @RequestBody CombinedModel model);
+
 
 }

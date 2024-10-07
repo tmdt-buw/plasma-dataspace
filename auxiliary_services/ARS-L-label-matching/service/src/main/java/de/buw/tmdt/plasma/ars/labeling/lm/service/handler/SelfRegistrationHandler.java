@@ -1,0 +1,42 @@
+package de.buw.tmdt.plasma.ars.labeling.lm.service.handler;
+
+import de.buw.tmdt.plasma.services.sms.shared.api.RecommendationServiceRegistration;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
+import java.net.URL;
+
+@Service
+public class SelfRegistrationHandler {
+    @Value ("${plasma.sms.address}")
+    private String upstreamHostName;
+    @Value ("${plasma.server_address}")
+    private String serverAddress;
+    @Value ("${registration.upstream.port}")
+    private Integer upstreamPort;
+
+    private final RestTemplate restTemplate = new RestTemplate();
+
+    public SelfRegistrationHandler() {
+    }
+
+    @Scheduled(fixedRateString = "${registration.interval}")
+    public void selfRegistration() {
+        try {
+            RecommendationServiceRegistration registrationPackage = new RecommendationServiceRegistration();
+
+            registrationPackage.setServiceName("ars-l-label-matching");
+            registrationPackage.setUrl(serverAddress);
+            registrationPackage.generateUuid();
+
+            URL upstreamUrl = new URL("http", upstreamHostName, upstreamPort,"/api/plasma-sms/ars-registration");
+
+            ResponseEntity<String> response = restTemplate.postForEntity(upstreamUrl.toURI(), registrationPackage, String.class);
+        } catch (Exception ex) {
+            System.err.println(ex.getMessage());
+        }
+    }
+}
