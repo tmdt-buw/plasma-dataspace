@@ -9,6 +9,8 @@ import org.springframework.web.client.RestTemplate;
 
 import java.net.URL;
 
+import java.util.UUID;
+
 @Service
 public class SelfRegistrationHandler {
     @Value ("${plasma.sms.address}")
@@ -18,6 +20,7 @@ public class SelfRegistrationHandler {
     @Value ("${registration.upstream.port}")
     private Integer upstreamPort;
 
+    private final UUID serviceId = UUID.randomUUID();
     private final RestTemplate restTemplate = new RestTemplate();
 
     public SelfRegistrationHandler() {
@@ -30,7 +33,7 @@ public class SelfRegistrationHandler {
 
             registrationPackage.setServiceName("ars-l-label-matching");
             registrationPackage.setUrl(serverAddress);
-            registrationPackage.generateUuid();
+            registrationPackage.setUuid(serviceId);
 
             URL upstreamUrl = new URL("http", upstreamHostName, upstreamPort,"/api/plasma-sms/ars-registration");
 

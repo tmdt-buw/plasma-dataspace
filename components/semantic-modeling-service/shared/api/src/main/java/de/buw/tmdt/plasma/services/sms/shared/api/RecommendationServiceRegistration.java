@@ -42,9 +42,14 @@ public class RecommendationServiceRegistration {
         return uuid;
     }
 
+    public void setUuid(UUID uuid) {
+        this.uuid = uuid;
+    }
+
     public void generateUuid() {
         this.uuid = UUID.randomUUID();
     }
+
 
     // DO NOT DELETE
     public RecommendationServiceRegistration() {
