@@ -3,8 +3,7 @@ import de.buw.tmdt.plasma.services.sms.shared.api.RecommendationServiceRegistrat
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import java.net.HttpURLConnection;
-import java.net.URL;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -17,7 +16,7 @@ public class ARSRegistrationHandler {
 
     public ARSRegistrationHandler() {}
 
-    @Scheduled(fixedRateString = "${plasma.registration.ping.interval}")
+    @Scheduled(fixedRateString = "${plasma.registration.ping.interval:30000}")
     public void pingServices() {
         if (servicesAlive.isEmpty()) {
             return;
@@ -25,24 +24,11 @@ public class ARSRegistrationHandler {
         synchronized (servicesAlive) {
             Iterator<RecommendationServiceRegistration> iteration = servicesAlive.iterator();
             while (iteration.hasNext()) {
+                LocalDateTime now = LocalDateTime.now();
                 RecommendationServiceRegistration service = iteration.next();
-                try {
-                    URL serviceUrl = service.getUrl();
-                    HttpURLConnection connection = (HttpURLConnection) serviceUrl.openConnection();
-
-                    connection.setRequestMethod("GET");
-                    connection.setConnectTimeout(3000);
-                    connection.setReadTimeout(3000);
-
-                    int responseCode = connection.getResponseCode();
-
-                    if (responseCode != HttpURLConnection.HTTP_OK) {
-                        throw new Exception("Service response not okay: "+ responseCode);
-                    }
-                    service.setLastActive(LocalDateTime.now());
-                } catch (Exception ex) {
-                    System.err.println(ex.getMessage());
-                    // iteration.remove();
+                Duration lastAlive = Duration.between(service.getLastActive(), now);
+                if (lastAlive.getSeconds() > 30) {
+                    iteration.remove();
                 }
             }
         }
@@ -50,7 +36,7 @@ public class ARSRegistrationHandler {
 
     public void register(RecommendationServiceRegistration registration) {
         for (RecommendationServiceRegistration service : servicesAlive) {
-            if (service.getServiceName().equals(registration.getServiceName())) return;
+            if (service.getUuid().equals(registration.getUuid())) return;
         }
         registration.setLastActive(LocalDateTime.now());
         servicesAlive.add(registration);

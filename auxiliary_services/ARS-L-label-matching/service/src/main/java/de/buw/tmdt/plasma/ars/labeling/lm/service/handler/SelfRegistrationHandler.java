@@ -26,8 +26,8 @@ public class SelfRegistrationHandler {
     public SelfRegistrationHandler() {
     }
 
-    @Scheduled(fixedRateString = "${registration.interval}")
-    public void selfRegistration() {
+    @Scheduled(fixedRateString = "${registration.interval:30000}")
+    public void Main() {
         try {
             RecommendationServiceRegistration registrationPackage = new RecommendationServiceRegistration();
 

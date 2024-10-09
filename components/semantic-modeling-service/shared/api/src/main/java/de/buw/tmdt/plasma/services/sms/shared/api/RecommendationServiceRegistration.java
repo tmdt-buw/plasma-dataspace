@@ -6,20 +6,16 @@ import java.net.URL;
 
 public class RecommendationServiceRegistration {
     private String serviceName;
-    private URL url;
+    private String url;
     private LocalDateTime lastActive;
     private UUID uuid;
 
-    public URL getUrl() {
+    public String getUrl() {
         return url;
     }
 
     public void setUrl(String url) {
-        try {
-            this.url = new URL(url);
-        } catch (Exception ex) {
-            System.err.println(ex.getMessage());
-        }
+        this.url = url;
     }
 
     public String getServiceName() {
@@ -44,10 +40,6 @@ public class RecommendationServiceRegistration {
 
     public void setUuid(UUID uuid) {
         this.uuid = uuid;
-    }
-
-    public void generateUuid() {
-        this.uuid = UUID.randomUUID();
     }
 
 
