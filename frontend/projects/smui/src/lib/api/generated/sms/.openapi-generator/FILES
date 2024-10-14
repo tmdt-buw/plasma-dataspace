@@ -2,6 +2,7 @@
 README.md
 api.module.ts
 api/api.ts
+api/arsRegistrationController.service.ts
 api/modelingController.service.ts
 api/schemaAnalysisController.service.ts
 configuration.ts
@@ -31,6 +32,7 @@ model/objectProperty.ts
 model/positionedCombinedModelElement.ts
 model/primitiveNode.ts
 model/primitiveNodeAllOf.ts
+model/recommendationServiceRegistration.ts
 model/relation.ts
 model/semanticModel.ts
 model/semanticNode.ts

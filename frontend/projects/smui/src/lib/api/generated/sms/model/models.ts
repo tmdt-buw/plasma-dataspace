@@ -20,6 +20,7 @@ export * from './objectProperty';
 export * from './positionedCombinedModelElement';
 export * from './primitiveNode';
 export * from './primitiveNodeAllOf';
+export * from './recommendationServiceRegistration';
 export * from './relation';
 export * from './semanticModel';
 export * from './semanticNode';
