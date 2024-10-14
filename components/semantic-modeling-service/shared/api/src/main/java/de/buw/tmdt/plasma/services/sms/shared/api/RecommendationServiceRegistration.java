@@ -2,7 +2,6 @@ package de.buw.tmdt.plasma.services.sms.shared.api;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
-import java.net.URL;
 
 public class RecommendationServiceRegistration {
     private String serviceName;

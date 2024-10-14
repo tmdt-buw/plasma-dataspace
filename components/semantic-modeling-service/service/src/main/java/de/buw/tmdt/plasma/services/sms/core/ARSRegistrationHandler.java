@@ -36,7 +36,10 @@ public class ARSRegistrationHandler {
 
     public void register(RecommendationServiceRegistration registration) {
         for (RecommendationServiceRegistration service : servicesAlive) {
-            if (service.getUuid().equals(registration.getUuid())) return;
+            if (service.getUuid().equals(registration.getUuid())) {
+                service.setLastActive(LocalDateTime.now());
+                return;
+            }
         }
         registration.setLastActive(LocalDateTime.now());
         servicesAlive.add(registration);
