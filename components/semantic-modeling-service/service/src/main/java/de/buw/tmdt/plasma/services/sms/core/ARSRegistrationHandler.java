@@ -1,15 +1,20 @@
 package de.buw.tmdt.plasma.services.sms.core;
+
 import de.buw.tmdt.plasma.services.sms.shared.api.RecommendationServiceRegistration;
+
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * Service to handle Registration of ARS
+ @author Sven Stopka
+  * */
 @Service
 public class ARSRegistrationHandler {
     private final List<RecommendationServiceRegistration> servicesAlive = Collections.synchronizedList(new ArrayList<>());
@@ -17,21 +22,12 @@ public class ARSRegistrationHandler {
     public ARSRegistrationHandler() {}
 
     @Scheduled(fixedRateString = "${plasma.registration.ping.interval:30000}")
-    public void pingServices() {
+    public void checkLastAlive() {
         if (servicesAlive.isEmpty()) {
             return;
         }
-        synchronized (servicesAlive) {
-            Iterator<RecommendationServiceRegistration> iteration = servicesAlive.iterator();
-            while (iteration.hasNext()) {
-                LocalDateTime now = LocalDateTime.now();
-                RecommendationServiceRegistration service = iteration.next();
-                Duration lastAlive = Duration.between(service.getLastActive(), now);
-                if (lastAlive.getSeconds() > 30) {
-                    iteration.remove();
-                }
-            }
-        }
+        final LocalDateTime now = LocalDateTime.now();
+        servicesAlive.removeIf(service -> Duration.between(service.getLastActive(), now).getSeconds() > 30);
     }
 
     public void register(RecommendationServiceRegistration registration) {
