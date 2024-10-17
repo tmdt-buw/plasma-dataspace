@@ -4,7 +4,7 @@ import { FormControl } from '@angular/forms';
 import { ModalOptions, NzModalRef, NzModalService } from 'ng-zorro-antd/modal';
 import { BehaviorSubject, forkJoin, Observable, Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, tap } from 'rxjs/operators';
-import { ArrayContext, CombinedModel, DeltaModification, ModelingControllerService, ModelMapping, Relation, SemanticNode, SyntaxNode } from '../api/generated/sms';
+import { ArrayContext, CombinedModel, DeltaModification, ModelingControllerService, ModelMapping, RecommendationServiceRegistration, ArsRegistrationControllerService, Relation, SemanticNode, SyntaxNode } from '../api/generated/sms';
 import { OntologyControllerService, OntologyInfo, SemanticModelControllerService } from '../api/generated/kgs';
 import { ContextMenuService } from './context-menu/context-menu.service';
 import { ModalMouseEnabledConfig } from './dialogs/common/modal.base-config';
@@ -18,7 +18,6 @@ import { CopySemanticModelComponent } from './dialogs/copy-semantic-model/copy-s
 import { NzNotificationService } from 'ng-zorro-antd/notification';
 import { HttpErrorResponse, HttpStatusCode } from '@angular/common/http';
 import { ManageOntologiesDialogComponent } from './dialogs/manage-ontologies-dialog/manage-ontologies-dialog.component';
-
 
 @Component({
   selector: 'pls-modeling',
@@ -81,6 +80,8 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
 
   finalizing: boolean = false;
 
+  serviceList: RecommendationServiceRegistration[];
+
   // dialogs
   private addConceptDialogRef: NzModalRef<any, any>;
   contextMenuSubscription;
@@ -94,8 +95,13 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
     return !!this.main?.fullScreenIsActive;
   }
 
-  constructor(private modelingService: ModelingControllerService, private contextMenu: ContextMenuService, private ontologyService: OntologyControllerService,
-              private semanticModelService: SemanticModelControllerService, private modal: NzModalService, private notification: NzNotificationService) {
+  constructor(private modelingService: ModelingControllerService,
+              private contextMenu: ContextMenuService,
+              private ontologyService: OntologyControllerService,
+              private semanticModelService: SemanticModelControllerService,
+              private modal: NzModalService,
+              private notification: NzNotificationService,
+              private arsServices: ArsRegistrationControllerService) {
   }
 
   ngOnInit(): void {
@@ -109,6 +115,13 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
     });
     this.modelingService.getSelectedOntologies(this.modelId).subscribe((ontologies: Array<string>) => {
       this.selectedOntologies = ontologies;
+      console.log(this.ontologies);
+    });
+
+    // serviceList: Array<RecommendationServiceRegistration>
+    this.arsServices.aRSList().subscribe((services: Array<RecommendationServiceRegistration>) => {
+      this.serviceList = services;
+      console.log(this.serviceList);
     });
 
     // query schema
@@ -497,5 +510,7 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
   isViewerMode(): boolean {
     return this.viewerMode || this.combinedModel?.finalized;
   }
-
+  getServices(): RecommendationServiceRegistration {
+    return {};
+  }
 }

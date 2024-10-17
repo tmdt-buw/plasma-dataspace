@@ -42,6 +42,6 @@ public class ARSRegistrationHandler {
     }
 
     public List<RecommendationServiceRegistration> getServicesAlive() {
-        return servicesAlive;
+        return new ArrayList<RecommendationServiceRegistration>(servicesAlive);
     }
 }

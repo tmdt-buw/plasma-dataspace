@@ -49,6 +49,7 @@ import { NzListModule } from 'ng-zorro-antd/list';
 import { NzPopconfirmModule } from 'ng-zorro-antd/popconfirm';
 import { NzDescriptionsModule } from 'ng-zorro-antd/descriptions';
 import { UriGeneratorComponent } from './modeling/dialogs/common/uri-generator/uri-generator.component';
+import { NzPopoverModule } from 'ng-zorro-antd/popover';
 
 
 @NgModule({
@@ -94,7 +95,8 @@ import { UriGeneratorComponent } from './modeling/dialogs/common/uri-generator/u
     NzNotificationModule,
     NzListModule,
     NzPopconfirmModule,
-    NzDescriptionsModule
+    NzDescriptionsModule,
+    NzPopoverModule
   ],
   exports: [PlsModelingComponent]
 })

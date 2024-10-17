@@ -55,25 +55,49 @@
               nzType="text">
         <i [nzType]="'tool'" nz-icon></i>
       </button>
+      <!-- new menu -->
       <nz-dropdown-menu #assistanceFunctionsMenu="nzDropdownMenu">
-        <ul nz-menu>
-          <li (click)="openSemanticModelCopyDialog()" nz-menu-item>
+        <ul nz-menu [nzMode]="'vertical'">
+          <li
+            (click)="openSemanticModelCopyDialog()"
+            nz-menu-item
+          >
             <a class="dropdown-icon" nz-icon nz-tooltip="Import a semantic model from another existing modeling."
                nzType="copy"></a>
             Import semantic model
           </li>
-          <li (click)="performSemanticLabeling()" [nzDisabled]="!recommendationsEnabled" nz-menu-item>
-            <a class="dropdown-icon" nz-icon nz-tooltip="Use an ARS to perform a semantic labeling step."
-               nzType="node-index"></a>
-            Semantic Labeling
+          <li nz-submenu [nzTitle]="labelingTitle"
+          >
+            <a></a>
+            <ul>
+              <li nz-menu-item  *ngIf="serviceList != null">If you see this, the Service Registration API has returned something</li>
+              <ng-template ngFor let-service [ngForOf]="serviceList" let-i="index">
+                <li nz-menu-item>
+                  <a nz-icon nzType="info-circle" nzTheme="outline" nz-tooltip="{{service.serviceName}}"></a>
+                  {{service.serviceName}}</li>
+              </ng-template>
+            </ul>
           </li>
-          <li (click)="performSemanticModeling()" [nzDisabled]="!recommendationsEnabled" nz-menu-item>
-            <a class="dropdown-icon" nz-icon nz-tooltip="Use an ARS to perform a semantic modeling step."
-               nzType="share-alt"></a>
-            Semantic Modeling
+          <li nz-submenu [nzTitle]="modelingTitle">
+            <ul>
+              <li nz-menu-item>List item</li>
+            </ul>
           </li>
         </ul>
       </nz-dropdown-menu>
+
+      <!-- Dropdown Menu Items -->
+      <ng-template #modelingTitle>
+        <a class="dropdown-icon" nz-icon nz-tooltip="Use an ARS to perform a semantic modeling step." nzType="share-alt"></a>
+        Semantic Modeling
+      </ng-template>
+      <ng-template #labelingTitle>
+        <a class="dropdown-icon" nz-icon nz-tooltip="Use an ARS to perform a semantic labeling step."
+           nzType="node-index"></a>
+        Semantic Labeling
+      </ng-template>
+
+
       <!--      search -->
       <button (click)="toggleSearch()" *ngIf="false" nz-button nz-tooltip nzShape="circle" nzTooltipTitle="Search"
               nzType="text"><i
