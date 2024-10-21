@@ -23,6 +23,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.ZonedDateTime;
@@ -31,15 +32,19 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
-public class ModelingHandler {
+public class ModelingService {
 
-    private static final Logger log = LoggerFactory.getLogger(ModelingHandler.class);
+    private static final Logger log = LoggerFactory.getLogger(ModelingService.class);
 
     private final SemanticModelApiClient semanticModelApiClient;
     private final OntologyApiClient ontologyApiClient;
     private final ModelingRepository modelingRepository;
     private final SemanticRecommendationApiClient semanticRecommendationApiClient;
     private final ConfigServiceClient configServiceClient;
+
+    @Value("${plasma.gateway_address}")
+    private String gateway;
+    private final RestTemplate restTemplate = new RestTemplate();
 
     @Value("${plasma.sms.feature.finalizemodels.enabled:true}")
     private Boolean finalizeModelsEnabled;
@@ -48,7 +53,7 @@ public class ModelingHandler {
     private Boolean recommendationsEnabled;
 
     @Autowired
-    public ModelingHandler(
+    public ModelingService(
             @SuppressWarnings({"SpringJavaInjectionPointsAutowiringInspection"})
             @NotNull SemanticModelApiClient semanticModelApiClient,
             @SuppressWarnings({"SpringJavaInjectionPointsAutowiringInspection"})
@@ -96,6 +101,7 @@ public class ModelingHandler {
         if (!recommendationsEnabled) {
             throw new ResponseStatusException(HttpStatus.NOT_IMPLEMENTED, "Recommendations are currently disabled.");
         }
+
         Modeling modeling = findModelingOrThrow(modelId);
         try {
             CombinedModel labeledCombinedModel;
@@ -112,6 +118,8 @@ public class ModelingHandler {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Unexpected error during labeling: " + e.getMessage());
         }
         return modeling.getCurrentModel();
+
+
     }
 
     public CombinedModel performSemanticModeling(String modelId) throws ResponseStatusException {
@@ -126,6 +134,16 @@ public class ModelingHandler {
             modeling.pushCombinedModel(modeledCombinedModel);
             // store the model after recommendations have been added
             modeling = persistModeling(modeling);
+
+
+            // ARS
+            // uuid
+            // model
+
+
+
+
+
         } catch (FeignException e) {
             log.warn("Semantic modeling did not succeed: ", e);
             if (e instanceof FeignException.NotImplemented) {
@@ -850,5 +868,23 @@ public class ModelingHandler {
         persistModeling(modeling);
     }
 
-
+    /***
+     * update the preferred services
+     @param modelId ID of the Model to be updated
+     @param preferredLabeling preferred services
+     @param preferredModeling preferred services
+     @param preferredRefinement preferred services
+     @author Sven Stopka
+     */
+    public void updatePreferredServices(@NotNull String modelId,
+                                        List<String> preferredModeling,
+                                        List<String> preferredLabeling,
+                                        List<String> preferredRefinement
+    ) {
+        Modeling modeling = findModelingOrThrow(modelId);
+        if(!preferredModeling.isEmpty()) modeling.setPreferredModelingService(preferredModeling);
+        if(!preferredLabeling.isEmpty()) modeling.setPreferredLabelingService(preferredModeling);
+        if(!preferredRefinement.isEmpty()) modeling.setPreferredRefiningService(preferredModeling);
+        persistModeling(modeling);
+    }
 }

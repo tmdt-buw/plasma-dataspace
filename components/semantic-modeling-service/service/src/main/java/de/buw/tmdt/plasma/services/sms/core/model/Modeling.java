@@ -41,6 +41,15 @@ public class Modeling {
     @NotNull
     private List<String> selectedOntologies;
 
+    @ElementCollection
+    private List<String> preferredLabelingService;
+
+    @ElementCollection
+    private List<String> preferredModelingService;
+
+    @ElementCollection
+    private List<String> preferredRefiningService;
+
     //The value is only set after the schema analysis
     // Map <Version, CombinedModel>
     @SuppressWarnings("JpaAttributeTypeInspection") // will be custom serialized
@@ -185,5 +194,31 @@ public class Modeling {
 
     public void finalizeModeling() {
         this.finalized = true;
+    }
+
+    // preferred modeling doodads
+
+    public List<String> getPreferredLabelingService() {
+        return preferredLabelingService;
+    }
+
+    public void setPreferredLabelingService(List<String> preferredLabelingService) {
+        this.preferredLabelingService = preferredLabelingService;
+    }
+
+    public List<String> getPreferredModelingService() {
+        return preferredModelingService;
+    }
+
+    public void setPreferredModelingService(List<String> preferredModelingService) {
+        this.preferredModelingService = preferredModelingService;
+    }
+
+    public List<String> getPreferredRefiningService() {
+        return preferredRefiningService;
+    }
+
+    public void setPreferredRefiningService(List<String> preferredRefiningService) {
+        this.preferredRefiningService = preferredRefiningService;
     }
 }

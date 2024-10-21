@@ -55,6 +55,7 @@
               nzType="text">
         <i [nzType]="'tool'" nz-icon></i>
       </button>
+
       <!-- new menu -->
       <nz-dropdown-menu #assistanceFunctionsMenu="nzDropdownMenu">
         <ul nz-menu [nzMode]="'vertical'">
@@ -67,15 +68,17 @@
             Import semantic model
           </li>
           <li nz-submenu [nzTitle]="labelingTitle"
+              *ngIf="serviceList != null"
           >
             <a></a>
             <ul>
-              <li nz-menu-item  *ngIf="serviceList != null">If you see this, the Service Registration API has returned something</li>
-              <ng-template ngFor let-service [ngForOf]="serviceList" let-i="index">
-                <li nz-menu-item>
-                  <a nz-icon nzType="info-circle" nzTheme="outline" nz-tooltip="{{service.serviceName}}"></a>
-                  {{service.serviceName}}</li>
-              </ng-template>
+              <li nz-menu-item *ngFor="let service of serviceList; let i = index">
+                <a class="dropdown-icon" nz-icon nzType="info-circle" nzTheme="outline" nz-tooltip="{{service.uuid}}"></a>
+                {{service.serviceName}}
+                <span *ngIf="1 == 1">
+                  SERVICE AVAILABLE YAYYY :D
+                </span>
+              </li>
             </ul>
           </li>
           <li nz-submenu [nzTitle]="modelingTitle">

@@ -1,13 +1,20 @@
 package de.buw.tmdt.plasma.services.sms.shared.api;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 public class RecommendationServiceRegistration {
     private String serviceName;
     private String url;
     private LocalDateTime lastActive;
-    private UUID uuid;
+    private String uuid;
+    private RecommendationType recommendationType;
+    private String description;
+
+    public enum RecommendationType {
+        Labeling,
+        Refinement,
+        Modeling
+    }
 
     public String getUrl() {
         return url;
@@ -33,22 +40,31 @@ public class RecommendationServiceRegistration {
         this.lastActive = lastActive;
     }
 
-    public UUID getUuid() {
+    public String getUuid() {
         return uuid;
     }
 
-    public void setUuid(UUID uuid) {
+    public void setUuid(String uuid) {
         this.uuid = uuid;
     }
 
+    public String getDescription() {
+        return description;
+    }
 
-    // DO NOT DELETE
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public RecommendationType getRecommendationType() {
+        return recommendationType;
+    }
+
+    public void setRecommendationType(RecommendationType recommendationType) {
+        this.recommendationType = recommendationType;
+    }
+
     public RecommendationServiceRegistration() {
-    }
 
-    public RecommendationServiceRegistration(String serviceName, String url) {
-        this.serviceName = serviceName;
-        this.setUrl(url);
     }
-
 }

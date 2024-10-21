@@ -121,7 +121,6 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
     // serviceList: Array<RecommendationServiceRegistration>
     this.arsServices.aRSList().subscribe((services: Array<RecommendationServiceRegistration>) => {
       this.serviceList = services;
-      console.log(this.serviceList);
     });
 
     // query schema
@@ -222,6 +221,12 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
           }
         }
       );
+  }
+
+  // ======= I wanna die ==============
+
+  serviceAvailable(uuid: string): boolean {
+    return this.serviceList.some(service => service.uuid === uuid);
   }
 
   // ======= Menu functions ===========

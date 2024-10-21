@@ -16,10 +16,10 @@ import java.util.List;
  @author Sven Stopka
   * */
 @Service
-public class ARSRegistrationHandler {
+public class ARSService {
     private final List<RecommendationServiceRegistration> servicesAlive = Collections.synchronizedList(new ArrayList<>());
 
-    public ARSRegistrationHandler() {}
+    public ARSService() {}
 
     @Scheduled(fixedRateString = "${plasma.registration.ping.interval:30000}")
     public void checkLastAlive() {
@@ -44,4 +44,5 @@ public class ARSRegistrationHandler {
     public List<RecommendationServiceRegistration> getServicesAlive() {
         return new ArrayList<RecommendationServiceRegistration>(servicesAlive);
     }
+
 }

@@ -1,6 +1,7 @@
 package de.buw.tmdt.plasma.ars.labeling.lm.service.handler;
 
 import de.buw.tmdt.plasma.services.sms.shared.api.RecommendationServiceRegistration;
+import de.buw.tmdt.plasma.services.sms.shared.api.RecommendationServiceRegistration.RecommendationType;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -16,6 +17,8 @@ import java.util.UUID;
 * */
 @Service
 public class SelfRegistrationService {
+    @Value("${plasma.host_name}")
+    private String serviceName;
     @Value ("${plasma.sms.address}")
     private String upstreamHostName;
     @Value ("${plasma.server_address}")
@@ -25,6 +28,7 @@ public class SelfRegistrationService {
 
     private final UUID serviceId = UUID.randomUUID();
     private final RestTemplate restTemplate = new RestTemplate();
+    private final RecommendationType recommendationType = RecommendationType.Labeling;
 
     public SelfRegistrationService() {
     }
@@ -34,9 +38,10 @@ public class SelfRegistrationService {
         try {
             RecommendationServiceRegistration registrationPackage = new RecommendationServiceRegistration();
 
-            registrationPackage.setServiceName("ars-l-label-matching");
+            registrationPackage.setServiceName(serviceName);
             registrationPackage.setUrl(serverAddress);
             registrationPackage.setUuid(serviceId);
+            registrationPackage.setRecommendationType(recommendationType);
 
             URL upstreamUrl = new URL("http", upstreamHostName, upstreamPort,"/api/plasma-sms/ars-registration");
 

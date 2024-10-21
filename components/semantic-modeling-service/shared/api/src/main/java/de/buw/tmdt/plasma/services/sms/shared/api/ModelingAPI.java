@@ -141,4 +141,11 @@ public interface ModelingAPI {
     @PutMapping(value = "/{modelId}/selectedOntologies")
     void updateSelectedOntologies(@NotNull @PathVariable("modelId") String modelId,
                                   @NotNull @RequestParam(value = "labels", defaultValue = "") List<String> selectedOntologyLabels);
+
+    @PatchMapping(value = "/{modelId}/preferredServices")
+    void updatePreferredServices(@NotNull @PathVariable("modelId") String modelId,
+                                 @RequestParam(value = "labeling", required = false) List<String> preferredLabeling,
+                                 @RequestParam(value = "modeling", required = false) List<String> preferredModeling,
+                                 @RequestParam(value = "refinement", required = false) List<String> preferredRefinement);
+
 }
