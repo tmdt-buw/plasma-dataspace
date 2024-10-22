@@ -115,16 +115,6 @@ public class ModelingController implements ModelingAPI {
     }
 
     @Override
-    @Operation(description = "Updates the preferred services for a model")
-    public void updatePreferredServices(@NotNull String modelId, List<String> preferredLabeling, List<String> preferredModeling, List<String> preferredRefinement) {
-        // overkill?
-        if (preferredLabeling.isEmpty() && preferredModeling.isEmpty() && preferredRefinement.isEmpty()) {
-            return;
-        }
-        modelingService.updatePreferredServices(modelId, preferredLabeling, preferredModeling, preferredRefinement);
-    }
-
-    @Override
     @Operation(description = "Copy the semantic model from source model to target model")
     public @NotNull CombinedModel copySemanticModelFromOtherModel(@NotNull String modelId, @NotNull String sourceModelId) {
         return modelingService.copySemanticModelFromOtherModel(modelId, sourceModelId);
@@ -297,5 +287,17 @@ public class ModelingController implements ModelingAPI {
     @Override
     public void updateSelectedOntologies(@NotNull String modelId, @NotNull List<String> selectedOntologyLabels) {
         modelingService.updateSelectedOntologies(modelId, selectedOntologyLabels);
+    }
+
+    @Override
+    @Operation(description = "Updates the preferred services for a model")
+    public void updatePreferredServices(@NotNull String modelId, List<String> preferredLabeling, List<String> preferredModeling, List<String> preferredRefinement) {
+        // overkill?
+        modelingService.updatePreferredServices(modelId, preferredLabeling, preferredModeling, preferredRefinement);
+    }
+
+    @Override
+    public PreferredServices getPreferredServices(@NotNull String modelId) {
+        return modelingService.getPreferredServices(modelId);
     }
 }

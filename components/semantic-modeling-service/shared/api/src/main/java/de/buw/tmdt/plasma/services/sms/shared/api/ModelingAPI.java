@@ -148,4 +148,6 @@ public interface ModelingAPI {
                                  @RequestParam(value = "modeling", required = false) List<String> preferredModeling,
                                  @RequestParam(value = "refinement", required = false) List<String> preferredRefinement);
 
+    @GetMapping(value = "/{modelId}/preferredServices", produces = MediaType.APPLICATION_JSON_VALUE)
+    PreferredServices getPreferredServices(@NotNull @PathVariable("modelId") String modelId);
 }

@@ -877,14 +877,23 @@ public class ModelingService {
      @author Sven Stopka
      */
     public void updatePreferredServices(@NotNull String modelId,
-                                        List<String> preferredModeling,
                                         List<String> preferredLabeling,
+                                        List<String> preferredModeling,
                                         List<String> preferredRefinement
     ) {
         Modeling modeling = findModelingOrThrow(modelId);
-        if(!preferredModeling.isEmpty()) modeling.setPreferredModelingService(preferredModeling);
-        if(!preferredLabeling.isEmpty()) modeling.setPreferredLabelingService(preferredModeling);
-        if(!preferredRefinement.isEmpty()) modeling.setPreferredRefiningService(preferredModeling);
+        if(preferredLabeling != null && !preferredLabeling.isEmpty()) modeling.setPreferredLabelingService(preferredLabeling);
+        if(preferredModeling != null && !preferredModeling.isEmpty()) modeling.setPreferredModelingService(preferredModeling);
+        if(preferredRefinement != null && !preferredRefinement.isEmpty()) modeling.setPreferredRefiningService(preferredRefinement);
         persistModeling(modeling);
+    }
+
+    public PreferredServices getPreferredServices(@NotNull String modelId) {
+        Modeling modeling = findModelingOrThrow(modelId);
+        return new PreferredServices(
+                modeling.getPreferredLabelingService(),
+                modeling.getPreferredModelingService(),
+                modeling.getPreferredRefiningService()
+        );
     }
 }
