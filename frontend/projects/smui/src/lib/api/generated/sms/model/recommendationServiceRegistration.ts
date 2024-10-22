@@ -16,5 +16,16 @@ export interface RecommendationServiceRegistration {
     url?: string;
     lastActive?: string;
     uuid?: string;
+    recommendationType?: RecommendationServiceRegistration.RecommendationTypeEnum;
+    description?: string;
 }
+export namespace RecommendationServiceRegistration {
+    export type RecommendationTypeEnum = 'Labeling' | 'Refinement' | 'Modeling';
+    export const RecommendationTypeEnum = {
+        Labeling: 'Labeling' as RecommendationTypeEnum,
+        Refinement: 'Refinement' as RecommendationTypeEnum,
+        Modeling: 'Modeling' as RecommendationTypeEnum
+    };
+}
+
 

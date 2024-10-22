@@ -9,7 +9,7 @@ Additionally, PLASMA provides interfaces to attach additional (auxiliary) servic
 ## Architecture
 PLASMA currently consists of the following (micro)services: 
 
-* **Data Modeling Service**: Service for semantic model creation 
+* **Semantic Modeling Service**: Service for semantic model creation 
 * **Knowledge Graph Service**: Stores ontologies and created semantic models
 * **Semantic Recommendation Service**: Connecting service for all auxiliary services
 * **Data Processing Service**: Processes files and converts JSON data to RDF
@@ -42,7 +42,7 @@ The included web-based frontend is written using Angular 13.
 
 **Note**: Ensure that your docker is running on the local machine and can be reached
 
-* Build the UI by running `npm run build:dms` and `npm run build` in `frontend` directory
+* Build the UI by running `npm run build:smui` and `npm run build` in `frontend` directory
 * Build the docker container for the UI using the corresponding `Dockerfile` in `frontend`
 
 ### Starting PLASMA
@@ -56,6 +56,8 @@ For an explanation of most parameters, check the individual README files of thos
 * PLASMA can be stopped by halting all Docker containers, e.g. `docker compose down`
 
 ## Development Setup
+
+### Config via `hosts` File
 
 If components are run locally, e.g. for debugging purposes, entries for each service have to be added to the /etc/hosts
 file in the form of ``127.0.0.1 <container-hostname-in-docker-compose>``. Setting those lookups enables a local
@@ -72,6 +74,36 @@ Example:
 **Note**: This is only required when running the specific component(s) outside of Docker containers
 (e.g. for debugging). Alternatively, the service environment may be edited and the reference URL of the resource changed
 to ``localhost``.
+
+### Config via IntelliJ Configuration
+
+IntelliJ offers the option to overwrite configuration files. 
+
+#### ARS-L-LM
+| Name                                    | Value                         |
+|-----------------------------------------|-------------------------------|
+| `eureka.instance.hostname`              | `host.docker.internal`        |
+| `eureka.client.service-url.defaultZone` | `http://localhst:8761/eureka` |
+| `plasma.sms.address`                    | `localhost`                   |
+| `plasma.host_name`                      | `localhost`                   |
+| `plasma.gateway_address`                | `http://localhost:8888`       |
+#### KGS
+| Name                                    | Value                              |
+|-----------------------------------------|------------------------------------|
+| `eureka.instance.hostname`              | `host.docker.internal`             |
+| `eureka.client.service-url.defaultZone` | `http://localhost:8761/eureka`     |
+| `plasma.kgs.semanticmodels.store.url`   | `http://localhost:3030/sm`         |
+| `plasma.gateway_address`                | `http://localhost:8888`            |
+| `plasma.kgs.ontologies.folder`          | `./ontolofies`                     |
+| `plasma.kgs.ontologies.store.url`       | `http://localhost:3030/ontologies` |
+#### SMS
+| Name                                    | Value                                    |
+|-----------------------------------------|------------------------------------------|
+| `eureka.instance.hsotname`              | ` host.docker.internal`                  |
+| `plasma.config.local.path`              | ` C:\temp`                               |
+| `plasma.maria.url`                      | ` jdbc:mysql//localhost:3306/plasma-sms` |
+| `plasma.gateway_address`                | ` http://localhost:8888`                 |
+| `eureka.client.service_url.defaultZone` | `http://localhost:8761/eureka`           |
 
 ### Default port mappings
 
@@ -102,9 +134,3 @@ Auxiliary Services
 ARS-L-LM      8201
 ARS-R-SR      8221
 ```
-
-
-
-
-
-
