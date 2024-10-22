@@ -41,6 +41,7 @@ public class SelfRegistrationService {
             registrationPackage.setServiceName(serviceName);
             registrationPackage.setUrl(serverAddress);
             registrationPackage.setUuid(serviceId);
+            registrationPackage.setDescription("A Service Description.");
             registrationPackage.setRecommendationType(recommendationType);
 
             URL upstreamUrl = new URL("http", upstreamHostName, upstreamPort,"/api/plasma-sms/ars-registration");

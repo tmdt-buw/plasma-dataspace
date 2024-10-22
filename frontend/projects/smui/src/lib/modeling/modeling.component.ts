@@ -4,7 +4,7 @@ import { FormControl } from '@angular/forms';
 import { ModalOptions, NzModalRef, NzModalService } from 'ng-zorro-antd/modal';
 import { BehaviorSubject, forkJoin, Observable, Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, tap } from 'rxjs/operators';
-import { ArrayContext, CombinedModel, DeltaModification, ModelingControllerService, ModelMapping, RecommendationServiceRegistration, ArsRegistrationControllerService, Relation, SemanticNode, SyntaxNode } from '../api/generated/sms';
+import { ArrayContext, PreferredServices, CombinedModel, DeltaModification, ModelingControllerService, ModelMapping, RecommendationServiceRegistration, ArsRegistrationControllerService, Relation, SemanticNode, SyntaxNode } from '../api/generated/sms';
 import { OntologyControllerService, OntologyInfo, SemanticModelControllerService } from '../api/generated/kgs';
 import { ContextMenuService } from './context-menu/context-menu.service';
 import { ModalMouseEnabledConfig } from './dialogs/common/modal.base-config';
@@ -81,6 +81,7 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
   finalizing: boolean = false;
 
   serviceList: RecommendationServiceRegistration[];
+  preferredServices: PreferredServices;
 
   // dialogs
   private addConceptDialogRef: NzModalRef<any, any>;
@@ -121,6 +122,11 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
     // serviceList: Array<RecommendationServiceRegistration>
     this.arsServices.aRSList().subscribe((services: Array<RecommendationServiceRegistration>) => {
       this.serviceList = services;
+    });
+
+    // save preferred services
+    this.modelingService.getPreferredServices(this.modelId).subscribe((preferredServices: PreferredServices) => {
+      this.preferredServices = preferredServices;
     });
 
     // query schema
@@ -227,6 +233,12 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
 
   serviceAvailable(uuid: string): boolean {
     return this.serviceList.some(service => service.uuid === uuid);
+  }
+
+  serviceIsPreferred(uuid: string): boolean {
+    return this.preferredServices.preferredLabeling.includes(uuid) ||
+           this.preferredServices.preferredModeling.includes(uuid) ||
+           this.preferredServices.preferredRefinement.includes(uuid);
   }
 
   // ======= Menu functions ===========

@@ -30,6 +30,7 @@ model/objectNode.ts
 model/objectNodeAllOf.ts
 model/objectProperty.ts
 model/positionedCombinedModelElement.ts
+model/preferredServices.ts
 model/primitiveNode.ts
 model/primitiveNodeAllOf.ts
 model/recommendationServiceRegistration.ts

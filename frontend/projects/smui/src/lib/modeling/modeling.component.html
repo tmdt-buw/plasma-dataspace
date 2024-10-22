@@ -73,17 +73,27 @@
             <a></a>
             <ul>
               <li nz-menu-item *ngFor="let service of serviceList; let i = index">
-                <a class="dropdown-icon" nz-icon nzType="info-circle" nzTheme="outline" nz-tooltip="{{service.uuid}}"></a>
+                <ng-container *ngIf="serviceIsPreferred(service.uuid); then servicePreferred else serviceInfo"></ng-container>
+                <ng-template #servicePreferred>
+                  <a class="dropdown-icon" nz-icon nzType="star" nzTheme="outline" nz-tooltip="{{service.description}}"></a>
+                </ng-template>
+                <ng-template #serviceInfo>
+                  <a class="dropdown-icon" nz-icon nzType="info-circle" nzTheme="outline" nz-tooltip="{{service.description}}"></a>
+                </ng-template>
                 {{service.serviceName}}
-                <span *ngIf="1 == 1">
-                  SERVICE AVAILABLE YAYYY :D
-                </span>
               </li>
             </ul>
           </li>
           <li nz-submenu [nzTitle]="modelingTitle">
             <ul>
-              <li nz-menu-item>List item</li>
+              <li nz-menu-item>
+                <a class="dropdown-icon" nz-icon nzType="star" nzTheme="outline"></a>
+                Preferred Service
+              </li>
+              <li nz-menu-item>
+                <a class="dropdown-icon" nz-icon nzType="info-circle" nzTheme="outline"></a>
+                Service 1
+              </li>
             </ul>
           </li>
         </ul>
@@ -99,6 +109,7 @@
            nzType="node-index"></a>
         Semantic Labeling
       </ng-template>
+
 
 
       <!--      search -->

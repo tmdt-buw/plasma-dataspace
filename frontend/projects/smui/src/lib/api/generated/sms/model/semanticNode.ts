@@ -12,8 +12,8 @@
 
 
 export interface SemanticNode { 
-    mapped?: boolean;
     template?: boolean;
+    mapped?: boolean;
     uuid?: string;
     label?: string;
     uri?: string;

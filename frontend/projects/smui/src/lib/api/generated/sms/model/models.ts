@@ -18,6 +18,7 @@ export * from './objectNode';
 export * from './objectNodeAllOf';
 export * from './objectProperty';
 export * from './positionedCombinedModelElement';
+export * from './preferredServices';
 export * from './primitiveNode';
 export * from './primitiveNodeAllOf';
 export * from './recommendationServiceRegistration';

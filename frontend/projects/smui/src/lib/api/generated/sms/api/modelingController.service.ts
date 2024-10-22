@@ -37,6 +37,8 @@ import { ModelingInfo } from '../model/modelingInfo';
 // @ts-ignore
 import { ObjectProperty } from '../model/objectProperty';
 // @ts-ignore
+import { PreferredServices } from '../model/preferredServices';
+// @ts-ignore
 import { SemanticNode } from '../model/semanticNode';
 // @ts-ignore
 import { UpdatePositionsRequestInner } from '../model/updatePositionsRequestInner';
@@ -1072,6 +1074,62 @@ export class ModelingControllerService {
         }
 
         return this.httpClient.get<Array<ModelMapping>>(`${this.configuration.basePath}/api/plasma-sms/modelings/${encodeURIComponent(String(modelId))}/mappings`,
+            {
+                context: localVarHttpContext,
+                responseType: <any>responseType_,
+                withCredentials: this.configuration.withCredentials,
+                headers: localVarHeaders,
+                observe: observe,
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * @param modelId 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     */
+    public getPreferredServices(modelId: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext}): Observable<PreferredServices>;
+    public getPreferredServices(modelId: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext}): Observable<HttpResponse<PreferredServices>>;
+    public getPreferredServices(modelId: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext}): Observable<HttpEvent<PreferredServices>>;
+    public getPreferredServices(modelId: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext}): Observable<any> {
+        if (modelId === null || modelId === undefined) {
+            throw new Error('Required parameter modelId was null or undefined when calling getPreferredServices.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        let localVarHttpHeaderAcceptSelected: string | undefined = options && options.httpHeaderAccept;
+        if (localVarHttpHeaderAcceptSelected === undefined) {
+            // to determine the Accept header
+            const httpHeaderAccepts: string[] = [
+                'application/json'
+            ];
+            localVarHttpHeaderAcceptSelected = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+        }
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        let localVarHttpContext: HttpContext | undefined = options && options.context;
+        if (localVarHttpContext === undefined) {
+            localVarHttpContext = new HttpContext();
+        }
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        return this.httpClient.get<PreferredServices>(`${this.configuration.basePath}/api/plasma-sms/modelings/${encodeURIComponent(String(modelId))}/preferredServices`,
             {
                 context: localVarHttpContext,
                 responseType: <any>responseType_,
