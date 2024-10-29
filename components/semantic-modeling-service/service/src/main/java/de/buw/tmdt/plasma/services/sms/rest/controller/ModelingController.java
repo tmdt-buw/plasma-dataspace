@@ -291,9 +291,8 @@ public class ModelingController implements ModelingAPI {
 
     @Override
     @Operation(description = "Updates the preferred services for a model")
-    public void updatePreferredServices(@NotNull String modelId, List<String> preferredLabeling, List<String> preferredModeling, List<String> preferredRefinement) {
-        // overkill?
-        modelingService.updatePreferredServices(modelId, preferredLabeling, preferredModeling, preferredRefinement);
+    public void updatePreferredServices(@NotNull String modelId, PreferredServices preferredServices) {
+        modelingService.updatePreferredServices(modelId, preferredServices);
     }
 
     @Override

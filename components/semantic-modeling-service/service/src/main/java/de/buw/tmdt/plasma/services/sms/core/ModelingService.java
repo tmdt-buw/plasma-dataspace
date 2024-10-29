@@ -871,20 +871,14 @@ public class ModelingService {
     /***
      * update the preferred services
      @param modelId ID of the Model to be updated
-     @param preferredLabeling preferred services
-     @param preferredModeling preferred services
-     @param preferredRefinement preferred services
+     @param preferredServices new List
      @author Sven Stopka
      */
-    public void updatePreferredServices(@NotNull String modelId,
-                                        List<String> preferredLabeling,
-                                        List<String> preferredModeling,
-                                        List<String> preferredRefinement
-    ) {
+    public void updatePreferredServices(@NotNull String modelId, @NotNull PreferredServices preferredServices) {
         Modeling modeling = findModelingOrThrow(modelId);
-        if(preferredLabeling != null && !preferredLabeling.isEmpty()) modeling.setPreferredLabelingService(preferredLabeling);
-        if(preferredModeling != null && !preferredModeling.isEmpty()) modeling.setPreferredModelingService(preferredModeling);
-        if(preferredRefinement != null && !preferredRefinement.isEmpty()) modeling.setPreferredRefiningService(preferredRefinement);
+        modeling.setPreferredLabelingService(preferredServices.getPreferredLabeling());
+        modeling.setPreferredModelingService(preferredServices.getPreferredModeling());
+        modeling.setPreferredRefiningService(preferredServices.getPreferredRefinement());
         persistModeling(modeling);
     }
 

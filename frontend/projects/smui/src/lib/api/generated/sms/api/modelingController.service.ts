@@ -54,7 +54,7 @@ import { Configuration }                                     from '../configurat
 })
 export class ModelingControllerService {
 
-    protected basePath = 'http://plasma-gateway-service:8888';
+    protected basePath = 'http://localhost:8888';
     public defaultHeaders = new HttpHeaders();
     public configuration = new Configuration();
     public encoder: HttpParameterCodec;
@@ -1768,38 +1768,19 @@ export class ModelingControllerService {
     /**
      * Updates the preferred services for a model
      * @param modelId 
-     * @param labeling 
-     * @param modeling 
-     * @param refinement 
+     * @param preferredServices 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public updatePreferredServices(modelId: string, labeling?: Array<string>, modeling?: Array<string>, refinement?: Array<string>, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext}): Observable<any>;
-    public updatePreferredServices(modelId: string, labeling?: Array<string>, modeling?: Array<string>, refinement?: Array<string>, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext}): Observable<HttpResponse<any>>;
-    public updatePreferredServices(modelId: string, labeling?: Array<string>, modeling?: Array<string>, refinement?: Array<string>, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext}): Observable<HttpEvent<any>>;
-    public updatePreferredServices(modelId: string, labeling?: Array<string>, modeling?: Array<string>, refinement?: Array<string>, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext}): Observable<any> {
+    public updatePreferredServices(modelId: string, preferredServices: PreferredServices, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext}): Observable<any>;
+    public updatePreferredServices(modelId: string, preferredServices: PreferredServices, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext}): Observable<HttpResponse<any>>;
+    public updatePreferredServices(modelId: string, preferredServices: PreferredServices, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext}): Observable<HttpEvent<any>>;
+    public updatePreferredServices(modelId: string, preferredServices: PreferredServices, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext}): Observable<any> {
         if (modelId === null || modelId === undefined) {
             throw new Error('Required parameter modelId was null or undefined when calling updatePreferredServices.');
         }
-
-        let localVarQueryParameters = new HttpParams({encoder: this.encoder});
-        if (labeling) {
-            labeling.forEach((element) => {
-                localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
-                  <any>element, 'labeling');
-            })
-        }
-        if (modeling) {
-            modeling.forEach((element) => {
-                localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
-                  <any>element, 'modeling');
-            })
-        }
-        if (refinement) {
-            refinement.forEach((element) => {
-                localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
-                  <any>element, 'refinement');
-            })
+        if (preferredServices === null || preferredServices === undefined) {
+            throw new Error('Required parameter preferredServices was null or undefined when calling updatePreferredServices.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -1821,6 +1802,15 @@ export class ModelingControllerService {
         }
 
 
+        // to determine the Content-Type header
+        const consumes: string[] = [
+            'application/json'
+        ];
+        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
+        if (httpContentTypeSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
+        }
+
         let responseType_: 'text' | 'json' | 'blob' = 'json';
         if (localVarHttpHeaderAcceptSelected) {
             if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
@@ -1832,11 +1822,10 @@ export class ModelingControllerService {
             }
         }
 
-        return this.httpClient.patch<any>(`${this.configuration.basePath}/api/plasma-sms/modelings/${encodeURIComponent(String(modelId))}/preferredServices`,
-            null,
+        return this.httpClient.put<any>(`${this.configuration.basePath}/api/plasma-sms/modelings/${encodeURIComponent(String(modelId))}/preferredServices`,
+            preferredServices,
             {
                 context: localVarHttpContext,
-                params: localVarQueryParameters,
                 responseType: <any>responseType_,
                 withCredentials: this.configuration.withCredentials,
                 headers: localVarHeaders,

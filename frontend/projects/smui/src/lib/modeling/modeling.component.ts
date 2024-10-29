@@ -4,7 +4,7 @@ import { FormControl } from '@angular/forms';
 import { ModalOptions, NzModalRef, NzModalService } from 'ng-zorro-antd/modal';
 import { BehaviorSubject, forkJoin, Observable, Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, tap } from 'rxjs/operators';
-import { ArrayContext, PreferredServices, CombinedModel, DeltaModification, ModelingControllerService, ModelMapping, RecommendationServiceRegistration, ArsRegistrationControllerService, Relation, SemanticNode, SyntaxNode } from '../api/generated/sms';
+import { ArrayContext, CombinedModel, DeltaModification, ModelingControllerService, ModelMapping, Relation, SemanticNode, SyntaxNode } from '../api/generated/sms';
 import { OntologyControllerService, OntologyInfo, SemanticModelControllerService } from '../api/generated/kgs';
 import { ContextMenuService } from './context-menu/context-menu.service';
 import { ModalMouseEnabledConfig } from './dialogs/common/modal.base-config';
@@ -18,6 +18,7 @@ import { CopySemanticModelComponent } from './dialogs/copy-semantic-model/copy-s
 import { NzNotificationService } from 'ng-zorro-antd/notification';
 import { HttpErrorResponse, HttpStatusCode } from '@angular/common/http';
 import { ManageOntologiesDialogComponent } from './dialogs/manage-ontologies-dialog/manage-ontologies-dialog.component';
+import { ArsSelectionDialogComponent } from './dialogs/ars-selection-dialog/ars-selection-dialog.component';
 
 @Component({
   selector: 'pls-modeling',
@@ -80,14 +81,12 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
 
   finalizing: boolean = false;
 
-  serviceList: RecommendationServiceRegistration[];
-  preferredServices: PreferredServices;
-
   // dialogs
   private addConceptDialogRef: NzModalRef<any, any>;
   contextMenuSubscription;
   private copySemanticModelDialogRef: NzModalRef<any, any>;
   private manageOntolggiesDialogRef: NzModalRef<any, any>;
+  private arsSelectionDialogRef: NzModalRef<any, any>;
 
   // tools
   recommendationsEnabled = true;
@@ -102,7 +101,7 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
               private semanticModelService: SemanticModelControllerService,
               private modal: NzModalService,
               private notification: NzNotificationService,
-              private arsServices: ArsRegistrationControllerService) {
+              ) {
   }
 
   ngOnInit(): void {
@@ -119,15 +118,7 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
       console.log(this.ontologies);
     });
 
-    // serviceList: Array<RecommendationServiceRegistration>
-    this.arsServices.aRSList().subscribe((services: Array<RecommendationServiceRegistration>) => {
-      this.serviceList = services;
-    });
 
-    // save preferred services
-    this.modelingService.getPreferredServices(this.modelId).subscribe((preferredServices: PreferredServices) => {
-      this.preferredServices = preferredServices;
-    });
 
     // query schema
     this.getCombinedModel();
@@ -228,17 +219,31 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
         }
       );
   }
+  // show modal
+  showSelectPreferredServicesModal(): void {
+    const boundingBox: DOMRect = this.modelingArea.nativeElement.getBoundingClientRect();
 
-  // ======= I wanna die ==============
-
-  serviceAvailable(uuid: string): boolean {
-    return this.serviceList.some(service => service.uuid === uuid);
-  }
-
-  serviceIsPreferred(uuid: string): boolean {
-    return this.preferredServices.preferredLabeling.includes(uuid) ||
-           this.preferredServices.preferredModeling.includes(uuid) ||
-           this.preferredServices.preferredRefinement.includes(uuid);
+    const config: ModalOptions = {
+      nzStyle: {
+        position: 'absolute',
+        top: `${boundingBox.top}px`,
+        right: `50px`,
+        'min-width': '60%',
+        'max-width': '80%',
+        bottom: '15px'
+      },
+      nzContent: ArsSelectionDialogComponent,
+      nzComponentParams: {
+        modelId: this.modelId
+      },
+      nzTitle: 'Manage Active Recommendation Services',
+    };
+    if (this.arsSelectionDialogRef) {
+      this.arsSelectionDialogRef.close();
+      this.arsSelectionDialogRef = undefined;
+      return;
+    }
+    this.arsSelectionDialogRef = this.modal.create(Object.assign(config, ModalMouseEnabledConfig));
   }
 
   // ======= Menu functions ===========
@@ -526,8 +531,5 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
 
   isViewerMode(): boolean {
     return this.viewerMode || this.combinedModel?.finalized;
-  }
-  getServices(): RecommendationServiceRegistration {
-    return {};
   }
 }

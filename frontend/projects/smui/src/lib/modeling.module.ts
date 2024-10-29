@@ -50,6 +50,7 @@ import { NzPopconfirmModule } from 'ng-zorro-antd/popconfirm';
 import { NzDescriptionsModule } from 'ng-zorro-antd/descriptions';
 import { UriGeneratorComponent } from './modeling/dialogs/common/uri-generator/uri-generator.component';
 import { NzPopoverModule } from 'ng-zorro-antd/popover';
+import { ArsSelectionDialogComponent } from './modeling/dialogs/ars-selection-dialog/ars-selection-dialog.component';
 
 
 @NgModule({
@@ -58,7 +59,7 @@ import { NzPopoverModule } from 'ng-zorro-antd/popover';
     PlsSemanticNodeDetailsComponent, PlsConceptDialogComponent, PlsEditEntityDialogComponent,
     PlsEditRelationDialogComponent, PlsImportDialogComponent,
     InlineInputEditComponent, PlsSemanticClassMenuComponent, PlsRelationConceptMenuComponent, PlsFullscreenDirective,
-    PlsNamedEntityMenuComponent, PlsLiteralMenuComponent, UploadOntologyComponent, CopySemanticModelComponent, ManageOntologiesDialogComponent, UriGeneratorComponent
+    PlsNamedEntityMenuComponent, PlsLiteralMenuComponent, UploadOntologyComponent, CopySemanticModelComponent, ManageOntologiesDialogComponent, UriGeneratorComponent, ArsSelectionDialogComponent
   ],
   imports: [
     // Plasma

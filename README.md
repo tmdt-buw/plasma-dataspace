@@ -80,13 +80,12 @@ to ``localhost``.
 IntelliJ offers the option to overwrite configuration files. 
 
 #### ARS-L-LM
-| Name                                    | Value                         |
-|-----------------------------------------|-------------------------------|
-| `eureka.instance.hostname`              | `host.docker.internal`        |
-| `eureka.client.service-url.defaultZone` | `http://localhst:8761/eureka` |
-| `plasma.sms.address`                    | `localhost`                   |
-| `plasma.host_name`                      | `localhost`                   |
-| `plasma.gateway_address`                | `http://localhost:8888`       |
+| Name                                    | Value                          |
+|-----------------------------------------|--------------------------------|
+| `eureka.instance.hostname`              | `host.docker.internal`         |
+| `eureka.client.service-url.defaultZone` | `http://localhost:8761/eureka` |
+| `plasma.sms.address`                    | `localhost`                    |
+| `plasma.gateway_address`                | `http://localhost:8888`        |
 #### KGS
 | Name                                    | Value                              |
 |-----------------------------------------|------------------------------------|
@@ -97,13 +96,13 @@ IntelliJ offers the option to overwrite configuration files.
 | `plasma.kgs.ontologies.folder`          | `./ontolofies`                     |
 | `plasma.kgs.ontologies.store.url`       | `http://localhost:3030/ontologies` |
 #### SMS
-| Name                                    | Value                                    |
-|-----------------------------------------|------------------------------------------|
-| `eureka.instance.hsotname`              | ` host.docker.internal`                  |
-| `plasma.config.local.path`              | ` C:\temp`                               |
-| `plasma.maria.url`                      | ` jdbc:mysql//localhost:3306/plasma-sms` |
-| `plasma.gateway_address`                | ` http://localhost:8888`                 |
-| `eureka.client.service_url.defaultZone` | `http://localhost:8761/eureka`           |
+| Name                                    | Value                                     |
+|-----------------------------------------|-------------------------------------------|
+| `eureka.instance.hostname`              | ` host.docker.internal`                   |
+| `plasma.config.local.path`              | ` C:\temp`                                |
+| `plasma.maria.url`                      | ` jdbc:mysql://localhost:3306/plasma-sms` |
+| `plasma.gateway_address`                | ` http://localhost:8888`                  |
+| `eureka.client.service_url.defaultZone` | `http://localhost:8761/eureka`            |
 
 ### Default port mappings
 
