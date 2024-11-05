@@ -42,7 +42,7 @@ public class ARSService {
     }
 
     public List<RecommendationServiceRegistration> getServicesAlive() {
-        return new ArrayList<RecommendationServiceRegistration>(servicesAlive);
+        return servicesAlive;
     }
 
 }

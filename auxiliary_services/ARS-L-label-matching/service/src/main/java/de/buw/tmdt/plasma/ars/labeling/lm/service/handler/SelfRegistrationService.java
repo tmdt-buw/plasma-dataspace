@@ -26,7 +26,7 @@ public class SelfRegistrationService {
     @Value ("${registration.upstream.port}")
     private Integer upstreamPort;
 
-    private final UUID serviceId = UUID.randomUUID();
+    private final String serviceId = UUID.randomUUID().toString();
     private final RestTemplate restTemplate = new RestTemplate();
     private final RecommendationType recommendationType = RecommendationType.Labeling;
 

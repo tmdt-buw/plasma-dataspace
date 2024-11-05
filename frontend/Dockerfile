@@ -8,7 +8,7 @@ RUN npm install
 
 COPY ./ ./
 
-RUN npm run build:sms -- --configuration=production
+RUN npm run build:smui -- --configuration=production
 RUN npm run build -- --configuration=production
 
 FROM nginx
