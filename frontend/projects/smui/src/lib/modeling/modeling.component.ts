@@ -222,7 +222,11 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
   // show modal
   showSelectPreferredServicesModal(): void {
     const boundingBox: DOMRect = this.modelingArea.nativeElement.getBoundingClientRect();
-
+    if (this.arsSelectionDialogRef) {
+      this.arsSelectionDialogRef.close();
+      this.arsSelectionDialogRef = undefined;
+      return;
+    }
     const config: ModalOptions = {
       nzStyle: {
         position: 'absolute',
@@ -238,12 +242,9 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
       },
       nzTitle: 'Manage Active Recommendation Services',
     };
-    if (this.arsSelectionDialogRef) {
-      this.arsSelectionDialogRef.close();
-      this.arsSelectionDialogRef = undefined;
-      return;
-    }
+
     this.arsSelectionDialogRef = this.modal.create(Object.assign(config, ModalMouseEnabledConfig));
+    this.arsSelectionDialogRef.afterClose.subscribe(() => this.arsSelectionDialogRef = undefined);
   }
 
   // ======= Menu functions ===========

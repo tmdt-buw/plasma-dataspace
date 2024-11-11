@@ -8,10 +8,14 @@
       <ng-container *ngIf="serviceIsPreferred(service.uuid); then preferredLabel; else serviceLabel">
       </ng-container>
       <ng-template #preferredLabel>
-        <i class="dropdown-icon" nz-icon nzType="star"></i>
+        <svg width="12" height="12" xmlns="http://www.w3.org/2000/svg" class="statusIcon">
+          <circle cx="6" cy="6" r="6" fill="green"/>
+        </svg>
       </ng-template>
       <ng-template #serviceLabel>
-        <i class="dropdown-icon" nz-icon nzType="node-index"></i>
+        <svg width="12" height="12" xmlns="http://www.w3.org/2000/svg" class="statusIcon">
+          <circle cx="6" cy="6" r="6" fill="grey"/>
+        </svg>
       </ng-template>
       {{ service.serviceName }}
     </nz-list-item>
@@ -30,13 +34,13 @@
       <ng-template #addButton>
         <button (click)="addServiceToPreferred(selected)" *ngIf="selected" nz-button
                 nzType="primary">
-          <i nz-icon nzType="star"></i>Add to preferred Services
+          <i nz-icon nzType="poweroff"></i>Activate Service
         </button>
       </ng-template>
       <ng-template #removeButton>
-        <button (click)="removeServiceFromPreferred(selected)" *ngIf="selected" nz-button
+        <button (click)="removeServiceFromPreferred(selected.uuid)" *ngIf="selected" nz-button
                 nzType="primary">
-          <i nz-icon nzType="delete"></i>Remove from preferred Services
+          <i nz-icon nzType="poweroff"></i>Deactivate Service
         </button>
       </ng-template>
     </div>
