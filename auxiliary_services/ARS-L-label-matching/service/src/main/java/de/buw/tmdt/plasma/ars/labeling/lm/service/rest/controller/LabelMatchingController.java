@@ -1,7 +1,7 @@
 package de.buw.tmdt.plasma.ars.labeling.lm.service.rest.controller;
 
 import de.buw.tmdt.plasma.ars.labeling.lm.service.handler.LabelMatchingHandler;
-import de.buw.tmdt.plasma.ars.labeling.lm.shared.api.LabelMatchingAPI;
+import de.buw.tmdt.plasma.ars.labeling.lm.service.rest.LabelMatchingAPI;
 import de.buw.tmdt.plasma.datamodel.CombinedModel;
 import io.swagger.v3.oas.annotations.Operation;
 import org.jetbrains.annotations.NotNull;

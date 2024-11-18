@@ -7,16 +7,18 @@ import de.buw.tmdt.plasma.datamodel.semanticmodel.SemanticNode;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.PrimitiveNode;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.SyntaxNode;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.SyntaxModel;
-import de.buw.tmdt.plasma.services.kgs.shared.api.OntologyApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
 
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import reactor.core.publisher.Mono;
 
 @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
 @Service
@@ -24,13 +26,15 @@ public class LabelMatchingHandler {
 
     private static final Logger log = LoggerFactory.getLogger(LabelMatchingHandler.class);
 
-    @Value("${plasma.sms.address:plasma-sms}")
-    private String smsAddress;
+    @Value("plasma.kgs.ontology.api")
+    private String kgsOntologyAPI;
 
-    final OntologyApi ontologyApi;
+    private final WebClient ontologyWebClient;
 
-    public LabelMatchingHandler(OntologyApi ontologyApi) {
-        this.ontologyApi = ontologyApi;
+    public LabelMatchingHandler() {
+        this.ontologyWebClient = WebClient.builder()
+                .baseUrl(kgsOntologyAPI)
+                .build();
     }
 
     public CombinedModel performLabeling(String id, String configId, String configToken, CombinedModel combined) {
@@ -45,12 +49,25 @@ public class LabelMatchingHandler {
                 continue;
             }
             String label = node.getLabel();
-            Collection<SemanticNode> candidates = ontologyApi.getElements(null, label, null, null, 50);
+            List<SemanticNode> candidates;
+            candidates = ontologyWebClient.get()
+                    .uri(uriBuilder -> uriBuilder
+                            .path("/nodes")
+                            .queryParam("infix", label)
+                            .queryParam("limit", 50)
+                            .build())
+                    .retrieve()
+                    .bodyToMono(new ParameterizedTypeReference<List<SemanticNode>>() {})
+                    .onErrorResume(e -> Mono.empty())
+                    .block();
+            if(candidates == null) {
+                candidates = new ArrayList<>();
+            }
+
             List<Class> classes = candidates.stream()
                     .filter(c -> c instanceof Class)
                     .map(c -> (Class) c)
                     .collect(Collectors.toList());
-
 
             Optional<Class> matching = classes.stream().filter(clazz -> clazz.getLabel().equalsIgnoreCase(label)).findFirst();
             if (matching.isPresent()) {  // we only match on exact equality but case-insensitive

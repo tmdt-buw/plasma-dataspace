@@ -19,10 +19,10 @@ import java.util.UUID;
 public class SelfRegistrationService {
     @Value("${plasma.host_name}")
     private String serviceName;
-    @Value ("${plasma.sms.address}")
-    private String upstreamHostName;
     @Value ("${plasma.server_address}")
     private String serverAddress;
+    @Value ("${registration.upstream.host}")
+    private String upstreamHostName;
     @Value ("${registration.upstream.port}")
     private Integer upstreamPort;
 
@@ -44,7 +44,7 @@ public class SelfRegistrationService {
             registrationPackage.setDescription("A Service Description.");
             registrationPackage.setRecommendationType(recommendationType);
 
-            URL upstreamUrl = new URL("http", upstreamHostName, upstreamPort,"/api/plasma-sms/ars-registration");
+            URL upstreamUrl = new URL("http", upstreamHostName, upstreamPort,"/api/plasma-sms/ars");
 
             restTemplate.postForEntity(upstreamUrl.toURI(), registrationPackage, String.class);
         } catch (Exception ex) {

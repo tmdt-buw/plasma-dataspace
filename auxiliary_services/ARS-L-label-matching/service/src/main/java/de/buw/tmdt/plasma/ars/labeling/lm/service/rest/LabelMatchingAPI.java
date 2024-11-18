@@ -1,4 +1,4 @@
-package de.buw.tmdt.plasma.ars.labeling.lm.shared.api;
+package de.buw.tmdt.plasma.ars.labeling.lm.service.rest;
 
 import de.buw.tmdt.plasma.datamodel.CombinedModel;
 import org.jetbrains.annotations.NotNull;

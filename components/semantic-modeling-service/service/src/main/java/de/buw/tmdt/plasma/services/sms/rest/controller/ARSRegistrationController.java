@@ -27,5 +27,4 @@ public class ARSRegistrationController implements ARSServiceAPI {
     public List<RecommendationServiceRegistration> ARSList() {
         return arsRegistrationHandler.getServicesAlive();
     }
-
 }

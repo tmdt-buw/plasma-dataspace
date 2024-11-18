@@ -106,8 +106,7 @@ services:
     ports:
       - "8190:8190"
     environment:
-#      - plasma.ars.labeling.urls=http://plasma-ars-l-lm:8201/api/plasma-ars-l-lm
-      - plasma.ars.labeling.urls=http://plasma-ars-l-dms:8222/recommendation
+      - plasma.ars.labeling.urls=http://plasma-ars-l-lm:8201/api/plasma-ars-l-lm
       - plasma.ars.modeling.url=
       - plasma.ars.refinement.urls=http://plasma-ars-r-sr:8221/recommendation
 

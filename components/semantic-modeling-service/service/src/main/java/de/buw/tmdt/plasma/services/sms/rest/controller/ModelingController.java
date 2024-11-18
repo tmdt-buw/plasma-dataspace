@@ -60,8 +60,8 @@ public class ModelingController implements ModelingAPI {
         Modeling modeling = modelingService.initializeModeling(modelId, combinedModel, name, description, dataId);
         if (performInitialModeling) {
             try {
-                modelingService.performSemanticLabeling(modelId);
-                modelingService.performSemanticModeling(modelId);
+                // modelingService.performSemanticLabeling(modelId);
+                // modelingService.performSemanticModeling(modelId);
             } catch (ResponseStatusException ignore) {
                 // do nothing here as we still want to return the model
             }
@@ -105,7 +105,6 @@ public class ModelingController implements ModelingAPI {
 
     @Override
     public @NotNull CombinedModel performSemanticLabeling(@NotNull String modelId) {
-        // get modeling from service
         return modelingService.performSemanticLabeling(modelId);
     }
 

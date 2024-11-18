@@ -42,6 +42,8 @@ public class ModelingService {
     private final SemanticRecommendationApiClient semanticRecommendationApiClient;
     private final ConfigServiceClient configServiceClient;
 
+    private final ARSService arsService;
+
     @Value("${plasma.gateway_address}")
     private String gateway;
     private final RestTemplate restTemplate = new RestTemplate();
@@ -61,12 +63,13 @@ public class ModelingService {
             @NotNull ModelingRepository modelingRepository,
             @SuppressWarnings({"SpringJavaInjectionPointsAutowiringInspection"})
             @NotNull SemanticRecommendationApiClient semanticRecommendationApiClient,
-            ConfigServiceClient configServiceClient) {
+            ConfigServiceClient configServiceClient, ARSService arsService) {
         this.semanticModelApiClient = semanticModelApiClient;
         this.ontologyApiClient = ontologyApiClient;
         this.modelingRepository = modelingRepository;
         this.semanticRecommendationApiClient = semanticRecommendationApiClient;
         this.configServiceClient = configServiceClient;
+        this.arsService = arsService;
     }
 
     public Modeling initializeModeling(String modelId, CombinedModel combinedModel, String name, String description, String dataId) {
@@ -105,8 +108,8 @@ public class ModelingService {
         Modeling modeling = findModelingOrThrow(modelId);
         try {
             CombinedModel labeledCombinedModel;
-            labeledCombinedModel = semanticRecommendationApiClient.performSemanticLabeling(
-                    modelId, null, null, modeling.getCurrentModel());
+            labeledCombinedModel = arsService.performLabeling(
+                    modelId, modeling, null, null, modeling.getCurrentModel());
             modeling.pushCombinedModel(labeledCombinedModel);
             // store the model after recommendations have been added
             modeling = persistModeling(modeling);
@@ -135,14 +138,9 @@ public class ModelingService {
             // store the model after recommendations have been added
             modeling = persistModeling(modeling);
 
-
             // ARS
             // uuid
             // model
-
-
-
-
 
         } catch (FeignException e) {
             log.warn("Semantic modeling did not succeed: ", e);
@@ -839,7 +837,7 @@ public class ModelingService {
 
     @SuppressFBWarnings("NP_NONNULL_RETURN_VIOLATION") // throws Exception if null
     @NotNull
-    private Modeling findModelingOrThrow(@NotNull String modelId) {
+    public Modeling findModelingOrThrow(@NotNull String modelId) {
         return modelingRepository.findById(modelId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid modeling id: " + modelId));
     }

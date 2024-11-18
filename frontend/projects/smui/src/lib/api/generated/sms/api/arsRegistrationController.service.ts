@@ -127,7 +127,7 @@ export class ArsRegistrationControllerService {
             }
         }
 
-        return this.httpClient.get<Array<RecommendationServiceRegistration>>(`${this.configuration.basePath}/api/plasma-sms/ars-registration`,
+        return this.httpClient.get<Array<RecommendationServiceRegistration>>(`${this.configuration.basePath}/api/plasma-sms/ars`,
             {
                 context: localVarHttpContext,
                 responseType: <any>responseType_,
@@ -191,7 +191,7 @@ export class ArsRegistrationControllerService {
             }
         }
 
-        return this.httpClient.post<any>(`${this.configuration.basePath}/api/plasma-sms/ars-registration`,
+        return this.httpClient.post<any>(`${this.configuration.basePath}/api/plasma-sms/ars`,
             recommendationServiceRegistration,
             {
                 context: localVarHttpContext,

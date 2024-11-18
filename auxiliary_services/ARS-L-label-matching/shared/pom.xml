@@ -15,7 +15,6 @@
 
     <modules>
         <module>api</module>
-        <module>feign-client</module>
     </modules>
 
 </project>
