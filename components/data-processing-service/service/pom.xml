@@ -81,7 +81,7 @@
         </dependency>
 
         <dependency>
-            <groupId>de.buw.tmdt.plasma.services.kgs</groupId>
+            <groupId>de.buw.tmdt.plasma.services.sms</groupId>
             <artifactId>feign-client</artifactId>
             <version>${project.parent.version}</version>
         </dependency>

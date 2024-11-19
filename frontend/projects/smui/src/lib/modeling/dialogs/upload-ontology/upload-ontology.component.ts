@@ -1,6 +1,6 @@
 import { Component, ElementRef, EventEmitter, Input, Output, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { OntologyControllerService } from '../../../api/generated/kgs';
+import { OntologyControllerService } from '../../../api/generated/sms';
 
 @Component({
   selector: 'pls-upload-ontology',

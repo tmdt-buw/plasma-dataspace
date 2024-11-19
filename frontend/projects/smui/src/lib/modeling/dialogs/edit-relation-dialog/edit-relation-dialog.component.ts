@@ -4,7 +4,7 @@ import { NzModalRef } from 'ng-zorro-antd/modal';
 import { ModelingControllerService, ObjectProperty, Relation } from '../../../api/generated/sms';
 import { BehaviorSubject, Subject } from 'rxjs';
 import { UriGeneratorComponent } from '../common/uri-generator/uri-generator.component';
-import { OntologyControllerService } from '../../../api/generated/kgs';
+import { OntologyControllerService } from '../../../api/generated/sms';
 
 @Component({
   selector: 'pls-edit-relation-dialog',

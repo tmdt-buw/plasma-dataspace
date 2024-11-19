@@ -5,7 +5,7 @@ import { ModalOptions, NzModalRef, NzModalService } from 'ng-zorro-antd/modal';
 import { BehaviorSubject, forkJoin, Observable, Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, tap } from 'rxjs/operators';
 import { ArrayContext, CombinedModel, DeltaModification, ModelingControllerService, ModelMapping, Relation, SemanticNode, SyntaxNode } from '../api/generated/sms';
-import { OntologyControllerService, OntologyInfo, SemanticModelControllerService } from '../api/generated/kgs';
+import { OntologyControllerService, OntologyInfo, SemanticModelControllerService } from '../api/generated/sms';
 import { ContextMenuService } from './context-menu/context-menu.service';
 import { ModalMouseEnabledConfig } from './dialogs/common/modal.base-config';
 import { PlsConceptDialogComponent } from './dialogs/concept-dialog/concept-dialog.component';

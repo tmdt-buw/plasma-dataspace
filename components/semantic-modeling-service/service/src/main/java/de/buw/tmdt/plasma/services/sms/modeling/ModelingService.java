@@ -6,11 +6,12 @@ import de.buw.tmdt.plasma.datamodel.semanticmodel.Class;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.*;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.SyntaxNode;
 import de.buw.tmdt.plasma.services.config.ConfigServiceClient;
+import de.buw.tmdt.plasma.services.sms.SemanticModelingService;
 import de.buw.tmdt.plasma.services.sms.ars.ARSService;
+import de.buw.tmdt.plasma.services.sms.kg.OntologyService;
+import de.buw.tmdt.plasma.services.sms.kg.SemanticModelService;
 import de.buw.tmdt.plasma.services.sms.modeling.model.Modeling;
 import de.buw.tmdt.plasma.services.sms.modeling.database.ModelingRepository;
-import de.buw.tmdt.plasma.services.kgs.shared.feignclient.OntologyApiClient;
-import de.buw.tmdt.plasma.services.kgs.shared.feignclient.SemanticModelApiClient;
 import de.buw.tmdt.plasma.services.srs.feignclient.SemanticRecommendationApiClient;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import feign.FeignException;
@@ -37,13 +38,16 @@ public class ModelingService {
 
     private static final Logger log = LoggerFactory.getLogger(ModelingService.class);
 
-    private final SemanticModelApiClient semanticModelApiClient;
-    private final OntologyApiClient ontologyApiClient;
     private final ModelingRepository modelingRepository;
+
+    private final SemanticModelingService semanticModelingService;
+
     private final SemanticRecommendationApiClient semanticRecommendationApiClient;
     private final ConfigServiceClient configServiceClient;
 
     private final ARSService arsService;
+    private final OntologyService ontologyService;
+    private final SemanticModelService semanticModelService;
 
     @Value("${plasma.gateway_address}")
     private String gateway;
@@ -57,20 +61,17 @@ public class ModelingService {
 
     @Autowired
     public ModelingService(
-            @SuppressWarnings({"SpringJavaInjectionPointsAutowiringInspection"})
-            @NotNull SemanticModelApiClient semanticModelApiClient,
-            @SuppressWarnings({"SpringJavaInjectionPointsAutowiringInspection"})
-            @NotNull OntologyApiClient ontologyApiClient,
-            @NotNull ModelingRepository modelingRepository,
+            @NotNull ModelingRepository modelingRepository, SemanticModelingService semanticModelingService,
             @SuppressWarnings({"SpringJavaInjectionPointsAutowiringInspection"})
             @NotNull SemanticRecommendationApiClient semanticRecommendationApiClient,
-            ConfigServiceClient configServiceClient, ARSService arsService) {
-        this.semanticModelApiClient = semanticModelApiClient;
-        this.ontologyApiClient = ontologyApiClient;
+            ConfigServiceClient configServiceClient, ARSService arsService, OntologyService ontologyService, SemanticModelService semanticModelService) {
         this.modelingRepository = modelingRepository;
+        this.semanticModelingService = semanticModelingService;
         this.semanticRecommendationApiClient = semanticRecommendationApiClient;
         this.configServiceClient = configServiceClient;
         this.arsService = arsService;
+        this.ontologyService = ontologyService;
+        this.semanticModelService = semanticModelService;
     }
 
     public Modeling initializeModeling(String modelId, CombinedModel combinedModel, String name, String description, String dataId) {
@@ -288,7 +289,7 @@ public class ModelingService {
         List<SemanticNode> availableElements;
         try {
             availableElements =
-                    ontologyApiClient.getElements(modeling.getSelectedOntologies(), prefix, infix, null, 50);
+                    ontologyService.getElements(modeling.getSelectedOntologies(), prefix, infix, null);
         } catch (FeignException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Ontology service currently unavailable.");
         }
@@ -323,7 +324,7 @@ public class ModelingService {
         List<Relation> availableRelations;
         try {
             availableRelations =
-                    ontologyApiClient.getRelations(modeling.getSelectedOntologies(), prefix, infix, null, 50);
+                    ontologyService.getRelations(modeling.getSelectedOntologies(), prefix, infix, null);
         } catch (FeignException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Ontology service currently unavailable.");
         }
@@ -462,7 +463,7 @@ public class ModelingService {
         element.validate();
 
         // validate the URI
-        ontologyApiClient.validateURI(element.getURI());
+        ontologyService.validateURI(element.getURI());
 
         //load model - DON'T COPY since caching of provisional nodes is not "undoable"
         Modeling modeling = findModelingOrThrow(modelId);
@@ -488,7 +489,7 @@ public class ModelingService {
         node.validate();
 
         // validate the new URI
-        ontologyApiClient.validateURI(node.getURI());
+        ontologyService.validateURI(node.getURI());
 
         //load model - DON'T COPY since caching of provisional nodes is not "undoable"
         Modeling modeling = findModelingOrThrow(modelId);
@@ -540,7 +541,7 @@ public class ModelingService {
     public Relation cacheRelation(@NotNull String modelId, @NotNull Relation relation) {
 
         // validate the URI
-        ontologyApiClient.validateURI(relation.getURI());
+        ontologyService.validateURI(relation.getURI());
 
         relation.convertToTemplate();
         relation.validate();
@@ -563,7 +564,7 @@ public class ModelingService {
     public Relation updateCachedRelation(@NotNull String modelId, @NotNull Relation relation, @Nullable String oldURI) {
 
         // validate the URI
-        ontologyApiClient.validateURI(relation.getURI());
+        ontologyService.validateURI(relation.getURI());
 
         relation.convertToTemplate();
         relation.validate();
@@ -797,7 +798,7 @@ public class ModelingService {
                 // just use the one from the combined model
                 semanticModel.setId(modelId);
             }
-            response = semanticModelApiClient.createSemanticModel(semanticModel);
+            response = semanticModelService.createSemanticModel(semanticModel);
             log.info("Created Semantic Model");
         } catch (FeignException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error when creating semantic model in the KGS", e);

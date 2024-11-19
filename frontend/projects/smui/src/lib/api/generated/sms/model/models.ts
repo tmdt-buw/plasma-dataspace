@@ -17,6 +17,7 @@ export * from './namedEntityAllOf';
 export * from './objectNode';
 export * from './objectNodeAllOf';
 export * from './objectProperty';
+export * from './ontologyInfo';
 export * from './positionedCombinedModelElement';
 export * from './preferredServices';
 export * from './primitiveNode';

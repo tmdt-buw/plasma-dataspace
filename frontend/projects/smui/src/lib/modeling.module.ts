@@ -21,7 +21,7 @@ import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
 import { NzTypographyModule } from 'ng-zorro-antd/typography';
 import { NzUploadModule } from 'ng-zorro-antd/upload';
 import { ApiModule, BASE_PATH } from './api/generated/sms';
-import { ApiModule as KGSApiModule, BASE_PATH as KGS_BASE_PATH } from './api/generated/kgs';
+import { ApiModule as KGSApiModule, BASE_PATH as KGS_BASE_PATH } from './api/generated/sms';
 import { PlsSemanticClassMenuComponent } from './modeling/context-menu/semantic-class-menu/semantic-class-menu.component';
 import { PlsRelationConceptMenuComponent } from './modeling/context-menu/relation-menu/relation-menu.component';
 import { PlsDiagramComponent } from './modeling/diagram/diagram.component';
