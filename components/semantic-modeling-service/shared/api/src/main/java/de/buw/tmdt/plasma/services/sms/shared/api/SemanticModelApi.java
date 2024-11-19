@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Set;
 
 @SuppressWarnings("HardcodedFileSeparator - API URLs are OK")
-@RequestMapping("/api/plasma-kgs/semanticModels")
+@RequestMapping("/api/plasma-sms/semanticModels")
 public interface SemanticModelApi {
 
     @PostMapping(value = "", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)

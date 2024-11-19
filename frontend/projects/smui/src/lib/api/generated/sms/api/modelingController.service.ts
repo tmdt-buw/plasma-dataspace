@@ -54,7 +54,7 @@ import { Configuration }                                     from '../configurat
 })
 export class ModelingControllerService {
 
-    protected basePath = 'http://localhost:88884';
+    protected basePath = 'http://localhost:8888';
     public defaultHeaders = new HttpHeaders();
     public configuration = new Configuration();
     public encoder: HttpParameterCodec;

@@ -1,4 +1,4 @@
-package de.buw.tmdt.plasma.ars.labeling.lm.service.handler;
+package de.buw.tmdt.plasma.ars.labeling.lm.service.service;
 
 import de.buw.tmdt.plasma.datamodel.CombinedModel;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.Class;
@@ -20,20 +20,30 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import reactor.core.publisher.Mono;
 
+import javax.annotation.PostConstruct;
+
 @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
 @Service
 public class LabelMatchingService {
 
     private static final Logger log = LoggerFactory.getLogger(LabelMatchingService.class);
 
-    @Value("plasma.kgs.ontology.api")
+    @Value("${plasma.kgs.ontology.api}")
     private String kgsOntologyAPI;
 
-    private final WebClient ontologyWebClient;
+    private WebClient ontologyWebClient;
 
     public LabelMatchingService() {
+    }
+
+    @PostConstruct
+    public void init() {
         this.ontologyWebClient = WebClient.builder()
                 .baseUrl(kgsOntologyAPI)
+                .filter((request, next) -> {
+                    log.info("Making request to: {}", request.url());
+                    return next.exchange(request);
+                })
                 .build();
     }
 

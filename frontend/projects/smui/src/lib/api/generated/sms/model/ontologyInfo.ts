@@ -11,11 +11,15 @@
  */
 
 
-export interface CollisionSchemaAllOf {
-  path?: Array<string>;
-  depth?: number;
-  pathAsJSONPointer?: string;
-  visible?: boolean;
-  disabled?: boolean;
+export interface OntologyInfo { 
+    prefix?: string;
+    uri?: string;
+    label?: string;
+    local?: boolean;
+    description?: string;
+    noProperties?: number;
+    noClasses?: number;
+    classesCount?: number;
+    propertiesCount?: number;
 }
 

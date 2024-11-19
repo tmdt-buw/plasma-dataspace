@@ -1,4 +1,4 @@
-package de.buw.tmdt.plasma.ars.labeling.lm.service.handler;
+package de.buw.tmdt.plasma.ars.labeling.lm.service.service;
 
 import de.buw.tmdt.plasma.services.sms.shared.api.RecommendationServiceRegistration;
 import de.buw.tmdt.plasma.services.sms.shared.api.RecommendationServiceRegistration.RecommendationType;

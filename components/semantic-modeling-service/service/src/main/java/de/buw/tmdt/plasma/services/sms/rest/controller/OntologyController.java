@@ -18,7 +18,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.server.ResponseStatusException;
+
 
 import java.util.List;
 import java.util.Map;
@@ -63,6 +63,7 @@ public class OntologyController implements OntologyApi {
 
     @Override
     public void addOntology(String label, String prefix, String uri, String description, MultipartFile ontologyFile) {
+        log.info("Recieved call for add ontology");
         ontologyManagement.addOntology(label, prefix, uri, description, ontologyFile);
     }
 

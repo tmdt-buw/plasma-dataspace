@@ -9,12 +9,13 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import io.swagger.v3.oas.annotations.Operation;
 
 import java.util.List;
 import java.util.Map;
 
 @SuppressWarnings("HardcodedFileSeparator")
-@RequestMapping("/api/plasma-kgs/ontologies")
+@RequestMapping("/api/plasma-sms/ontologies")
 public interface OntologyApi {
 
     /**
@@ -28,6 +29,7 @@ public interface OntologyApi {
      * @return A list of matching {@link SemanticNode}s
      */
     @GetMapping(value = "/nodes", produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(operationId = "getOntologyElements")
     @NotNull List<SemanticNode> getElements(
             @RequestParam(value = "ontologyLabels", defaultValue = "") List<String> ontologyLabels,
             @RequestParam(value = "prefix", required = false) String prefix,
@@ -46,6 +48,7 @@ public interface OntologyApi {
      * @return A list of matching {@link Relation}s
      */
     @GetMapping(value = "/relations", produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(operationId = "getOntologyRelations")
     @NotNull List<Relation> getRelations(
             @RequestParam(value = "ontologyLabels", defaultValue = "") List<String> ontologyLabels,
             @RequestParam(value = "prefix", required = false) String prefix,
