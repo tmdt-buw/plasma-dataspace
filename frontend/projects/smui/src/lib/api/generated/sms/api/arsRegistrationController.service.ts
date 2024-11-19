@@ -32,7 +32,7 @@ import { Configuration }                                     from '../configurat
 })
 export class ArsRegistrationControllerService {
 
-    protected basePath = 'http://localhost:8888';
+    protected basePath = 'http://localhost:88884';
     public defaultHeaders = new HttpHeaders();
     public configuration = new Configuration();
     public encoder: HttpParameterCodec;
@@ -127,7 +127,7 @@ export class ArsRegistrationControllerService {
             }
         }
 
-        return this.httpClient.get<Array<RecommendationServiceRegistration>>(`${this.configuration.basePath}/api/plasma-sms/ars`,
+        return this.httpClient.get<Array<RecommendationServiceRegistration>>(`${this.configuration.basePath}/api/plasma-sms/ars/registration`,
             {
                 context: localVarHttpContext,
                 responseType: <any>responseType_,
@@ -191,7 +191,7 @@ export class ArsRegistrationControllerService {
             }
         }
 
-        return this.httpClient.post<any>(`${this.configuration.basePath}/api/plasma-sms/ars`,
+        return this.httpClient.post<any>(`${this.configuration.basePath}/api/plasma-sms/ars/registration`,
             recommendationServiceRegistration,
             {
                 context: localVarHttpContext,

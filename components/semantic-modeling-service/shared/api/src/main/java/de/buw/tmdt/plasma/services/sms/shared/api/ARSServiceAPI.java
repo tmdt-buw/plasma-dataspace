@@ -6,9 +6,9 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 
-@RequestMapping("/api/plasma-sms/ars")
+@RequestMapping("/api/plasma-sms/ars/registration")
 public interface ARSServiceAPI {
-    @PostMapping(name = "/registration", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     void ARSRegistration(RecommendationServiceRegistration registration);
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)

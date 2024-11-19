@@ -1,6 +1,6 @@
 package de.buw.tmdt.plasma.services.sms.rest.controller;
 
-import de.buw.tmdt.plasma.services.sms.core.ARSService;
+import de.buw.tmdt.plasma.services.sms.ars.ARSService;
 import de.buw.tmdt.plasma.services.sms.shared.api.RecommendationServiceRegistration;
 import de.buw.tmdt.plasma.services.sms.shared.api.ARSServiceAPI;
 import org.springframework.beans.factory.annotation.Autowired;

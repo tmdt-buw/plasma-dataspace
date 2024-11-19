@@ -44,7 +44,7 @@ public class SelfRegistrationService {
             registrationPackage.setDescription("A Service Description.");
             registrationPackage.setRecommendationType(recommendationType);
 
-            URL upstreamUrl = new URL("http", upstreamHostName, upstreamPort,"/api/plasma-sms/ars");
+            URL upstreamUrl = new URL("http", upstreamHostName, upstreamPort,"/api/plasma-sms/ars/registration");
 
             restTemplate.postForEntity(upstreamUrl.toURI(), registrationPackage, String.class);
         } catch (Exception ex) {
