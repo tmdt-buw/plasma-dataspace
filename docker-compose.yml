@@ -6,7 +6,9 @@ services:
     hostname: fuseki
     restart: unless-stopped
     ports:
-      - "3030:3030"
+      - "3030:3030"#
+    networks:
+      - proxy
     environment:
       - FUSEKI_DATASET_1=sm
       - FUSEKI_DATASET_2=ontologies
@@ -24,6 +26,8 @@ services:
       - MYSQL_ROOT_PASSWORD=plasma
     volumes:
       - mariadb_sms:/var/lib/mysql
+    networks:
+      - proxy
     healthcheck:
       test: bash -c "mariadb -h 127.0.0.1 -p$$MYSQL_ROOT_PASSWORD  -e \"show databases;\""
       interval: 10s
@@ -33,39 +37,7 @@ services:
     ports:
       - "3306:3306"
 
-  ########################### Service Infrastructure ######################################
-  discovery:
-    image: "plasma/discovery:${PLASMA_VERSION}"
-    hostname: plasma-discovery-service
-    restart: unless-stopped
-    ports:
-      - "8761:8761"
-
-  gateway:
-    image: "plasma/gateway:${PLASMA_VERSION}"
-    hostname: plasma-gateway-service
-    restart: unless-stopped
-    depends_on:
-      - discovery
-    ports:
-      - "8888:8888"
-
-      ########################### Services ######################################
-
-  kgs:
-    image: "plasma/kgs:${PLASMA_VERSION}"
-    hostname: plasma-kgs
-    user: root
-    restart: unless-stopped
-    depends_on:
-      - discovery
-      - fuseki
-    ports:
-      - "8181:8181"
-    environment:
-      - plasma.kgs.ontologies.folder=/var/ontologies
-    volumes:
-      - kgs_ontologies:/var/ontologies
+########################### Services ######################################
 
   sms:
     image: "plasma/sms:${PLASMA_VERSION}"
@@ -73,42 +45,51 @@ services:
     restart: unless-stopped
     volumes:
       - configs:/var/plasma/configs
+      - kgs_ontologies:/var/ontologies
     depends_on:
-      - discovery
-      - gateway
       - mariadb-sms
+      - fuseki
+      - traefik
     ports:
-      - "8186:8186"
+      - "8181:8181"
+    networks:
+      - proxy
     environment:
       - plasma.sms.feature.recommendations.enabled=true
       - plasma.sms.feature.finalizemodels.enabled=true
+      - plasma.kgs.ontologies.folder=/var/ontologies
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.backend.rule=Host(`localhost`) && PathPrefix(`/api/sms`)"
+      - "traefik.http.routers.backend.entrypoints=websecure"
+      - "traefik.http.routers.app-https.middlewares=cors"
+      - "traefik.http.middlewares.cors.headers.accesscontrolallowmethods=*"
+      - "traefik.http.middlewares.cors.headers.accesscontrolalloworiginlist=*"
+      - "traefik.http.middlewares.cors.headers.accesscontrolmaxage=100"
+      - "traefik.http.middlewares.cors.headers.addvaryheader=true"
 
   dps:
     image: "plasma/dps:${PLASMA_VERSION}"
     hostname: plasma-dps
     user: root
     restart: unless-stopped
-    depends_on:
-      - discovery
     ports:
-      - "8193:8193"
+      - "8182:8182"
+    networks:
+      - proxy
     environment:
       - plasma.localstorage.directory=/var/plasma/localstorage
     volumes:
       - dps_storage:/var/plasma/localstorage
-
-  srs:
-    image: "plasma/srs:${PLASMA_VERSION}"
-    hostname: plasma-srs
-    restart: unless-stopped
-    depends_on:
-      - discovery   
-    ports:
-      - "8190:8190"
-    environment:
-      - plasma.ars.labeling.urls=http://plasma-ars-l-lm:8201/api/plasma-ars-l-lm
-      - plasma.ars.modeling.url=
-      - plasma.ars.refinement.urls=http://plasma-ars-r-sr:8221/recommendation
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.backend.rule=Host(`localhost`) && PathPrefix(`/api/dps`)"
+      - "traefik.http.routers.backend.entrypoints=websecure"
+      - "traefik.http.routers.app-https.middlewares=cors"
+      - "traefik.http.middlewares.cors.headers.accesscontrolallowmethods=*"
+      - "traefik.http.middlewares.cors.headers.accesscontrolalloworiginlist=*"
+      - "traefik.http.middlewares.cors.headers.accesscontrolmaxage=100"
+      - "traefik.http.middlewares.cors.headers.addvaryheader=true"
 
   frontend:
     build: ./frontend
@@ -116,7 +97,16 @@ services:
     hostname: plasma-ui
     restart: unless-stopped
     ports:
-      - "80:80"
+      - "81:80" # alternate access to running frontend, can be removed later
+    depends_on:
+      - traefik
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.frontend.rule=Host(`localhost`)"
+      - "traefik.http.routers.frontend.entrypoints=websecure"
+      - "traefik.http.routers.frontend.tls.certresolver=myresolver"
+    networks:
+      - proxy
 
 ########################### Auxiliary Services ######################################
 
@@ -124,13 +114,12 @@ services:
     image: "plasma/ars-l-lm:${PLASMA_VERSION}"
     hostname: plasma-ars-l-lm
     restart: unless-stopped
-    depends_on:
-      - discovery
-      - kgs
+    networks:
+      - proxy
     volumes:
       - configs:/var/plasma/configs
     ports:
-      - "8201:8201"
+      - "8190:8190"
 
   ars-r-sr:
     build: ./auxiliary_services/ARS-R-statistic-recommender
@@ -155,7 +144,7 @@ services:
     restart: unless-stopped
     environment:
       - SERVICE_PORT=8222
-      - SMS_MODELINGS_ENDPOINT=http://sms:8186/api/plasma-sms/modelings
+      - SMS_MODELINGS_ENDPOINT=http://sms:8181/api/plasma-sms/modelings
       - KGS_ONTOLGIES_ENDPOINT=http://kgs:8181/api/plasma-kgs/ontologies/nodes
     depends_on:
       - fuseki
@@ -164,6 +153,40 @@ services:
     ports:
       - "8222:8222"
 
+########## PROXY ##########
+
+  traefik:
+    image: traefik:latest
+    container_name: plasma-traefik
+    ports:
+      - "80:80"
+    networks:
+      - proxy
+    command:
+      - --api.dashboard=true
+      - --log.level=INFO
+      - --log.filepath=/var/log/traefik.log
+      - --accesslog=true
+      - --accesslog.filepath=/var/log/traefik-access.log
+      - --providers.docker.network=proxy
+      - --providers.docker.exposedByDefault=false
+      - --entrypoints.web.address=:80
+      - --entrypoints.web.http.redirections.entrypoint.to=websecure
+      - --entryPoints.web.http.redirections.entrypoint.scheme=https
+      - --entrypoints.websecure.address=:443
+      # remove next line when using Traefik v2
+      - --entrypoints.websecure.asDefault=true
+      - --entrypoints.websecure.http.tls.certresolver=myresolver
+      - --certificatesresolvers.myresolver.acme.tlschallenge=true
+      - --certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web
+      - --certificatesresolvers.myresolver.acme.email=paulus@crafting-systems.de
+      - --certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json
+    volumes:
+      - ./traefik/log:/var/log
+      - /var/run/docker.sock:/var/run/docker.sock
+
+
+########## docker stuff ##########
 
 volumes:
   fuseki_data:
@@ -171,3 +194,7 @@ volumes:
   configs:
   kgs_ontologies:
   dps_storage:
+
+networks:
+  proxy:
+    name: proxy

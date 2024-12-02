@@ -5,8 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import de.buw.tmdt.plasma.datamodel.CombinedModel;
 import de.buw.tmdt.plasma.services.dps.conversion.ConversionException;
 import de.buw.tmdt.plasma.services.dps.conversion.rdf.RDFConverter;
-import de.buw.tmdt.plasma.services.sms.shared.feignclient.feignclient.OntologyApiClient;
-import feign.FeignException;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.shared.PrefixMapping;
@@ -14,32 +12,49 @@ import org.apache.jena.shared.impl.PrefixMappingImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.server.ResponseStatusException;
+import reactor.core.publisher.Mono;
 
+import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class DataProcessingHandler {
 
-    private final OntologyApiClient ontologyApiClient;
+    private final Logger logger = LoggerFactory.getLogger(DataProcessingHandler.class);
+
     private final DataStorageHandler dataStorageHandler;
+
+    @Value("nyi")
+    private String kgsOntologyAPI;
+
+    private WebClient webClient;
 
     private static final Logger log = LoggerFactory.getLogger(DataProcessingHandler.class);
 
     @Autowired
     public DataProcessingHandler(@SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
-                                             OntologyApiClient ontologyApiClient,
                                  DataStorageHandler dataStorageHandler) {
-        this.ontologyApiClient = ontologyApiClient;
         this.dataStorageHandler = dataStorageHandler;
+    }
+
+    @PostConstruct
+    public void init() {
+        webClient = WebClient.builder()
+                .baseUrl("/")
+                .filter((request, next) -> {
+                    log.info("Making request to: {}", request.url());
+                    return next.exchange(request);
+                })
+                .build();
     }
 
     public String processFile(CombinedModel template, String dataId, String fileId) {
@@ -69,7 +84,19 @@ public class DataProcessingHandler {
         }
 
         try {
-            Map<String, String> prefixes = ontologyApiClient.getNamespaces();
+            HashMap<String, String> prefixes = webClient.get()
+                .uri(uriBuilder -> uriBuilder
+                    .path("/prefixes")
+                    .build())
+                .retrieve()
+                .bodyToMono(new ParameterizedTypeReference<HashMap<String, String>>() {})
+                .onErrorResume(e -> Mono.empty())
+                .block();
+
+            if(prefixes == null) {
+                prefixes = new HashMap<String, String>();
+            }
+
             PrefixMapping prefixMapping = new PrefixMappingImpl();
             prefixMapping.setNsPrefixes(prefixes);
             RDFConverter converter = new RDFConverter(prefixMapping);
@@ -82,10 +109,10 @@ public class DataProcessingHandler {
             }
             return asTurtle(combined);
         } catch (ConversionException e) {
-            e.printStackTrace();
+            logger.error(e.getMessage(), e);
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Could not convert file content(s): " + e.getMessage());
-        } catch (FeignException e) {
-            e.printStackTrace();
+        } catch (ResponseStatusException e) {
+            logger.error(e.getMessage(), e);
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Could not obtain prefixes from KGS.");
         }
     }

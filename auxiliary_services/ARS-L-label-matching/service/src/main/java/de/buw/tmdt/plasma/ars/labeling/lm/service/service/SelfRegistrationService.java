@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import java.net.URL;
 import java.util.UUID;
@@ -25,6 +26,8 @@ public class SelfRegistrationService {
     private String upstreamHostName;
     @Value ("${registration.upstream.port}")
     private Integer upstreamPort;
+    @Value("${registration.uri:/api/sms/ars/registration}")
+    private String registrationUri;
 
     private final String serviceId = UUID.randomUUID().toString();
     private final RestTemplate restTemplate = new RestTemplate();
@@ -44,7 +47,7 @@ public class SelfRegistrationService {
             registrationPackage.setDescription("A Service Description.");
             registrationPackage.setRecommendationType(recommendationType);
 
-            URL upstreamUrl = new URL("http", upstreamHostName, upstreamPort,"/api/plasma-sms/ars/registration");
+            URL upstreamUrl = new URL("http", upstreamHostName, upstreamPort, registrationUri);
 
             restTemplate.postForEntity(upstreamUrl.toURI(), registrationPackage, String.class);
         } catch (Exception ex) {

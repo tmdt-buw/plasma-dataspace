@@ -71,11 +71,6 @@
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
-            <groupId>de.buw.tmdt.plasma.services.kgs</groupId>
-            <artifactId>feign-client</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
             <groupId>de.buw.tmdt.plasma.services.srs</groupId>
             <artifactId>supplements</artifactId>
             <version>${project.parent.version}</version>
@@ -137,7 +132,7 @@
                     </to>
                     <container>
                         <ports>
-                            <port>8201</port>
+                            <port>8190</port>
                         </ports>
                         <creationTime>USE_CURRENT_TIMESTAMP</creationTime>
                     </container>

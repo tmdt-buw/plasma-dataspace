@@ -79,7 +79,7 @@ services:
       - mariadb-sms
       - gateway
     ports:
-      - "8186:8186"
+      - "8181:8181"
     environment:
       - plasma.sms.feature.recommendations.enabled=true
       - plasma.sms.feature.finalizemodels.enabled=true
@@ -93,7 +93,7 @@ services:
     ports:
       - "8190:8190"
     environment:
-      - plasma.ars.labeling.urls=http://plasma-ars-l-lm:8201/api/plasma-ars-l-lm
+      - plasma.ars.labeling.urls=http://plasma-ars-l-lm:8190/api/plasma-ars-l-lm
       - plasma.ars.modeling.url=
       - plasma.ars.refinement.urls=http://plasma-ars-r-sr:8221/recommendation
 
@@ -105,7 +105,7 @@ services:
     depends_on:
       - discovery
     ports:
-      - "8193:8193"
+      - "8182:8182"
     environment:
       - plasma.localstorage.directory=/var/plasma/localstorage
     volumes:
@@ -130,7 +130,7 @@ services:
     volumes:
       - configs:/var/plasma/configs
     ports:
-      - "8201:8201"
+      - "8190:8190"
 
   ars-r-sr:
     image: git.uni-wuppertal.de:4567/tmdt/projects/dataspace/plasma/ars-r-sr:${PLASMA_VERSION}

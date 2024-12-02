@@ -12,9 +12,7 @@ import de.buw.tmdt.plasma.services.sms.kg.OntologyService;
 import de.buw.tmdt.plasma.services.sms.kg.SemanticModelService;
 import de.buw.tmdt.plasma.services.sms.modeling.model.Modeling;
 import de.buw.tmdt.plasma.services.sms.modeling.database.ModelingRepository;
-import de.buw.tmdt.plasma.services.srs.feignclient.SemanticRecommendationApiClient;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import feign.FeignException;
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -42,7 +40,6 @@ public class ModelingService {
 
     private final SemanticModelingService semanticModelingService;
 
-    private final SemanticRecommendationApiClient semanticRecommendationApiClient;
     private final ConfigServiceClient configServiceClient;
 
     private final ARSService arsService;
@@ -63,11 +60,9 @@ public class ModelingService {
     public ModelingService(
             @NotNull ModelingRepository modelingRepository, SemanticModelingService semanticModelingService,
             @SuppressWarnings({"SpringJavaInjectionPointsAutowiringInspection"})
-            @NotNull SemanticRecommendationApiClient semanticRecommendationApiClient,
             ConfigServiceClient configServiceClient, ARSService arsService, OntologyService ontologyService, SemanticModelService semanticModelService) {
         this.modelingRepository = modelingRepository;
         this.semanticModelingService = semanticModelingService;
-        this.semanticRecommendationApiClient = semanticRecommendationApiClient;
         this.configServiceClient = configServiceClient;
         this.arsService = arsService;
         this.ontologyService = ontologyService;
@@ -115,16 +110,14 @@ public class ModelingService {
             modeling.pushCombinedModel(labeledCombinedModel);
             // store the model after recommendations have been added
             modeling = persistModeling(modeling);
-        } catch (Exception e) {
+        } catch (ResponseStatusException e) {
             log.warn("Semantic labeling did not succeed: ", e);
-            if (e instanceof FeignException.NotImplemented) {
+            if (e.getStatus() == HttpStatus.NOT_IMPLEMENTED) {
                 throw new ResponseStatusException(HttpStatus.NOT_IMPLEMENTED, "No labeling services are defined to process this request.");
             }
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Unexpected error during labeling: " + e.getMessage());
         }
         return modeling.getCurrentModel();
-
-
     }
 
     public CombinedModel performSemanticModeling(String modelId) throws ResponseStatusException {
@@ -144,9 +137,9 @@ public class ModelingService {
             // uuid
             // model
 
-        } catch (FeignException e) {
+        } catch (ResponseStatusException e) {
             log.warn("Semantic modeling did not succeed: ", e);
-            if (e instanceof FeignException.NotImplemented) {
+            if (e.getStatus() == HttpStatus.NOT_IMPLEMENTED) {
                 throw new ResponseStatusException(HttpStatus.NOT_IMPLEMENTED, "No modeling services are defined to process this request.");
             }
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Unexpected error during modeling: " + e.getMessage());
@@ -290,7 +283,7 @@ public class ModelingService {
         try {
             availableElements =
                     ontologyService.getElements(modeling.getSelectedOntologies(), prefix, infix, null);
-        } catch (FeignException e) {
+        } catch (ResponseStatusException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Ontology service currently unavailable.");
         }
 
@@ -325,7 +318,7 @@ public class ModelingService {
         try {
             availableRelations =
                     ontologyService.getRelations(modeling.getSelectedOntologies(), prefix, infix, null);
-        } catch (FeignException e) {
+        } catch (ResponseStatusException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Ontology service currently unavailable.");
         }
 
@@ -800,7 +793,7 @@ public class ModelingService {
             }
             response = semanticModelService.createSemanticModel(semanticModel);
             log.info("Created Semantic Model");
-        } catch (FeignException e) {
+        } catch (ResponseStatusException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error when creating semantic model in the KGS", e);
         }
 

@@ -71,14 +71,6 @@
 
         <!-- Spring Cloud -->
         <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-openfeign</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
-        </dependency>
-        <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
         </dependency>
@@ -91,16 +83,6 @@
         <dependency>
             <groupId>${project.parent.groupId}</groupId>
             <artifactId>api</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>de.buw.tmdt.plasma.services.kgs</groupId>
-            <artifactId>feign-client</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>de.buw.tmdt.plasma.services.srs</groupId>
-            <artifactId>feign-client</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
@@ -131,6 +113,12 @@
             <groupId>org.apache.jena</groupId>
             <artifactId>jena-querybuilder</artifactId>
             <version>4.4.0</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
+            <version>2.6</version>
             <scope>compile</scope>
         </dependency>
     </dependencies>
@@ -174,7 +162,7 @@
                     </to>
                     <container>
                         <ports>
-                            <port>8186</port>
+                            <port>8181</port>
                         </ports>
                         <creationTime>USE_CURRENT_TIMESTAMP</creationTime>
                     </container>

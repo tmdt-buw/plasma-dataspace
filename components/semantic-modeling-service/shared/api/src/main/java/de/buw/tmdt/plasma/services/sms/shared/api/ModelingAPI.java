@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @SuppressWarnings("HardcodedFileSeparator")
-@RequestMapping(value = "/api/plasma-sms/modelings")
+@RequestMapping(value = "/api/sms/modelings")
 public interface ModelingAPI {
 
     //############################################### Schema Definition ###############################################

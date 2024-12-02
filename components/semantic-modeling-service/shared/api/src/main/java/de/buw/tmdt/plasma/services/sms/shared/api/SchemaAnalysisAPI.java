@@ -17,7 +17,7 @@ import java.util.List;
  * - getResult
  * - delete
  */
-@RequestMapping("/api/plasma-sms/analysis")
+@RequestMapping("/api/sms/analysis")
 @SuppressWarnings("HardcodedFileSeparator - uris")
 public interface SchemaAnalysisAPI {
 

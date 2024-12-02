@@ -12,7 +12,6 @@
 
     <modules>
         <module>components/semantic-modeling-service</module>
-        <module>components/knowledge-graph-service</module>
         <module>components/discovery-service</module>
         <module>components/gateway-service</module>
         <module>components/utilities</module>

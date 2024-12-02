@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 @SuppressWarnings("HardcodedFileSeparator")
-@RequestMapping("/api/plasma-sms/ontologies")
+@RequestMapping("/api/sms/ontologies")
 public interface OntologyApi {
 
     /**
