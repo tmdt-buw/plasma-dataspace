@@ -6,14 +6,12 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>de.buw.tmdt.plasma</groupId>
     <artifactId>parent</artifactId>
-    <version>1.5.4</version>
+    <version>1.6.1</version>
     <name>PLASMA Parent</name>
     <packaging>pom</packaging>
 
     <modules>
         <module>components/semantic-modeling-service</module>
-        <module>components/discovery-service</module>
-        <module>components/gateway-service</module>
         <module>components/utilities</module>
         <module>components/datamodel</module>
         <module>components/config-service</module>

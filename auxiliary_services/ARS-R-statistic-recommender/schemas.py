@@ -34,7 +34,7 @@ class Relation(BaseModel):
     uri: Optional[str] = None
     label: Optional[str] = None
     description: Optional[str] = None
-    properties: Optional[List[str]] = Field(None, unique_items=True)
+    properties: Optional[List[str]] = Field(None)
     arraycontext: Optional[bool] = None
     provisional: Optional[bool] = None
     template: Optional[bool] = None
