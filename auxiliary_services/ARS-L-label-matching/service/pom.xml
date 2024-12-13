@@ -66,11 +66,6 @@
 
         <!-- PLASMA Dependencies -->
         <dependency>
-            <groupId>${project.parent.groupId}</groupId>
-            <artifactId>api</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
             <groupId>de.buw.tmdt.plasma.services.sms</groupId>
             <artifactId>api</artifactId>
             <version>${project.parent.version}</version>
@@ -133,7 +128,6 @@
                     </container>
                 </configuration>
             </plugin>
-
         </plugins>
         <finalName>${project.artifactId}-${project.version}</finalName>
     </build>
