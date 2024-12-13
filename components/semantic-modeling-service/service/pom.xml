@@ -140,9 +140,9 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
                     <additionalProperties> <!-- Overwrite this configuration in the corresponding service -->
-                        <description>Service for modeling data sources</description>
-                        <developerName>André Pomp</developerName>
-                        <developerEMail>pomp@uni-wuppertal.de</developerEMail>
+                        <description>Service for creating semantic models</description>
+                        <developerName>Alexander Paulus</developerName>
+                        <developerEMail>paulus@uni-wuppertal.de</developerEMail>
                     </additionalProperties>
                 </configuration>
             </plugin>

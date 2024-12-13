@@ -96,7 +96,7 @@ IntelliJ offers the option to overwrite configuration files.
 | `eureka.client.service-url.defaultZone` | `http://localhost:8761/eureka`     |
 | `plasma.kgs.semanticmodels.store.url`   | `http://localhost:3030/sm`         |
 | `plasma.gateway_address`                | `http://localhost:8888`            |
-| `plasma.kgs.ontologies.folder`          | `./ontolofies`                     |
+| `plasma.kgs.ontologies.folder`          | `./ontologies`                     |
 | `plasma.kgs.ontologies.store.url`       | `http://localhost:3030/ontologies` |
 
 #### SMS

@@ -46,8 +46,6 @@ public class ModelingService {
     private final OntologyService ontologyService;
     private final SemanticModelService semanticModelService;
 
-    @Value("${plasma.gateway_address}")
-    private String gateway;
     private final RestTemplate restTemplate = new RestTemplate();
 
     @Value("${plasma.sms.feature.finalizemodels.enabled:true}")
