@@ -76,6 +76,7 @@ services:
     restart: unless-stopped
     ports:
       - "8182:8182"
+    profiles: [staging]
     networks:
       - plasma
     environment:
@@ -145,12 +146,12 @@ services:
     build: ./auxiliary_services/ARS-L-docsemmap
     image: "plasma/ars-l-dsm:${PLASMA_VERSION}"
     hostname: plasma-ars-l-dsm
-    profiles: [staging]
+    profiles: [experimental]
     restart: unless-stopped
     environment:
       - SERVICE_PORT=8222
-      - SMS_MODELINGS_ENDPOINT=http://sms:8181/api/plasma-sms/modelings
-      - KGS_ONTOLGIES_ENDPOINT=http://kgs:8181/api/plasma-kgs/ontologies/nodes
+      - SMS_MODELINGS_ENDPOINT=http://sms:8181/api/sms/modelings
+      - KGS_ONTOLGIES_ENDPOINT=http://kgs:8181/api/kgs/ontologies/nodes
     depends_on:
       - fuseki
     volumes:
