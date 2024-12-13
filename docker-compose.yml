@@ -59,6 +59,9 @@ services:
       - plasma.sms.feature.recommendations.enabled=true
       - plasma.sms.feature.finalizemodels.enabled=true
       - plasma.kgs.ontologies.folder=/var/ontologies
+      - plasma.maria.url=jdbc:mysql://mariadb-sms:3306/plasma-sms
+      - plasma.kgs.semanticmodels.store.url=http://fuseki:3030/sm
+      - plasma.kgs.ontologies.store.url=http://fuseki:3030/ontologies
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.backend.rule=Host(`localhost`) && PathPrefix(`/api/sms`)"
