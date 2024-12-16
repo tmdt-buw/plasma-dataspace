@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 @SuppressWarnings("HardcodedFileSeparator")
-@RequestMapping(value = "/api/plasma-ars-l-lm")
+@RequestMapping(value = "/api/ars-l-lm")
 public interface LabelMatchingAPI {
 
     @NotNull

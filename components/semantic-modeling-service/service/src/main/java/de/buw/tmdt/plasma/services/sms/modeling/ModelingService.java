@@ -842,7 +842,7 @@ public class ModelingService {
             try {
                 return arsService.performRefinement(modelId, modeling, null, null, combinedModel);
             } catch (Exception e) {
-                log.warn("Could not reach SRS for recommendations");
+                log.warn("Could not perform recommendations");
             }
         }
         return combinedModel;

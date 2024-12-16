@@ -65,7 +65,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.backend.rule=Host(`localhost`) && PathPrefix(`/api/sms`)"
-      - "traefik.http.routers.backend.entrypoints=websecure"
+      - "traefik.http.routers.backend.entrypoints=web"
       - "traefik.http.routers.app-https.middlewares=cors"
       - "traefik.http.middlewares.cors.headers.accesscontrolallowmethods=*"
       - "traefik.http.middlewares.cors.headers.accesscontrolalloworiginlist=*"
@@ -89,7 +89,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.backend.rule=Host(`localhost`) && PathPrefix(`/api/dps`)"
-      - "traefik.http.routers.backend.entrypoints=websecure"
+      - "traefik.http.routers.backend.entrypoints=web"
       - "traefik.http.routers.app-https.middlewares=cors"
       - "traefik.http.middlewares.cors.headers.accesscontrolallowmethods=*"
       - "traefik.http.middlewares.cors.headers.accesscontrolalloworiginlist=*"
@@ -109,7 +109,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.frontend.rule=Host(`localhost`)"
-      - "traefik.http.routers.frontend.entrypoints=websecure"
+      - "traefik.http.routers.frontend.entrypoints=web"
       - "traefik.http.routers.frontend.tls.certresolver=myresolver"
     networks:
       - plasma
@@ -125,6 +125,9 @@ services:
       - plasma
     volumes:
       - configs:/var/plasma/configs
+    environment:
+      - registration.upstream.host=plasma-sms
+      - plasma.kgs.ontology.api=http://plasma-sms:8181/api/sms/ontologies
     ports:
       - "8190:8190"
 
@@ -191,6 +194,8 @@ services:
       #- --certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web
       #- --certificatesresolvers.myresolver.acme.email=paulus@crafting-systems.de
       #- --certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json
+
+      # local config
       - --providers.file.filename=/dynamic.yml
       - --providers.file.watch=true
     volumes:
