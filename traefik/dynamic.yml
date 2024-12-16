@@ -1,0 +1,31 @@
+http:
+  routers:
+    sms-router:
+      rule: "Host(`localhost`) && PathPrefix(`/api/sms`)"
+      service: sms
+      tls:
+      entrypoints: web
+    dps-router:
+      rule: "Host(`localhost`) && PathPrefix(`/api/dps`)"
+      service: dps
+      tls:
+      entrypoints: web
+    frontend-router:
+      rule: "Host(`localhost`) || Host(`127.0.0.1`)"
+      service: frontend
+      entrypoints: web
+
+  services:
+    sms:
+      loadBalancer:
+        servers:
+          - url: "http://host.docker.internal:8181"
+    dps:
+      loadBalancer:
+        servers:
+          - url: "http://host.docker.internal:8182"
+
+    frontend:
+      loadBalancer:
+        servers:
+          - url: "http://host.docker.internal:4200"
