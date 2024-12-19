@@ -9,3 +9,5 @@ uvicorn
 SPARQLWrapper
 schedule
 apscheduler
+requests
+bson

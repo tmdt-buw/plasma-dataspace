@@ -50,10 +50,11 @@ public class ARSService {
             return;
         }
         final LocalDateTime now = LocalDateTime.now();
-        servicesAlive.removeIf(service -> Duration.between(service.getLastActive(), now).getSeconds() > 30);
+        servicesAlive.removeIf(service -> Duration.between(service.getLastActive(), now).getSeconds() > 60);
     }
 
     public void register(RecommendationServiceRegistration registration) {
+        log.debug("Received registration from {} ({})",registration.getServiceName(),registration.getUuid().substring(0,8));
         for (RecommendationServiceRegistration service : servicesAlive) {
             if (service.getUuid().equals(registration.getUuid())) {
                 service.setLastActive(LocalDateTime.now());

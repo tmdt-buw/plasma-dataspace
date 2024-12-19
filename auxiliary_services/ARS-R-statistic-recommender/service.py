@@ -14,11 +14,14 @@ from schemas import CombinedModel, DeltaModification, SemanticModelNode, Literal
 from util.namespaces import PLSM, PLCM
 from apscheduler.schedulers.background import BackgroundScheduler  # runs tasks in the background
 from apscheduler.triggers.cron import CronTrigger  # allows us to specify a recurring time for execution
+from dotenv import load_dotenv
 
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
 # cache to hold additional information for each URI: Format is uri -> {label, comment}
 meta_info: Dict[str, Dict[str, str]] = {}
+
+load_dotenv(override=False)
 
 initialized: bool = False
 retrain_scheduler = BackgroundScheduler()
