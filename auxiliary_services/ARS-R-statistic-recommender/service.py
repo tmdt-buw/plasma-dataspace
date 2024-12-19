@@ -1,27 +1,45 @@
 import os
 import uuid
+from contextlib import asynccontextmanager
 from typing import Dict
 
-import schedule
 import uvicorn
 from fastapi import FastAPI
 from rdflib import XSD
 
 import modelbuilder.modelbuilder
+import registration
 from linkedmodelextension import linked_model_extender as lme
 from schemas import CombinedModel, DeltaModification, SemanticModelNode, Literal, NamedEntity, Relation
 from util.namespaces import PLSM, PLCM
+from apscheduler.schedulers.background import BackgroundScheduler  # runs tasks in the background
+from apscheduler.triggers.cron import CronTrigger  # allows us to specify a recurring time for execution
 
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
-
-app = FastAPI()
 
 # cache to hold additional information for each URI: Format is uri -> {label, comment}
 meta_info: Dict[str, Dict[str, str]] = {}
 
 initialized: bool = False
-resettime = "02:30"
+retrain_scheduler = BackgroundScheduler()
 
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    global initialized
+    if not initialized:
+        retrain_trigger = CronTrigger(hour=2, minute=30)
+        retrain_scheduler.add_job(retrain_task, retrain_trigger)
+        retrain_scheduler.start()
+        print(f"Started retrain scheduler...")
+        build_index()
+        initialized = True
+    registration.start_registration_schedule()
+    yield
+    registration.stop_registration_schedule()
+    retrain_scheduler.shutdown()
+
+app = FastAPI(lifespan=lifespan)
 
 # noinspection PyPep8Naming
 # in order to match the API query parameter names used in Java components
@@ -31,19 +49,22 @@ async def recommend(combinedModel: CombinedModel, uuid: str = None, configId: st
     if not initialized:
         return
 
-    schedule.run_pending()  # check if we should nuke the cache and rebuild
-
     return generate_recommendations(combinedModel)
 
 
-@app.on_event("startup")
-async def initialize():
-    global initialized
-    if not initialized:
-        init()
-        initialized = True
+def build_index():
+    print(f"Re-building index...")
+    global meta_info
+    lme.init()
+    meta_info = modelbuilder.modelbuilder.build_label_index()
 
-    schedule.run_pending()  # check if we should nuke the cache and rebuild
+
+def retrain_task():
+    global initialized
+    lme.clear_cache()
+    initialized = False
+    build_index()
+    initialized = True
 
 
 # noinspection PyPep8Naming
@@ -132,27 +153,11 @@ def generate_recommendations(combinedModel: CombinedModel) -> CombinedModel:
 
 
 def get_meta_info(uri: str):
+    if not initialized:
+        return None, None
     if uri not in meta_info:
         return None, None
     return meta_info[uri]['label'], meta_info[uri]['comment']
-
-
-def reset():
-    global initialized
-    lme.clear_cache()
-    initialized = False
-
-
-def init():
-    # dirty hack to refresh the cache once per day.
-    # has to be executed from inside the uvicorn runtime, so bound to request
-    # will delay the specific request until cache is rebuild
-    schedule.clear()  # prevent duplicate registrations
-    print("scheduling reset to", resettime)
-    schedule.every().day.at(resettime).do(reset)
-    global meta_info
-    lme.init()
-    meta_info = modelbuilder.modelbuilder.build_label_index()
 
 
 if __name__ == "__main__":
