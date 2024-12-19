@@ -1,16 +1,16 @@
 http:
   routers:
-    sms-router:
+    sms:
       rule: "Host(`localhost`) && PathPrefix(`/api/sms`)"
       service: sms
       tls:
       entrypoints: web
-    dps-router:
+    dps:
       rule: "Host(`localhost`) && PathPrefix(`/api/dps`)"
       service: dps
       tls:
       entrypoints: web
-    frontend-router:
+    frontend:
       rule: "Host(`localhost`) || Host(`127.0.0.1`)"
       service: frontend
       entrypoints: web

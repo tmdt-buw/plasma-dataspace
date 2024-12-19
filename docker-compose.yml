@@ -1,180 +1,28 @@
+# this is the local dev config
+# This file starts the infrastructure services from docker-compose.local.yml but modifies the traefik config to
+# support SMS and DPS and frontend to be run on the host machine.
+#
+# To start all services in a container locally use docker compose -f docker-compose.local.yml --profile staging up -d
+
 services:
-########################### Infrastructure ######################################
+  ########################### Infrastructure ######################################
 
   fuseki:
-    image: saiye/fuseki:4.7.0
-    hostname: fuseki
-    restart: unless-stopped
-    ports:
-      - "3030:3030"
-    networks:
-      - plasma
-    environment:
-      - FUSEKI_DATASET_1=sm
-      - FUSEKI_DATASET_2=ontologies
-      - ADMIN_PASSWORD=plasma
-    volumes:
-      - fuseki_data:/fuseki
+    extends:
+      service: fuseki
+      file: docker-compose.local.yml
 
   mariadb-sms:
-    image: mariadb:latest
-    hostname: mariadb-sms
-    restart: unless-stopped
-    command: mariadbd --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
-    environment:
-      - MYSQL_DATABASE=plasma-sms
-      - MYSQL_ROOT_PASSWORD=plasma
-    volumes:
-      - mariadb_sms:/var/lib/mysql
-    networks:
-      - plasma
-    healthcheck:
-      test: bash -c "mariadb -h 127.0.0.1 -p$$MYSQL_ROOT_PASSWORD  -e \"show databases;\""
-      interval: 10s
-      timeout: 10s
-      retries: 3
-      start_period: 5s
-    ports:
-      - "3306:3306"
+    extends:
+      service: mariadb-sms
+      file: docker-compose.local.yml
 
-########################### Services ######################################
-
-  sms:
-    image: "plasma/sms:${PLASMA_VERSION}"
-    hostname: plasma-sms
-    restart: unless-stopped
-    volumes:
-      - configs:/var/plasma/configs
-      - kgs_ontologies:/var/ontologies
-    depends_on:
-      - mariadb-sms
-      - fuseki
-      - traefik
-    profiles: [staging]
-    ports:
-      - "8181:8181"
-    networks:
-      - plasma
-    environment:
-      - plasma.sms.feature.recommendations.enabled=true
-      - plasma.sms.feature.finalizemodels.enabled=true
-      - plasma.kgs.ontologies.folder=/var/ontologies
-      - plasma.maria.url=jdbc:mysql://mariadb-sms:3306/plasma-sms
-      - plasma.kgs.semanticmodels.store.url=http://fuseki:3030/sm
-      - plasma.kgs.ontologies.store.url=http://fuseki:3030/ontologies
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.backend.rule=Host(`localhost`) && PathPrefix(`/api/sms`)"
-      - "traefik.http.routers.backend.entrypoints=web"
-      - "traefik.http.routers.app-https.middlewares=cors"
-      - "traefik.http.middlewares.cors.headers.accesscontrolallowmethods=*"
-      - "traefik.http.middlewares.cors.headers.accesscontrolalloworiginlist=*"
-      - "traefik.http.middlewares.cors.headers.accesscontrolmaxage=100"
-      - "traefik.http.middlewares.cors.headers.addvaryheader=true"
-
-  dps:
-    image: "plasma/dps:${PLASMA_VERSION}"
-    hostname: plasma-dps
-    user: root
-    restart: unless-stopped
-    ports:
-      - "8182:8182"
-    profiles: [staging]
-    networks:
-      - plasma
-    environment:
-      - plasma.localstorage.directory=/var/plasma/localstorage
-    volumes:
-      - dps_storage:/var/plasma/localstorage
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.backend.rule=Host(`localhost`) && PathPrefix(`/api/dps`)"
-      - "traefik.http.routers.backend.entrypoints=web"
-      - "traefik.http.routers.app-https.middlewares=cors"
-      - "traefik.http.middlewares.cors.headers.accesscontrolallowmethods=*"
-      - "traefik.http.middlewares.cors.headers.accesscontrolalloworiginlist=*"
-      - "traefik.http.middlewares.cors.headers.accesscontrolmaxage=100"
-      - "traefik.http.middlewares.cors.headers.addvaryheader=true"
-
-  frontend:
-    build: ./frontend
-    image: "plasma/ui:${PLASMA_VERSION}"
-    hostname: plasma-ui
-    restart: unless-stopped
-    profiles: [staging]
-    ports:
-      - "81:80" # alternate access to running frontend, can be removed later
-    depends_on:
-      - traefik
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.frontend.rule=Host(`localhost`)"
-      - "traefik.http.routers.frontend.entrypoints=web"
-      - "traefik.http.routers.frontend.tls.certresolver=myresolver"
-    networks:
-      - plasma
-
-########################### Auxiliary Services ######################################
-
-  ars-l-lm:
-    image: "plasma/ars-l-lm:${PLASMA_VERSION}"
-    hostname: plasma-ars-l-lm
-    restart: unless-stopped
-    profiles: [staging]
-    networks:
-      - plasma
-    volumes:
-      - configs:/var/plasma/configs
-    environment:
-      - registration.upstream.host=plasma-sms
-      - plasma.kgs.ontology.api=http://plasma-sms:8181/api/sms/ontologies
-    ports:
-      - "8190:8190"
-
-  ars-r-sr:
-    build: ./auxiliary_services/ARS-R-statistic-recommender
-    image: "plasma/ars-r-sr:${PLASMA_VERSION}"
-    hostname: plasma-ars-r-sr
-    restart: unless-stopped
-    profiles: [staging]
-    environment:
-      - SERVICE_PORT=8221
-      - SPARQL_SM_STORE=http://fuseki:3030/sm
-      - SPARQL_ONTOLOGIES_STORE=http://fuseki:3030/ontologies
-    depends_on:
-      - fuseki
-    volumes:
-      - configs:/var/plasma/configs
-    ports:
-      - "8221:8221"
-
-  ars-l-dsm:
-    build: ./auxiliary_services/ARS-L-docsemmap
-    image: "plasma/ars-l-dsm:${PLASMA_VERSION}"
-    hostname: plasma-ars-l-dsm
-    profiles: [experimental]
-    restart: unless-stopped
-    environment:
-      - SERVICE_PORT=8222
-      - SMS_MODELINGS_ENDPOINT=http://sms:8181/api/sms/modelings
-      - KGS_ONTOLGIES_ENDPOINT=http://kgs:8181/api/kgs/ontologies/nodes
-    depends_on:
-      - fuseki
-    volumes:
-      - configs:/var/plasma/configs
-    ports:
-      - "8222:8222"
-
-########## PROXY ##########
+  ########## PROXY ##########
 
   traefik:
-    image: traefik:v3.2.2
-    container_name: plasma-traefik
-    ports:
-      - "80:80"
-      - "443:443"
-    networks:
-      - plasma
+    extends:
+      service: traefik
+      file: docker-compose.local.yml
     command:
       - --api.dashboard=true
       - --log.level=DEBUG
@@ -198,14 +46,6 @@ services:
       # local config
       - --providers.file.filename=/dynamic.yml
       - --providers.file.watch=true
-    volumes:
-      #- ./traefik/log:/var/log
-      - /var/run/docker.sock:/var/run/docker.sock
-      - ./traefik/dynamic.yml:/dynamic.yml:ro  # Mount the dynamic configuration file
-
-
-
-########## docker stuff ##########
 
 volumes:
   fuseki_data:
