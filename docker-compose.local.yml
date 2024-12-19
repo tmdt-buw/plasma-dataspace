@@ -126,7 +126,7 @@ services:
     volumes:
       - configs:/var/plasma/configs
     environment:
-      - registration.upstream.host=plasma-sms
+      - plasma.registration.upstream.host=plasma-sms
       - plasma.kgs.ontology.api=http://plasma-sms:8181/api/sms/ontologies
     ports:
       - "8190:8190"

@@ -22,11 +22,11 @@ public class SelfRegistrationService {
     private String serviceName;
     @Value ("${plasma.server_address}")
     private String serverAddress;
-    @Value ("${registration.upstream.host}")
+    @Value ("${plasma.registration.upstream.host}")
     private String upstreamHostName;
-    @Value ("${registration.upstream.port}")
+    @Value ("${plasma.registration.upstream.port}")
     private Integer upstreamPort;
-    @Value("${registration.uri:/api/sms/ars/registration}")
+    @Value("${plasma.registration.uri:/api/sms/ars/registration}")
     private String registrationUri;
 
     private final String serviceId = UUID.randomUUID().toString();
@@ -36,7 +36,7 @@ public class SelfRegistrationService {
     public SelfRegistrationService() {
     }
 
-    @Scheduled(fixedRateString = "${registration.interval:30000}")
+    @Scheduled(fixedRateString = "${plasma.registration.interval:30000}")
     public void registerSelf() {
         try {
             RecommendationServiceRegistration registrationPackage = new RecommendationServiceRegistration();
