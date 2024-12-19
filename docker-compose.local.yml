@@ -141,6 +141,8 @@ services:
       - SERVICE_PORT=8221
       - SPARQL_SM_STORE=http://fuseki:3030/sm
       - SPARQL_ONTOLOGIES_STORE=http://fuseki:3030/ontologies
+      - PLASMA_REGISTRATION_URL=http://sms:8181/api/sms/ars/registration
+      - PLASMA_ARS_API_URL=http://plasma-ars-r-sr:8221/recommendation
     depends_on:
       - fuseki
     volumes:

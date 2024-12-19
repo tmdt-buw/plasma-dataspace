@@ -11,3 +11,5 @@ schedule
 apscheduler
 requests
 bson
+python-dotenv
+uuid
