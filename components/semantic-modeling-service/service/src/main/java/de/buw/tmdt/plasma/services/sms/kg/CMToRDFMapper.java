@@ -88,7 +88,7 @@ public class CMToRDFMapper {
                 rdfNode = resource;
             } else if (node instanceof Literal) {
                 Literal l = (Literal) node;
-                if(l.isMapped()) {
+                if (l.isMapped()) {
                     rdfNode = m.createLiteral(l.getMappedSyntaxNodePath());
                 } else {
                     rdfNode = m.createLiteral(l.getValue());

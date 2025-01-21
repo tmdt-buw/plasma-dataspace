@@ -93,7 +93,7 @@ public class DataProcessingHandler {
                 .onErrorResume(e -> Mono.empty())
                 .block();
 
-            if(prefixes == null) {
+            if (prefixes == null) {
                 prefixes = new HashMap<String, String>();
             }
 

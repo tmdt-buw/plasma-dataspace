@@ -25,10 +25,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * Service to handle Registration of ARS
- @author Sven Stopka
-  * */
 @Service
 public class ARSService {
 
@@ -42,7 +38,9 @@ public class ARSService {
     private final Logger log = LoggerFactory.getLogger(ARSService.class);
 
 
-    public ARSService() {}
+    public ARSService() {
+
+    }
 
     @Scheduled(fixedRateString = "${plasma.registration.ping.interval:30000}")
     public void checkLastAlive() {

@@ -70,7 +70,7 @@ public class LabelMatchingService {
                     .bodyToMono(new ParameterizedTypeReference<List<SemanticNode>>() {})
                     .onErrorResume(e -> Mono.empty())
                     .block();
-            if(candidates == null) {
+            if (candidates == null) {
                 candidates = new ArrayList<>();
             }
 

@@ -8,8 +8,6 @@ import de.buw.tmdt.plasma.services.sms.kg.OntologyManagement;
 import de.buw.tmdt.plasma.services.sms.shared.api.OntologyApi;
 import de.buw.tmdt.plasma.services.sms.shared.model.ExportFormat;
 import de.buw.tmdt.plasma.services.sms.shared.model.OntologyInfo;
-import org.apache.jena.irix.IRIException;
-import org.apache.jena.irix.IRIs;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

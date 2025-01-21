@@ -861,10 +861,9 @@ public class ModelingService {
     }
 
     /***
-     * update the preferred services
+     * Update the preferred services.
      @param modelId ID of the Model to be updated
      @param preferredServices new List
-     @author Sven Stopka
      */
     public void updatePreferredServices(@NotNull String modelId, @NotNull PreferredServices preferredServices) {
         Modeling modeling = findModelingOrThrow(modelId);

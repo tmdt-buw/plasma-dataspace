@@ -19,12 +19,12 @@ public class ARSRegistrationController implements ARSServiceAPI {
     }
 
     @Override
-    public void ARSRegistration(@RequestBody RecommendationServiceRegistration registration) {
+    public void arsRegistration(@RequestBody RecommendationServiceRegistration registration) {
         arsRegistrationHandler.register(registration);
     }
 
     @Override
-    public List<RecommendationServiceRegistration> ARSList() {
+    public List<RecommendationServiceRegistration> arsList() {
         return arsRegistrationHandler.getServicesAlive();
     }
 }
