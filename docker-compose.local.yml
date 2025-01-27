@@ -97,7 +97,10 @@ services:
       - "traefik.http.middlewares.cors.headers.addvaryheader=true"
 
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
+      args:
+        PLASMA_VERSION: ${PLASMA_VERSION}
     image: "plasma/ui:${PLASMA_VERSION}"
     hostname: plasma-ui
     restart: unless-stopped

@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { appRoutesNames } from './app.routes.names';
-
+import { environment } from '../environments/environment';
 
 @Component({
   selector: 'app-root',
@@ -8,8 +8,8 @@ import { appRoutesNames } from './app.routes.names';
   styleUrls: ['./app.component.less']
 })
 export class AppComponent {
+  appVersion: string = environment.appVersion;
 
   constructor() {
   }
-
 }

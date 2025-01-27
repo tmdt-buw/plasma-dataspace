@@ -1,4 +1,5 @@
 export const environment = {
   production: true,
-  baseUrl: ''
+  baseUrl: '',
+  appVersion: '__APP_VERSION__',
 };

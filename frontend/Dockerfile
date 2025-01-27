@@ -1,4 +1,6 @@
-FROM node:lts-alpine as build
+FROM node:lts-alpine AS build
+
+ARG PLASMA_VERSION
 
 WORKDIR /home/
 COPY ./package-lock.json ./
@@ -7,6 +9,9 @@ COPY ./package.json ./
 RUN npm install
 
 COPY ./ ./
+
+# replace version string in frontend
+RUN sed -i "s/__APP_VERSION__/${PLASMA_VERSION}/g" ./src/environments/environment.prod.ts
 
 RUN npm run build:smui -- --configuration=production
 RUN npm run build -- --configuration=production
