@@ -2,8 +2,11 @@ import { NgModule, ModuleWithProviders, SkipSelf, Optional } from '@angular/core
 import { Configuration } from './configuration';
 import { HttpClient } from '@angular/common/http';
 
+import { ArsRegistrationControllerService } from './api/arsRegistrationController.service';
 import { ModelingControllerService } from './api/modelingController.service';
+import { OntologyControllerService } from './api/ontologyController.service';
 import { SchemaAnalysisControllerService } from './api/schemaAnalysisController.service';
+import { SemanticModelControllerService } from './api/semanticModelController.service';
 
 @NgModule({
   imports:      [],

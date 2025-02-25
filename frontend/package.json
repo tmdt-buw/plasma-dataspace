@@ -3,7 +3,7 @@
   "version": "0.0.7",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
+    "start": "ng serve --host 0.0.0.0 --disable-host-check",
     "watch:smui": "ng build smui --watch",
     "clean": "rimraf dist",
     "build:smui": "ng build smui --configuration production",
@@ -11,9 +11,8 @@
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
-    "gen:sms": "npm run gen:base -- -o projects/smui/src/lib/api/generated/sms -i http://localhost:8888/v3/api-docs/plasma-sms",
-    "gen:kgs": "npm run gen:base -- -o projects/smui/src/lib/api/generated/kgs -i http://localhost:8888/v3/api-docs/plasma-kgs",
-    "gen:dps": "npm run gen:base -- -o src/app/dataprocessing/api/generated -i http://localhost:8888/v3/api-docs/plasma-dps",
+    "gen:sms": "npm run gen:base -- -o projects/smui/src/lib/api/generated/sms -i http://localhost/api/sms/docs",
+    "gen:dps": "npm run gen:base -- -o src/app/dataprocessing/api/generated -i http://localhost/api/dps/docs",
     "gen:base": "openapi-generator-cli generate -g typescript-angular --additional-properties=providedIn=any,disallowAdditionalPropertiesIfNotPresent=false,typescriptThreePlus=true,supportsES6=true,legacyDiscriminatorBehavior=false --type-mappings=set=Array"
   },
   "private": true,

@@ -1,154 +1,73 @@
-version: "3.5"
-
 services:
   ########################### Infrastructure ######################################
   fuseki:
-    image: saiye/fuseki:4.7.0
-    hostname: fuseki
-    restart: unless-stopped
-    ports:
-      - "3030:3030"
-    environment:
-      - FUSEKI_DATASET_1=sm
-      - FUSEKI_DATASET_2=ontologies
-      - ADMIN_PASSWORD=plasma
-    volumes:
-      - fuseki_data:/fuseki
+    extends:
+      service: fuseki
+      file: docker-compose.local.yml
 
   mariadb-sms:
-    image: mariadb:latest
-    hostname: mariadb-sms
-    restart: unless-stopped
-    command: mariadbd --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
-    environment:
-      - MYSQL_DATABASE=plasma-sms
-      - MYSQL_ROOT_PASSWORD=plasma
-    volumes:
-      - mariadb_sms:/var/lib/mysql
-    healthcheck:
-      test: bash -c "mariadb -h 127.0.0.1 -p$$MYSQL_ROOT_PASSWORD  -e \"show databases;\""
-      interval: 10s
-      timeout: 10s
-      retries: 3
-      start_period: 5s
-    ports:
-      - "3308:3306"
-
-  ########################### Service Infrastructure ######################################
-  discovery:
-    image: git.uni-wuppertal.de:4567/tmdt/projects/dataspace/plasma/discovery:${PLASMA_VERSION}
-    hostname: plasma-discovery-service
-    restart: unless-stopped
-    ports:
-      - "8761:8761"
-
-  gateway:
-    image: git.uni-wuppertal.de:4567/tmdt/projects/dataspace/plasma/gateway:${PLASMA_VERSION}
-    hostname: plasma-gateway-service
-    restart: unless-stopped
-    depends_on:
-      - discovery
-    ports:
-      - "8888:8888"
+    extends:
+      service: mariadb-sms
+      file: docker-compose.local.yml
 
   ########################### Services ######################################
-
-  kgs:
-    image: git.uni-wuppertal.de:4567/tmdt/projects/dataspace/plasma/kgs:${PLASMA_VERSION}
-    hostname: plasma-kgs
-    user: root
-    restart: unless-stopped
-    volumes:
-      - kgs_ontologies:/ontologies
-    environment:
-      - plasma.kgs.ontologies.folder=/ontologies
-    depends_on:
-      - discovery
-      - fuseki
-    ports:
-      - "8181:8181"
-
   sms:
+    extends:
+      service: sms
+      file: docker-compose.local.yml
     image: git.uni-wuppertal.de:4567/tmdt/projects/dataspace/plasma/sms:${PLASMA_VERSION}
-    hostname: plasma-sms
-    restart: unless-stopped
-    volumes:
-      - configs:/var/plasma/configs
-    depends_on:
-      - discovery
-      - mariadb-sms
-      - gateway
-    ports:
-      - "8186:8186"
-    environment:
-      - plasma.sms.feature.recommendations.enabled=true
-      - plasma.sms.feature.finalizemodels.enabled=true
-
-  srs:
-    image: git.uni-wuppertal.de:4567/tmdt/projects/dataspace/plasma/srs:${PLASMA_VERSION}
-    hostname: plasma-srs
-    restart: unless-stopped
-    depends_on:
-      - discovery
-    ports:
-      - "8190:8190"
-    environment:
-      - plasma.ars.labeling.urls=http://plasma-ars-l-lm:8201/api/plasma-ars-l-lm
-      - plasma.ars.modeling.url=
-      - plasma.ars.refinement.urls=http://plasma-ars-r-sr:8221/recommendation
 
   dps:
+    extends:
+      service: dps
+      file: docker-compose.local.yml
     image: git.uni-wuppertal.de:4567/tmdt/projects/dataspace/plasma/dps:${PLASMA_VERSION}
-    hostname: plasma-dps
-    user: root
-    restart: unless-stopped
-    depends_on:
-      - discovery
-    ports:
-      - "8193:8193"
-    environment:
-      - plasma.localstorage.directory=/var/plasma/localstorage
-    volumes:
-      - dps_storage:/var/plasma/localstorage
 
   frontend:
+    extends:
+      service: frontend
+      file: docker-compose.local.yml
     image: git.uni-wuppertal.de:4567/tmdt/projects/dataspace/plasma/frontend:${PLASMA_VERSION}
-    hostname: plasma-ui
-    restart: unless-stopped
-    ports:
-      - "80:80"
 
   ########################### Auxiliary Services ######################################
 
   ars-l-lm:
+    extends:
+      service: ars-l-lm
+      file: docker-compose.local.yml
     image: git.uni-wuppertal.de:4567/tmdt/projects/dataspace/plasma/ars-l-lm:${PLASMA_VERSION}
-    hostname: plasma-ars-l-lm
-    restart: unless-stopped
-    depends_on:
-      - discovery
-      - kgs
-    volumes:
-      - configs:/var/plasma/configs
-    ports:
-      - "8201:8201"
 
   ars-r-sr:
+    extends:
+      service: ars-r-sr
+      file: docker-compose.local.yml
     image: git.uni-wuppertal.de:4567/tmdt/projects/dataspace/plasma/ars-r-sr:${PLASMA_VERSION}
-    hostname: plasma-ars-r-sr
-    restart: unless-stopped
-    depends_on:
-      - fuseki
-    environment:
-      - SERVICE_PORT=8221
-      - SPARQL_SM_STORE=http://fuseki:3030/sm
-      - SPARQL_ONTOLOGIES_STORE=http://fuseki:3030/ontologies
-    volumes:
-      - configs:/var/plasma/configs
-    ports:
-      - "8221:8221"
 
   ########################### External Services ######################################
 
+  traefik:
+    extends:
+      service: traefik
+      file: docker-compose.local.yml
+    command:
+      - --api.dashboard=true
+      - --log.level=DEBUG
+      #- --log.filepath=/var/log/traefik.log
+      - --accesslog=true
+      #- --accesslog.filepath=/var/log/traefik-access.log
+      - --providers.docker.network=plasma
+      - --providers.docker.exposedByDefault=false
+      - --entrypoints.web.address=:80
+      #- --entrypoints.web.http.redirections.entrypoint.to=websecure
+      #- --entryPoints.web.http.redirections.entrypoint.scheme=https
+      #- --entrypoints.websecure.address=:443
+      # remove next line when using Traefik v2
+      #- --entrypoints.websecure.asDefault=true
+      #- --entrypoints.websecure.http.tls.certresolver=myresolver
+      #- --certificatesresolvers.myresolver.acme.tlschallenge=true
+      #- --certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web
+      #- --certificatesresolvers.myresolver.acme.email=paulus@crafting-systems.de
+      #- --certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json
 
 volumes:
   fuseki_data:
@@ -156,3 +75,7 @@ volumes:
   configs:
   kgs_ontologies:
   dps_storage:
+
+networks:
+  plasma:
+    name: plasma

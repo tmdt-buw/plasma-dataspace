@@ -1,0 +1,48 @@
+<div fxFlex fxLayout="row" fxLayoutAlign="start start" fxLayoutGap="20px">
+  <nz-list nzBordered>
+    <nz-list-item
+      (click)="selectService(service)"
+      *ngFor="let service of serviceList"
+      [ngStyle]="{'background': isSelected(service) ? 'lightgrey' : null}"
+    >
+      <ng-container *ngIf="serviceIsPreferred(service.uuid); then preferredLabel; else serviceLabel">
+      </ng-container>
+      <ng-template #preferredLabel>
+        <svg width="12" height="12" xmlns="http://www.w3.org/2000/svg" class="statusIcon">
+          <circle cx="6" cy="6" r="6" fill="green"/>
+        </svg>
+      </ng-template>
+      <ng-template #serviceLabel>
+        <svg width="12" height="12" xmlns="http://www.w3.org/2000/svg" class="statusIcon">
+          <circle cx="6" cy="6" r="6" fill="grey"/>
+        </svg>
+      </ng-template>
+      {{ service.serviceName }}
+    </nz-list-item>
+  </nz-list>
+  <div *ngIf="selected" fxFill fxFlex fxLayout="column" fxLayoutAlign="start start">
+    <div fxFlex fxLayout="column" fxLayoutAlign="start start">
+      <nz-descriptions [nzColumn]="1" nzTitle="Service Information">
+        <nz-descriptions-item nzTitle="Name">{{ selected.serviceName }}</nz-descriptions-item>
+        <nz-descriptions-item nzTitle="UUID">{{ selected.uuid }}</nz-descriptions-item>
+        <nz-descriptions-item nzTitle="Type">{{ selected.recommendationType }}</nz-descriptions-item>
+        <nz-descriptions-item nzTitle="Description">{{ selected.description }}</nz-descriptions-item>
+      </nz-descriptions>
+      <ng-container *ngIf="serviceIsPreferred(selected.uuid); then removeButton; else addButton">
+
+      </ng-container>
+      <ng-template #addButton>
+        <button (click)="addServiceToPreferred(selected)" *ngIf="selected" nz-button
+                nzType="primary">
+          <i nz-icon nzType="poweroff"></i>Activate Service
+        </button>
+      </ng-template>
+      <ng-template #removeButton>
+        <button (click)="removeServiceFromPreferred(selected.uuid)" *ngIf="selected" nz-button
+                nzType="primary">
+          <i nz-icon nzType="poweroff"></i>Deactivate Service
+        </button>
+      </ng-template>
+    </div>
+  </div>
+</div>

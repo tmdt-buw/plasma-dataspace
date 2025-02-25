@@ -9,7 +9,7 @@ import { ModalBaseConfig } from '../common/modal.base-config';
 import { PlsEditEntityDialogComponent } from '../edit-entity-dialog/edit-entity-dialog.component';
 import { PlsEditRelationDialogComponent } from '../edit-relation-dialog/edit-relation-dialog.component';
 import { NzNotificationService } from 'ng-zorro-antd/notification';
-import { OntologyInfo } from '../../../api/generated/kgs';
+import { OntologyInfo } from '../../../api/generated/sms';
 
 
 @Component({

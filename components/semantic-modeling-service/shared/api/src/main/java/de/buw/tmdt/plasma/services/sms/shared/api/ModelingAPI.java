@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @SuppressWarnings("HardcodedFileSeparator")
-@RequestMapping(value = "/api/plasma-sms/modelings")
+@RequestMapping(value = "/api/sms/modelings")
 public interface ModelingAPI {
 
     //############################################### Schema Definition ###############################################
@@ -141,4 +141,12 @@ public interface ModelingAPI {
     @PutMapping(value = "/{modelId}/selectedOntologies")
     void updateSelectedOntologies(@NotNull @PathVariable("modelId") String modelId,
                                   @NotNull @RequestParam(value = "labels", defaultValue = "") List<String> selectedOntologyLabels);
+
+    // TODO: body something something update
+    @PutMapping(value = "/{modelId}/preferredServices", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    void updatePreferredServices(@NotNull @PathVariable("modelId") String modelId,
+                                 @RequestBody PreferredServices preferredServices);
+
+    @GetMapping(value = "/{modelId}/preferredServices", produces = MediaType.APPLICATION_JSON_VALUE)
+    PreferredServices getPreferredServices(@NotNull @PathVariable("modelId") String modelId);
 }

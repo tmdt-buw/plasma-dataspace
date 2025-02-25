@@ -21,8 +21,8 @@ automatically.
 
 ### Client generation from backend
 
-Run `npm run gen:sms`, `npm run gen:kgs`, `npm run gen:dps` to generate updated http-client and model from backend openapi-specs.
-The SMS, KGS and DPS have to be up and running to do so.
+Run `npm run gen:sms` and`npm run gen:dps` to generate updated http-client and model from backend openapi-specs.
+The SMS and DPS have to be up and running to do so.
 
 ### Development server
 

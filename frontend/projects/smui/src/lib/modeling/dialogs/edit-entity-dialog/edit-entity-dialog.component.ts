@@ -4,7 +4,7 @@ import { NzModalRef } from 'ng-zorro-antd/modal';
 import { Class, ModelingControllerService, NamedEntity } from '../../../api/generated/sms';
 import { UriGeneratorComponent } from '../common/uri-generator/uri-generator.component';
 import { BehaviorSubject, Subject } from 'rxjs';
-import { OntologyControllerService } from '../../../api/generated/kgs';
+import { OntologyControllerService } from '../../../api/generated/sms';
 
 @Component({
   selector: 'pls-edit-entity-dialog',

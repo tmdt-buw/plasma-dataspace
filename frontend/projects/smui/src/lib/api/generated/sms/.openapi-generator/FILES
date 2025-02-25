@@ -2,8 +2,11 @@
 README.md
 api.module.ts
 api/api.ts
+api/arsRegistrationController.service.ts
 api/modelingController.service.ts
+api/ontologyController.service.ts
 api/schemaAnalysisController.service.ts
+api/semanticModelController.service.ts
 configuration.ts
 encoder.ts
 git_push.sh
@@ -28,9 +31,12 @@ model/namedEntityAllOf.ts
 model/objectNode.ts
 model/objectNodeAllOf.ts
 model/objectProperty.ts
+model/ontologyInfo.ts
 model/positionedCombinedModelElement.ts
+model/preferredServices.ts
 model/primitiveNode.ts
 model/primitiveNodeAllOf.ts
+model/recommendationServiceRegistration.ts
 model/relation.ts
 model/semanticModel.ts
 model/semanticNode.ts

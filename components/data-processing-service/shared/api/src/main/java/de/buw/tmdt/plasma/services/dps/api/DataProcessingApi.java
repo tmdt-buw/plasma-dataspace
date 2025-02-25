@@ -11,7 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 
-@RequestMapping(value = "/api/plasma-dps")
+@RequestMapping(value = "/api/dps")
 public interface DataProcessingApi {
 
     @PostMapping(value = "/files/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)

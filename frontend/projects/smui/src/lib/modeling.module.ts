@@ -21,7 +21,7 @@ import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
 import { NzTypographyModule } from 'ng-zorro-antd/typography';
 import { NzUploadModule } from 'ng-zorro-antd/upload';
 import { ApiModule, BASE_PATH } from './api/generated/sms';
-import { ApiModule as KGSApiModule, BASE_PATH as KGS_BASE_PATH } from './api/generated/kgs';
+import { ApiModule as KGSApiModule, BASE_PATH as KGS_BASE_PATH } from './api/generated/sms';
 import { PlsSemanticClassMenuComponent } from './modeling/context-menu/semantic-class-menu/semantic-class-menu.component';
 import { PlsRelationConceptMenuComponent } from './modeling/context-menu/relation-menu/relation-menu.component';
 import { PlsDiagramComponent } from './modeling/diagram/diagram.component';
@@ -49,6 +49,8 @@ import { NzListModule } from 'ng-zorro-antd/list';
 import { NzPopconfirmModule } from 'ng-zorro-antd/popconfirm';
 import { NzDescriptionsModule } from 'ng-zorro-antd/descriptions';
 import { UriGeneratorComponent } from './modeling/dialogs/common/uri-generator/uri-generator.component';
+import { NzPopoverModule } from 'ng-zorro-antd/popover';
+import { ArsSelectionDialogComponent } from './modeling/dialogs/ars-selection-dialog/ars-selection-dialog.component';
 
 
 @NgModule({
@@ -57,7 +59,7 @@ import { UriGeneratorComponent } from './modeling/dialogs/common/uri-generator/u
     PlsSemanticNodeDetailsComponent, PlsConceptDialogComponent, PlsEditEntityDialogComponent,
     PlsEditRelationDialogComponent, PlsImportDialogComponent,
     InlineInputEditComponent, PlsSemanticClassMenuComponent, PlsRelationConceptMenuComponent, PlsFullscreenDirective,
-    PlsNamedEntityMenuComponent, PlsLiteralMenuComponent, UploadOntologyComponent, CopySemanticModelComponent, ManageOntologiesDialogComponent, UriGeneratorComponent
+    PlsNamedEntityMenuComponent, PlsLiteralMenuComponent, UploadOntologyComponent, CopySemanticModelComponent, ManageOntologiesDialogComponent, UriGeneratorComponent, ArsSelectionDialogComponent
   ],
   imports: [
     // Plasma
@@ -94,7 +96,8 @@ import { UriGeneratorComponent } from './modeling/dialogs/common/uri-generator/u
     NzNotificationModule,
     NzListModule,
     NzPopconfirmModule,
-    NzDescriptionsModule
+    NzDescriptionsModule,
+    NzPopoverModule
   ],
   exports: [PlsModelingComponent]
 })

@@ -5,7 +5,7 @@
     <parent>
         <artifactId>ars-l-lm-parent</artifactId>
         <groupId>de.buw.tmdt.plasma.ars.labeling.labelmatching</groupId>
-        <version>1.5.4</version>
+        <version>1.6.1</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -44,6 +44,10 @@
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-webflux</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
         <dependency>
@@ -51,15 +55,6 @@
             <artifactId>spring-boot-starter-log4j2</artifactId>
         </dependency>
 
-        <!-- Spring Cloud -->
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-openfeign</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
-        </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
@@ -71,18 +66,8 @@
 
         <!-- PLASMA Dependencies -->
         <dependency>
-            <groupId>${project.parent.groupId}</groupId>
+            <groupId>de.buw.tmdt.plasma.services.sms</groupId>
             <artifactId>api</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>de.buw.tmdt.plasma.services.kgs</groupId>
-            <artifactId>feign-client</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>de.buw.tmdt.plasma.services.srs</groupId>
-            <artifactId>supplements</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
@@ -137,13 +122,12 @@
                     </to>
                     <container>
                         <ports>
-                            <port>8201</port>
+                            <port>8190</port>
                         </ports>
                         <creationTime>USE_CURRENT_TIMESTAMP</creationTime>
                     </container>
                 </configuration>
             </plugin>
-
         </plugins>
         <finalName>${project.artifactId}-${project.version}</finalName>
     </build>

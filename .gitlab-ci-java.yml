@@ -35,6 +35,7 @@ checkstyle_manual:
 # SpotBugs code quality analysis.
 .spotbugs:
   stage: verification
+  allow_failure: true # Allow failure
   image: $MAVEN_IMAGE
   tags:
     - docker

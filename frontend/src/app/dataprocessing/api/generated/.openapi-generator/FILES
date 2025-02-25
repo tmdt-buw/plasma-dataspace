@@ -16,10 +16,8 @@ model/models.ts
 model/objectProperty.ts
 model/relation.ts
 model/sampleDTO.ts
-model/schemaNode.ts
 model/semanticModel.ts
-model/semanticModelNode.ts
-model/syntacticOperationDTO.ts
+model/semanticNode.ts
 model/syntaxModel.ts
-model/typeDefinitionDTOObject.ts
+model/syntaxNode.ts
 variables.ts

@@ -13,9 +13,6 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class OpenApiConfig {
 
-	@Value("${plasma.gateway_address}")
-	private String gatewayServer;
-
 	@Value("${plasma.server_address}")
 	private String realServer;
 
@@ -33,7 +30,6 @@ public class OpenApiConfig {
 						      .description(buildProperties.get("description"))
 						      .version(buildProperties.getVersion())
 						      .contact(new Contact().name(buildProperties.get("developerName")).email(buildProperties.get("developerEMail"))))
-				.addServersItem(new Server().url(gatewayServer))
 				.addServersItem(new Server().url(realServer));
 	}
 

@@ -5,7 +5,7 @@
     <parent>
         <artifactId>sms-parent</artifactId>
         <groupId>de.buw.tmdt.plasma.services.sms</groupId>
-        <version>1.5.4</version>
+        <version>1.6.1</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -15,7 +15,6 @@
 
     <modules>
         <module>api</module>
-        <module>feign-client</module>
     </modules>
 
 </project>

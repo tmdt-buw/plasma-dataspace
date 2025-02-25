@@ -7,7 +7,7 @@ ui-build:
     - cd frontend
     - npm install
   script:
-    - npm run build:dms
+    - npm run build:smui
     - npm run build
   artifacts:
     expire_in: 30 days

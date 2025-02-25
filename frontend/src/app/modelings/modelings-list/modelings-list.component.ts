@@ -15,7 +15,7 @@ import { ConversionDialogComponent } from '../../dataprocessing/conversion-dialo
 import { Util } from 'projects/smui/src/lib/modeling/model/common/util';
 import { EditModelingComponent } from '../edit-modeling/edit-modeling.component';
 import { environment } from '../../../environments/environment';
-import { OntologyControllerService } from '../../../../projects/smui/src/lib/api/generated/kgs';
+import { OntologyControllerService } from '../../../../projects/smui/src/lib/api/generated/sms';
 
 @Component({
   selector: 'app-modelings-list',

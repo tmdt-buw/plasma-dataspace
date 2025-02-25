@@ -8,3 +8,8 @@ datamodel-code-generator[http]
 uvicorn
 SPARQLWrapper
 schedule
+apscheduler
+requests
+bson
+python-dotenv
+uuid

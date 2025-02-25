@@ -5,7 +5,7 @@ import { ModalOptions, NzModalRef, NzModalService } from 'ng-zorro-antd/modal';
 import { BehaviorSubject, forkJoin, Observable, Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, tap } from 'rxjs/operators';
 import { ArrayContext, CombinedModel, DeltaModification, ModelingControllerService, ModelMapping, Relation, SemanticNode, SyntaxNode } from '../api/generated/sms';
-import { OntologyControllerService, OntologyInfo, SemanticModelControllerService } from '../api/generated/kgs';
+import { OntologyControllerService, OntologyInfo, SemanticModelControllerService } from '../api/generated/sms';
 import { ContextMenuService } from './context-menu/context-menu.service';
 import { ModalMouseEnabledConfig } from './dialogs/common/modal.base-config';
 import { PlsConceptDialogComponent } from './dialogs/concept-dialog/concept-dialog.component';
@@ -18,7 +18,7 @@ import { CopySemanticModelComponent } from './dialogs/copy-semantic-model/copy-s
 import { NzNotificationService } from 'ng-zorro-antd/notification';
 import { HttpErrorResponse, HttpStatusCode } from '@angular/common/http';
 import { ManageOntologiesDialogComponent } from './dialogs/manage-ontologies-dialog/manage-ontologies-dialog.component';
-
+import { ArsSelectionDialogComponent } from './dialogs/ars-selection-dialog/ars-selection-dialog.component';
 
 @Component({
   selector: 'pls-modeling',
@@ -86,6 +86,7 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
   contextMenuSubscription;
   private copySemanticModelDialogRef: NzModalRef<any, any>;
   private manageOntolggiesDialogRef: NzModalRef<any, any>;
+  private arsSelectionDialogRef: NzModalRef<any, any>;
 
   // tools
   recommendationsEnabled = true;
@@ -94,8 +95,13 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
     return !!this.main?.fullScreenIsActive;
   }
 
-  constructor(private modelingService: ModelingControllerService, private contextMenu: ContextMenuService, private ontologyService: OntologyControllerService,
-              private semanticModelService: SemanticModelControllerService, private modal: NzModalService, private notification: NzNotificationService) {
+  constructor(private modelingService: ModelingControllerService,
+              private contextMenu: ContextMenuService,
+              private ontologyService: OntologyControllerService,
+              private semanticModelService: SemanticModelControllerService,
+              private modal: NzModalService,
+              private notification: NzNotificationService,
+              ) {
   }
 
   ngOnInit(): void {
@@ -109,7 +115,10 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
     });
     this.modelingService.getSelectedOntologies(this.modelId).subscribe((ontologies: Array<string>) => {
       this.selectedOntologies = ontologies;
+      console.log(this.ontologies);
     });
+
+
 
     // query schema
     this.getCombinedModel();
@@ -209,6 +218,33 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
           }
         }
       );
+  }
+  // show modal
+  showSelectPreferredServicesModal(): void {
+    const boundingBox: DOMRect = this.modelingArea.nativeElement.getBoundingClientRect();
+    if (this.arsSelectionDialogRef) {
+      this.arsSelectionDialogRef.close();
+      this.arsSelectionDialogRef = undefined;
+      return;
+    }
+    const config: ModalOptions = {
+      nzStyle: {
+        position: 'absolute',
+        top: `${boundingBox.top}px`,
+        right: `50px`,
+        'min-width': '60%',
+        'max-width': '80%',
+        bottom: '15px'
+      },
+      nzContent: ArsSelectionDialogComponent,
+      nzComponentParams: {
+        modelId: this.modelId
+      },
+      nzTitle: 'Manage Active Recommendation Services',
+    };
+
+    this.arsSelectionDialogRef = this.modal.create(Object.assign(config, ModalMouseEnabledConfig));
+    this.arsSelectionDialogRef.afterClose.subscribe(() => this.arsSelectionDialogRef = undefined);
   }
 
   // ======= Menu functions ===========
@@ -497,5 +533,4 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
   isViewerMode(): boolean {
     return this.viewerMode || this.combinedModel?.finalized;
   }
-
 }
