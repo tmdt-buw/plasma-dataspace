@@ -102,12 +102,14 @@ public class ModelingService {
 
         Modeling modeling = findModelingOrThrow(modelId);
         try {
-            CombinedModel labeledCombinedModel;
-            labeledCombinedModel = arsService.performLabeling(
-                    modelId, modeling, null, null, modeling.getCurrentModel());
-            modeling.pushCombinedModel(labeledCombinedModel);
+            List<DeltaModification> modifications = arsService.performLabeling(
+                    modelId, modeling,null, null, modeling.getCurrentModel());
+            //modeling.pushCombinedModel(modeledCombinedModel);
             // store the model after recommendations have been added
-            modeling = persistModeling(modeling);
+            //modeling = persistModeling(modeling);
+            CombinedModel withModifications = modeling.getCurrentModel();
+            withModifications.setRecommendations(modifications);
+            return withModifications;
         } catch (ResponseStatusException e) {
             log.warn("Semantic labeling did not succeed: ", e);
             if (e.getStatus() == HttpStatus.NOT_IMPLEMENTED) {
@@ -115,7 +117,6 @@ public class ModelingService {
             }
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Unexpected error during labeling: " + e.getMessage());
         }
-        return modeling.getCurrentModel();
     }
 
     public CombinedModel performSemanticModeling(String modelId) throws ResponseStatusException {
@@ -124,16 +125,14 @@ public class ModelingService {
         }
         Modeling modeling = findModelingOrThrow(modelId);
         try {
-            CombinedModel modeledCombinedModel;
-            modeledCombinedModel = arsService.performModeling(
-                    modelId, modeling, null, null, modeling.getCurrentModel());
-            modeling.pushCombinedModel(modeledCombinedModel);
+            List<DeltaModification> modifications = arsService.performModeling(
+                    modelId, modeling,null, null, modeling.getCurrentModel());
+            //modeling.pushCombinedModel(modeledCombinedModel);
             // store the model after recommendations have been added
-            modeling = persistModeling(modeling);
-
-            // ARS
-            // uuid
-            // model
+            //modeling = persistModeling(modeling);
+            CombinedModel withModifications = modeling.getCurrentModel();
+            withModifications.setRecommendations(modifications);
+            return withModifications;
 
         } catch (ResponseStatusException e) {
             log.warn("Semantic modeling did not succeed: ", e);
@@ -142,7 +141,6 @@ public class ModelingService {
             }
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Unexpected error during modeling: " + e.getMessage());
         }
-        return modeling.getCurrentModel();
     }
 
     /**

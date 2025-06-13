@@ -61,7 +61,7 @@ public class CombinedModel implements Serializable {
      * Recommendations represent suggested modifications for the current state of models.
      */
     @NotNull
-    private ArrayList<DeltaModification> recommendations;
+    private List<DeltaModification> recommendations;
 
     /**
      * Last applied modification. Might be null if none recorded.
@@ -136,7 +136,7 @@ public class CombinedModel implements Serializable {
 
     @NotNull
     @JsonProperty(RECOMMENDATIONS_PROPERTY)
-    public ArrayList<DeltaModification> getRecommendations() {
+    public List<DeltaModification> getRecommendations() {
         return recommendations;
     }
 
@@ -150,7 +150,7 @@ public class CombinedModel implements Serializable {
     }
 
     // we allow later injections of recommendations, will be solved with new data model
-    public void setRecommendations(@NotNull ArrayList<DeltaModification> recommendations) {
+    public void setRecommendations(@NotNull List<DeltaModification> recommendations) {
         this.recommendations = recommendations;
     }
 

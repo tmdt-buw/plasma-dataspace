@@ -88,8 +88,19 @@ public class CMToRDFMapper {
                 rdfNode = resource;
             } else if (node instanceof Literal) {
                 Literal l = (Literal) node;
+                Resource resource = m.createResource();
+                resource.addProperty(RDF.type, PLCM.LiteralMapping);
                 if (l.isMapped()) {
-                    rdfNode = m.createLiteral(l.getMappedSyntaxNodePath());
+                    if (l.getMappedSyntaxNodePath() != null && !l.getMappedSyntaxNodePath().isBlank()) {
+                        resource.addProperty(PLCM.syntaxNodePath, m.createLiteral(l.getMappedSyntaxNodePath()));
+                    }
+                    if (l.getMappedSyntaxNodeUuid() != null) {
+                        resource.addProperty(PLCM.syntaxNodeId, m.createLiteral(l.getMappedSyntaxNodeUuid()));
+                        if (l.getMappedSyntaxNodeLabel() != null && !l.getMappedSyntaxNodeLabel().isBlank()) {
+                            resource.addProperty(PLCM.originalLabel, m.createLiteral(l.getMappedSyntaxNodeLabel()));
+                        }
+                    }
+                    rdfNode = resource;
                 } else {
                     rdfNode = m.createLiteral(l.getValue());
                 }
