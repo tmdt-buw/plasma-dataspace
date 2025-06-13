@@ -835,12 +835,14 @@ public class ModelingService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid modeling id: " + modelId));
     }
 
+
     @NotNull
     public CombinedModel requestRecommendations(@NotNull String modelId, @NotNull CombinedModel combinedModel) {
         Modeling modeling = findModelingOrThrow(modelId);
         if (recommendationsEnabled) {
             try {
-                return arsService.performRefinement(modelId, modeling, null, null, combinedModel);
+                List<DeltaModification> modifications = arsService.performRefinement(modelId, modeling, null, null, combinedModel);
+                combinedModel.getRecommendations().addAll(modifications);
             } catch (Exception e) {
                 log.warn("Could not perform recommendations");
             }

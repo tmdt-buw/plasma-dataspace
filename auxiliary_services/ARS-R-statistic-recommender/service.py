@@ -1,7 +1,7 @@
 import os
 import uuid
 from contextlib import asynccontextmanager
-from typing import Dict
+from typing import Dict, Any
 
 import uvicorn
 from fastapi import FastAPI
@@ -47,12 +47,14 @@ app = FastAPI(lifespan=lifespan)
 # noinspection PyPep8Naming
 # in order to match the API query parameter names used in Java components
 @app.post("/recommendation")
-async def recommend(combinedModel: CombinedModel, uuid: str = None, configId: str = None, configToken: str = None):
+async def recommend(combinedModel: CombinedModel, uuid: str = None, configId: str = None, configToken: str = None) -> list[DeltaModification]:
     global initialized
     if not initialized:
-        return
+        return []
 
-    return generate_recommendations(combinedModel)
+    recommendations = generate_recommendations(combinedModel)
+
+    return recommendations
 
 
 def build_index():
@@ -71,9 +73,9 @@ def retrain_task():
 
 
 # noinspection PyPep8Naming
-def generate_recommendations(combinedModel: CombinedModel) -> CombinedModel:
+def generate_recommendations(combinedModel: CombinedModel) -> list[DeltaModification]:
     count = 0
-
+    recommendations: list[DeltaModification] = []
     for anchor in combinedModel.semanticModel.nodes:
         if type(anchor) == Literal or type(anchor) == NamedEntity:
             continue
@@ -109,7 +111,7 @@ def generate_recommendations(combinedModel: CombinedModel) -> CombinedModel:
             if not o_smn:
                 if o.startswith(str(XSD)):
                     # deal with the literal
-                    lit = Literal.parse_obj({
+                    lit = Literal.model_validate({
                         '_class': 'Literal',
                         'template': True,
                         'uri': o,
@@ -125,7 +127,7 @@ def generate_recommendations(combinedModel: CombinedModel) -> CombinedModel:
                 else:
                     # convert object node
                     label, comment = get_meta_info(o)
-                    o_smn = SemanticModelNode.parse_obj(
+                    o_smn = SemanticModelNode.model_validate(
                         {'_class': 'Class',
                          'uri': o,
                          'label': label,
@@ -138,7 +140,7 @@ def generate_recommendations(combinedModel: CombinedModel) -> CombinedModel:
 
             # convert relation
             label, comment = get_meta_info(p)
-            op: Relation = Relation.parse_obj(
+            op: Relation = Relation.model_validate(
                 {'_class': 'DataProperty' if type(o_smn) == Literal else 'ObjectProperty',
                  'uri': p,
                  'label': label,
@@ -150,9 +152,7 @@ def generate_recommendations(combinedModel: CombinedModel) -> CombinedModel:
             recommendations.append(delta)
 
         # print("recommended for", anchor.uri, recommendations)
-        for recommendation in recommendations[:5]:
-            combinedModel.recommendations.append(recommendation)
-    return combinedModel
+    return recommendations[:5]
 
 
 def get_meta_info(uri: str):

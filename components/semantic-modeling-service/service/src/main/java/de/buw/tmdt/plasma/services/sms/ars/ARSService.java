@@ -9,6 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -37,6 +38,7 @@ public class ARSService {
     private final List<RecommendationServiceRegistration> servicesAlive = Collections.synchronizedList(new ArrayList<>());
     private final Logger log = LoggerFactory.getLogger(ARSService.class);
 
+    private final int ARS_SERVICE_TIMEOUT_SECONDS = 120;
 
     public ARSService() {
 
@@ -48,7 +50,7 @@ public class ARSService {
             return;
         }
         final LocalDateTime now = LocalDateTime.now();
-        servicesAlive.removeIf(service -> Duration.between(service.getLastActive(), now).getSeconds() > 60);
+        servicesAlive.removeIf(service -> Duration.between(service.getLastActive(), now).getSeconds() > ARS_SERVICE_TIMEOUT_SECONDS);
     }
 
     public void register(RecommendationServiceRegistration registration) {
@@ -149,7 +151,7 @@ public class ARSService {
     }
 
     @NotNull
-    public CombinedModel performRefinement(@NotNull String uuid, Modeling modeling, String configId, String configToken, @NotNull CombinedModel combinedModel) {
+    public List<DeltaModification> performRefinement(@NotNull String uuid, Modeling modeling, String configId, String configToken, @NotNull CombinedModel combinedModel) {
         List<RecommendationServiceRegistration> targetServices = servicesAlive.stream()
                 .filter(service -> modeling.getPreferredRefiningService().contains(service.getUuid()))
                 .collect(Collectors.toList());
@@ -167,7 +169,7 @@ public class ARSService {
                         .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                         .build();
 
-                Mono<CombinedModel> combinedModelMono = webClient.post()
+                Mono<List<DeltaModification>> recommendationsMono = webClient.post()
                         .uri(uriBuilder -> uriBuilder
                                 .queryParam("uuid", uuid)
                                 .queryParam("configId", configId)
@@ -178,22 +180,22 @@ public class ARSService {
                         .bodyValue(combinedModel)
                         .accept(MediaType.APPLICATION_JSON)
                         .retrieve()
-                        .bodyToMono(CombinedModel.class);
-                CombinedModel withRefinement = combinedModelMono.block();
+                        .bodyToMono(new ParameterizedTypeReference<>() {
+                        });
+                List<DeltaModification> recommendations = recommendationsMono.block();
 
-                if (withRefinement == null) {
+                if (recommendations == null) {
                     log.debug("Result was NULL.");
                     continue;
                 }
-                modifications.addAll(withRefinement.getRecommendations());
+                modifications.addAll(recommendations);
             } catch (Exception ex) {
                 log.warn("Could not perform semantic refinement using service {}", service.getUrl(), ex);
             }
         }
         modifications.removeIf(dm -> !dm.getReference().startsWith(prefix));
-        combinedModel.getRecommendations().addAll(modifications);
 
-        return combinedModel;
+        return modifications;
     }
 
     public List<RecommendationServiceRegistration> getServicesAlive() {

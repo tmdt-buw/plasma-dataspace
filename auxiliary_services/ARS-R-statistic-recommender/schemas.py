@@ -106,7 +106,7 @@ class ObjectProperty(Relation):
 
 class SemanticModel(BaseModel):
     id: Optional[str] = None
-    nodes: Optional[List[SemanticModelNode]] = None
+    nodes: Optional[List[Union[Class,Literal,NamedEntity]]] = None
     edges: Optional[List[Union[DataProperty, ObjectProperty]]] = None
 
 
@@ -146,16 +146,16 @@ class SetNode(SchemaNode):
 
 class SyntaxModel(BaseModel):
     root: Optional[str] = None
-    nodes: Optional[List[SchemaNode]] = None
+    nodes: Optional[List[Union[PrimitiveNode,SetNode,ObjectNode]]] = None
     edges: Optional[List[Edge]] = None
 
 
 class DeltaModification(BaseModel):
     reference: Optional[str] = None
     deletion: Optional[bool] = None
-    entities: Optional[List[SemanticModelNode]] = None
+    entities: Optional[List[Union[Class,Literal,NamedEntity]]] = None
     relations: Optional[List[Union[DataProperty, ObjectProperty]]] = None
-    nodes: Optional[List[SchemaNode]] = None
+    nodes: Optional[List[Union[PrimitiveNode,SetNode,ObjectNode]]] = None
     edges: Optional[List[Edge]] = None
     anchors: Optional[List[str]] = None
     confidence: Optional[float] = None
@@ -168,7 +168,7 @@ class CombinedModel(BaseModel):
     recommendations: Optional[List[DeltaModification]] = None
     lastModification: Optional[DeltaModification] = None
     finalized: Optional[bool] = None
-    provisionalElements: Optional[List[SemanticModelNode]] = None
+    provisionalElements: Optional[List[Union[Class,Literal,NamedEntity]]] = None
     provisionalRelations: Optional[List[Union[DataProperty, ObjectProperty]]] = None
 
 
