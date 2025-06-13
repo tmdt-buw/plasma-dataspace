@@ -1,6 +1,7 @@
 package de.buw.tmdt.plasma.ars.labeling.lm.service.service;
 
 import de.buw.tmdt.plasma.datamodel.CombinedModel;
+import de.buw.tmdt.plasma.datamodel.modification.DeltaModification;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.Class;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.MappableSemanticNode;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.SemanticNode;
@@ -18,11 +19,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
 import reactor.core.publisher.Mono;
 
 import javax.annotation.PostConstruct;
 
-@SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
 @Service
 public class LabelMatchingService {
 
@@ -47,7 +48,9 @@ public class LabelMatchingService {
                 .build();
     }
 
-    public CombinedModel performLabeling(String id, String configId, String configToken, CombinedModel combined) {
+    public List<DeltaModification> performLabeling(String id, String configId, String configToken, CombinedModel combined) {
+
+        /* Defaulted to NOOP as class mappings are not allowed any more
         List<String> mappedPrimitiveNodeIds = combined.getSemanticModel().getNodes().stream()
                 .filter(SemanticNode::isMapped)
                 .map(n -> (MappableSemanticNode) n)
@@ -86,7 +89,6 @@ public class LabelMatchingService {
                 clazz.createInstance();
                 clazz.setMappedSyntaxNodeLabel(node.getLabel());
                 clazz.setMappedSyntaxNodeUuid(node.getUuid());
-                clazz.setMappedSyntaxNodePath(node.getPathAsJSONPath());
                 clazz.setXCoordinate(node.getXCoordinate());
                 clazz.setYCoordinate(node.getYCoordinate());
                 if (clazz.getInstance() != null) {
@@ -96,5 +98,7 @@ public class LabelMatchingService {
             }
         }
         return combined;
+         */
+        return new ArrayList<>();
     }
 }

@@ -43,7 +43,7 @@ public class SelfRegistrationService {
             registrationPackage.setServiceName(serviceName);
             registrationPackage.setUrl(serverAddress);
             registrationPackage.setUuid(serviceId);
-            registrationPackage.setDescription("A Service Description.");
+            registrationPackage.setDescription("Semantic Label Recommendations");
             registrationPackage.setRecommendationType(recommendationType);
 
             URL upstreamUrl = new URL("http", upstreamHostName, upstreamPort, registrationUri);

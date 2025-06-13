@@ -119,20 +119,20 @@ services:
 
 ########################### Auxiliary Services ######################################
 
-  ars-l-lm:
-    image: "plasma/ars-l-lm:${PLASMA_VERSION}"
-    hostname: plasma-ars-l-lm
-    restart: unless-stopped
-    profiles: [staging2]
-    networks:
-      - plasma
-    volumes:
-      - configs:/var/plasma/configs
-    environment:
-      - plasma.registration.upstream.host=plasma-sms
-      - plasma.kgs.ontology.api=http://plasma-sms:8181/api/sms/ontologies
-    ports:
-      - "8190:8190"
+#  ars-l-lm:
+#    image: "plasma/ars-l-lm:${PLASMA_VERSION}"
+#    hostname: plasma-ars-l-lm
+#    restart: unless-stopped
+#    profiles: [staging2]
+#    networks:
+#      - plasma
+#    volumes:
+#      - configs:/var/plasma/configs
+#    environment:
+#      - plasma.registration.upstream.host=plasma-sms
+#      - plasma.kgs.ontology.api=http://plasma-sms:8181/api/sms/ontologies
+#    ports:
+#      - "8190:8190"
 
   ars-r-sr:
     build: ./auxiliary_services/ARS-R-statistic-recommender
@@ -155,24 +155,24 @@ services:
     networks:
       - plasma
 
-  ars-l-dsm:
-    build: ./auxiliary_services/ARS-L-docsemmap
-    image: "plasma/ars-l-dsm:${PLASMA_VERSION}"
-    hostname: plasma-ars-l-dsm
-    profiles: [experimental]
-    restart: unless-stopped
-    environment:
-      - SERVICE_PORT=8222
-      - SMS_MODELINGS_ENDPOINT=http://sms:8181/api/sms/modelings
-      - KGS_ONTOLGIES_ENDPOINT=http://kgs:8181/api/kgs/ontologies/nodes
-    depends_on:
-      - fuseki
-    volumes:
-      - configs:/var/plasma/configs
-    ports:
-      - "8222:8222"
-    networks:
-      - plasma
+#  ars-l-dsm:
+#    build: ./auxiliary_services/ARS-L-docsemmap
+#    image: "plasma/ars-l-dsm:${PLASMA_VERSION}"
+#    hostname: plasma-ars-l-dsm
+#    profiles: [experimental]
+#    restart: unless-stopped
+#    environment:
+#      - SERVICE_PORT=8222
+#      - SMS_MODELINGS_ENDPOINT=http://sms:8181/api/sms/modelings
+#      - KGS_ONTOLGIES_ENDPOINT=http://kgs:8181/api/kgs/ontologies/nodes
+#    depends_on:
+#      - fuseki
+#    volumes:
+#      - configs:/var/plasma/configs
+#    ports:
+#      - "8222:8222"
+#    networks:
+#      - plasma
 
 ########## PROXY ##########
 

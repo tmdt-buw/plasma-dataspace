@@ -54,6 +54,9 @@ public class ARSService {
     }
 
     public void register(RecommendationServiceRegistration registration) {
+        if (!recommendationsEnabled) {
+            return;
+        }
         log.debug("Received registration from {} ({})",registration.getServiceName(),registration.getUuid().substring(0,8));
         for (RecommendationServiceRegistration service : servicesAlive) {
             if (service.getUuid().equals(registration.getUuid())) {
@@ -65,7 +68,7 @@ public class ARSService {
         servicesAlive.add(registration);
     }
 
-    public CombinedModel performLabeling(@NotNull String uuid, Modeling modeling, String configId, String configToken, @NotNull CombinedModel combinedModel) {
+    public List<DeltaModification> performLabeling(@NotNull String uuid, Modeling modeling, String configId, String configToken, @NotNull CombinedModel combinedModel) {
         List<RecommendationServiceRegistration> targetServices = servicesAlive.stream()
                 .filter(service -> modeling.getPreferredLabelingService().contains(service.getUuid()))
                 .collect(Collectors.toList());
@@ -82,33 +85,34 @@ public class ARSService {
                     .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                     .build();
 
-            Mono<CombinedModel> combinedModelMono = webClient.post()
+            Mono<List<DeltaModification>> recommendationsMono = webClient.post()
                     .uri(uriBuilder -> uriBuilder
                             .queryParam("uuid", uuid)
                             .queryParam("configId", configId)
                             .queryParam("configToken", configToken)
                             .build()
                     )
+
                     .bodyValue(combinedModel)
                     .accept(MediaType.APPLICATION_JSON)
                     .retrieve()
-                    .bodyToMono(CombinedModel.class);
-            CombinedModel withLabeling = combinedModelMono.block();
+                    .bodyToMono(new ParameterizedTypeReference<>() {
+                    });
+            List<DeltaModification> recommendations = recommendationsMono.block();
             log.info("Performed labeling for {} using service: {}", uuid, url);
-            if (withLabeling == null) {
-                log.warn("Result was NULL. Fallback to input model.");
-                return combinedModel;
+            if (recommendations == null) {
+                log.warn("Result was NULL.");
+                return new ArrayList<>();
             }
-            return withLabeling;
+            return recommendations;
         } catch (Exception ex) {
             log.warn("Could not perform semantic labeling using service {}", url, ex);
         }
-
-        return combinedModel;
+        return new ArrayList<>();
     }
 
     @NotNull
-    public CombinedModel performModeling(@NotNull String uuid, Modeling modeling, String configId, String configToken, @NotNull CombinedModel combinedModel) {
+    public List<DeltaModification> performModeling(@NotNull String uuid, Modeling modeling, String configId, String configToken, @NotNull CombinedModel combinedModel) {
         List<RecommendationServiceRegistration> targetServices = servicesAlive.stream()
                 .filter(service -> modeling.getPreferredModelingService().contains(service.getUuid()))
                 .collect(Collectors.toList());
@@ -125,7 +129,7 @@ public class ARSService {
                     .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                     .build();
 
-            Mono<CombinedModel> combinedModelMono = webClient.post()
+            Mono<List<DeltaModification>> recommendationsMono = webClient.post()
                     .uri(uriBuilder -> uriBuilder
                             .queryParam("uuid", uuid)
                             .queryParam("configId", configId)
@@ -136,18 +140,19 @@ public class ARSService {
                     .bodyValue(combinedModel)
                     .accept(MediaType.APPLICATION_JSON)
                     .retrieve()
-                    .bodyToMono(CombinedModel.class);
-            CombinedModel withModeling = combinedModelMono.block();
+                    .bodyToMono(new ParameterizedTypeReference<>() {
+                    });
+            List<DeltaModification> recommendations = recommendationsMono.block();
             log.info("Performed modeling for {} using service: {}", uuid, url);
-            if (withModeling == null) {
-                log.warn("Result was NULL. Fallback to input model.");
-                return combinedModel;
+            if (recommendations == null) {
+                log.warn("Result was NULL.");
+                return new ArrayList<>();
             }
-            return withModeling;
+            return recommendations;
         } catch (Exception ex) {
             log.warn("Could not perform semantic modeling using service {}", url, ex);
         }
-        return combinedModel;
+        return new ArrayList<>();
     }
 
     @NotNull

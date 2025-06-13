@@ -31,11 +31,11 @@ services:
 
   ########################### Auxiliary Services ######################################
 
-  ars-l-lm:
-    extends:
-      service: ars-l-lm
-      file: docker-compose.local.yml
-    image: git.uni-wuppertal.de:4567/tmdt/projects/dataspace/plasma/ars-l-lm:${PLASMA_VERSION}
+#  ars-l-lm:
+#    extends:
+#      service: ars-l-lm
+#      file: docker-compose.local.yml
+#    image: git.uni-wuppertal.de:4567/tmdt/projects/dataspace/plasma/ars-l-lm:${PLASMA_VERSION}
 
   ars-r-sr:
     extends:
