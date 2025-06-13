@@ -25,8 +25,8 @@ public class SelfRegistrationService {
     private String upstreamHostName;
     @Value ("${plasma.registration.upstream.port}")
     private Integer upstreamPort;
-    @Value("${plasma.registration.uri:/api/sms/ars/registration}")
-    private String registrationUri;
+    @Value("${plasma.registration.path:/api/sms/ars/registration}")
+    private String registrationPath;
 
     private final String serviceId = UUID.randomUUID().toString();
     private final RestTemplate restTemplate = new RestTemplate();
@@ -46,7 +46,7 @@ public class SelfRegistrationService {
             registrationPackage.setDescription("Semantic Label Recommendations");
             registrationPackage.setRecommendationType(recommendationType);
 
-            URL upstreamUrl = new URL("http", upstreamHostName, upstreamPort, registrationUri);
+            URL upstreamUrl = new URL("http", upstreamHostName, upstreamPort, registrationPath);
 
             restTemplate.postForEntity(upstreamUrl.toURI(), registrationPackage, String.class);
         } catch (Exception ex) {

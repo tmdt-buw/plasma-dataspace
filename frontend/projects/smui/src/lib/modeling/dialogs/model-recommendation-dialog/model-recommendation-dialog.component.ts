@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { CombinedModel, DeltaModification, ModelingControllerService } from '../../../api/generated/dms';
+import { CombinedModel, DeltaModification, ModelingControllerService } from '../../../api/generated/sms';
 import { FormBuilder } from '@angular/forms';
 import { PlsSemanticNodeDetailsData } from '../semantic-node-dialog/semantic-node.component';
 

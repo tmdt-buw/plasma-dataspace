@@ -90,7 +90,7 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
   private copySemanticModelDialogRef: NzModalRef<any, any>;
   private manageOntolggiesDialogRef: NzModalRef<any, any>;
   private arsSelectionDialogRef: NzModalRef<any, any>;
-  private modelRecommendationsDialogRef: NzModalRef<any, any>;
+  private unboundRecommendationsDialogRef: NzModalRef<any, any>;
 
   // tools
   recommendationsEnabled = true;
@@ -516,10 +516,27 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
       return;
     }
     this.modelingService.performSemanticLabeling(this.modelId).subscribe(combinedModel => {
-      this.combinedModel = combinedModel;
-      this.notification.success('Semantic Labeling', 'Requested a semantic labeling. The result has been applied.');
+      this.notification.success('Semantic Labeling', 'Semantic Labeling complete.');
+
+      const rect: DOMRect = this.modelingArea.nativeElement.getBoundingClientRect();
+      const config: ModalOptions = {
+        nzStyle: {position: 'absolute', top: `${rect.bottom - 380}px`, right: `1%`, width: '20%', bottom: '15px'},
+        nzClassName: 'pls-model-recommendations',
+        nzTitle: 'Labeling Recommendations',
+        nzContent: ModelRecommendationDialogComponent,
+        nzComponentParams: {
+          combinedModel
+        }
+      };
+      this.unboundRecommendationsDialogRef = this.modal.create(Object.assign(config, ModalMouseEnabledConfig));
+      this.unboundRecommendationsDialogRef.afterClose.subscribe(() => {
+        this.unboundRecommendationsDialogRef = undefined;
+      });
+      this.unboundRecommendationsDialogRef.getContentComponent().recommendationSelect.subscribe(rec => {
+        this.$recommendation.next(rec);
+      });
     }, error => {
-      this.notification.error('Could not perform semantic labeling', error.error.message);
+      this.notification.error('Could not perform Semantic Labeling', error.error.message);
     });
   }
 
@@ -537,16 +554,15 @@ export class PlsModelingComponent implements OnInit, OnDestroy {
         nzTitle: 'Model Recommendations',
         nzContent: ModelRecommendationDialogComponent,
         nzComponentParams: {
-          combinedModel: combinedModel
+          combinedModel
         }
       };
-      this.modelRecommendationsDialogRef = this.modal.create(Object.assign(config, ModalMouseEnabledConfig));
-      this.modelRecommendationsDialogRef.afterClose.subscribe(() => {
-        this.modelRecommendationsDialogRef = undefined;
+      this.unboundRecommendationsDialogRef = this.modal.create(Object.assign(config, ModalMouseEnabledConfig));
+      this.unboundRecommendationsDialogRef.afterClose.subscribe(() => {
+        this.unboundRecommendationsDialogRef = undefined;
       });
-      this.modelRecommendationsDialogRef.getContentComponent().recommendationSelect.subscribe(rec => {
+      this.unboundRecommendationsDialogRef.getContentComponent().recommendationSelect.subscribe(rec => {
        this.$recommendation.next(rec);
-
       });
     }, error => {
       this.notification.error('Could not perform Semantic Relation Inference', error.error.message);

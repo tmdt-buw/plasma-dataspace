@@ -94,7 +94,6 @@ public class CombinedModelSemanticModificationTest {
                 iataCodeClass.getYCoordinate(),
                 iataCodeClass.getMappedSyntaxNodeUuid(),
                 iataCodeClass.getMappedSyntaxNodeLabel(),
-                iataCodeClass.getMappedSyntaxNodePath(),
                 null,
                 iataCodeClass.isProvisional()
         );
@@ -150,7 +149,6 @@ public class CombinedModelSemanticModificationTest {
         Class timeClass = new Class(generateResourceURI("time"), "time", "A time");
         timeClass.setMappedSyntaxNodeUuid(timeNode.getUuid());
         timeClass.setMappedSyntaxNodeLabel(timeNode.getLabel());
-        timeClass.setMappedSyntaxNodePath( timeNode.getPathAsJSONPath());
 
         DeltaModification modification = new DeltaModification("mod_testApplyMapOneClassToPrimitiveNode", Collections.singletonList(timeClass), null, null, null, 0.0);
 

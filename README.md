@@ -10,13 +10,17 @@ Additionally, PLASMA provides interfaces to attach additional (auxiliary) servic
 PLASMA currently consists of the following (micro)services: 
 
 * **Semantic Modeling Service**: Service for semantic model creation 
-* **Knowledge Graph Service**: Stores ontologies and created semantic models
-* **Semantic Recommendation Service**: Connecting service for all auxiliary services
 * **Data Processing Service**: Processes files and converts JSON data to RDF
 * Semantic Modeling UI: A modeling UI with focus on simplifying the modeling process
-* Discovery Service: Enables service discovery using Eureka
-* Spring Boot Admin Service: Monitoring
-* Gateway Service: Offers a single entry point for all components
+
+### Auxiliary Services
+
+PLASMA currently offers the following auxiliary services:
+
+* **ARS Label Matching**: Service for adding labels (currently set to NOOP)
+* **ARS Statistical Recommender**: Recommends extensions to semantic models based on existing semantic models
+
+These services are designed and configured for demonstration purposes and can serve as a blueprint for own extensions.
 
 ### Storage
 PLASMA is preconfigured to use MariaDB instances for the raw data management.
@@ -48,66 +52,57 @@ The included web-based frontend is written using Angular 13.
 ### Starting PLASMA
 * Optional: Adjust environment variables in the docker-compose.yml file. 
 For an explanation of most parameters, check the individual README files of those services
-* To start, execute the `docker compose` script, e.g. `docker compose up -d`
+* To start, execute the `docker compose` script, e.g. `docker compose -f docker-compose.local.yml --profile=staging up -d`
 * Access the UI at `localhost:80`
 
 ### Stopping PLASMA
 
-* PLASMA can be stopped by halting all Docker containers, e.g. `docker compose down`
+* PLASMA can be stopped by halting all Docker containers, e.g. `docker compose -f docker-compose.local.yml --profile=staging down`
 
 ## Development Setup
 
-### Config via `hosts` File
+For development, infrastructure services can be started exclusively using `docker compose up -d`.
 
-If components are run locally, e.g. for debugging purposes, entries for each service have to be added to the /etc/hosts
-file in the form of ``127.0.0.1 <container-hostname-in-docker-compose>``. Setting those lookups enables a local
-component to communicate with other components that may still run in Docker. This is required as the Docker hostnames
-are not available to services outside the Docker network.
+### Developing Services and Frontend
 
-Example:
+Each service has to be started manually in dev mode.
 
-```
-127.0.0.1 fuseki
-127.0.0.1 plasma-kgs
-```
+* Start each service using either Spring Boot, FastAPI or Maven
+* Start the frontend with `npm run watch:smui` and `npm start` in `/frontend`
+* Access the UI at [**localhost:4200**](http://localhost:4200)
 
-**Note**: This is only required when running the specific component(s) outside of Docker containers
-(e.g. for debugging). Alternatively, the service environment may be edited and the reference URL of the resource changed
-to ``localhost``.
+### Development Config for IDEs
 
-### Config via IntelliJ Configuration
-
-IntelliJ offers the option to overwrite configuration files. 
-
-#### ARS-L-LM
-
-| Name                                    | Value                          |
-|-----------------------------------------|--------------------------------|
-| `eureka.instance.hostname`              | `host.docker.internal`         |
-| `eureka.client.service-url.defaultZone` | `http://localhost:8761/eureka` |
-| `plasma.sms.address`                    | `localhost`                    |
-| `plasma.gateway_address`                | `http://localhost:8888`        |
-
-#### KGS
-
-| Name                                    | Value                              |
-|-----------------------------------------|------------------------------------|
-| `eureka.instance.hostname`              | `host.docker.internal`             |
-| `eureka.client.service-url.defaultZone` | `http://localhost:8761/eureka`     |
-| `plasma.kgs.semanticmodels.store.url`   | `http://localhost:3030/sm`         |
-| `plasma.gateway_address`                | `http://localhost:8888`            |
-| `plasma.kgs.ontologies.folder`          | `./ontologies`                     |
-| `plasma.kgs.ontologies.store.url`       | `http://localhost:3030/ontologies` |
+By default, the configuration parameters are set for local development mode (run via IDE).
+When utilizing a Docker deployment, these values are overwritten by the compose configuration.
+IDEs offers the option to overwrite configuration files for specific applications.
 
 #### SMS
 
 | Name                                    | Value                                     |
 |-----------------------------------------|-------------------------------------------|
-| `eureka.instance.hostname`              | ` host.docker.internal`                   |
 | `plasma.config.local.path`              | ` C:\temp`                                |
 | `plasma.maria.url`                      | ` jdbc:mysql://localhost:3306/plasma-sms` |
-| `plasma.gateway_address`                | ` http://localhost:8888`                  |
-| `eureka.client.service_url.defaultZone` | `http://localhost:8761/eureka`            |
+
+#### ARS-L-LM
+
+| Name                                | Value                                           |
+|-------------------------------------|-------------------------------------------------|
+| `plasma.registration.upstream.host` | `localhost`                                     |
+| `plasma.registration.upstream.port` | `8181`                                          |
+| `plasma.registration.interval`      | `30000`                                         |
+| `plasma.registration.path`          | `/api/sms/ars/registration'                     |
+| `plasma.kgs.ontology.api`           | `http://localhost:8888/api/plasma-kgs/ontology` |
+
+#### ARS-R-SR
+
+| Name                                  | Value                                              |
+|---------------------------------------|----------------------------------------------------|
+| `PLASMA_REGISTRATION_URL`             | ` http://localhost:8181/api/sms/ars/registration`  |
+| `PLASMA_ARS_API_URL`                  | ` http://localhost:8221/recommendation`            |
+| `SERVICE_PORT`                        | ` 8221`                                            |
+| `SPARQL_ONTOLOGIES_STORE`             | ` http://localhost:3030/ontologies`                |
+| `SPARQL_SM_STORE`                     | ` http://localhost:3030/sm`                        |
 
 ### Default port mappings
 

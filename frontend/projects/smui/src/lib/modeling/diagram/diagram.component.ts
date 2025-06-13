@@ -242,7 +242,6 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
             classNode.y = syntaxNode.y;
             const nodeChanges = {entities: [classNode]};
             this.nodeChanged.emit(nodeChanges);
-            console.log("created linking");
             return;
           }
         } else if (Nodes.isLiteral(elementView) && elementBelow) {
@@ -1047,7 +1046,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
    * @param recommendation the recommendation
    */
   private showRecommendation(recommendation: DeltaModification): void {
-    console.log("show recommendation", recommendation);
+    console.log('show recommendation', recommendation);
     const opacity = 1.0;
     recommendation.entities.forEach(node => {
       let icon = '';
