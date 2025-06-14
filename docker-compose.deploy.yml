@@ -15,19 +15,19 @@ services:
     extends:
       service: sms
       file: docker-compose.local.yml
-    image: git.uni-wuppertal.de:4567/tmdt/projects/dataspace/plasma/sms:${PLASMA_VERSION}
+    image: git.uni-wuppertal.de:4567/tmdt/projects/dataspaces/plasma/sms:${PLASMA_VERSION}
 
   dps:
     extends:
       service: dps
       file: docker-compose.local.yml
-    image: git.uni-wuppertal.de:4567/tmdt/projects/dataspace/plasma/dps:${PLASMA_VERSION}
+    image: git.uni-wuppertal.de:4567/tmdt/projects/dataspaces/plasma/dps:${PLASMA_VERSION}
 
   frontend:
     extends:
       service: frontend
       file: docker-compose.local.yml
-    image: git.uni-wuppertal.de:4567/tmdt/projects/dataspace/plasma/frontend:${PLASMA_VERSION}
+    image: git.uni-wuppertal.de:4567/tmdt/projects/dataspaces/plasma/frontend:${PLASMA_VERSION}
 
   ########################### Auxiliary Services ######################################
 
@@ -35,13 +35,13 @@ services:
 #    extends:
 #      service: ars-l-lm
 #      file: docker-compose.local.yml
-#    image: git.uni-wuppertal.de:4567/tmdt/projects/dataspace/plasma/ars-l-lm:${PLASMA_VERSION}
+#    image: git.uni-wuppertal.de:4567/tmdt/projects/dataspaces/plasma/ars-l-lm:${PLASMA_VERSION}
 
   ars-r-sr:
     extends:
       service: ars-r-sr
       file: docker-compose.local.yml
-    image: git.uni-wuppertal.de:4567/tmdt/projects/dataspace/plasma/ars-r-sr:${PLASMA_VERSION}
+    image: git.uni-wuppertal.de:4567/tmdt/projects/dataspaces/plasma/ars-r-sr:${PLASMA_VERSION}
 
   ########################### External Services ######################################
 
