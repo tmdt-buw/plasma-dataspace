@@ -46,7 +46,7 @@ ui-dockerize:
   script:
     - mkdir -p /kaniko/.docker
     - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
-    - /kaniko/executor --build-arg PLASMA_VERSION=$VERSION profile=production --context $CI_PROJECT_DIR/frontend --dockerfile $CI_PROJECT_DIR/frontend/Dockerfile --destination $CI_REGISTRY_IMAGE/frontend:$VERSION
+    - /kaniko/executor --build-arg PLASMA_VERSION=$VERSION --build-arg profile=production --context $CI_PROJECT_DIR/frontend --dockerfile $CI_PROJECT_DIR/frontend/Dockerfile --destination $CI_REGISTRY_IMAGE/frontend:$VERSION
   except: #equivalent to /^(?!release-).*$/ the longer version is needed since negative look-ahead is deactivated because of catastrophic backtracking
     - /^((.{0,7}$)|[^r]|.{1}[^e]|.{2}[^l]|.{3}[^e]|.{4}[^a]|.{5}[^s]|.{6}[^e]|.{7}[^-]).*$/
   dependencies:
