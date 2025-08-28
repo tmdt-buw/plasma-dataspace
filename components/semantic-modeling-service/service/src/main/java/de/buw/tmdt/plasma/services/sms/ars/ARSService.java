@@ -161,8 +161,8 @@ public class ARSService {
                 .filter(service -> modeling.getPreferredRefiningService().contains(service.getUuid()))
                 .collect(Collectors.toList());
         if (targetServices.isEmpty()) {
-            log.debug("No refinement services selected");
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No refinement services are selected to process your request.");
+            log.trace("No refinement services selected");
+            return new ArrayList<>();
         }
         combinedModel.getRecommendations().removeIf(dm -> dm.getReference().startsWith(prefix));
         List<DeltaModification> modifications = new ArrayList<>();

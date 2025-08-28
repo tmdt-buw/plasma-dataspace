@@ -842,7 +842,7 @@ public class ModelingService {
                 List<DeltaModification> modifications = arsService.performRefinement(modelId, modeling, null, null, combinedModel);
                 combinedModel.getRecommendations().addAll(modifications);
             } catch (Exception e) {
-                log.warn("Could not perform recommendations");
+                log.warn("Could not perform recommendation: " + e.getMessage());
             }
         }
         return combinedModel;
