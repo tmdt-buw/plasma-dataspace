@@ -2,6 +2,7 @@ package de.buw.tmdt.plasma.services.sms.schemaanalysis;
 
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.SyntaxModel;
 
+import java.time.ZonedDateTime;
 import java.util.*;
 
 
@@ -9,14 +10,14 @@ public class Analysis {
 
 	protected String id;
 
-	protected Date creation;
+	protected ZonedDateTime creation;
 
 	private List<SyntaxModel> subAnalyses;
 
 	private SyntaxModel result;
 
 	protected Analysis() {
-		this.creation = new Date();
+		this.creation = ZonedDateTime.now();
 	}
 
 	public Analysis(String id) {
@@ -45,7 +46,7 @@ public class Analysis {
 		return id;
 	}
 
-	public Date getCreation() {
+	public ZonedDateTime getCreation() {
 		return creation;
 	}
 
