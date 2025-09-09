@@ -13,7 +13,7 @@
     <!-- File appender (no rolling) -->
     <appender name="FILE" class="ch.qos.logback.core.FileAppender">
         <!-- Must be provided via environment variable or application.properties -->
-        <file>${logging.file.name}</file>
+        <file>${logging.file.name:-logs/sms.log}</file>
         <append>true</append>
         <encoder>
             <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] %logger{36} - %msg%n</pattern>

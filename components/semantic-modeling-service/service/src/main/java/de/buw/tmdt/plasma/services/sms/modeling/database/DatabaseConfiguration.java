@@ -23,7 +23,7 @@ public class DatabaseConfiguration {
 	 */
 	@Bean
 	@NotNull
-	public PersistenceExceptionTranslationPostProcessor exceptionTranslation() {
+	public static PersistenceExceptionTranslationPostProcessor exceptionTranslation() {
 		return new PersistenceExceptionTranslationPostProcessor();
 	}
 }

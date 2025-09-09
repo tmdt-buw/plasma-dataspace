@@ -112,7 +112,7 @@ public class ModelingService {
             return withModifications;
         } catch (ResponseStatusException e) {
             log.warn("Semantic labeling did not succeed: ", e);
-            if (e.getStatus() == HttpStatus.NOT_IMPLEMENTED) {
+            if (e.getStatusCode() == HttpStatus.NOT_IMPLEMENTED) {
                 throw new ResponseStatusException(HttpStatus.NOT_IMPLEMENTED, "No labeling services are defined to process this request.");
             }
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Unexpected error during labeling: " + e.getMessage());
@@ -136,7 +136,7 @@ public class ModelingService {
 
         } catch (ResponseStatusException e) {
             log.warn("Semantic modeling did not succeed: ", e);
-            if (e.getStatus() == HttpStatus.NOT_IMPLEMENTED) {
+            if (e.getStatusCode() == HttpStatus.NOT_IMPLEMENTED) {
                 throw new ResponseStatusException(HttpStatus.NOT_IMPLEMENTED, "No modeling services are defined to process this request.");
             }
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Unexpected error during modeling: " + e.getMessage());

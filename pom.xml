@@ -6,7 +6,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>de.buw.tmdt.plasma</groupId>
     <artifactId>parent</artifactId>
-    <version>1.7.0</version>
+    <version>1.8.0</version>
     <name>PLASMA Parent</name>
     <packaging>pom</packaging>
 
@@ -32,17 +32,17 @@
         <project.java.target.version>11</project.java.target.version>
 
         <!-- ==================== Spring ==================== -->
-        <org.springframework.boot.version>2.5.4</org.springframework.boot.version>
-        <org.springframework.cloud.version>2020.0.3</org.springframework.cloud.version>
-        <org.springdoc.openapi.ui.version>1.5.10</org.springdoc.openapi.ui.version>
+        <org.springframework.boot.version>4.0.0-M2</org.springframework.boot.version>
+        <org.springframework.cloud.version>2025.1.0-M1</org.springframework.cloud.version>
+        <org.springdoc.openapi.ui.version>1.8.0</org.springdoc.openapi.ui.version>
         <javax.servlet.version>3.1.0</javax.servlet.version>
 
         <!-- Annotations -->
-        <org.jetbrains.annotations.version>19.0.0</org.jetbrains.annotations.version>
+        <org.jetbrains.annotations.version>26.0.2-1</org.jetbrains.annotations.version>
         <com.github.spotbugs.annotations.version>4.0.1</com.github.spotbugs.annotations.version>
 
         <!-- Logging -->
-        <slf4j.version>1.7.30</slf4j.version>
+        <slf4j.version>2.0.17</slf4j.version>
 
         <!-- RDF -->
         <org.apache.jena.version>4.4.0</org.apache.jena.version>
@@ -51,7 +51,7 @@
         <org.mariadb.version>2.5.2</org.mariadb.version>
 
         <!-- Apache Commons -->
-        <org.apache.commons.lang3.version>3.12.0</org.apache.commons.lang3.version>
+        <org.apache.commons.lang3.version>3.18.0</org.apache.commons.lang3.version>
 
         <!-- Testing -->
         <org.testcontainers.version>1.15.1</org.testcontainers.version>
@@ -63,7 +63,7 @@
         <org.apache.maven.plugin.source.version>3.2.1</org.apache.maven.plugin.source.version>
         <org.apache.maven.plugin.versionplugin.version>2.7</org.apache.maven.plugin.versionplugin.version>
         <pl.project13.maven.version>4.0.0</pl.project13.maven.version>
-        <com.google.cloud.tools.jib.version>2.7.1</com.google.cloud.tools.jib.version>
+        <com.google.cloud.tools.jib.version>3.4.6</com.google.cloud.tools.jib.version>
         <com.github.spotbugs.plugin.version>4.1.4</com.github.spotbugs.plugin.version>
         <org.apache.maven.plugin.checkstyle.version>3.1.1</org.apache.maven.plugin.checkstyle.version>
 

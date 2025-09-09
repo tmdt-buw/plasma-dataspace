@@ -7,13 +7,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.reactive.result.method.annotation.ResponseEntityExceptionHandler;
 import org.springframework.web.server.ResponseStatusException;
-import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
+import org.springframework.web.server.ServerWebExchange;
+import reactor.core.publisher.Mono;
 
 @ControllerAdvice
 public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionHandler {
@@ -23,23 +24,11 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
 
 	@NotNull
 	@Override
-	protected ResponseEntity<Object> handleHttpMessageNotReadable(
-			@NotNull HttpMessageNotReadableException ex,
-			@NotNull HttpHeaders headers,
-			@NotNull HttpStatus status,
-			@NotNull WebRequest request
-	) {
-        logger.warn("HTTP Message not readable", ex);
-        ModelError modelError = new ModelError(HttpStatus.BAD_REQUEST.value(), ex.getMessage());
-        return new ResponseEntity<>(modelError, HttpStatus.valueOf(modelError.getStatus()));
-    }
-
-	@NotNull
-	@ExceptionHandler(value = {ResponseStatusException.class})
-	public ResponseEntity<Object> handleResponseStatusException(@NotNull ResponseStatusException ex) {
-		logger.warn("A ResponseStatusException occurred: {}:{}", ex.getStatus(), ex.getMessage());
-        ModelError modelError = new ModelError(ex.getStatus().value(), ex.getReason(), ex.getMessage());
-        return new ResponseEntity<>(modelError, HttpStatus.valueOf(modelError.getStatus()));
+	public Mono<ResponseEntity<Object>> handleResponseStatusException(@NotNull ResponseStatusException ex, @NotNull HttpHeaders headers, @NotNull HttpStatusCode status,
+																	  @NotNull ServerWebExchange exchange) {
+		logger.warn("A ResponseStatusException occurred: {}:{}", ex.getStatusCode(), ex.getMessage());
+        ModelError modelError = new ModelError(ex.getStatusCode().value(), ex.getReason(), ex.getMessage());
+        return Mono.just(new ResponseEntity<>(modelError, HttpStatus.valueOf(modelError.getStatus())));
     }
 
 	@NotNull
