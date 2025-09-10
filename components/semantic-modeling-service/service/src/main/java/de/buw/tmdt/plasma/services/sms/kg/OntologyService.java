@@ -4,7 +4,7 @@ import de.buw.tmdt.plasma.datamodel.CombinedModelElement;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.Relation;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.SemanticNode;
 import de.buw.tmdt.plasma.services.sms.shared.model.ExportFormat;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.jena.irix.IRIException;
 import org.apache.jena.irix.IRIs;
 import org.apache.jena.ontology.OntClass;
@@ -62,20 +62,20 @@ public class OntologyService {
                     .forEach(nodes::add);
         } else if (prefix != null && !prefix.isBlank()) {
             findClasses(filteredOntologyModels,
-                    clazz -> StringUtils.startsWithIgnoreCase(clazz.getLabel(null), prefix)).stream()
+                    clazz -> Strings.CI.startsWith(clazz.getLabel(null), prefix)).stream()
                     .map(CMToRDFMapper::convertOntologyClassToClass)
                     .forEach(nodes::add);
-            findNamedEntities(filteredOntologyModels, ne -> StringUtils.startsWithIgnoreCase(ne.getProperty(RDFS.label) != null ? ne.getProperty(RDFS.label).getString() : "", prefix)).stream()
+            findNamedEntities(filteredOntologyModels, ne -> Strings.CI.startsWith(ne.getProperty(RDFS.label) != null ? ne.getProperty(RDFS.label).getString() : "", prefix)).stream()
                     .map(CMToRDFMapper::convertOntologyResourceToSemanticModelNode)
                     .forEach(nodes::add);
         } else if (infix != null && !infix.isBlank()) {
             findClasses(filteredOntologyModels,
-                    clazz -> StringUtils.containsIgnoreCase(clazz.getLabel(null), infix) ||
-                            StringUtils.containsIgnoreCase(clazz.getURI(), infix)).stream()
+                    clazz -> Strings.CI.contains(clazz.getLabel(null), infix) ||
+                            Strings.CI.contains(clazz.getURI(), infix)).stream()
                     .map(CMToRDFMapper::convertOntologyClassToClass)
                     .forEach(nodes::add);
-            findNamedEntities(filteredOntologyModels, ne -> StringUtils.containsIgnoreCase(ne.getProperty(RDFS.label) != null ? ne.getProperty(RDFS.label).getString() : "", infix) ||
-                    StringUtils.containsIgnoreCase(ne.getURI(), infix)).stream()
+            findNamedEntities(filteredOntologyModels, ne -> Strings.CI.contains(ne.getProperty(RDFS.label) != null ? ne.getProperty(RDFS.label).getString() : "", infix) ||
+                    Strings.CI.contains(ne.getURI(), infix)).stream()
                     .map(CMToRDFMapper::convertOntologyResourceToSemanticModelNode)
                     .filter(Objects::nonNull)
                     .forEach(nodes::add);
@@ -103,15 +103,15 @@ public class OntologyService {
                     .forEach(relations::add);
         } else if (prefix != null && !prefix.isBlank()) {
             findProperties(filteredOntologyModels,
-                    prop -> StringUtils.startsWithIgnoreCase(prop.getLabel(null), prefix) ||
-                            StringUtils.startsWithIgnoreCase(prop.getURI(), prefix)).stream()
+                    prop -> Strings.CI.startsWith(prop.getLabel(null), prefix) ||
+                            Strings.CI.startsWith(prop.getURI(), prefix)).stream()
                     .map(CMToRDFMapper::convertOntologyPropertyToRelation)
                     .filter(Objects::nonNull)
                     .forEach(relations::add);
         } else if (infix != null && !infix.isBlank()) {
             findProperties(filteredOntologyModels,
-                    prop -> StringUtils.containsIgnoreCase(prop.getLabel(null), infix) ||
-                            StringUtils.containsIgnoreCase(prop.getURI(), infix)).stream()
+                    prop -> Strings.CI.contains(prop.getLabel(null), infix) ||
+                            Strings.CI.contains(prop.getURI(), infix)).stream()
                     .map(CMToRDFMapper::convertOntologyPropertyToRelation)
                     .filter(Objects::nonNull)
                     .forEach(relations::add);

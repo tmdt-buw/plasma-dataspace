@@ -2,6 +2,7 @@ package de.buw.tmdt.plasma.services.sms.kg;
 
 import de.buw.tmdt.plasma.datamodel.semanticmodel.Class;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.*;
+import jakarta.annotation.PostConstruct;
 import org.apache.jena.arq.querybuilder.DescribeBuilder;
 import org.apache.jena.ontology.OntModel;
 import org.apache.jena.query.QueryExecution;
@@ -19,7 +20,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -102,7 +102,7 @@ public class LocalOntologyManagement {
             }
 
         }
-        if (m.size() > 0) {
+        if (!m.isEmpty()) {
             putModel(m);
         }
     }

@@ -11,6 +11,7 @@ import de.buw.tmdt.plasma.services.sms.modeling.database.ModelingRepository;
 import de.buw.tmdt.plasma.services.sms.shared.api.ModelingAPI;
 import de.buw.tmdt.plasma.services.sms.shared.api.ModelingInfo;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.transaction.Transactional;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -121,6 +122,7 @@ public class ModelingController implements ModelingAPI {
 
     @NotNull
     @Override
+    @Transactional
     @Operation(description = "Returns the current combined model of the specified modeling.")
     public CombinedModel getCombinedModel(@NotNull String modelId) {
         CombinedModel combinedModel = modelingService.getCombinedModel(modelId);
@@ -284,11 +286,13 @@ public class ModelingController implements ModelingAPI {
     }
 
     @Override
+    @Transactional
     public void updateSelectedOntologies(@NotNull String modelId, @NotNull List<String> selectedOntologyLabels) {
         modelingService.updateSelectedOntologies(modelId, selectedOntologyLabels);
     }
 
     @Override
+    @Transactional
     @Operation(description = "Updates the preferred services for a model")
     public void updatePreferredServices(@NotNull String modelId, PreferredServices preferredServices) {
         modelingService.updatePreferredServices(modelId, preferredServices);

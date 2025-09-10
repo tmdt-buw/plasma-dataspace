@@ -13,7 +13,8 @@ import de.buw.tmdt.plasma.services.sms.kg.SemanticModelService;
 import de.buw.tmdt.plasma.services.sms.modeling.model.Modeling;
 import de.buw.tmdt.plasma.services.sms.modeling.database.ModelingRepository;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import org.apache.commons.lang.StringUtils;
+import jakarta.transaction.Transactional;
+import org.apache.commons.lang3.Strings;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -22,7 +23,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -205,11 +205,13 @@ public class ModelingService {
 
     @SuppressWarnings("SameParameterValue") // this might change
     @NotNull
-    private CombinedModel getCombinedModel(@NotNull String modelId, boolean modelWillBeModified) {
+    @Transactional
+    protected CombinedModel getCombinedModel(@NotNull String modelId, boolean modelWillBeModified) {
         try {
-            return getCombinedModel(findModelingOrThrow(modelId), modelWillBeModified);
+            Modeling m = findModelingOrThrow(modelId);
+            return getCombinedModel(m, modelWillBeModified);
         } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error retrieving combined model for modeling");
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error retrieving combined model for modeling",e);
         }
     }
 
@@ -236,6 +238,7 @@ public class ModelingService {
      * @return An "index" of arraycontexts, represented as a list of sets of uuids of relations and nodes in that arraycontext.
      */
     @NotNull
+    @Transactional
     public List<ArrayContext> getArrayContexts(@NotNull String modelId) {
         CombinedModel combinedModel = getCombinedModel(modelId);
         List<ArrayContext> contexts = combinedModel.getArrayContexts().stream()
@@ -257,6 +260,7 @@ public class ModelingService {
     }
 
     @NotNull
+    @Transactional()
     public List<ModelLinking> getModelMappings(@NotNull String modelId) {
         CombinedModel combinedModel = getCombinedModel(modelId);
         List<ModelLinking> modelLinkings = combinedModel.generateModelLinkings();
@@ -288,10 +292,10 @@ public class ModelingService {
         combinedModel.getProvisionalElements().stream()
                 .filter(element -> {
                     if (prefix != null && !(prefix.isBlank())) {
-                        return StringUtils.startsWithIgnoreCase(element.getLabel(), prefix);
+                        return Strings.CI.startsWith(element.getLabel(), prefix);
                     }
                     if (infix != null && !(infix.isBlank())) {
-                        return StringUtils.containsIgnoreCase(element.getLabel(), infix);
+                        return Strings.CI.contains(element.getLabel(), infix);
                     }
                     return true;
                 })
@@ -323,10 +327,10 @@ public class ModelingService {
         combinedModel.getProvisionalRelations().stream()
                 .filter(relation -> {
                     if (prefix != null && !(prefix.isBlank())) {
-                        return StringUtils.startsWithIgnoreCase(relation.getLabel(), prefix);
+                        return Strings.CI.startsWith(relation.getLabel(), prefix);
                     }
                     if (infix != null && !(infix.isBlank())) {
-                        return StringUtils.containsIgnoreCase(relation.getLabel(), infix);
+                        return Strings.CI.contains(relation.getLabel(), infix);
                     }
                     return true;
                 })
@@ -815,13 +819,11 @@ public class ModelingService {
         persistCombinedModel(modeling, combinedModel);
     }
 
-    @Transactional
     public void persistCombinedModel(@NotNull Modeling modeling, @NotNull CombinedModel combinedModel) {
         modeling.pushCombinedModel(combinedModel);
         modelingRepository.save(modeling);
     }
 
-    @Transactional
     public Modeling persistModeling(@NotNull Modeling modeling) {
         return modelingRepository.save(modeling);
     }

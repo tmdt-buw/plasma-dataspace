@@ -22,7 +22,6 @@ import java.util.stream.Collectors;
 
 import reactor.core.publisher.Mono;
 
-import javax.annotation.PostConstruct;
 
 @Service
 public class LabelMatchingService {

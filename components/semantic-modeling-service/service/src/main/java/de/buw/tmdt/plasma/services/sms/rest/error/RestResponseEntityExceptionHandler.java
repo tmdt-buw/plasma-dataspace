@@ -5,16 +5,12 @@ import de.buw.tmdt.plasma.datamodel.error.ModelError;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.reactive.result.method.annotation.ResponseEntityExceptionHandler;
 import org.springframework.web.server.ResponseStatusException;
-import org.springframework.web.server.ServerWebExchange;
-import reactor.core.publisher.Mono;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 @ControllerAdvice
 public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionHandler {
@@ -22,13 +18,13 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
 	@SuppressWarnings("FieldNameHidesFieldInSuperclass - this allows explicit configuration for this logger as part of the de.buw.tmdt name space")
 	private static final Logger logger = LoggerFactory.getLogger(RestResponseEntityExceptionHandler.class);
 
+
 	@NotNull
-	@Override
-	public Mono<ResponseEntity<Object>> handleResponseStatusException(@NotNull ResponseStatusException ex, @NotNull HttpHeaders headers, @NotNull HttpStatusCode status,
-																	  @NotNull ServerWebExchange exchange) {
+	@ExceptionHandler(value = {ResponseStatusException.class})
+	public ResponseEntity<Object> handleResponseStatusException(@NotNull ResponseStatusException ex) {
 		logger.warn("A ResponseStatusException occurred: {}:{}", ex.getStatusCode(), ex.getMessage());
         ModelError modelError = new ModelError(ex.getStatusCode().value(), ex.getReason(), ex.getMessage());
-        return Mono.just(new ResponseEntity<>(modelError, HttpStatus.valueOf(modelError.getStatus())));
+        return new ResponseEntity<>(modelError, HttpStatus.valueOf(modelError.getStatus()));
     }
 
 	@NotNull
