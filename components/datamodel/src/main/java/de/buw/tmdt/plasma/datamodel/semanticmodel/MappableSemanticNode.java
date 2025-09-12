@@ -34,11 +34,12 @@ public abstract class MappableSemanticNode extends LinkableSemanticNode {
         super(uri, label, xCoordinate, yCoordinate, uuid);
     }
 
-    public MappableSemanticNode(@Nullable String uri, @NotNull String label, @Nullable Double xCoordinate, @Nullable Double yCoordinate, String mappedSyntaxNodeUuid, String mappedSyntaxNodeLabel, String mappedSyntaxNodePath, @Nullable String uuid) {
+    public MappableSemanticNode(@Nullable String uri, @NotNull String label, @Nullable Double xCoordinate, @Nullable Double yCoordinate, String mappedSyntaxNodeUuid, String mappedSyntaxNodeLabel, String mappedSyntaxNodePath, String XSDdataType, @Nullable String uuid) {
         super(uri, label, xCoordinate, yCoordinate, uuid);
         setMappedSyntaxNodeUuid(mappedSyntaxNodeUuid);
         setMappedSyntaxNodeLabel(mappedSyntaxNodeLabel);
         setMappedSyntaxNodePath(mappedSyntaxNodePath);
+        setURI(XSDdataType);
     }
 
     @JsonProperty(MAPPED_SYNTAX_NODE_PATH_PROPERTY)
@@ -59,5 +60,6 @@ public abstract class MappableSemanticNode extends LinkableSemanticNode {
         setMappedSyntaxNodeUuid(null);
         setMappedSyntaxNodeLabel(null);
         setMappedSyntaxNodePath(null);
+        setURI(null);
     }
 }

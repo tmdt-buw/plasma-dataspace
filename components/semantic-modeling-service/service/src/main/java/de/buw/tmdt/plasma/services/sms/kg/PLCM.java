@@ -12,6 +12,7 @@ public class PLCM {
     public static final Property originalLabel = Init.originalLabel();
     public static final Property syntaxNodeId = Init.syntaxNodeId();
     public static final Property syntaxNodePath = Init.syntaxNodePath();
+    public static final Property XSDDataType = Init.XSDDatatype();
     public static final Property cmUuid = Init.cmUuid();
     public static final Property hasNode = Init.hasNode();
     public static final Property label = Init.label();
@@ -21,11 +22,11 @@ public class PLCM {
     public static final Resource NamedEntity = Init.namedEntity();
     public static final Resource LiteralMapping = Init.literalMapping();
 
-    protected static final Resource resource(String local) {
+    protected static Resource resource(String local) {
         return ResourceFactory.createResource(uri + local);
     }
 
-    protected static final Property property(String local) {
+    protected static Property property(String local) {
         return ResourceFactory.createProperty(uri, local);
     }
 
@@ -52,6 +53,10 @@ public class PLCM {
 
         public static Property syntaxNodePath() {
             return property("syntaxNodePath");
+        }
+
+        public static Property XSDDatatype() {
+            return property("XSDDatatype");
         }
 
         public static Property cmUuid() {
@@ -85,6 +90,8 @@ public class PLCM {
         public static Resource literalMapping() {
             return resource("LiteralMapping");
         }
+
+
 
     }
 

@@ -107,7 +107,7 @@ export class PlsSemanticNodeDetailsComponent implements OnInit {
       case 'Literal':
         this.$edit.next(EditState.start);
         this.label = this.node.node.label;
-        this.type = this.node.node.uri;
+        this.type = (this.node.node as Literal).uri;
         break;
     }
   }
@@ -129,6 +129,7 @@ export class PlsSemanticNodeDetailsComponent implements OnInit {
     };
 
     this.modelingService.modifyModel(this.node.modelId, delta).subscribe(() => {
+      console.log(this.node.node);
       this.nodeEdited.next(this.node.node);
     }, () => {
       switch (this.node.node._class) {

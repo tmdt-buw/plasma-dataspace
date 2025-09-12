@@ -4,6 +4,9 @@ import de.buw.tmdt.plasma.datamodel.CombinedModelIntegrityException;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.Class;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.Literal;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.*;
+import org.apache.jena.datatypes.RDFDatatype;
+import org.apache.jena.datatypes.TypeMapper;
+import org.apache.jena.datatypes.xsd.XSDDatatype;
 import org.apache.jena.ontology.OntClass;
 import org.apache.jena.ontology.OntProperty;
 import org.apache.jena.rdf.model.*;
@@ -90,6 +93,14 @@ public class CMToRDFMapper {
                 Literal l = (Literal) node;
                 Resource resource = m.createResource();
                 resource.addProperty(RDF.type, PLCM.LiteralMapping);
+                RDFDatatype datatype = XSDDatatype.XSDstring;
+                if(l.getURI() != null) {
+                    RDFDatatype dt = TypeMapper.getInstance().getTypeByValue( l.getURI() );
+                    if (dt != null) {
+                        datatype = dt;
+                    }
+                }
+
                 if (l.isMapped()) {
                     if (l.getMappedSyntaxNodePath() != null && !l.getMappedSyntaxNodePath().isBlank()) {
                         resource.addProperty(PLCM.syntaxNodePath, m.createLiteral(l.getMappedSyntaxNodePath()));
@@ -100,9 +111,12 @@ public class CMToRDFMapper {
                             resource.addProperty(PLCM.originalLabel, m.createLiteral(l.getMappedSyntaxNodeLabel()));
                         }
                     }
+                    if(l.getURI() != null && !l.getURI().isBlank()) {
+                        resource.addProperty(PLCM.XSDDataType, m.createLiteral(datatype.getURI()));
+                    }
                     rdfNode = resource;
                 } else {
-                    rdfNode = m.createLiteral(l.getValue());
+                    rdfNode = m.createTypedLiteral(l.getValue(), datatype);
                 }
 
             } else if (node instanceof NamedEntity) {

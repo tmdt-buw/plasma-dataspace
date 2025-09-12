@@ -31,13 +31,14 @@ public class Literal extends MappableSemanticNode {
                    @Nullable @JsonProperty(YCOORDINATE_PROPERTY) Double yCoordinate,
                    @Nullable @JsonProperty(MAPPED_SYNTAX_NODE_UUID_PROPERTY) String mappedSyntaxNodeUuid,
                    @Nullable @JsonProperty(MAPPED_SYNTAX_NODE_LABEL_PROPERTY) String mappedSyntaxNodeLabel,
-                   @Nullable @JsonProperty(MAPPED_SYNTAX_NODE_PATH_PROPERTY) String mappedSyntaxNodePath) {
-        super(null, value, xCoordinate, yCoordinate, mappedSyntaxNodeUuid, mappedSyntaxNodeLabel, mappedSyntaxNodePath, uuid);
+                   @Nullable @JsonProperty(MAPPED_SYNTAX_NODE_PATH_PROPERTY) String mappedSyntaxNodePath,
+                   @Nullable @JsonProperty(URI_PROPERTY) String uri) {
+        super(null, value, xCoordinate, yCoordinate, mappedSyntaxNodeUuid, mappedSyntaxNodeLabel, mappedSyntaxNodePath, uri, uuid);
     }
 
     @Override
     public Literal copy() {
-        return new Literal(getUuid(), getValue(), getXCoordinate(), getYCoordinate(), getMappedSyntaxNodeUuid(), getMappedSyntaxNodeLabel(), getMappedSyntaxNodePath());
+        return new Literal(getUuid(), getValue(), getXCoordinate(), getYCoordinate(), getMappedSyntaxNodeUuid(), getMappedSyntaxNodeLabel(), getMappedSyntaxNodePath(), getURI());
     }
 
     @Override
@@ -94,6 +95,7 @@ public class Literal extends MappableSemanticNode {
     public String toString() {
         return "Literal{" +
                 "value='" + getLabel() + '\'' +
+                "dataType='" + getURI() + '\'' +
                 '}';
     }
 }
