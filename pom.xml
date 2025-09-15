@@ -15,7 +15,7 @@
         <module>components/utilities</module>
         <module>components/datamodel</module>
         <module>components/config-service</module>
-<!--        <module>auxiliary_services/ARS-L-label-matching</module>-->
+        <module>auxiliary_services/ARS-L-label-matching</module>
         <module>components/converter</module>
         <module>components/data-processing-service</module>
     </modules>

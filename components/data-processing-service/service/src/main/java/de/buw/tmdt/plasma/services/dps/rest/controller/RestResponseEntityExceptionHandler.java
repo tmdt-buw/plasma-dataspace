@@ -20,23 +20,10 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
 	@SuppressWarnings("FieldNameHidesFieldInSuperclass - this allows explicit configuration for this logger as part of the de.buw.tmdt name space")
 	private static final Logger logger = LoggerFactory.getLogger(RestResponseEntityExceptionHandler.class);
 
-	@NotNull
-	@Override
-	protected ResponseEntity<Object> handleHttpMessageNotReadable(
-			@NotNull HttpMessageNotReadableException ex,
-			@NotNull HttpHeaders headers,
-			@NotNull HttpStatus status,
-			@NotNull WebRequest request
-	) {
-		logger.warn("HTTP Message not readable", ex);
-		ErrorDTO errorDTO = new ErrorDTO(HttpStatus.BAD_REQUEST.value(), ex.getMessage());
-		return new ResponseEntity<>(errorDTO, HttpStatus.valueOf(errorDTO.getStatus()));
-	}
-
 	@ExceptionHandler(value = {ResponseStatusException.class})
 	public ResponseEntity<Object> handleResponseStatusException(ResponseStatusException ex) {
-		logger.info("A Response Status Exception occurred {} {}", ex.getStatus(), ex.getMessage());
-		ErrorDTO errorDTO = new ErrorDTO(ex.getStatus().value(), ex.getReason(), ex.getMessage());
+		logger.info("A Response Status Exception occurred {} {}", ex.getStatusCode(), ex.getMessage());
+		ErrorDTO errorDTO = new ErrorDTO(ex.getStatusCode().value(), ex.getReason(), ex.getMessage());
 		return new ResponseEntity<>(errorDTO, HttpStatus.valueOf(errorDTO.getStatus()));
 	}
 
