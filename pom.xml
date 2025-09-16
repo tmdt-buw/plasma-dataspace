@@ -350,6 +350,9 @@
                 <configuration>
                     <source>${project.java.source.version}</source>
                     <target>${project.java.target.version}</target>
+                    <compilerArgs>
+                        <arg>-parameters</arg>
+                    </compilerArgs>
                 </configuration>
             </plugin>
 

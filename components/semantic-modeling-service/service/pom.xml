@@ -89,6 +89,17 @@
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
+                    <compilerArgs>
+                        <arg>-parameters</arg>
+                    </compilerArgs>
+                </configuration>
+            </plugin>
             <!-- Deployment -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -118,7 +129,7 @@
                 <configuration>
                     <skip>false</skip>
                     <from>
-                        <image>gcr.io/distroless/java:11</image>
+                        <image>eclipse-temurin:24-jre</image>
                     </from>
                     <to>
                         <!--suppress UnresolvedMavenProperty -->
