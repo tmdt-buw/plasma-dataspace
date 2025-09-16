@@ -21,23 +21,10 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
 	private static final Logger logger = LoggerFactory.getLogger(RestResponseEntityExceptionHandler.class);
 
 	@NotNull
-	@Override
-	protected ResponseEntity<Object> handleHttpMessageNotReadable(
-			@NotNull HttpMessageNotReadableException ex,
-			@NotNull HttpHeaders headers,
-			@NotNull HttpStatus status,
-			@NotNull WebRequest request
-	) {
-        logger.warn("HTTP Message not readable", ex);
-        ModelError modelError = new ModelError(HttpStatus.BAD_REQUEST.value(), ex.getMessage());
-        return new ResponseEntity<>(modelError, HttpStatus.valueOf(modelError.getStatus()));
-    }
-
-	@NotNull
 	@ExceptionHandler(value = {ResponseStatusException.class})
 	public ResponseEntity<Object> handleResponseStatusException(@NotNull ResponseStatusException ex) {
-        logger.warn("A ResponseStatusException occurred: {}:{}", ex.getStatus(), ex.getMessage());
-        ModelError modelError = new ModelError(ex.getStatus().value(), ex.getReason(), ex.getMessage());
+        logger.warn("A ResponseStatusException occurred: {}:{}", ex.getStatusCode(), ex.getMessage());
+        ModelError modelError = new ModelError(ex.getStatusCode().value(), ex.getReason(), ex.getMessage());
         return new ResponseEntity<>(modelError, HttpStatus.valueOf(modelError.getStatus()));
     }
 

@@ -8,6 +8,7 @@ import de.buw.tmdt.plasma.datamodel.semanticmodel.SemanticNode;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.PrimitiveNode;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.SyntaxNode;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.SyntaxModel;
+import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
