@@ -94,6 +94,7 @@ public class CombinedModelSemanticModificationTest {
                 iataCodeClass.getYCoordinate(),
                 iataCodeClass.getMappedSyntaxNodeUuid(),
                 iataCodeClass.getMappedSyntaxNodeLabel(),
+                iataCodeClass.getMappedSyntaxNodePath(),
                 null,
                 iataCodeClass.isProvisional()
         );

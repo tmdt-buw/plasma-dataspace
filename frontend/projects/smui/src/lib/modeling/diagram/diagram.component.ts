@@ -6,7 +6,7 @@ import { dia, g, highlighters, layout } from 'jointjs';
 import { ModalOptions, NzModalRef, NzModalService } from 'ng-zorro-antd/modal';
 import { BehaviorSubject, Subject } from 'rxjs';
 import { auditTime, distinctUntilChanged, pairwise, skip } from 'rxjs/operators';
-import { Class, CombinedModel, DataProperty, DeltaModification, Instance, Literal, ModelLinking, NamedEntity, ObjectNode, ObjectProperty, PrimitiveNode, Relation, SemanticModel, SemanticNode, SetNode, SyntaxModel, SyntaxNode } from '../../api/generated/sms';
+import { ArrayContext, Class, CombinedModel, DataProperty, DeltaModification, Instance, Literal, ModelLinking, NamedEntity, ObjectNode, ObjectProperty, PrimitiveNode, Relation, SemanticModel, SemanticNode, SetNode, SyntaxModel, SyntaxNode } from '../../api/generated/sms';
 import { ContextMenuService } from '../context-menu/context-menu.service';
 import { PlsSemanticClassMenuComponent } from '../context-menu/semantic-class-menu/semantic-class-menu.component';
 import { PlsRelationConceptMenuComponent } from '../context-menu/relation-menu/relation-menu.component';
@@ -52,7 +52,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
   initializing = true;
   _combinedModel: CombinedModel;
   _modelMappings: ModelLinking[];
-  _arrayContexts: string[][];
+  _arrayContexts: ArrayContext[];
 
   // graph elements
   @ViewChild('graph') canvas: ElementRef;
@@ -85,7 +85,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
     }
   }
 
-  @Input() set arrayContexts(arrayContexts: string[][]) {
+  @Input() set arrayContexts(arrayContexts: ArrayContext[]) {
     this._arrayContexts = arrayContexts;
   }
 
@@ -161,7 +161,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
     ).subscribe((showURI) => {
       this.createGraph(showURI);
     });
-    this.$recommendation.subscribe(rec => {
+    this.$recommendation?.subscribe(rec => {
       this.hideRecommendations();
       if (rec !== null){
         this.showRecommendation(rec);
@@ -237,6 +237,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
             }
             classNode.syntaxNodeUuid = syntaxNode.uuid;
             classNode.syntaxLabel = syntaxNode.label;
+            classNode.syntaxPath = syntaxNode.pathAsJSONPath;
             classNode.instance.label = syntaxNode.label;
             classNode.x = syntaxNode.x;
             classNode.y = syntaxNode.y;
@@ -400,33 +401,51 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
             }
           });
         } else if (this.relation?._class === 'DataProperty' && elementBelow) {
-          if (Nodes.isPrimitiveNode(elementBelow)) {
-            const syntaxNode: PrimitiveNode = this.findSyntaxNodeById(elementBelow.id as string);
-            const literal: Literal = {
-              _class: 'Literal',
-              x,
-              y,
-              value: syntaxNode.label,
-              uuid: uuidv4(),
-              syntaxNodeUuid: syntaxNode.uuid,
-              syntaxLabel: syntaxNode.label,
-              syntaxPath: syntaxNode.pathAsJSONPath,
-            };
-            const from = source;
-            const to = literal.uuid;
-            const relation: DataProperty = {
-              _class: 'DataProperty',
-              from,
-              to,
-              label: this.relation.label,
-              uri: this.relation.uri
-            };
-            const changes = {entities: [literal], relations: [relation]};
-            this.semanticModelElementsAdded.emit(changes);
-            return;
-          }
-
-        } else {
+            if (Nodes.isPrimitiveNode(elementBelow)) {
+              const syntaxNode: PrimitiveNode = this.findSyntaxNodeById(elementBelow.id as string);
+              const literal: Literal = {
+                _class: 'Literal',
+                x,
+                y,
+                value: syntaxNode.label,
+                uuid: uuidv4(),
+                syntaxNodeUuid: syntaxNode.uuid,
+                syntaxLabel: syntaxNode.label,
+                syntaxPath: syntaxNode.pathAsJSONPath,
+              };
+              const from = source;
+              const to = literal.uuid;
+              const relation: DataProperty = {
+                _class: 'DataProperty',
+                from,
+                to,
+                label: this.relation.label,
+                uri: this.relation.uri
+              };
+              const changes = {entities: [literal], relations: [relation]};
+              this.semanticModelElementsAdded.emit(changes);
+              return;
+            }
+        }
+        // else if (this.relation?._class === 'ObjectProperty' && elementBelow) {
+        //     if (Nodes.isArrayNode(elementBelow)) {
+        //     const syntaxNode: SyntaxNode = this.findSyntaxNodeById(elementBelow.id as string);
+        //
+        //     const from = source;
+        //     const to = literal.uuid;
+        //     const relation: ObjectProperty = {
+        //       _class: 'ObjectProperty',
+        //       from,
+        //       to,
+        //       label: this.relation.label,
+        //       uri: this.relation.uri
+        //     };
+        //     const changes = { relations: [relation]};
+        //     this.semanticModelElementsAdded.emit(changes);
+        //     return;
+        //   }
+        // }
+        else {
           this.panAndZoom.disablePan();
         }
       },
@@ -657,8 +676,8 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
       }
     }
     // check if any of from/to nodes are part of an array context
-    // console.log(this._arrayContexts, this.combinedModel);
-    const b = this._arrayContexts.some(ac => ac.some(id => id === from.uuid || id === to.uuid));
+    console.log(this._arrayContexts, this.combinedModel);
+    const b = this._arrayContexts.some(ac => ac.nodes.some(id => id === from.uuid || id === to.uuid));
     // console.log(b);
     return b;
   }

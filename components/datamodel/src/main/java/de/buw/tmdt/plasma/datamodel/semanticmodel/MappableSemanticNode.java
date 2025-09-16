@@ -13,15 +13,6 @@ import org.jetbrains.annotations.Nullable;
 })
 public abstract class MappableSemanticNode extends LinkableSemanticNode {
 
-    public static final String MAPPED_SYNTAX_NODE_PATH_PROPERTY = "syntaxPath";
-
-    /**
-     * The path in the original data schema to identify this node.
-     * This may only be set when {@link LinkableSemanticNode:mappedSyntaxNodeUuid} is set also.
-     * Form is expressed as a JSONPath.
-     */
-    private String mappedSyntaxNodePath;
-
     public MappableSemanticNode(@Nullable String uri, @NotNull String label) {
         super(uri, label, null, null, null);
     }
@@ -40,15 +31,6 @@ public abstract class MappableSemanticNode extends LinkableSemanticNode {
         setMappedSyntaxNodeLabel(mappedSyntaxNodeLabel);
         setMappedSyntaxNodePath(mappedSyntaxNodePath);
         setURI(XSDdataType);
-    }
-
-    @JsonProperty(MAPPED_SYNTAX_NODE_PATH_PROPERTY)
-    public String getMappedSyntaxNodePath() {
-        return mappedSyntaxNodePath;
-    }
-
-    public void setMappedSyntaxNodePath(String mappedSyntaxNodePath) {
-        this.mappedSyntaxNodePath = mappedSyntaxNodePath;
     }
 
     @Override

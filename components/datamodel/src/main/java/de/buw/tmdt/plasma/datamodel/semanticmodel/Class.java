@@ -28,11 +28,11 @@ public class Class extends LinkableSemanticNode implements Serializable, Customi
             @NotNull String label,
             @Nullable String description
     ) {
-        this(null, uri, label, description, null, null, null,  null, null, false);
+        this(null, uri, label, description, null, null, null,  null, null, null,false);
     }
 
     public Class(String uri, String label, String description, Double xCoordinate, Double yCoordinate, String uuid) {
-        this(uuid, uri, label, description, xCoordinate, yCoordinate, null, null, null, false);
+        this(uuid, uri, label, description, xCoordinate, yCoordinate, null, null, null, null,false);
     }
 
     @JsonCreator
@@ -45,10 +45,11 @@ public class Class extends LinkableSemanticNode implements Serializable, Customi
             @Nullable @JsonProperty(YCOORDINATE_PROPERTY) Double yCoordinate,
             @Nullable @JsonProperty(MAPPED_SYNTAX_NODE_UUID_PROPERTY) String mappedSyntaxNodeUuid,
             @Nullable @JsonProperty(MAPPED_SYNTAX_NODE_LABEL_PROPERTY) String mappedSyntaxNodeLabel,
+            @Nullable @JsonProperty(MAPPED_SYNTAX_NODE_PATH_PROPERTY) String mappedSyntaxNodePath,
             @Nullable @JsonProperty(INSTANCE_PROPERTY) Instance instance,
             @JsonProperty(PROVISIONAL_PROPERTY) boolean provisional
     ) {
-        super(uri, label, xCoordinate, yCoordinate, mappedSyntaxNodeUuid, mappedSyntaxNodeLabel, uuid);
+        super(uri, label, xCoordinate, yCoordinate, mappedSyntaxNodeUuid, mappedSyntaxNodeLabel, mappedSyntaxNodePath, uuid);
         this.description = description;
         this.instance = instance;
         this.setProvisional(provisional);
@@ -63,7 +64,7 @@ public class Class extends LinkableSemanticNode implements Serializable, Customi
         this.description = description;
     }
 
-    public Instance getInstance() {
+    public @Nullable Instance getInstance() {
         return instance;
     }
 
@@ -86,6 +87,7 @@ public class Class extends LinkableSemanticNode implements Serializable, Customi
                 getYCoordinate(),
                 getMappedSyntaxNodeUuid(),
                 getMappedSyntaxNodeLabel(),
+                getMappedSyntaxNodePath(),
                 getInstance(),
                 isProvisional());
     }

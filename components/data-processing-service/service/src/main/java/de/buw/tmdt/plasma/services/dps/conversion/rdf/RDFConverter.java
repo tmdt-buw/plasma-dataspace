@@ -180,15 +180,15 @@ public class RDFConverter {
         Collections.reverse(arrayContexts);
 
         for (SemanticModel arrayContext : arrayContexts) {
-            MappableSemanticNode indexNode;
+            LinkableSemanticNode indexNode;
             if (arrayContext.getNodes().size() == 1) {
-                indexNode = (MappableSemanticNode) arrayContext.getNodes().get(0);
+                indexNode = (LinkableSemanticNode) arrayContext.getNodes().get(0);
             } else {
                 // identify the index node
-                List<MappableSemanticNode> indexNodes = arrayContext.getNodes().stream()
-                        .filter(smn -> smn instanceof MappableSemanticNode)
-                        .filter(SemanticNode::isMapped)
-                        .map(smn -> (MappableSemanticNode) smn)
+                List<LinkableSemanticNode> indexNodes = arrayContext.getNodes().stream()
+                        .filter(smn -> smn instanceof LinkableSemanticNode)
+                        .map(smn -> (LinkableSemanticNode) smn)
+                        .filter(LinkableSemanticNode::isLinked)
                         .filter(smn -> smn.getMappedSyntaxNodePath().endsWith(ARRAY_PATH_TOKEN))
                         .collect(Collectors.toList());
                 if (indexNodes.size() != 1) {
@@ -313,11 +313,11 @@ public class RDFConverter {
         return rdfNode;
     }
 
-    private RDFList buildRDFListForArrayContext(MappableSemanticNode indexNode, SemanticModel arrayContext) throws ConversionException {
-        LinkableSyntaxNode syntaxNode = findMappedSyntaxNode(indexNode);
-        ArrayList<String> mappedSyntaxNodePath = new ArrayList<>(syntaxNode.getPath());
+    private RDFList buildRDFListForArrayContext(LinkableSemanticNode indexNode, SemanticModel arrayContext) throws ConversionException {
+        LinkableSyntaxNode syntaxNode = findLinkedSyntaxNode(indexNode);
+        ArrayList<String> linkedSyntaxNodePath = new ArrayList<>(syntaxNode.getPath());
 
-        PointerFactory pf = new PointerFactory(mappedSyntaxNodePath);
+        PointerFactory pf = new PointerFactory(linkedSyntaxNodePath);
         processed = new HashSet<>();
 
         // for each data point in the array node, a new set of rdf entities has to be generated
@@ -334,7 +334,7 @@ public class RDFConverter {
         return list.get(0);
     }
 
-    private RDFList iterateArray(PointerFactory pf, int level, MappableSemanticNode indexNode, SemanticModel arrayContext) throws ConversionException {
+    private RDFList iterateArray(PointerFactory pf, int level, LinkableSemanticNode indexNode, SemanticModel arrayContext) throws ConversionException {
         if (level >= pf.getDepth()) {
             // process
             String originPointer = pf.composePath();
@@ -359,14 +359,14 @@ public class RDFConverter {
     }
 
 
-    private LinkableSyntaxNode findMappedSyntaxNode(MappableSemanticNode node) {
+    private LinkableSyntaxNode findLinkedSyntaxNode(LinkableSemanticNode node) {
         return combinedModel.getSyntaxModel().getNodes().stream()
                 .filter(n -> n.getUuid().equals(node.getMappedSyntaxNodeUuid()))
                 .map(n -> (LinkableSyntaxNode) n)
                 .findFirst().orElseThrow();
     }
 
-    private RDFNode processArrayContext(SemanticModel arrayContext, MappableSemanticNode indexNode,
+    private RDFNode processArrayContext(SemanticModel arrayContext, LinkableSemanticNode indexNode,
                                         String basePath, String currentPath, JsonNode entry) throws ConversionException {
         RDFNode rdfIndexNode = null;
         for (SemanticNode node : arrayContext.getNodes()) {

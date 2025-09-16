@@ -364,7 +364,7 @@ public class CombinedModel implements Serializable {
         return semanticModel.getNodes().stream()
                 .filter(smNode -> smNode instanceof LinkableSemanticNode)
                 .map(smNode -> (LinkableSemanticNode) smNode)
-                .filter(LinkableSemanticNode::isMapped)
+                .filter(LinkableSemanticNode::isLinked)
                 .filter(smNode -> smNode.getMappedSyntaxNodeUuid().equals(sn.getUuid()))
                 .findFirst().orElse(null);
     }
@@ -374,7 +374,7 @@ public class CombinedModel implements Serializable {
         return getSemanticModel().getNodes().stream()
                 .filter(node -> node instanceof LinkableSemanticNode)
                 .map(node -> (LinkableSemanticNode) node)
-                .filter(SemanticNode::isMapped)
+                .filter(LinkableSemanticNode::isLinked)
                 .map(this::createLinking)
                 .collect(Collectors.toList());
     }
@@ -425,17 +425,17 @@ public class CombinedModel implements Serializable {
      * Creates an explicit {@link ModelLinking} for the given {@link Class} with an {@link Instance} or a {@link Literal} and a {@link SyntaxNode}.
      * The syntax node is identified by {@link LinkableSemanticNode#getMappedSyntaxNodeUuid()}.
      *
-     * @param mappedNode The class to map
-     * @return The new mapping
+     * @param linkedNode The node to link
+     * @return The new linking
      */
-    private ModelLinking createLinking(LinkableSemanticNode mappedNode) {
+    private ModelLinking createLinking(LinkableSemanticNode linkedNode) {
         if (syntaxModel == null) {
             throw new UnsupportedOperationException("Syntax Model cannot be null if a modification is applied");
         }
-        if (!mappedNode.isMapped()) {
+        if (!linkedNode.isLinked()) {
             throw new UnsupportedOperationException("Cannot create explicit linking for unlinked node");
         }
-        String syntaxNodeId = mappedNode.getMappedSyntaxNodeUuid();
+        String syntaxNodeId = linkedNode.getMappedSyntaxNodeUuid();
         SyntaxNode syntaxNode = syntaxModel.getNodes().stream()
                 .filter(schemaNode -> schemaNode.getUuid().equals(syntaxNodeId))
                 .findFirst()
@@ -445,12 +445,12 @@ public class CombinedModel implements Serializable {
         }
         if (syntaxNode.getUuid().equals(syntaxModel.getRoot())) {
             // if root node, skip the parent node (as there is none)
-            return new ModelLinking(syntaxNode.getUuid(), mappedNode.getUuid(), "");
+            return new ModelLinking(syntaxNode.getUuid(), linkedNode.getUuid(), "");
         }
         // now get parent
         SyntaxNode parentNode = syntaxModel.getParentNodeFor(syntaxNode.getUuid());
         // create new explicit mapping
-        return new ModelLinking(syntaxNode.getUuid(), mappedNode.getUuid(), parentNode.getUuid());
+        return new ModelLinking(syntaxNode.getUuid(), linkedNode.getUuid(), parentNode.getUuid());
     }
 
     /**

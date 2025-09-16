@@ -20,7 +20,9 @@ public abstract class LinkableSemanticNode extends SemanticNode {
 
     public static final String MAPPED_SYNTAX_NODE_UUID_PROPERTY = "syntaxNodeUuid";
     public static final String MAPPED_SYNTAX_NODE_LABEL_PROPERTY = "syntaxLabel";
+    public static final String MAPPED_SYNTAX_NODE_PATH_PROPERTY = "syntaxPath";
 
+    // TODO fields need to be renamed to "Linked..."
     /**
      * The id of the syntax {@link LinkableSyntaxNode} this object is linked to.
      * Will be null if not linked.
@@ -32,6 +34,13 @@ public abstract class LinkableSemanticNode extends SemanticNode {
      * This may only be set when {@link #mappedSyntaxNodeUuid} is set also.
      */
     private String mappedSyntaxNodeLabel;
+
+    /**
+     * The path in the original data schema to identify this node.
+     * This may only be set when {@link LinkableSemanticNode:mappedSyntaxNodeUuid} is set also.
+     * Form is expressed as a JSONPath.
+     */
+    private String mappedSyntaxNodePath;
 
     public LinkableSemanticNode(@Nullable String uri, @NotNull String label) {
         super(uri, label, null, null, null);
@@ -45,10 +54,11 @@ public abstract class LinkableSemanticNode extends SemanticNode {
         super(uri, label, xCoordinate, yCoordinate, uuid);
     }
 
-    public LinkableSemanticNode(@Nullable String uri, @NotNull String label, @Nullable Double xCoordinate, @Nullable Double yCoordinate, String mappedSyntaxNodeUuid, String mappedSyntaxNodeLabel,  @Nullable String uuid) {
+    public LinkableSemanticNode(@Nullable String uri, @NotNull String label, @Nullable Double xCoordinate, @Nullable Double yCoordinate, String mappedSyntaxNodeUuid, String mappedSyntaxNodeLabel,  String mappedSyntaxNodePath, @Nullable String uuid) {
         super(uri, label, xCoordinate, yCoordinate, uuid);
         setMappedSyntaxNodeUuid(mappedSyntaxNodeUuid);
         setMappedSyntaxNodeLabel(mappedSyntaxNodeLabel);
+        setMappedSyntaxNodePath(mappedSyntaxNodePath);
     }
 
     @JsonProperty(MAPPED_SYNTAX_NODE_UUID_PROPERTY)
@@ -67,6 +77,15 @@ public abstract class LinkableSemanticNode extends SemanticNode {
 
     public void setMappedSyntaxNodeLabel(String mappedSyntaxNodeLabel) {
         this.mappedSyntaxNodeLabel = mappedSyntaxNodeLabel;
+    }
+
+    @JsonProperty(MAPPED_SYNTAX_NODE_PATH_PROPERTY)
+    public String getMappedSyntaxNodePath() {
+        return mappedSyntaxNodePath;
+    }
+
+    public void setMappedSyntaxNodePath(String mappedSyntaxNodePath) {
+        this.mappedSyntaxNodePath = mappedSyntaxNodePath;
     }
 
     @Override
