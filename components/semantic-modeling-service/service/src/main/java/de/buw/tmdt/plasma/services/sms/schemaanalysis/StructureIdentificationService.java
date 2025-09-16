@@ -68,8 +68,8 @@ public class StructureIdentificationService {
 
 		nodePath = new ArrayList<>(nodePath); // copy list again to ensure child does get a new instance
 
-		for (JsonNode child : arrayNode) {
-			createArrayChild(root, child, nodePath, serializationContext);
+		if(!arrayNode.isEmpty()) {
+			createArrayChild(root, arrayNode.get(0), nodePath, serializationContext);
 		}
 		return root;
 	}
