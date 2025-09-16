@@ -24,7 +24,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class ARSService {
@@ -71,13 +70,13 @@ public class ARSService {
     public List<DeltaModification> performLabeling(@NotNull String uuid, Modeling modeling, String configId, String configToken, @NotNull CombinedModel combinedModel) {
         List<RecommendationServiceRegistration> targetServices = servicesAlive.stream()
                 .filter(service -> modeling.getPreferredLabelingService().contains(service.getUuid()))
-                .collect(Collectors.toList());
+                .toList();
         if (targetServices.isEmpty()) {
             log.debug("No labeling services selected");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No labeling services are selected to process your request.");
         }
         // we only get the first for now
-        String url = targetServices.get(0).getUrl();
+        String url = targetServices.getFirst().getUrl();
         try {
             // call ARS-L services here
             WebClient webClient = WebClient.builder()
@@ -115,13 +114,13 @@ public class ARSService {
     public List<DeltaModification> performModeling(@NotNull String uuid, Modeling modeling, String configId, String configToken, @NotNull CombinedModel combinedModel) {
         List<RecommendationServiceRegistration> targetServices = servicesAlive.stream()
                 .filter(service -> modeling.getPreferredModelingService().contains(service.getUuid()))
-                .collect(Collectors.toList());
+                .toList();
         if (targetServices.isEmpty()) {
             log.debug("No modeling services selected");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No labeling modeling are selected to process your request.");
         }
         // we only get the first for now
-        String url = targetServices.get(0).getUrl();
+        String url = targetServices.getFirst().getUrl();
         try {
             // call ARS-M services here
             WebClient webClient = WebClient.builder()
@@ -159,7 +158,7 @@ public class ARSService {
     public List<DeltaModification> performRefinement(@NotNull String uuid, Modeling modeling, String configId, String configToken, @NotNull CombinedModel combinedModel) {
         List<RecommendationServiceRegistration> targetServices = servicesAlive.stream()
                 .filter(service -> modeling.getPreferredRefiningService().contains(service.getUuid()))
-                .collect(Collectors.toList());
+                .toList();
         if (targetServices.isEmpty()) {
             log.trace("No refinement services selected");
             return new ArrayList<>();

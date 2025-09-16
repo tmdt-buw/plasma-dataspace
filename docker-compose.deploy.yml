@@ -72,9 +72,6 @@ services:
 volumes:
   fuseki_data:
   mariadb_sms:
-  configs:
-  kgs_ontologies:
-  dps_storage:
 
 networks:
   plasma:

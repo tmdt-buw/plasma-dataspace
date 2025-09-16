@@ -44,8 +44,8 @@ services:
     hostname: plasma-sms
     restart: unless-stopped
     volumes:
-      - configs:/var/plasma/configs
-      - kgs_ontologies:/var/ontologies
+      - ./deploy/configs:/var/plasma/configs
+      - ./deploy/ontologies:/var/ontologies
     depends_on:
       - mariadb-sms
       - fuseki
@@ -85,7 +85,7 @@ services:
     environment:
       - plasma.localstorage.directory=/var/plasma/localstorage
     volumes:
-      - dps_storage:/var/plasma/localstorage
+      - ./deploy/dps_storage:/var/plasma/localstorage
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.dps.rule=Host(`localhost`) && PathPrefix(`/api/dps`)"
@@ -123,11 +123,11 @@ services:
 #    image: "plasma/ars-l-lm:${PLASMA_VERSION}"
 #    hostname: plasma-ars-l-lm
 #    restart: unless-stopped
-#    profiles: [staging2]
+#    profiles: [staging-ext]
 #    networks:
 #      - plasma
 #    volumes:
-#      - configs:/var/plasma/configs
+#      - ./configs:/var/plasma/configs
 #    environment:
 #      - plasma.registration.upstream.host=plasma-sms
 #      - plasma.kgs.ontology.api=http://plasma-sms:8181/api/sms/ontologies
@@ -149,7 +149,7 @@ services:
     depends_on:
       - fuseki
     volumes:
-      - configs:/var/plasma/configs
+      - ./deploy/configs:/var/plasma/configs
     ports:
       - "8221:8221"
     networks:
@@ -218,9 +218,6 @@ services:
 volumes:
   fuseki_data:
   mariadb_sms:
-  configs:
-  kgs_ontologies:
-  dps_storage:
 
 networks:
   plasma:

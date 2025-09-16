@@ -38,8 +38,6 @@ public class ModelingService {
 
     private final ModelingRepository modelingRepository;
 
-    private final SemanticModelingService semanticModelingService;
-
     private final ConfigServiceClient configServiceClient;
 
     private final ARSService arsService;
@@ -56,11 +54,9 @@ public class ModelingService {
 
     @Autowired
     public ModelingService(
-            @NotNull ModelingRepository modelingRepository, SemanticModelingService semanticModelingService,
-            @SuppressWarnings({"SpringJavaInjectionPointsAutowiringInspection"})
+            @NotNull ModelingRepository modelingRepository,
             ConfigServiceClient configServiceClient, ARSService arsService, OntologyService ontologyService, SemanticModelService semanticModelService) {
         this.modelingRepository = modelingRepository;
-        this.semanticModelingService = semanticModelingService;
         this.configServiceClient = configServiceClient;
         this.arsService = arsService;
         this.ontologyService = ontologyService;
@@ -151,6 +147,7 @@ public class ModelingService {
      * @param sourceModelId The source model id
      * @return The updated model
      */
+    @Transactional
     public CombinedModel copySemanticModelFromOtherModel(@NotNull String modelId, @NotNull String sourceModelId) {
         Modeling modeling = findModelingOrThrow(modelId);
         CombinedModel model = getCombinedModel(modelId, true);
@@ -166,19 +163,15 @@ public class ModelingService {
         sourceSM.getNodes().stream().map(node -> {
                     String newUuid = UUID.randomUUID().toString();
                     uuidMapping.put(node.getUuid(), newUuid);
-                    if (node instanceof Class) {
-                        Class source = (Class) node;
-                        return new Class(source.getURI(), source.getLabel(),
+                    return switch (node) {
+                        case Class source -> new Class(source.getURI(), source.getLabel(),
                                 source.getDescription(), source.getXCoordinate(), source.getYCoordinate(), newUuid);
-                    } else if (node instanceof NamedEntity) {
-                        NamedEntity source = (NamedEntity) node;
-                        return new NamedEntity(source.getURI(), source.getLabel(),
+                        case NamedEntity source -> new NamedEntity(source.getURI(), source.getLabel(),
                                 source.getDescription(), source.getXCoordinate(), source.getYCoordinate(), newUuid);
-                    } else if (node instanceof Literal) {
-                        Literal source = (Literal) node;
-                        return new Literal(newUuid, source.getValue(), source.getXCoordinate(), source.getYCoordinate());
-                    }
-                    return null;
+                        case Literal source ->
+                                new Literal(newUuid, source.getValue(), source.getXCoordinate(), source.getYCoordinate());
+                        default -> null;
+                    };
                 })
                 .filter(Objects::nonNull)
                 .forEach(node -> delta.getEntities().add(node));
@@ -261,7 +254,7 @@ public class ModelingService {
 
     @NotNull
     @Transactional()
-    public List<ModelLinking> getModelMappings(@NotNull String modelId) {
+    public List<ModelLinking> getModelLinkings(@NotNull String modelId) {
         CombinedModel combinedModel = getCombinedModel(modelId);
         List<ModelLinking> modelLinkings = combinedModel.generateModelLinkings();
         return modelLinkings;
