@@ -37,6 +37,12 @@ public class CMToRDFMapper {
 
     }
 
+    private static int counter = 1;
+
+    private static int getNextCounter() {
+        return counter++;
+    }
+
     public static Model convertToRDFModel(SemanticModel semanticModel) {
         if (semanticModel.getId() == null) {
             throw new IllegalArgumentException("Semantic model id must not be empty or null");
@@ -47,32 +53,15 @@ public class CMToRDFMapper {
         m.setNsPrefixes(PREFIXES);
         String smPrefix = PREFIXES.getNsPrefixURI("plsm");
         Resource rdfModel = m.createResource(smPrefix + semanticModelId);
+        String prefix = smPrefix + semanticModelId + "-";
         rdfModel.addProperty(RDF.type, PLCM.SemanticModel);
         rdfModel.addProperty(PLCM.cmUuid, semanticModel.getId());
         semanticModel.getNodes().forEach(node -> {
             RDFNode rdfNode = null;
             if (node instanceof Class) {
                 Class clazz = (Class) node;
-                Instance i = clazz.getInstance();
                 Resource resource;
-                if (i != null) {
-                    String originInstanceURI = smPrefix + semanticModelId + "-" + convertToInstanceId(i.getLabel());
-                    int counter = 1;
-                    String instanceURI = originInstanceURI + "_" + counter;
-
-                    Resource res = ResourceFactory.createResource(instanceURI);
-                    while (m.containsResource(res)) {
-                        instanceURI = originInstanceURI + "_" + counter++;
-                        res = ResourceFactory.createResource(instanceURI);
-                    }
-                    resource = m.createResource(instanceURI); // will reuse if already existent
-                    resource.addProperty(PLCM.label, m.createLiteral(i.getLabel()));
-                    if (i.getDescription() != null && !i.getDescription().isBlank()) {
-                        resource.addProperty(PLCM.description, m.createLiteral(i.getDescription()));
-                    }
-                } else {
-                    resource = m.createResource();
-                }
+                resource = m.createResource(prefix + getNextCounter());
                 if (clazz.getMappedSyntaxNodeUuid() != null) {
                     resource.addProperty(PLCM.syntaxNodeId, m.createLiteral(clazz.getMappedSyntaxNodeUuid()));
                 }
@@ -88,10 +77,17 @@ public class CMToRDFMapper {
                 if (clazz.getYCoordinate() != null) {
                     resource.addProperty(PLCM.yCoordinate, m.createLiteral(String.valueOf(clazz.getYCoordinate())));
                 }
+                Instance i = clazz.getInstance();
+                if (i != null) {
+                    resource.addProperty(PLCM.label, m.createLiteral(i.getLabel()));
+                    if (i.getDescription() != null && !i.getDescription().isBlank()) {
+                        resource.addProperty(PLCM.description, m.createLiteral(i.getDescription()));
+                    }
+                }
                 rdfNode = resource;
             } else if (node instanceof Literal) {
                 Literal l = (Literal) node;
-                Resource resource = m.createResource();
+                Resource resource = m.createResource(prefix + getNextCounter());
                 resource.addProperty(RDF.type, PLCM.LiteralMapping);
                 RDFDatatype datatype = XSDDatatype.XSDstring;
                 if(l.getURI() != null) {
@@ -130,9 +126,9 @@ public class CMToRDFMapper {
                     neResource.addProperty(PLCM.description, m.createLiteral(ne.getDescription()));
                 }
 
-                // now create an anonymous representation of the named entity in this model
+                // now create a representation of the named entity in this model
                 // this stores local information like the CM uuid and model position
-                Resource resource = m.createResource();
+                Resource resource = m.createResource(prefix + getNextCounter());
                 resource.addProperty(RDF.type, neResource);
                 // resource.addProperty(PLCM.cmUuid, ne.getUuid());
                 if (ne.getXCoordinate() != null) {
@@ -141,7 +137,6 @@ public class CMToRDFMapper {
                 if (ne.getYCoordinate() != null) {
                     resource.addProperty(PLCM.yCoordinate, m.createLiteral(String.valueOf(ne.getYCoordinate())));
                 }
-                // use the b-node as reference
                 rdfNode = resource;
             }
             rdfModel.addProperty(PLCM.hasNode, rdfNode);
@@ -212,12 +207,19 @@ public class CMToRDFMapper {
             SemanticNode convertedSubject = mappedNodes.get(s);
 
             if (convertedSubject == null) {
-                // we have to create a new one
-                Resource superclass = s.getRequiredProperty(RDF.type).getObject().asResource();
-                SemanticNode supernode = nodeRetrieverByURI.apply(superclass.getURI());
-                convertedSubject = createSemanticModelNode(s, supernode);
-                nodes.add(convertedSubject);
-                mappedNodes.put(s, convertedSubject);
+                if (s.hasProperty(RDF.type, PLCM.LiteralMapping)) {
+                    convertedSubject = createLiteralFromLiteralMapping(s);
+                    nodes.add(convertedSubject);
+                    mappedNodes.put(s, convertedSubject);
+                } else {
+                    // we have to create a new one
+                    Resource superclass = s.getRequiredProperty(RDF.type).getObject().asResource();
+                    SemanticNode supernode = nodeRetrieverByURI.apply(superclass.getURI());
+                    convertedSubject = createSemanticModelNode(s, supernode);
+                    nodes.add(convertedSubject);
+                    mappedNodes.put(s, convertedSubject);
+                }
+
             }
 
             // check if we can handle the object or if we want to drop this line all together
@@ -233,12 +235,18 @@ public class CMToRDFMapper {
                 // check if this already exist
                 convertedObject = mappedNodes.get(object);
                 if (convertedObject == null) {
-                    // we have to create a new one
-                    Resource superclass = object.getRequiredProperty(RDF.type).getObject().asResource();
-                    SemanticNode supernode = nodeRetrieverByURI.apply(superclass.getURI());
-                    convertedObject = createSemanticModelNode(object, supernode);
-                    nodes.add(convertedObject);
-                    mappedNodes.put(object, convertedObject);
+                    if (object.hasProperty(RDF.type, PLCM.LiteralMapping)) {
+                        convertedObject = createLiteralFromLiteralMapping(s);
+                        nodes.add(convertedObject);
+                        mappedNodes.put(s, convertedObject);
+                    } else {
+                        // we have to create a new one
+                        Resource superclass = object.getRequiredProperty(RDF.type).getObject().asResource();
+                        SemanticNode supernode = nodeRetrieverByURI.apply(superclass.getURI());
+                        convertedObject = createSemanticModelNode(object, supernode);
+                        nodes.add(convertedObject);
+                        mappedNodes.put(object, convertedObject);
+                    }
                 }
             } else if (o.isLiteral()) {
                 // obtain meta information statement resource (modeled using rdf-star)
@@ -282,7 +290,6 @@ public class CMToRDFMapper {
         }
         SemanticModel semanticModel = new SemanticModel(modelId, nodes, relations);
         return semanticModel;
-
     }
 
     private static SemanticNode createSemanticModelNode(Resource res, SemanticNode entityFromOntology) {
@@ -292,7 +299,6 @@ public class CMToRDFMapper {
             } catch (PropertyNotFoundException pnfe) {
                 log.error("Error occurred building named entity from {}", res.getURI(), pnfe);
             }
-
         } else if (entityFromOntology instanceof Class) {
             try {
                 return createClass(res, (Class) entityFromOntology);
@@ -304,7 +310,6 @@ public class CMToRDFMapper {
     }
 
     private static Class createClass(Resource res, Class superclass) {
-
         String uuid = getPropertyOrNull(res,PLCM.cmUuid);
         Double xCoordinate = getPropertyAsDoubleOrNull(res, PLCM.xCoordinate);
         Double yCoordinate = getPropertyAsDoubleOrNull(res, PLCM.yCoordinate);
@@ -314,12 +319,10 @@ public class CMToRDFMapper {
         Class sClass = new Class(uuid, superclass.getURI(), superclass.getLabel(),
                 superclass.getDescription(), xCoordinate, yCoordinate, syntaxNodeId, originalLabel, syntaxNodePath, null, false);
 
-        if (!res.isAnon()) {
-            // this is an actual instance
-            String instanceURI = res.getURI();
+        if(res.hasProperty(PLCM.label)) {
             String label = res.getRequiredProperty(PLCM.label).getString();
             String description = getPropertyOrNull(res, PLCM.description);
-            Instance i = new Instance(uuid, instanceURI, label, description);
+            Instance i = new Instance(uuid, null, label, description);
             sClass.setInstance(i);
         }
         return sClass;
@@ -342,6 +345,20 @@ public class CMToRDFMapper {
         }
         Literal l = new Literal(res.getString(), xCoordinate, yCoordinate);
         return l;
+    }
+
+    private static Literal createLiteralFromLiteralMapping(Resource res) {
+        String uuid = getPropertyOrNull(res,PLCM.cmUuid);
+        Double xCoordinate = getPropertyAsDoubleOrNull(res, PLCM.xCoordinate);
+        Double yCoordinate = getPropertyAsDoubleOrNull(res, PLCM.yCoordinate);
+        String syntaxNodeId = getPropertyOrNull(res, PLCM.syntaxNodeId);
+        String originalLabel = getPropertyOrNull(res, PLCM.originalLabel);
+        String syntaxNodePath = getPropertyOrNull(res, PLCM.syntaxNodePath);
+        String datatype = getPropertyOrNull(res, PLCM.XSDDataType);
+        //String value = getPropertyOrNull(res, res.);
+        Literal lit = new Literal(uuid, "", xCoordinate, yCoordinate, syntaxNodeId, originalLabel, syntaxNodePath, datatype);
+
+        return lit;
     }
 
     public static List<SemanticNode> convertOntologyResourcesToSemanticModelNodes(List<Resource> resources) {
