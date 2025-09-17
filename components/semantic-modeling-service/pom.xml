@@ -26,7 +26,6 @@
         <project.label.short>sms</project.label.short>
         <project.label.abbrv>SMS</project.label.abbrv>
         <project.module.label.prefix>${platform.name} ${project.label.abbrv}</project.module.label.prefix>
-        <java.version>11</java.version>
     </properties>
 
     <dependencies>

@@ -28,8 +28,8 @@
 
         <!-- TECHNICAL -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.java.source.version>11</project.java.source.version>
-        <project.java.target.version>11</project.java.target.version>
+        <project.java.source.version>21</project.java.source.version>
+        <project.java.target.version>21</project.java.target.version>
 
         <!-- ==================== Spring ==================== -->
         <org.springframework.boot.version>4.0.0-M2</org.springframework.boot.version>
