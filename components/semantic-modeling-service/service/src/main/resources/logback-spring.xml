@@ -20,6 +20,8 @@
 <!--        </encoder>-->
 <!--    </appender>-->
 
+    <logger name="de.buw.tmdt.plasma" level="${logging.level.plasma:-INFO}"/>
+
     <!-- Root logger -->
     <root level="${logging.level.root}">
         <appender-ref ref="CONSOLE"/>
