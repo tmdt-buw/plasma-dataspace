@@ -29,7 +29,7 @@ public class SemanticModelServiceTest {
         CombinedModel combinedModel = generator.getFlightModel();
         combinedModel.getSemanticModel().setId(UUID.randomUUID().toString().substring(0, 6));
         SemanticModel semanticModel = combinedModel.getSemanticModel();
-        testee.createSemanticModel(semanticModel);
+        testee.storeSemanticModel(semanticModel);
 
         SemanticModel restoredSM = testee.getSemanticModel(combinedModel.getSemanticModel().getId());
 

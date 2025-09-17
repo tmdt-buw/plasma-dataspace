@@ -41,7 +41,7 @@ public class SemanticModelService {
 
 
     @NotNull
-    public SemanticModel createSemanticModel(@NotNull SemanticModel semanticModel) {
+    public SemanticModel storeSemanticModel(@NotNull SemanticModel semanticModel) {
         log.info("Creating Semantic Model");
         Model cmModel = CMToRDFMapper.convertToRDFModel(semanticModel);
         log.debug(asTurtle(cmModel));
@@ -57,9 +57,7 @@ public class SemanticModelService {
                 .collect(Collectors.toList());
         onto.addResourcesToOntology(resources, relations);
 
-        SemanticModel sm = getSemanticModel(semanticModel.getId());
-
-        return sm;
+        return semanticModel;
     }
 
     @NotNull

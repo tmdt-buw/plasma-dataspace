@@ -6,7 +6,6 @@ import de.buw.tmdt.plasma.datamodel.semanticmodel.Class;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.*;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.SyntaxNode;
 import de.buw.tmdt.plasma.services.config.ConfigServiceClient;
-import de.buw.tmdt.plasma.services.sms.SemanticModelingService;
 import de.buw.tmdt.plasma.services.sms.ars.ARSService;
 import de.buw.tmdt.plasma.services.sms.kg.OntologyService;
 import de.buw.tmdt.plasma.services.sms.kg.SemanticModelService;
@@ -784,7 +783,7 @@ public class ModelingService {
                 // just use the one from the combined model
                 semanticModel.setId(modelId);
             }
-            response = semanticModelService.createSemanticModel(semanticModel);
+            response = semanticModelService.storeSemanticModel(semanticModel);
             log.info("Created Semantic Model");
         } catch (ResponseStatusException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error when creating semantic model in the KGS", e);
