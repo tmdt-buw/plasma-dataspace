@@ -1,6 +1,6 @@
 ### Platform for Auxiliary Semantic Modeling Approaches (PLASMA)
 
-# Data Modeling Servics (DMS)
+# Semantic Modeling Servics (SMS)
 
 Main component of PLASMA. This service stores ongoing semantic model creations ("modelings")
 and handles model modifications.
@@ -8,6 +8,11 @@ and handles model modifications.
 ## Environment Variables
 This section covers the main environment variables that can be manipulated in order to customize PLASMA.
 Set them in the docker-compose environment section to overwrite container set values.
+
+plasma.kgs.localontology.prefix=local
+plasma.kgs.localontology.uri=https://local.ontology#
+plasma.kgs.localontology.label=LOCAL
+plasma.kgs.localontology.description=A local ontology maintained by this instance.
 
 ### Optional features
 
