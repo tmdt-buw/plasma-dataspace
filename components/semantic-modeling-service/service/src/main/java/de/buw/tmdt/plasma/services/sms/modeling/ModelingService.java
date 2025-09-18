@@ -70,7 +70,8 @@ public class ModelingService {
             return modelingResult.get();
         }
         ZonedDateTime created = ZonedDateTime.now();
-        Modeling modeling = new Modeling(modelId, name, description, created, dataId);
+        ZonedDateTime modified = ZonedDateTime.now();
+        Modeling modeling = new Modeling(modelId, name, description, created, modified,dataId);
         // save initial version of submitted model
         modeling.pushCombinedModel(combinedModel);
         modeling = persistModeling(modeling);
@@ -388,7 +389,6 @@ public class ModelingService {
     @NotNull
     public CombinedModel applyModification(@NotNull String modelId, @NotNull DeltaModification modification) {
 
-        //load schema
         Modeling modeling = findModelingOrThrow(modelId);
         CombinedModel combinedModel = getCombinedModel(modeling, true);
 
@@ -402,6 +402,7 @@ public class ModelingService {
             e.printStackTrace();
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Error during application of modification: " + e.getMessage());
         }
+        modeling.setModified(ZonedDateTime.now());
         persistCombinedModel(modeling, clone);
 
         return clone;
@@ -470,7 +471,6 @@ public class ModelingService {
 
     @NotNull
     public SemanticNode updateCachedNode(@NotNull String modelId, @NotNull SemanticNode node, @Nullable String oldURI) {
-
         node.validate();
 
         // validate the new URI
@@ -505,7 +505,6 @@ public class ModelingService {
             log.info("Received unknown type " + node);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot create a provisional node of this type");
         }
-
     }
 
     public void uncacheNode(@NotNull String modelId, String uri) {
@@ -542,7 +541,6 @@ public class ModelingService {
         persistModeling(modeling);
 
         return usedRelation;
-
     }
 
     @NotNull
@@ -578,7 +576,6 @@ public class ModelingService {
         persistModeling(modeling);
 
         return usedRelation;
-
     }
 
     public void uncacheRelation(@NotNull String modelId, String uri) {
@@ -736,12 +733,13 @@ public class ModelingService {
                 modeling.getName() + " (Clone)",
                 modeling.getDescription(),
                 ZonedDateTime.now(),
+                ZonedDateTime.now(),
                 UUID.randomUUID().toString());
 
 
         CombinedModel copy = combinedModel.copy(); // create a deep copy to decouple from Java objects
         /* Now replace all ids to not cause any unintentional side effects
-        (although this should only happen when we mix elements from two models (who would do this?....)
+        (although this should only happen when we mix elements from two models (who would do this?...)
         Current clone version only resets CM and SM ids, may be subject to change!
         */
 
@@ -813,7 +811,7 @@ public class ModelingService {
 
     public void persistCombinedModel(@NotNull Modeling modeling, @NotNull CombinedModel combinedModel) {
         modeling.pushCombinedModel(combinedModel);
-        modelingRepository.save(modeling);
+        persistModeling(modeling);
     }
 
     public Modeling persistModeling(@NotNull Modeling modeling) {

@@ -12,15 +12,18 @@ public class ModelingInfo {
 
     private final ZonedDateTime created;
 
+    private final ZonedDateTime modified;
+
     private final String dataId;
 
     private final boolean finalized;
 
-    public ModelingInfo(String id, String name, String description, ZonedDateTime created, String dataId, boolean finalized) {
+    public ModelingInfo(String id, String name, String description, ZonedDateTime created, ZonedDateTime modified, String dataId, boolean finalized) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.created = created;
+        this.modified = modified;
         this.dataId = dataId;
         this.finalized = finalized;
     }
@@ -43,6 +46,9 @@ public class ModelingInfo {
 
     public ZonedDateTime getCreated() {
         return created;
+    }
+    public ZonedDateTime getModified() {
+        return modified;
     }
 
     public boolean isFinalized() {

@@ -7,15 +7,26 @@ import { appRoutesNames } from '../../app.routes.names';
 import { NzNotificationService } from 'ng-zorro-antd/notification';
 import { HttpStatusCode } from '@angular/common/http';
 import { Configuration, DataProcessingControllerService } from '../../dataprocessing/api/generated';
-import {
-  ModalBaseConfig,
-  ModalMouseEnabledConfig
-} from 'projects/smui/src/lib/modeling/dialogs/common/modal.base-config';
+import { ModalBaseConfig, ModalMouseEnabledConfig } from 'projects/smui/src/lib/modeling/dialogs/common/modal.base-config';
 import { ConversionDialogComponent } from '../../dataprocessing/conversion-dialog/conversion-dialog.component';
 import { Util } from 'projects/smui/src/lib/modeling/model/common/util';
 import { EditModelingComponent } from '../edit-modeling/edit-modeling.component';
 import { environment } from '../../../environments/environment';
 import { OntologyControllerService } from '../../../../projects/smui/src/lib/api/generated/sms';
+import { NzTableFilterFn, NzTableFilterList, NzTableSortFn, NzTableSortOrder } from 'ng-zorro-antd/table';
+
+
+interface ColumnItem {
+  name: string;
+  sortOrder: NzTableSortOrder | null;
+  sortFn: NzTableSortFn<ModelingInfo> | null;
+  listOfFilter?: NzTableFilterList;
+  filterFn?: NzTableFilterFn<ModelingInfo> | null;
+  filterMultiple?: boolean;
+  sortDirections: NzTableSortOrder[];
+  width: string;
+}
+
 
 @Component({
   selector: 'app-modelings-list',
@@ -34,6 +45,22 @@ export class ModelingsListComponent implements OnInit {
   @Output() modelingSelected = new EventEmitter<ModelingInfo>();
   dpsAvailable: boolean;
   private editModelingModalRef: NzModalRef<any, any>;
+  public sortableColumnsList: ColumnItem[] = [
+    {
+      width: '100px',
+      name: 'Created',
+      sortOrder: null,
+      sortDirections: ['ascend', 'descend', null],
+      sortFn: (a: ModelingInfo, b: ModelingInfo) => new Date(a.created).getTime() - new Date(b.created).getTime(),
+    },
+    {
+      width: '100px',
+      name: 'Modified',
+      sortOrder: null,
+      sortDirections: ['ascend', 'descend', null],
+      sortFn: (a: ModelingInfo, b: ModelingInfo) => new Date(a.modified).getTime() - new Date(b.modified).getTime(),
+    }
+  ];
 
   constructor(private modelingController: ModelingControllerService, private router: Router, private date: DatePipe,
               private modal: NzModalService, private notification: NzNotificationService, private processingService: DataProcessingControllerService,

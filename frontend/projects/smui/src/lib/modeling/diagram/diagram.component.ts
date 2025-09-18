@@ -6,7 +6,7 @@ import { dia, g, highlighters, layout } from 'jointjs';
 import { ModalOptions, NzModalRef, NzModalService } from 'ng-zorro-antd/modal';
 import { BehaviorSubject, Subject } from 'rxjs';
 import { auditTime, distinctUntilChanged, pairwise, skip } from 'rxjs/operators';
-import { ArrayContext, Class, CombinedModel, DataProperty, DeltaModification, Instance, Literal, ModelLinking, NamedEntity, ObjectNode, ObjectProperty, PrimitiveNode, Relation, SemanticModel, SemanticNode, SetNode, SyntaxModel, SyntaxNode } from '../../api/generated/sms';
+import { ArrayContext, Class, CombinedModel, DataProperty, DeltaModification, Instance, Literal, ModelingInfo, ModelLinking, NamedEntity, ObjectNode, ObjectProperty, PrimitiveNode, Relation, SemanticModel, SemanticNode, SetNode, SyntaxModel, SyntaxNode } from '../../api/generated/sms';
 import { ContextMenuService } from '../context-menu/context-menu.service';
 import { PlsSemanticClassMenuComponent } from '../context-menu/semantic-class-menu/semantic-class-menu.component';
 import { PlsRelationConceptMenuComponent } from '../context-menu/relation-menu/relation-menu.component';
@@ -65,7 +65,6 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
   // dialog
   private nodeDialogRef: NzModalRef<any>;
   private selectedElementOnRecommendationAccept: string;
-
   get combinedModel(): CombinedModel {
     return this._combinedModel;
   }

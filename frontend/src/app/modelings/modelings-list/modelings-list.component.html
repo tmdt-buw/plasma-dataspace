@@ -1,17 +1,14 @@
 <nz-page-header class="content-header">
   <nz-page-header-title>Modelings</nz-page-header-title>
   <nz-page-header-extra>
-    <button *ngIf="dpsAvailable" [routerLink]="['arraycontext-info']" fxFlex="nogrow" nz-button nzType="default"><i
-      nz-icon nzType="info"></i>RDF Conversion Info
+    <button *ngIf="dpsAvailable" [routerLink]="['arraycontext-info']" fxFlex="nogrow" nz-button nzType="default">
+      <i nz-icon nzType="info"></i>RDF Conversion Info
     </button>
-    <button [disabled]="error" fxFlex="nogrow" nz-button nzType="primary" [routerLink]="['create']"><i nz-icon
-                                                                                                       nzType="plus"></i>Create
-      new
-      modeling
+    <button [disabled]="error" fxFlex="nogrow" nz-button nzType="primary" [routerLink]="['create']">
+      <i nz-icon nzType="plus"></i>Create new modeling
     </button>
-    <button [disabled]="error" fxFlex="nogrow" nz-button nzType="default" (click)="downloadLocalOntology()"><i nz-icon
-                                                                                                               nzType="download"></i>Download
-      local ontology
+    <button [disabled]="error" fxFlex="nogrow" nz-button nzType="default" (click)="downloadLocalOntology()">
+      <i nz-icon nzType="download"></i>Download local ontology
     </button>
   </nz-page-header-extra>
 </nz-page-header>
@@ -19,20 +16,29 @@
 <div fxFill fxLayout="column" class="content">
   <div>
     <nz-table #modelingsTable [nzData]="modelings" [nzLoading]="isLoading" nzNoResult="No active modeling process found."
-              [nzFrontPagination]="false" nzTableLayout="fixed">
+              [nzFrontPagination]="false">
       <thead>
       <tr>
-      <th nzWidth="400px" nzAlign="left" nzEllipsis>Title</th>
-      <th nzWidth="600px" nzAlign="left" nzEllipsis>Description</th>
-      <th nzWidth="200px" nzAlign="left">Created</th>
+      <th nzWidth="300px" nzAlign="left" nzEllipsis>Title</th>
+      <th nzAlign="left" nzEllipsis>Description</th>
+        <th *ngFor="let column of sortableColumnsList"
+          [nzWidth]=column.width
+          [nzSortFn]=column.sortFn
+          [nzSortOrder]=column.sortOrder
+          [nzSortDirections]=column.sortDirections
+          nzAlign="left">{{ column.name }}</th>
+      <th nzWidth="50px" nzAlign="center">Finalized</th>
       <th nzWidth="180px" nzAlign="left">Actions</th>
       </tr>
       </thead>
       <tbody>
       <tr *ngFor="let model of modelingsTable.data">
-        <td nzEllipsis> {{model.name}}</td>
-        <td nzEllipsis> {{model.description}}</td>
-        <td> {{model.created | date:'medium' }}</td>
+        <td nzEllipsis> {{ model.name }}</td>
+        <td nzEllipsis> {{ model.description}}</td>
+        <td> {{ model.created | date:'yyyy/MM/dd' }}</td>
+        <td> {{ model.modified | date:'yyyy/MM/dd' }}</td>
+        <td *ngIf="model.finalized"><i nz-icon nzType="check"></i></td>
+        <td *ngIf="!model.finalized"></td>
         <td>
           <div fxLayout="row" fxLayoutGap="4px">
             <button (click)="showUpdateModelingModal(model)" nz-button nz-tooltip="Display detail information"

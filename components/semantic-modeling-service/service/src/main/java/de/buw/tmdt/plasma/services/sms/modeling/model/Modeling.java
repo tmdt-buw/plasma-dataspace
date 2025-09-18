@@ -31,6 +31,7 @@ public class Modeling {
     private String description;
 
     private ZonedDateTime created;
+    private ZonedDateTime modified;
 
     private String dataId;
 
@@ -70,6 +71,7 @@ public class Modeling {
         this.selectedOntologies = new ArrayList<>();
         this.created = ZonedDateTime.now();
         this.finalized = false;
+        this.modified = ZonedDateTime.now();
     }
 
     public Modeling(@NotNull String id) {
@@ -77,13 +79,14 @@ public class Modeling {
         this.id = id;
     }
 
-    public Modeling(@NotNull String id, @Nullable String name, @Nullable String description, @NotNull ZonedDateTime created, @Nullable String dataId) {
+    public Modeling(@NotNull String id, @Nullable String name, @Nullable String description, @NotNull ZonedDateTime created, @NotNull ZonedDateTime modified,@Nullable String dataId) {
         this();
         this.id = id;
         this.name = name;
         this.description = description;
         this.created = created;
         this.dataId = dataId;
+        setModified(ZonedDateTime.now());
     }
 
     @NotNull
@@ -178,6 +181,14 @@ public class Modeling {
 
     public ZonedDateTime getCreated() {
         return created;
+    }
+
+    public ZonedDateTime getModified() {
+        return modified;
+    }
+
+    public void setModified(ZonedDateTime modified) {
+        this.modified = modified;
     }
 
     public void setName(String name) {

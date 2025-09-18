@@ -72,6 +72,7 @@ public class ModelingController implements ModelingAPI {
                 modeling.getName(),
                 modeling.getDescription(),
                 modeling.getCreated(),
+                modeling.getModified(),
                 modeling.getDataId(),
                 false);
     }
@@ -85,6 +86,7 @@ public class ModelingController implements ModelingAPI {
                         modeling.getName(),
                         modeling.getDescription(),
                         modeling.getCreated(),
+                        modeling.getModified(),
                         modeling.getDataId(),
                         modeling.isFinalized()))
                 .sorted(Comparator.comparing(ModelingInfo::getCreated).reversed())
@@ -100,6 +102,7 @@ public class ModelingController implements ModelingAPI {
                 updated.getName(),
                 updated.getDescription(),
                 updated.getCreated(),
+                updated.getModified(),
                 updated.getDataId(),
                 updated.getCurrentModel().isFinalized());
     }
@@ -263,6 +266,7 @@ public class ModelingController implements ModelingAPI {
                 modeling.getName(),
                 modeling.getDescription(),
                 modeling.getCreated(),
+                modeling.getModified(),
                 modeling.getDataId(),
                 false);
     }
