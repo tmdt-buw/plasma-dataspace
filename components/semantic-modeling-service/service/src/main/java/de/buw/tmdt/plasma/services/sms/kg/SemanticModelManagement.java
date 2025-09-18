@@ -1,5 +1,6 @@
 package de.buw.tmdt.plasma.services.sms.kg;
 
+import de.buw.tmdt.plasma.services.sms.modeling.ModelingService;
 import org.apache.jena.arq.querybuilder.DescribeBuilder;
 import org.apache.jena.arq.querybuilder.SelectBuilder;
 import org.apache.jena.arq.querybuilder.UpdateBuilder;
@@ -9,10 +10,14 @@ import org.apache.jena.query.QuerySolution;
 import org.apache.jena.query.ResultSet;
 import org.apache.jena.rdf.model.Literal;
 import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdfconnection.RDFConnectionFuseki;
 import org.apache.jena.rdfconnection.RDFConnectionRemoteBuilder;
 import org.apache.jena.shared.PrefixMapping;
+import org.apache.jena.sparql.lang.sparql_11.ParseException;
 import org.apache.jena.update.Update;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -20,9 +25,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static de.buw.tmdt.plasma.services.sms.kg.OntologyManagement.PREFIXES;
+import static de.buw.tmdt.plasma.services.sms.kg.SemanticModelService.SEMANTIC_MODEL_PREFIX_LENGTH;
 
 @Service
 public class SemanticModelManagement {
+
+    private static final Logger log = LoggerFactory.getLogger(SemanticModelManagement.class);
 
     private RDFConnectionRemoteBuilder builder;
 
@@ -32,26 +40,30 @@ public class SemanticModelManagement {
     }
 
     public Model queryModel(String modelId) {
-        try (RDFConnectionFuseki conn = (RDFConnectionFuseki) builder.build()) {
+        String semanticModelId = modelId.substring(0, SEMANTIC_MODEL_PREFIX_LENGTH);
+        String prefix = OntologyManagement.SM_URI + semanticModelId;
 
+        try (RDFConnectionFuseki conn = (RDFConnectionFuseki) builder.build()) {
             Query selector = new DescribeBuilder()
                     .addPrefixes(PREFIXES)
-                    .addVar("?model")
-                    .addVar("?node")
-                    .addWhere("?model", PLCM.cmUuid, modelId)
-                    .addWhere("?model", PLCM.hasNode, "?node")
-                    .addWhere("?node", "?p", "?o")
+                    .addVar("?s")
+                    .addVar("?p")
+                    .addVar("?o")
+                    .addWhere("?s", "?p", "?o")
+                    .addFilter("STRSTARTS(STR(?s), \"" + prefix + "\")")
                     .build();
 
             QueryExecution query = conn.query(selector);
             Model model1 = query.execDescribe();
             return model1;
+        } catch (ParseException e) {
+            log.error("Cannot parse semantic model storage query expression", e);
+            return null;
         }
     }
 
     public void persistModel(Model model) {
         try (RDFConnectionFuseki conn = (RDFConnectionFuseki) builder.build()) {
-
             UpdateBuilder updateBuilder = new UpdateBuilder()
                     .addPrefixes(PREFIXES)
                     .addInsert(model);
@@ -61,29 +73,18 @@ public class SemanticModelManagement {
         }
     }
 
-
     public void deleteModel(String semanticModelUuid) {
+        String semanticModelId = semanticModelUuid.substring(0, SEMANTIC_MODEL_PREFIX_LENGTH);
+        String prefix = OntologyManagement.SM_URI + semanticModelId;
         try (RDFConnectionFuseki conn = (RDFConnectionFuseki) builder.build()) {
-            Query selector = new DescribeBuilder()
-                    .addPrefixes(PREFIXES)
-                    .addVar("?model")
-                    .addVar("?node")
-                    .addWhere("?model", PLCM.label, semanticModelUuid)
-                    .addWhere("?model", PLCM.hasNode, "?node")
-                    .addWhere("?node", "?p", "?o")
-                    .build();
+            UpdateBuilder builder = new UpdateBuilder()
+                    .addDelete("?s", "?p", "?o")
+                    .addWhere("?s", "?p", "?o")
+                    .addFilter("STRSTARTS(STR(?s), \"" + prefix + "\")");
 
-
-            QueryExecution query = conn.query(selector);
-            Model model1 = query.execDescribe();
-
-            Update delete = new UpdateBuilder()
-                    .addPrefixes(PrefixMapping.Standard)
-                    .addDelete(model1)
-                    .build();
-
-            conn.update(delete);
-
+            conn.update(builder.build());
+        } catch (ParseException e) {
+            log.error("Cannot parse semantic model delete query expression", e);
         }
     }
 

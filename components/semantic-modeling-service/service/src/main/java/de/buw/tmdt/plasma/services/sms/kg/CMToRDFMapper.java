@@ -23,6 +23,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static de.buw.tmdt.plasma.services.sms.kg.OntologyManagement.PREFIXES;
+import static de.buw.tmdt.plasma.services.sms.kg.SemanticModelService.SEMANTIC_MODEL_PREFIX_LENGTH;
 
 /**
  * Converts a {@link SemanticModel} from a {@link de.buw.tmdt.plasma.datamodel.CombinedModel} to
@@ -48,8 +49,8 @@ public class CMToRDFMapper {
             throw new IllegalArgumentException("Semantic model id must not be empty or null");
         }
         Map<String, RDFNode> uuidtoResource = new HashMap<>();
-        String semanticModelId = semanticModel.getId().substring(0, 5);
         Model m = ModelFactory.createDefaultModel();
+        String semanticModelId = semanticModel.getId().substring(0, SEMANTIC_MODEL_PREFIX_LENGTH);
         m.setNsPrefixes(PREFIXES);
         String smPrefix = PREFIXES.getNsPrefixURI("plsm");
         Resource rdfModel = m.createResource(smPrefix + semanticModelId);
@@ -139,7 +140,6 @@ public class CMToRDFMapper {
                 }
                 rdfNode = resource;
             }
-            rdfModel.addProperty(PLCM.hasNode, rdfNode);
             uuidtoResource.put(node.getUuid(), rdfNode);
 
         });

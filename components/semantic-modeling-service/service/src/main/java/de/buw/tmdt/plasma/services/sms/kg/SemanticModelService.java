@@ -30,6 +30,8 @@ public class SemanticModelService {
 
     private final DateTimeFormatter exportTimestampFormatter = DateTimeFormatter.ofPattern("yyMMdd-HHmm");
 
+    public static final int SEMANTIC_MODEL_PREFIX_LENGTH = 8;
+
     @Autowired
     public SemanticModelService(
             @NotNull SemanticModelManagement ops,
@@ -111,7 +113,7 @@ public class SemanticModelService {
 
     public @NotNull ResponseEntity<String> convertSemanticModel(@NotNull CombinedModel combinedModel, @NotNull ExportFormat format, boolean includeMappings, boolean includePositions) {
         if (combinedModel.getSemanticModel().getId() == null) {
-            combinedModel.getSemanticModel().setId(UUID.randomUUID().toString().substring(0, 5));
+            combinedModel.getSemanticModel().setId(UUID.randomUUID().toString().substring(0, SEMANTIC_MODEL_PREFIX_LENGTH));
         }
         Model cmModel = CMToRDFMapper.convertToRDFModel(combinedModel.getSemanticModel());
 
@@ -173,6 +175,7 @@ public class SemanticModelService {
         return headers;
     }
 
+    // TODO implement properly? where is this used?
     @NotNull
     public Set<SemanticModel> searchByElementLabel(@NotNull String searchTerm) {
         List<String> ids = ops.findByElementLabel(searchTerm);
