@@ -141,11 +141,11 @@ services:
     restart: unless-stopped
     profiles: [staging]
     environment:
-      - SERVICE_PORT=8221
+      - SERVICE_PORT=8191
       - SPARQL_SM_STORE=http://fuseki:3030/sm
       - SPARQL_ONTOLOGIES_STORE=http://fuseki:3030/ontologies
       - PLASMA_REGISTRATION_URL=http://sms:8181/api/sms/ars/registration
-      - PLASMA_ARS_API_URL=http://plasma-ars-r-sr:8221/recommendation
+      - PLASMA_ARS_API_URL=http://plasma-ars-r-sr:8191/recommendation
     depends_on:
       - fuseki
     volumes:
@@ -170,7 +170,7 @@ services:
 #    volumes:
 #      - configs:/var/plasma/configs
 #    ports:
-#      - "8222:8222"
+#      - "8192:8192"
 #    networks:
 #      - plasma
 
