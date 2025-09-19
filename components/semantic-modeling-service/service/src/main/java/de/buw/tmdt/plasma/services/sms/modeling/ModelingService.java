@@ -1,5 +1,6 @@
 package de.buw.tmdt.plasma.services.sms.modeling;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import de.buw.tmdt.plasma.datamodel.*;
 import de.buw.tmdt.plasma.datamodel.modification.DeltaModification;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.Class;
@@ -202,7 +203,12 @@ public class ModelingService {
     protected CombinedModel getCombinedModel(@NotNull String modelId, boolean modelWillBeModified) {
         try {
             Modeling m = findModelingOrThrow(modelId);
-            return getCombinedModel(m, modelWillBeModified);
+            CombinedModel cm = getCombinedModel(m, modelWillBeModified);
+//            if(m.isFinalized()) {
+//                SemanticModel storedSemanticModel = semanticModelService.getSemanticModel(cm.getSemanticModel().getId());
+//                log.debug("Retrieved stored semantic model for model {}: {}", modelId, new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(storedSemanticModel));
+//            }
+            return cm;
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error retrieving combined model for modeling",e);
         }
