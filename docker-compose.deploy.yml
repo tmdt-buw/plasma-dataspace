@@ -16,18 +16,41 @@ services:
       service: sms
       file: docker-compose.local.yml
     image: git.uni-wuppertal.de:4567/tmdt/projects/dataspaces/plasma/sms:${PLASMA_VERSION}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.dps.rule=Host(`${PLASMA_DEPLOY_HOSTNAME}`) && PathPrefix(`/api/dps`)"
+      - "traefik.http.routers.dps.entrypoints=${PLASMA_DEPLOY_ENTRYPOINT}"
+      - "traefik.http.routers.app-https.middlewares=cors"
+      - "traefik.http.middlewares.cors.headers.accesscontrolallowmethods=*"
+      - "traefik.http.middlewares.cors.headers.accesscontrolalloworiginlist=*"
+      - "traefik.http.middlewares.cors.headers.accesscontrolmaxage=100"
+      - "traefik.http.middlewares.cors.headers.addvaryheader=true"
 
   dps:
     extends:
       service: dps
       file: docker-compose.local.yml
     image: git.uni-wuppertal.de:4567/tmdt/projects/dataspaces/plasma/dps:${PLASMA_VERSION}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.dps.rule=Host(`${PLASMA_DEPLOY_HOSTNAME}`) && PathPrefix(`/api/dps`)"
+      - "traefik.http.routers.dps.entrypoints=${PLASMA_DEPLOY_ENTRYPOINT}"
+      - "traefik.http.routers.app-https.middlewares=cors"
+      - "traefik.http.middlewares.cors.headers.accesscontrolallowmethods=*"
+      - "traefik.http.middlewares.cors.headers.accesscontrolalloworiginlist=*"
+      - "traefik.http.middlewares.cors.headers.accesscontrolmaxage=100"
+      - "traefik.http.middlewares.cors.headers.addvaryheader=true"
 
   frontend:
     extends:
       service: frontend
       file: docker-compose.local.yml
     image: git.uni-wuppertal.de:4567/tmdt/projects/dataspaces/plasma/frontend:${PLASMA_VERSION}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.frontend.rule=Host(`${PLASMA_DEPLOY_HOSTNAME}`)"
+      - "traefik.http.routers.frontend.entrypoints=${PLASMA_DEPLOY_ENTRYPOINT}"
+      - "traefik.http.routers.frontend.tls.certresolver=plasmaresolver"
 
   ########################### Auxiliary Services ######################################
 
@@ -58,16 +81,20 @@ services:
       - --providers.docker.network=plasma
       - --providers.docker.exposedByDefault=false
       - --entrypoints.web.address=:80
-      #- --entrypoints.web.http.redirections.entrypoint.to=websecure
-      #- --entryPoints.web.http.redirections.entrypoint.scheme=https
-      #- --entrypoints.websecure.address=:443
+      - --entrypoints.web.http.redirections.entrypoint.to=websecure
+      - --entryPoints.web.http.redirections.entrypoint.scheme=https
+      - --entrypoints.websecure.address=:443
       # remove next line when using Traefik v2
-      #- --entrypoints.websecure.asDefault=true
-      #- --entrypoints.websecure.http.tls.certresolver=myresolver
-      #- --certificatesresolvers.myresolver.acme.tlschallenge=true
-      #- --certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web
-      #- --certificatesresolvers.myresolver.acme.email=paulus@crafting-systems.de
-      #- --certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json
+      - --entrypoints.websecure.asDefault=true
+      - --entrypoints.websecure.http.tls.certresolver=plasmaresolver
+      - --certificatesresolvers.plasmaresolver.acme.tlschallenge=true
+      - --certificatesresolvers.plasmaresolver.acme.httpchallenge.entrypoint=web
+      - --certificatesresolvers.plasmaresolver.acme.email=paulus@uni-wuppertal.de
+      - --certificatesresolvers.plasmaresolver.acme.storage=/letsencrypt/acme.json
+
+    volumes:
+    - /letsencrypt:/letsencrypt
+    - ./traefik/default.yml:/dynamic.yml:ro  # Mount the dynamic configuration file
 
 volumes:
   fuseki_data:
