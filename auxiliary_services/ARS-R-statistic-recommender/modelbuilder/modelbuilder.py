@@ -3,7 +3,7 @@ import os
 import pickle
 from typing import Dict
 
-from SPARQLWrapper import SPARQLWrapper, JSON, XML
+from SPARQLWrapper import SPARQLWrapper, JSON, XML, RDFXML, TURTLE
 from rdflib import Graph
 
 import config
@@ -21,7 +21,7 @@ def get_models():
 
     sparql = SPARQLWrapper(host)
     sparql.setQuery(PREFIXES + """
-        SELECT DISTINCT ?id WHERE {
+        SELECT DISTINCT ?model WHERE {
           ?model plcm:cmUuid ?id .
         } LIMIT 100
     """)
@@ -34,37 +34,36 @@ def get_models():
     models = []
 
     for result in results["results"]["bindings"]:
-        model_id = result["id"]['value']
+        model_id = result["model"]['value']
         print('processing', model_id)
-
         query = PREFIXES + f"""
-                    DESCRIBE ?node WHERE {{
-                      ?model plcm:cmUuid "{model_id}" .
-                      ?model plcm:hasNode ?node .
-                      ?node ?p ?o .
-                    }}
-                """
+            CONSTRUCT {{ ?node ?p ?o }}
+                WHERE {{
+                ?node ?p ?o .
+                FILTER(STRSTARTS(STR(?node), '{model_id}'))
+                }}
+        """
 
-        sparql.setReturnFormat(XML)
+        #print("executed query", query)
+        sparql = SPARQLWrapper(host)
         sparql.setQuery(query)
+        #sparql.setReturnFormat(TURTLE)
 
-        model_graph: Graph = sparql.queryAndConvert()
+        model_graph: Graph = sparql.query().convert()
+        print('model size after pull', len(model_graph))
+
+        model_graph = uninstanciate_graph(model_graph)
+        print('uninstanciated model size', len(model_graph))
 
         triples = list(
             [triple for triple in model_graph.triples((None, None, None)) if not str(triple[1]).startswith(PLCM)])
         if len(triples) == 0:
             continue
-        print('model size', len(triples))
+        print('model size post-clean', len(triples))
 
-        model_graph = uninstanciate_graph(model_graph)
-
-        triples = list(
-            [triple for triple in model_graph.triples((None, None, None)) if not str(triple[1]).startswith(PLCM)])
-        print('uninstanciated model size', len(triples))
-
-        triples = get_triples_from_model(model_graph)
-        triples = list(
-            [triple for triple in triples if not str(triple[1]).startswith(PLCM)])
+        # triples = get_triples_from_model(model_graph)
+        # triples = list(
+        #     [triple for triple in triples if not str(triple[1]).startswith(PLCM)])
         models.append(triples)
 
     with open(config.CACHE.RAW_MODELS_PATH, "w") as file:
@@ -84,8 +83,6 @@ def build_label_index():
                     OPTIONAL { ?uri rdfs:comment ?comment }
         } 
         """)
-    # FILTER(?uri in (<uri1>,<uri2>))
-
     # sparql.setCredentials("admin", "plasma")
     sparql.setReturnFormat(JSON)
     results = sparql.query().convert()
