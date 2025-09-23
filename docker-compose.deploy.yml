@@ -11,15 +11,35 @@ services:
       file: docker-compose.local.yml
 
   ########################### Services ######################################
+  sms-init:
+    image: busybox
+    volumes:
+      - kgs_ontologies:/var/ontologies
+    command: [ "sh", "-c", "chown -R 1000:1000 /var/ontologies" ]
+    profiles: [ staging ]
+
   sms:
     extends:
       service: sms
       file: docker-compose.local.yml
     image: git.uni-wuppertal.de:4567/tmdt/projects/dataspaces/plasma/sms:${PLASMA_VERSION}
+    depends_on:
+      sms-init:
+        condition: service_completed_successfully
+      mariadb-sms:
+        condition: service_started
+      fuseki:
+        condition: service_started
+      traefik:
+        condition: service_started
+
+    volumes:
+      - ./deploy/configs:/var/plasma/configs
+      - ./deploy/ontologies:/var/ontologies
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.dps.rule=Host(`${PLASMA_DEPLOY_HOSTNAME}`) && PathPrefix(`/api/dps`)"
-      - "traefik.http.routers.dps.entrypoints=${PLASMA_DEPLOY_ENTRYPOINT}"
+      - "traefik.http.routers.sms.rule=Host(`${PLASMA_DEPLOY_HOSTNAME}`) && PathPrefix(`/api/sms`)"
+      - "traefik.http.routers.sms.entrypoints=${PLASMA_DEPLOY_ENTRYPOINT}"
       - "traefik.http.routers.app-https.middlewares=cors"
       - "traefik.http.middlewares.cors.headers.accesscontrolallowmethods=*"
       - "traefik.http.middlewares.cors.headers.accesscontrolalloworiginlist=*"
