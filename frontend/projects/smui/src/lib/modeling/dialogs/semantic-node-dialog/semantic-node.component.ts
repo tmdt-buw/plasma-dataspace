@@ -41,6 +41,7 @@ export class PlsSemanticNodeDetailsComponent implements OnInit {
     {uri: 'http://www.w3.org/2001/XMLSchema#string', label: 'string'},
     {uri: 'http://www.w3.org/2001/XMLSchema#date', label: 'date'},
     {uri: 'http://www.w3.org/2001/XMLSchema#time', label: 'time'},
+    {uri: 'http://www.w3.org/2001/XMLSchema#datetime', label: 'datetime'},
     {uri: 'http://www.w3.org/2001/XMLSchema#integer', label: 'integer'},
     {uri: 'http://www.w3.org/2001/XMLSchema#float', label: 'float'},
     {uri: 'http://www.w3.org/2001/XMLSchema#decimal', label: 'decimal'},
