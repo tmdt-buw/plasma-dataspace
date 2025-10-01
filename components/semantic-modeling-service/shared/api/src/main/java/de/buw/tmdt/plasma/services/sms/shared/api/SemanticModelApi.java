@@ -14,9 +14,6 @@ import java.util.Set;
 @RequestMapping("/api/sms/semanticModels")
 public interface SemanticModelApi {
 
-    @PostMapping(value = "", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @NotNull SemanticModel createSemanticModel(@NotNull @RequestBody SemanticModel request);
-
     /**
      * Utility function to find a semantic model by its id.
      *
@@ -64,11 +61,5 @@ public interface SemanticModelApi {
 
     @GetMapping(value = "/byElement", produces = MediaType.APPLICATION_JSON_VALUE)
     @NotNull Set<SemanticModel> searchByElementLabel(@NotNull @RequestParam(value = "searchTerm", defaultValue = "", required = false) String searchTerm);
-
-    @GetMapping(value = "/bySynonym", produces = MediaType.APPLICATION_JSON_VALUE)
-    @NotNull Set<SemanticModel> searchBySynonym(@NotNull @RequestParam(value = "searchTerm", defaultValue = "", required = false) String searchTerm);
-
-    @GetMapping(value = "/allByLabel", produces = MediaType.APPLICATION_JSON_VALUE)
-    @NotNull Set<SemanticModel> searchAllByLabel(@NotNull @RequestParam(value = "searchTerm", defaultValue = "", required = false) String searchTerm);
 
 }
