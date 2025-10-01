@@ -271,9 +271,9 @@ export abstract class Nodes {
    * Returns true if input node is an array node
    * @param node to test
    */
-  static isArrayNode(node: dia.CellView | dia.ElementView | dia.Element): boolean {
+  static isSetNode(node: dia.CellView | dia.ElementView | dia.Element): boolean {
     const model = node instanceof dia.Element ? node : node.model;
-    return model?.attributes?.type === Nodes.syntaxNodeName && model?.attributes.subtype === 'ArrayNode';
+    return model?.attributes?.type === Nodes.syntaxNodeName && model?.attributes.subtype === 'SetNode';
   }
 
   /**

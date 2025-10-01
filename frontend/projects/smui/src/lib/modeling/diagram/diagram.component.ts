@@ -222,11 +222,11 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
           return (el.id !== clazzId);
         });
         if (Nodes.isClass(elementView) && elementBelow) {
-          // link an existing class to a syntax node
+          // link an existing class to an object node
           const syntaxNode = this.findSyntaxNodeById(elementBelow.id as string);
           const classNode = this.findSemanticNodeById(clazzId as string) as Class;
 
-          if ((syntaxNode._class === 'SetNode' || syntaxNode._class === 'ObjectNode')
+          if (( syntaxNode._class === 'ObjectNode')
             && !classNode.syntaxNodeUuid && !syntaxNode.disabled) {
             if (!classNode.instance) {
               classNode.instance = {
@@ -273,7 +273,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
       // Highlights for modeling
       'element:mouseover': (elementView: dia.ElementView) => {
         // console.log('element:mouseover');
-        if ((this.modelNode?._class === 'Class' && this.getIfLinkableNode(elementView)) || (this.modelNode?._class === 'Literal' && this.getIfMappableNode(elementView)))  {
+        if ((this.modelNode?._class === 'Class' && this.getIfClassLinkableNode(elementView)) || (this.modelNode?._class === 'Literal' && this.getIfMappableNode(elementView)))  {
           elementView.highlight();
           this.hoveredElement = elementView;
         }
@@ -400,7 +400,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
             }
           });
         } else if (this.relation?._class === 'DataProperty' && elementBelow) {
-            if (Nodes.isPrimitiveNode(elementBelow)) {
+            if (Nodes.isPrimitiveNode(elementBelow) || Nodes.isSetNode(elementBelow)) {
               const syntaxNode: PrimitiveNode = this.findSyntaxNodeById(elementBelow.id as string);
               const literal: Literal = {
                 _class: 'Literal',
@@ -426,24 +426,6 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
               return;
             }
         }
-        // else if (this.relation?._class === 'ObjectProperty' && elementBelow) {
-        //     if (Nodes.isArrayNode(elementBelow)) {
-        //     const syntaxNode: SyntaxNode = this.findSyntaxNodeById(elementBelow.id as string);
-        //
-        //     const from = source;
-        //     const to = literal.uuid;
-        //     const relation: ObjectProperty = {
-        //       _class: 'ObjectProperty',
-        //       from,
-        //       to,
-        //       label: this.relation.label,
-        //       uri: this.relation.uri
-        //     };
-        //     const changes = { relations: [relation]};
-        //     this.semanticModelElementsAdded.emit(changes);
-        //     return;
-        //   }
-        // }
         else {
           this.panAndZoom.disablePan();
         }
@@ -508,7 +490,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
               highlighters.stroke.add(cellView, node, this.CustomHighlighters.CONNECTION, {});
             }
           } else if (this.relation._class === 'DataProperty') {
-            if (Nodes.isPrimitiveNode(cellView)) {
+            if (Nodes.isPrimitiveNode(cellView) || Nodes.isSetNode(cellView)) {
               highlighters.stroke.add(cellView, node, this.CustomHighlighters.CONNECTION, {});
             }
           }
@@ -1117,7 +1099,7 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
   private getIfMappableNode(elementView: dia.ElementView): (PrimitiveNode | SetNode) {
     if (Nodes.isSyntaxNode(elementView)) {
       const node = this.findSyntaxNodeById(elementView.model.id.toString());
-      if ((node._class === 'PrimitiveNode' || node._class === 'SetNode' || node._class === 'ObjectNode') && !node.disabled) {
+      if ((node._class === 'PrimitiveNode' || node._class === 'SetNode') && !node.disabled) {
         return node;
       }
     }
@@ -1132,6 +1114,20 @@ export class PlsDiagramComponent implements OnInit, AfterViewInit {
     if (Nodes.isSyntaxNode(elementView)) {
       const node = this.findSyntaxNodeById(elementView.model.id.toString());
       if ((node._class === 'SetNode' || node._class === 'ObjectNode') && !node.disabled) {
+        return node;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Returns a node as a LinkableSyntaxNode if the given node is linkable for a class
+   * @param elementView search element
+   */
+  private getIfClassLinkableNode(elementView: dia.ElementView): (ObjectNode | SetNode) {
+    if (Nodes.isSyntaxNode(elementView)) {
+      const node = this.findSyntaxNodeById(elementView.model.id.toString());
+      if ((node._class === 'ObjectNode') && !node.disabled) {
         return node;
       }
     }
