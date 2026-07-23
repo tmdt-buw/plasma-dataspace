@@ -27,37 +27,68 @@ PLASMA is preconfigured to use MariaDB instances for the raw data management.
 Semantic information (the Knowledge Graph) is stored using Apache Jena Fuseki.
 
 ### Software and Frameworks
-PLASMA is written in Java, using Java 11 as the baseline version. 
+PLASMA is written in Java, using Java 21 as the baseline version.
 The included web-based frontend is written using Angular 13.
 
 ## Building PLASMA
 
 ### Requirements
-* Install OpenJDK 11
-* Install Docker for executing each service
-* You require Maven to build the services
-* The frontend uses npm to build. Check the dedicated frontend README for more information.
+* Install OpenJDK 21 or newer
+* Install Docker with Docker Compose
+* Install Maven to build the Java services
+* The frontend uses npm internally. Check the dedicated frontend README for development information.
 
 ### Docker Setup
-* Checkout the repository
-* To build the services execute `mvn package` on the parent module in the `components` folder
-* Alternatively, to also build the Docker containers execute `mvn package jib:dockerBuild -DskipTests` on the parent
-  module
 
-**Note**: Ensure that your docker is running on the local machine and can be reached
+Run the following commands from the repository root. Docker must already be running.
 
-* Build the UI by running `npm run build:smui` and `npm run build` in `frontend` directory
-* Build the docker container for the UI using the corresponding `Dockerfile` in `frontend`
+```shell
+mvn -U -pl components/semantic-modeling-service/service,components/data-processing-service/service -am package jib:dockerBuild -DskipTests
+docker compose -f docker-compose.local.yml up -d --build fuseki mariadb-sms traefik sms dps frontend
+```
+
+This starts the core stack needed for manual modeling. The optional auxiliary recommendation service is not required.
+
+### Docker Hub images for Solid Dataspace
+
+The GitHub workflow `.github/workflows/docker-images.yml` compiles and packages the Java reactor and publishes only the three
+images required by the Solid Dataspace integration:
+
+- `son1i/plasma-sms`
+- `son1i/plasma-dps`
+- `son1i/plasma-frontend`
+
+Configure the GitHub repository secrets `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN`; that account/token must have push
+access to the three `son1i/*` repositories. A push to `main` or the repository's existing `master` branch creates a
+matching branch tag and an immutable `sha-*` tag; a tag such as `release-1.8.2-test.1` creates `1.8.2-test.1` and
+`sha-*`. The frontend image is built with base href `/plasma/` and sends its API requests through `/plasma/api/sms`
+and `/plasma/api/dps`. MariaDB and Fuseki remain pinned third-party images and are not built by this workflow.
+
+The release build currently skips four stale datamodel tests: the test generator was migrated from mapped `Class`
+nodes to `Literal` nodes, while those tests still expect the old fixture. This is existing test debt and should be
+repaired separately before enabling `mvn verify` as a publishing gate.
 
 ### Starting PLASMA
-* Optional: Adjust environment variables in the docker-compose.yml file. 
-For an explanation of most parameters, check the individual README files of those services
-* To start, execute the `docker compose` script, e.g. `docker compose -f docker-compose.local.yml --profile=staging up -d`
-* Access the UI at `localhost:80`
+
+Open [http://localhost/](http://localhost/) after the containers have started. Use this proxied URL rather than the
+frontend's direct port so that both `/api/sms` and `/api/dps` are routed correctly.
+
+To create a semantic model:
+
+1. Open **Modelings** and choose **Create Modeling**.
+2. Add one or more JSON samples and run the schema analysis.
+3. Create and open the modeling.
+4. Select an uploaded ontology, or create provisional classes and relations in the editor.
+5. Map the syntactic nodes, save the model, and finalize it. Finalized models can be exported as Turtle.
+
+On a fresh instance, PLASMA creates the writable `LOCAL` ontology automatically. Additional Turtle ontologies can be
+uploaded in the ontology management view.
 
 ### Stopping PLASMA
 
-* PLASMA can be stopped by halting all Docker containers, e.g. `docker compose -f docker-compose.local.yml --profile=staging down`
+```shell
+docker compose -f docker-compose.local.yml down
+```
 
 ## Development Setup
 
@@ -100,7 +131,7 @@ IDEs offers the option to overwrite configuration files for specific application
 |---------------------------------------|----------------------------------------------------|
 | `PLASMA_REGISTRATION_URL`             | ` http://localhost:8181/api/sms/ars/registration`  |
 | `PLASMA_ARS_API_URL`                  | ` http://localhost:8221/recommendation`            |
-| `SERVICE_PORT`                        | ` 8221`                                            |
+| `SERVICE_PORT`                        | ` 8191`                                            |
 | `SPARQL_ONTOLOGIES_STORE`             | ` http://localhost:3030/ontologies`                |
 | `SPARQL_SM_STORE`                     | ` http://localhost:3030/sm`                        |
 
@@ -112,9 +143,9 @@ an overview of the services and ports occupied and is for information purposes o
 
 | Name     | Service |
 |:---------|--------:|
-| Database |    3308 |
+| Database |    3306 |
 | SMS      |    8181 |
 | DPS      |    8182 |
-| Frontend |      80 |
+| Frontend | 80 (proxy), 81 (direct) |
 | ARS-L-LM |    8190 |
 | ARS-R-SR |    8221 |

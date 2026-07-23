@@ -1,20 +1,27 @@
 FROM node:lts-alpine AS build
 
 ARG PLASMA_VERSION
+ARG PLASMA_BASE_HREF=/
+ARG PLASMA_API_BASE_URL=
 
 WORKDIR /home/
 COPY ./package-lock.json ./
 COPY ./package.json ./
 
-RUN npm install
+RUN npm ci
 
 COPY ./ ./
 
-# replace version string in frontend
-RUN sed -i "s/__APP_VERSION__/${PLASMA_VERSION}/g" ./src/environments/environment.prod.ts
+# Configure the immutable frontend bundle for its public mount point.
+RUN sed -i \
+    -e "s|__APP_VERSION__|${PLASMA_VERSION}|g" \
+    -e "s|__PLASMA_API_BASE_URL__|${PLASMA_API_BASE_URL}|g" \
+    ./src/environments/environment.prod.ts
 
 RUN npm run build:smui -- --configuration=production
-RUN npm run build -- --configuration=production
+RUN npm run build -- \
+    --configuration=production \
+    --base-href="${PLASMA_BASE_HREF}"
 
 FROM nginx
 # copy over the artifacts in dist folder to hidden nginx public folder

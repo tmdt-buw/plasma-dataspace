@@ -66,7 +66,7 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.sms.rule=Host(`localhost`) && PathPrefix(`/api/sms`)"
       - "traefik.http.routers.sms.entrypoints=web"
-      - "traefik.http.routers.app-https.middlewares=cors"
+      - "traefik.http.routers.sms.middlewares=cors"
       - "traefik.http.middlewares.cors.headers.accesscontrolallowmethods=*"
       - "traefik.http.middlewares.cors.headers.accesscontrolalloworiginlist=*"
       - "traefik.http.middlewares.cors.headers.accesscontrolmaxage=100"
@@ -83,14 +83,14 @@ services:
     networks:
       - plasma
     environment:
-      - plasma.localstorage.directory=/var/plasma/localstorage
+      - plasma.dps.storage.directory=/var/plasma/localstorage
     volumes:
       - ./deploy/dps_storage:/var/plasma/localstorage
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.dps.rule=Host(`localhost`) && PathPrefix(`/api/dps`)"
       - "traefik.http.routers.dps.entrypoints=web"
-      - "traefik.http.routers.app-https.middlewares=cors"
+      - "traefik.http.routers.dps.middlewares=cors"
       - "traefik.http.middlewares.cors.headers.accesscontrolallowmethods=*"
       - "traefik.http.middlewares.cors.headers.accesscontrolalloworiginlist=*"
       - "traefik.http.middlewares.cors.headers.accesscontrolmaxage=100"
@@ -151,7 +151,7 @@ services:
     volumes:
       - ./deploy/configs:/var/plasma/configs
     ports:
-      - "8221:8221"
+      - "8221:8191"
     networks:
       - plasma
 
@@ -177,7 +177,7 @@ services:
 ########## PROXY ##########
 
   traefik:
-    image: traefik:v3.2.2
+    image: traefik:v3.7.1
     container_name: plasma-traefik
     ports:
       - "80:80"

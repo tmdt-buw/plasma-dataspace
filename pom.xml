@@ -493,27 +493,23 @@
         </plugins>
     </reporting>
 
-    <!-- Repositories for Downloading Dependencies -->
+    <!-- Repository for Downloading Public Dependencies -->
     <repositories>
         <repository>
-            <id>buw-gitlab</id>
-            <url>https://git.uni-wuppertal.de/api/v4/groups/tmdt/-/packages/maven</url>
+            <id>central</id>
+            <url>https://repo.maven.apache.org/maven2</url>
             <releases>
                 <enabled>true</enabled>
-                <updatePolicy>always</updatePolicy>
-                <checksumPolicy>warn</checksumPolicy>
             </releases>
         </repository>
     </repositories>
 
     <pluginRepositories>
         <pluginRepository>
-            <id>buw-gitlab</id>
-            <url>https://git.uni-wuppertal.de/api/v4/groups/tmdt/-/packages/maven</url>
+            <id>central</id>
+            <url>https://repo.maven.apache.org/maven2</url>
             <releases>
                 <enabled>true</enabled>
-                <updatePolicy>always</updatePolicy>
-                <checksumPolicy>ignore</checksumPolicy>
             </releases>
         </pluginRepository>
     </pluginRepositories>
