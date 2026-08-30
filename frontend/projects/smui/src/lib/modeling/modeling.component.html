@@ -1,5 +1,20 @@
-<div #main="plsFullScreen" [style.background-color]="backgroundColor" cdkDropListGroup fxFill fxLayout="column"
+<div #main="plsFullScreen" [style.background-color]="backgroundColor" cdkDropListGroup class="modeling-shell" fxFill fxLayout="column"
      plsFullScreen>
+  <main *ngIf="loading" class="plasma-loading" aria-busy="true">
+    <span class="plasma-loading-mark" aria-hidden="true">
+      <i nz-icon nzType="deployment-unit"></i>
+    </span>
+    <h1>PLASMA</h1>
+    <p role="status" aria-live="polite">Loading your personal semantic modeling space &hellip;</p>
+    <span
+      class="plasma-loading-rail"
+      role="progressbar"
+      aria-label="Loading your personal semantic modeling space"
+    >
+      <span></span>
+    </span>
+  </main>
+  <ng-container *ngIf="!loading">
   <div class="modeling-toolbar" fxFlex="40px" fxLayout="row" fxLayoutAlign="space-between center" fxLayoutGap="5px">
     <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="15px">
       <button (click)="undo()" [disabled]="isFinalized()" nz-button nz-tooltip nzShape="circle" nzTooltipTitle="Undo" nzType="text"><i nz-icon
@@ -126,7 +141,7 @@
     </div>
   </div>
 
-  <nz-spin [nzSpinning]="loading" class="modeling-container" fxFlex nzTip="Loading...">
+  <div class="modeling-container" fxFlex>
     <div #modelingArea *ngIf="combinedModel" class="modeling-area">
       <pls-modeling-diagram (graphLaidOut)="onGraphLaidOut($event)" (nodeChanged)="onNodeChanged($event)" (nodeClicked)="onNodeClicked($event)" (nodePositionChanged)="onNodePositionChanged($event)"
                             (recommendationAccepted)="onRecommendationAccepted($event)"
@@ -147,5 +162,6 @@
               nzType="primary"><i nz-icon nzType="play-circle"></i>Finalize
       </button>
     </div>
-  </nz-spin>
+  </div>
+  </ng-container>
 </div>
