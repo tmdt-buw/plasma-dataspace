@@ -48,15 +48,16 @@ jobs:
           cache: maven
           cache-dependency-path: "**/pom.xml"
 
-      # The current upstream datamodel fixture was migrated from Class to Literal
-      # nodes without updating four legacy tests. Keep image publishing aligned
-      # with the existing release build until those tests are repaired separately.
-      - name: Compile and package SMS and DPS reactor
-        run: >-
-          mvn --batch-mode --no-transfer-progress
-          -pl components/semantic-modeling-service/service,components/data-processing-service/service
-          -am clean package
-          -DskipTests
+      - name: Set up Python for recommendation tests
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+
+      - name: Install recommendation test dependencies
+        run: python -m pip install -r auxiliary_services/ARS-R-statistic-recommender/requirements-test.txt
+
+      - name: Verify Java services and recommendation integration
+        run: ./scripts/test-integration.sh
 
   publish-java:
     name: Publish ${{ matrix.name }}
@@ -195,6 +196,19 @@ jobs:
             type=ref,event=branch,priority=1000
             type=match,pattern=^(?:v|release-)([0-9]+\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z.-]+)?)$,group=1,priority=900
             type=sha,prefix=sha-,format=short,priority=100
+
+      - name: Set up Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Test application and modeling UI in Chrome
+        working-directory: frontend
+        run: |
+          npm ci
+          npm test
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4

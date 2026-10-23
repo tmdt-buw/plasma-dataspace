@@ -3,289 +3,171 @@ package de.buw.tmdt.plasma.datamodel;
 import de.buw.tmdt.plasma.datamodel.modification.DeltaModification;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.Class;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.*;
-import de.buw.tmdt.plasma.datamodel.syntaxmodel.LinkableSyntaxNode;
-import de.buw.tmdt.plasma.datamodel.syntaxmodel.PrimitiveNode;
 import de.buw.tmdt.plasma.datamodel.syntaxmodel.SyntaxNode;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 
 import static de.buw.tmdt.plasma.datamodel.generators.CombinedModelGenerator.generateResourceURI;
 import static de.buw.tmdt.plasma.datamodel.generators.CombinedModelGenerator.getCombinedModel;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class CombinedModelSemanticModificationTest {
+    /** Classes provide context; mapped values are Literals, connected by DataProperties. */
+    private CombinedModel modelWithMappedLiteral() {
+        CombinedModel model = getCombinedModel();
+        model.getSemanticModel().getNodes().clear();
+        model.getSemanticModel().getEdges().clear();
+        Class airline = new Class(generateResourceURI("airline"), "airline", "An airline");
+        airline.setInstance(new Instance(null, null, "Example airline", "Original instance"));
+        Literal code = new Literal("code");
+        link(code, syntaxNode(model, "codes1"));
+        model.getSemanticModel().getNodes().addAll(List.of(airline, code));
+        model.getSemanticModel().getEdges().add(
+                new DataProperty(airline.getUuid(), code.getUuid(), generateResourceURI("code")));
+        model.validate();
+        return model;
+    }
+
+    private SyntaxNode syntaxNode(CombinedModel model, String label) {
+        return model.getSyntaxModel().getNodes().stream()
+                .filter(node -> node.getLabel().equals(label)).findFirst().orElseThrow();
+    }
+
+    private void link(Literal literal, SyntaxNode syntax) {
+        literal.setMappedSyntaxNodeUuid(syntax.getUuid());
+        literal.setMappedSyntaxNodeLabel(syntax.getLabel());
+        literal.setMappedSyntaxNodePath(syntax.getPathAsJSONPath());
+    }
+
+    private Class airline(CombinedModel model) {
+        return (Class) model.getSemanticModel().getNodes().get(0);
+    }
+
+    private Literal code(CombinedModel model) {
+        return (Literal) model.getSemanticModel().getNodes().get(1);
+    }
+
+    private DeltaModification change(List<SemanticNode> nodes, List<Relation> edges) {
+        return new DeltaModification("test-change", nodes, edges, null, null, 0.0);
+    }
 
     @Test
     public void testApplyFailsIfFinalized() {
-        CombinedModel model = getCombinedModel();
+        CombinedModel model = modelWithMappedLiteral();
         model.finalizeModel();
-
-        Class companyClass = new Class(generateResourceURI("company"), "company", "A company");
-
-        DeltaModification modification = new DeltaModification("mod_testApplyAddOneClass", Collections.singletonList(companyClass), null, null, null, 0.0);
-
-        assertThrows(UnsupportedOperationException.class, () -> model.apply(modification));
+        Class company = new Class(generateResourceURI("company"), "company", "A company");
+        assertThrows(UnsupportedOperationException.class,
+                () -> model.apply(change(List.of(company), null)));
     }
 
     @Test
     public void testApplyAddOneEntity() {
-        CombinedModel model = getCombinedModel();
-
-        Class companyClass = new Class(generateResourceURI("company"), "company", "A company");
-
-        DeltaModification modification = new DeltaModification("mod_testApplyAddOneClass", Collections.singletonList(companyClass), null, null, null, 0.0);
-
-        model.apply(modification);
-
-        assertEquals(getCombinedModel().getSemanticModel().getNodes().size() + 1, model.getSemanticModel().getNodes().size(), "Number of expected entities does not match");
-        assertTrue(model.getSemanticModel().getNodes().contains(companyClass), "New entity type is not available");
-        assertEquals(getCombinedModel().getSemanticModel().getEdges().size(), model.getSemanticModel().getEdges().size(), "Number of expected relations does not match");
+        CombinedModel model = modelWithMappedLiteral();
+        Class company = new Class(generateResourceURI("company"), "company", "A company");
+        model.apply(change(List.of(company), null));
+        assertEquals(3, model.getSemanticModel().getNodes().size());
+        assertTrue(model.getSemanticModel().getNodes().contains(company));
+        assertEquals(1, model.getSemanticModel().getEdges().size());
     }
 
     @Test
     public void testApplyAddOneEntityAndOneRelation() {
-        CombinedModel model = getCombinedModel();
-
-        Class airlineClass = model.getSemanticModel().getNodes().stream()
-                .filter(node -> node instanceof Class)
-                .map(node -> (Class) node)
-                .filter(clazz -> clazz.getURI().equals(generateResourceURI("airline")))
-                .findFirst()
-                .orElseThrow();
-
-        Class companyClass = new Class(generateResourceURI("company"), "company", "A company");
-
-        Relation airlineCompanyRelation = new ObjectProperty(airlineClass.getUuid(), companyClass.getUuid(), generateResourceURI("isA"));
-
-        DeltaModification modification = new DeltaModification("mod_testApplyAddOneEntityAndOneRelation", Collections.singletonList(companyClass), Collections.singletonList(airlineCompanyRelation), null, null, 0.0);
-
-        model.apply(modification);
-
-        assertEquals(getCombinedModel().getSemanticModel().getNodes().size() + 1, model.getSemanticModel().getNodes().size(), "Number of expected entities does not match");
-        assertTrue(model.getSemanticModel().getNodes().contains(companyClass), "New entity type is not available");
-        assertEquals(getCombinedModel().getSemanticModel().getEdges().size() + 1, model.getSemanticModel().getEdges().size(), "Number of expected relations does not match");
-        assertTrue(model.getSemanticModel().getEdges().contains(airlineCompanyRelation), "New relation is not available");
+        CombinedModel model = modelWithMappedLiteral();
+        Class company = new Class(generateResourceURI("company"), "company", "A company");
+        Relation relation = new ObjectProperty(airline(model).getUuid(), company.getUuid(), generateResourceURI("isA"));
+        model.apply(change(List.of(company), List.of(relation)));
+        assertEquals(3, model.getSemanticModel().getNodes().size());
+        assertTrue(model.getSemanticModel().getNodes().contains(company));
+        assertEquals(2, model.getSemanticModel().getEdges().size());
+        assertTrue(model.getSemanticModel().getEdges().contains(relation));
     }
 
     @Test
     public void testApplyReplaceOneNode() {
-        CombinedModel model = getCombinedModel();
-
-        Class iataCodeClass = model.getSemanticModel().getNodes().stream()
-                .filter(node -> node instanceof Class)
-                .map(node -> (Class) node)
-                .filter(clazz -> clazz.getURI().equals(generateResourceURI("iata_code")))
-                .findFirst()
-                .orElseThrow();
-
-        Instance iataCodeInstance = iataCodeClass.getInstance();
-
-        assertNotNull(iataCodeInstance);
-
-        Class codeClass = new Class(iataCodeClass.getUuid(),
-                generateResourceURI("code"),
-                "code",
-                "A sort of identifier or short version of text",
-                iataCodeClass.getXCoordinate(),
-                iataCodeClass.getYCoordinate(),
-                iataCodeClass.getMappedSyntaxNodeUuid(),
-                iataCodeClass.getMappedSyntaxNodeLabel(),
-                iataCodeClass.getMappedSyntaxNodePath(),
-                null,
-                iataCodeClass.isProvisional()
-        );
-        Instance codeInstance = new Instance(
-                null,
-                null,
-                "code",
-                "The code of this airline"
-        );
-        codeClass.setInstance(codeInstance);
-
-        DeltaModification modification = new DeltaModification("mod_testApplyReplaceOneEntity", Collections.singletonList(codeClass), null, null, null, 0.0);
-
-        model.apply(modification);
-
-        assertEquals(getCombinedModel().getSemanticModel().getNodes().size(), model.getSemanticModel().getNodes().size(), "Number of expected entities does not match");
-
-        Class replacedNode = model.getSemanticModel().getNodes().stream()
-                .filter(node -> node instanceof Class)
-                .map(node -> (Class) node)
-                .filter(clazz -> Objects.equals(clazz.getUuid(), codeClass.getUuid()))
-                .findFirst()
-                .orElseThrow();
-
-        assertEquals(replacedNode.getUuid(), iataCodeClass.getUuid(), "Replacement entity does not have the same id as replaced entity");
-        assertEquals(codeClass.getURI(), replacedNode.getURI(), "New class is not assigned");
-        assertEquals(codeClass.getDescription(), replacedNode.getDescription(), "New description is not applied correctly");
-        assertNotNull(replacedNode.getInstance());
-        Instance replacedInstance = replacedNode.getInstance();
-        assertEquals(replacedInstance.getDescription(), codeInstance.getDescription(), "New instance description is not applied correctly");
-        assertEquals(replacedInstance.getLabel(), codeInstance.getLabel(), "New instance label is not applied correctly");
-
-        assertEquals(getCombinedModel().getSemanticModel().getEdges().size(), model.getSemanticModel().getEdges().size(), "Number of expected relations does not match");
+        CombinedModel model = modelWithMappedLiteral();
+        Class original = airline(model);
+        Class replacement = original.copy();
+        replacement.setURI(generateResourceURI("company"));
+        replacement.setDescription("Updated class");
+        replacement.setInstance(new Instance(null, null, "Updated airline", "Updated instance"));
+        model.apply(change(List.of(replacement), null));
+        Class actual = (Class) model.getSemanticModel().getNode(original.getUuid());
+        assertEquals(original.getUuid(), actual.getUuid());
+        assertEquals(generateResourceURI("company"), actual.getURI());
+        assertEquals("Updated class", actual.getDescription());
+        assertNotNull(actual.getInstance());
+        assertEquals("Updated airline", actual.getInstance().getLabel());
+        assertEquals("Updated instance", actual.getInstance().getDescription());
+        assertEquals(2, model.getSemanticModel().getNodes().size());
+        assertEquals(1, model.getSemanticModel().getEdges().size());
     }
 
     @Test
-    public void testApplyMapOneEntityToPrimitiveNode() {
-        CombinedModel model = getCombinedModel();
-
-        // get the target node we want to map to
-        SyntaxNode timeNode = model.getSyntaxModel().getNodes().stream().filter(schemaNode -> schemaNode.getLabel().equals("time")).findFirst().orElseThrow();
-
-        // check that the node is not already mapped for some reason
-        assertTrue(timeNode instanceof PrimitiveNode);
-        assertTrue(model.generateModelLinkings().stream().noneMatch(mapping -> mapping.getPrimitiveUUID().equals(timeNode.getUuid())));
-        assertTrue(model.getSemanticModel().getNodes().stream()
-                .filter(node -> node instanceof MappableSemanticNode)
-                .map(node -> (MappableSemanticNode) node)
-                .filter(MappableSemanticNode::isMapped)
-                .noneMatch(node -> Objects.equals(node.getMappedSyntaxNodeUuid(), timeNode.getUuid())));
-
-        // create the new class to assign
-        Class timeClass = new Class(generateResourceURI("time"), "time", "A time");
-        timeClass.setMappedSyntaxNodeUuid(timeNode.getUuid());
-        timeClass.setMappedSyntaxNodeLabel(timeNode.getLabel());
-
-        DeltaModification modification = new DeltaModification("mod_testApplyMapOneClassToPrimitiveNode", Collections.singletonList(timeClass), null, null, null, 0.0);
-
-        model.apply(modification);
-
-        // check numbers
-        assertEquals(getCombinedModel().getSemanticModel().getNodes().size() + 1, model.getSemanticModel().getNodes().size(), "Number of expected entities does not match");
-        assertEquals(getCombinedModel().getSemanticModel().getEdges().size(), model.getSemanticModel().getEdges().size(), "Number of expected relations does not match");
-
-        // check if the class has been added
-        MappableSemanticNode mappedNode = model.getSemanticModel().getNodes().stream()
-                .filter(node -> node instanceof MappableSemanticNode)
-                .map(node -> (MappableSemanticNode) node)
-                .filter(MappableSemanticNode::isMapped)
-                .filter(node -> Objects.equals(node.getUuid(), timeClass.getUuid()))
-                .findFirst().orElseThrow();
-        assertEquals(timeClass.getUuid(), mappedNode.getUuid(), "Added class does not have the same id as added class");
-        assertEquals(timeNode.getLabel(), mappedNode.getMappedSyntaxNodeLabel(), "New node's original label is not set properly");
-        assertEquals(timeNode.getUuid(), mappedNode.getMappedSyntaxNodeUuid(), "New node's mapping uuid is not set properly");
-
-        // ensure that the explicit mapping from class and instance to syntax has been created
-        assertTrue(model.generateModelLinkings().stream().anyMatch(mapping -> mapping.getNodeUUID().equals(mappedNode.getUuid())));
-    }
-
-    @Test
-    @Disabled("test currently disabled as there exist no unmappable nodes in the generator")
-    public void testApplyMapOneEntityToNonMappableNode() {
-        CombinedModel model = getCombinedModel();
-
-        // get the target node we want to map to
-        SyntaxNode syntaxNode = model.getSyntaxModel().getNodes().stream()
-                .filter(node -> !(node instanceof LinkableSyntaxNode))
-                .findFirst()
-                .orElseThrow();
-
-        // check that the node is a valid candidate
-        assertFalse(syntaxNode instanceof PrimitiveNode);
-        assertTrue(model.generateModelLinkings().stream().noneMatch(mapping -> mapping.getPrimitiveUUID().equals(syntaxNode.getUuid())));
-        assertTrue(model.getSemanticModel().getNodes().stream()
-                .filter(node -> node instanceof MappableSemanticNode)
-                .map(node -> (MappableSemanticNode) node)
-                .filter(MappableSemanticNode::isMapped)
-                .noneMatch(node -> Objects.equals(node.getMappedSyntaxNodeUuid(), syntaxNode.getUuid())));
-
-        // create the new type and concept
-        Class timeClass = new Class(generateResourceURI("time"), "time", "A time");
-        timeClass.setMappedSyntaxNodeUuid(syntaxNode.getUuid());
-        timeClass.setMappedSyntaxNodeLabel(syntaxNode.getLabel());
-
-        DeltaModification modification = new DeltaModification("mod_testApplyMapOneEntityToNonPrimitiveNode", Collections.singletonList(timeClass), null, null, null, 0.0);
-
-        assertThrows(CombinedModelIntegrityException.class, () -> model.apply(modification), "Error message not thrown when mapping to non-primitive node " + syntaxNode.getUuid());
-    }
-
-    @Test
-    public void testApplyUnmapOneEntityFromSyntaxNode() {
-        CombinedModel model = getCombinedModel();
-
-        Class iataCodeClass = model.getSemanticModel().getNodes().stream()
-                .filter(node -> node instanceof Class)
-                .map(node -> (Class) node)
-                .filter(instance -> instance.getURI().equals(generateResourceURI("iata_code")))
-                .findFirst().orElseThrow();
-
-        Class replacementClass = iataCodeClass.copy();
-        assertNotNull(replacementClass.getInstance());
-        replacementClass.unmap();
-
-        DeltaModification modification = new DeltaModification("mod_testApplyUnmapOneEntityFromSyntaxNode", Collections.singletonList(replacementClass), null, null, null, 0.0);
-
-        model.apply(modification);
-
-        assertEquals(getCombinedModel().getSemanticModel().getNodes().size(), model.getSemanticModel().getNodes().size(), "Number of expected entities does not match");
-
-        Class retrievedReplacementClass = model.getSemanticModel().getNodes().stream()
-                .filter(node -> node instanceof Class)
-                .map(node -> (Class) node)
-                .filter(clazz -> Objects.equals(clazz.getUuid(), replacementClass.getUuid()))
-                .findFirst()
-                .orElseThrow();
-        assertEquals(retrievedReplacementClass.getUuid(), retrievedReplacementClass.getUuid(), "Replacement entity does not have the same id as replaced entity");
-
-        assertNull(retrievedReplacementClass.getMappedSyntaxNodeLabel(), "New node's original label is not unset");
-        assertNull(retrievedReplacementClass.getMappedSyntaxNodeUuid(), "New node's mapping uuid is not unset");
-
-        assertEquals(getCombinedModel().getSemanticModel().getEdges().size(), model.getSemanticModel().getEdges().size(), "Number of expected relations does not match");
-
-        // ensure that the explicit mapping from entity to syntax node does not get generated
+    public void testApplyMapLiteralToPrimitiveNode() {
+        CombinedModel model = modelWithMappedLiteral();
+        SyntaxNode time = syntaxNode(model, "time");
         assertTrue(model.generateModelLinkings().stream()
-                .noneMatch(mapping -> mapping.getNodeUUID().equals(retrievedReplacementClass.getUuid())));
+                .noneMatch(mapping -> mapping.getPrimitiveUUID().equals(time.getUuid())));
+        Literal literal = new Literal("time");
+        link(literal, time);
+        Relation relation = new DataProperty(airline(model).getUuid(), literal.getUuid(), generateResourceURI("time"));
+        model.apply(change(List.of(literal), List.of(relation)));
+        Literal actual = (Literal) model.getSemanticModel().getNode(literal.getUuid());
+        assertTrue(actual.isMapped());
+        assertEquals(time.getUuid(), actual.getMappedSyntaxNodeUuid());
+        assertEquals(time.getLabel(), actual.getMappedSyntaxNodeLabel());
+        assertEquals(time.getPathAsJSONPath(), actual.getMappedSyntaxNodePath());
+        assertEquals(3, model.getSemanticModel().getNodes().size());
+        assertEquals(2, model.getSemanticModel().getEdges().size());
+        assertTrue(model.generateModelLinkings().stream().anyMatch(mapping ->
+                mapping.getNodeUUID().equals(literal.getUuid()) && mapping.getPrimitiveUUID().equals(time.getUuid())));
+    }
+
+    @Test
+    public void testRejectsMappingToMissingSyntaxNode() {
+        // All generated syntax nodes are linkable; exercise an invalid target explicitly.
+        CombinedModel model = modelWithMappedLiteral();
+        Literal literal = new Literal("missing");
+        literal.setMappedSyntaxNodeUuid("missing-syntax-node");
+        literal.setMappedSyntaxNodeLabel("missing");
+        literal.setMappedSyntaxNodePath("$.missing");
+        assertThrows(CombinedModelIntegrityException.class,
+                () -> model.apply(change(List.of(literal), null)));
+        assertEquals(2, model.getSemanticModel().getNodes().size());
+    }
+
+    @Test
+    public void testApplyUnmapLiteralFromSyntaxNode() {
+        CombinedModel model = modelWithMappedLiteral();
+        Literal original = code(model);
+        assertTrue(original.isMapped());
+        Literal replacement = original.copy();
+        replacement.unmap();
+        model.apply(change(List.of(replacement), null));
+        Literal actual = (Literal) model.getSemanticModel().getNode(original.getUuid());
+        assertEquals(original.getUuid(), actual.getUuid());
+        assertFalse(actual.isMapped());
+        assertNull(actual.getMappedSyntaxNodeUuid());
+        assertNull(actual.getMappedSyntaxNodeLabel());
+        assertNull(actual.getMappedSyntaxNodePath());
+        assertEquals(2, model.getSemanticModel().getNodes().size());
+        assertEquals(1, model.getSemanticModel().getEdges().size());
+        assertTrue(model.generateModelLinkings().stream()
+                .noneMatch(mapping -> mapping.getNodeUUID().equals(original.getUuid())));
     }
 
     @Test
     public void testApplyRemoveEntityAndRelation() {
-        CombinedModel model = getCombinedModel();
-
-        Class airlineClass = model.getSemanticModel().getNodes().stream()
-                .filter(node -> node instanceof Class)
-                .map(node -> (Class) node)
-                .filter(clazz -> clazz.getURI().equals(generateResourceURI("airline")))
-                .findFirst()
-                .orElseThrow();
-
-        Class nameClass = model.getSemanticModel().getNodes().stream()
-                .filter(node -> node instanceof Class)
-                .map(node -> (Class) node)
-                .filter(instance -> instance.getURI().equals(generateResourceURI("name")))
-                .findFirst()
-                .orElseThrow();
-
-        Relation airlineNameRelation = model.getSemanticModel().getEdges().stream()
-                .filter(relation -> relation.getFrom().equals(airlineClass.getUuid())
-                        && relation.getTo().equals(nameClass.getUuid()))
-                .findFirst()
-                .orElseThrow();
-
-        DeltaModification modification = new DeltaModification("mod_testApplyRemoveOneEntityAndOneRelation",
-                List.of(airlineClass, nameClass),
-                Collections.singletonList(airlineNameRelation),
-                null,
-                null,
-                0.0);
+        CombinedModel model = modelWithMappedLiteral();
+        Class remaining = airline(model);
+        Literal removed = code(model);
+        Relation relation = model.getSemanticModel().getEdges().get(0);
+        DeltaModification modification = change(List.of(removed), List.of(relation));
         modification.setDeletion(true);
-
         model.apply(modification);
-
-        assertEquals(getCombinedModel().getSemanticModel().getNodes().size() - 2, model.getSemanticModel().getNodes().size(), "Number of expected entities does not match");
-        assertFalse(model.getSemanticModel().getNodes().contains(nameClass), "Deleted node is still available");
-        assertFalse(model.getSemanticModel().getNodes().contains(airlineClass), "Deleted node is still available");
-        assertFalse(model.getSemanticModel().getEdges().contains(airlineNameRelation), "Deleted relation is still available");
-        // check that connecting edges are also deleted
-        assertEquals(getCombinedModel().getSemanticModel().getEdges().size() - 3, model.getSemanticModel().getEdges().size(), "Number of expected relations does not match");
-
-        // ensure that the mapping from name to syntax has been deleted
-        assertTrue(model.generateModelLinkings().stream().noneMatch(mapping -> mapping.getNodeUUID().equals(nameClass.getUuid())));
+        assertEquals(List.of(remaining), model.getSemanticModel().getNodes());
+        assertTrue(model.getSemanticModel().getEdges().isEmpty());
+        assertTrue(model.generateModelLinkings().isEmpty());
     }
-
-
 }

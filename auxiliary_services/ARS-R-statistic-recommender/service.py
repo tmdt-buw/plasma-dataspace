@@ -10,7 +10,7 @@ from rdflib import XSD
 import modelbuilder.modelbuilder
 import registration
 from linkedmodelextension import linked_model_extender as lme
-from schemas import CombinedModel, DeltaModification, SemanticModelNode, Literal, NamedEntity, Relation
+from schemas import CombinedModel, DeltaModification, Class, Literal, NamedEntity, DataProperty, ObjectProperty
 from util.namespaces import PLSM, PLCM
 from apscheduler.schedulers.background import BackgroundScheduler  # runs tasks in the background
 from apscheduler.triggers.cron import CronTrigger  # allows us to specify a recurring time for execution
@@ -76,12 +76,13 @@ def retrain_task():
 def generate_recommendations(combinedModel: CombinedModel) -> list[DeltaModification]:
     count = 0
     recommendations: list[DeltaModification] = []
-    for anchor in combinedModel.semanticModel.nodes:
+    if combinedModel.semanticModel is None:
+        return []
+    for anchor in combinedModel.semanticModel.nodes or []:
         if type(anchor) == Literal or type(anchor) == NamedEntity:
             continue
 
         extensions = lme.generate_lme(anchor=anchor.uri, limit=10)
-        recommendations = []
         for (s, p, o), c in extensions:
             if p.startswith(str(PLSM)) or p.startswith(str(PLCM)) or o.startswith(str(PLSM)) or o.startswith(str(PLCM)):
                 continue
@@ -101,7 +102,7 @@ def generate_recommendations(combinedModel: CombinedModel) -> list[DeltaModifica
 
             if o_smn:
                 existing = False  # needed to break two loops
-                for edge in combinedModel.semanticModel.edges:
+                for edge in combinedModel.semanticModel.edges or []:
                     if edge.from_ == anchor.uuid and edge.to == o_smn.uuid and edge.uri == p:
                         existing = True
                         break
@@ -117,8 +118,8 @@ def generate_recommendations(combinedModel: CombinedModel) -> list[DeltaModifica
                         'uri': o,
                         'label': o.removeprefix(str(XSD)),
                         'value': o.removeprefix(str(XSD)),
-                        'x': anchor.x + 50,
-                        'y': anchor.y - 150,
+                        'x': (anchor.x or 0) + 50,
+                        'y': (anchor.y or 0) - 150,
                         'uuid': str(uuid.uuid1())
                     })
 
@@ -127,20 +128,21 @@ def generate_recommendations(combinedModel: CombinedModel) -> list[DeltaModifica
                 else:
                     # convert object node
                     label, comment = get_meta_info(o)
-                    o_smn = SemanticModelNode.model_validate(
+                    o_smn = Class.model_validate(
                         {'_class': 'Class',
                          'uri': o,
                          'label': label,
                          'description': comment,
-                         'x': anchor.x + 50,
-                         'y': anchor.y - 150,
+                         'x': (anchor.x or 0) + 50,
+                         'y': (anchor.y or 0) - 150,
                          'uuid': str(uuid.uuid1())})
 
             delta.entities = [o_smn]
 
             # convert relation
             label, comment = get_meta_info(p)
-            op: Relation = Relation.model_validate(
+            relation_type = DataProperty if isinstance(o_smn, Literal) else ObjectProperty
+            op = relation_type.model_validate(
                 {'_class': 'DataProperty' if type(o_smn) == Literal else 'ObjectProperty',
                  'uri': p,
                  'label': label,

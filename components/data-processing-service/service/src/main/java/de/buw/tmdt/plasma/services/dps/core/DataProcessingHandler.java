@@ -59,6 +59,7 @@ public class DataProcessingHandler {
 
     public String processFile(CombinedModel template, String dataId, String fileId) {
         List<File> files = dataStorageHandler.listFiles(dataId);
+        if (files.isEmpty()) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No files available for this dataId");
         File file;
         if (fileId == null) {
             file = files.get(files.size() - 1);
@@ -102,7 +103,6 @@ public class DataProcessingHandler {
             RDFConverter converter = new RDFConverter(prefixMapping);
             Model combined = ModelFactory.createDefaultModel();
             combined.setNsPrefixes(prefixes);
-            template.getSemanticModel().setId(UUID.randomUUID().toString());
             for (JsonNode node : nodes) {
                 Model model = converter.convertToRDF(template, node);
                 combined.add(model);

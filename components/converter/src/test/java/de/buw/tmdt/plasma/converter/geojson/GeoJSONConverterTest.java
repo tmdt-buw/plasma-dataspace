@@ -2,17 +2,20 @@ package de.buw.tmdt.plasma.converter.geojson;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.buw.tmdt.plasma.converter.ConversionException;
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
-public class GeoJSONConverterTest extends TestCase {
+public class GeoJSONConverterTest {
 
     ObjectMapper mapper = new ObjectMapper();
 
+    @Test
     public void testGeoJson() throws IOException, ConversionException {
         String prefix = "geojson/";
         InputStream is = GeoJSONConverter.class.getClassLoader().getResourceAsStream(prefix + "test.json");

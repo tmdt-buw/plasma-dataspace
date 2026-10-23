@@ -64,9 +64,47 @@ matching branch tag and an immutable `sha-*` tag; a tag such as `release-1.8.2-t
 `sha-*`. The frontend image is built with base href `/plasma/` and sends its API requests through `/plasma/api/sms`
 and `/plasma/api/dps`. MariaDB and Fuseki remain pinned third-party images and are not built by this workflow.
 
-The release build currently skips four stale datamodel tests: the test generator was migrated from mapped `Class`
-nodes to `Literal` nodes, while those tests still expect the old fixture. This is existing test debt and should be
-repaired separately before enabling `mvn verify` as a publishing gate.
+### Tests
+
+Run the Java suites with JDK 21 from the repository root:
+
+```shell
+mvn -pl components/semantic-modeling-service/service,components/data-processing-service/service -am test
+```
+
+The core suites cover RDF conversion (including nested arrays and literal field names),
+CSV/GeoJSON/ESRI conversion, storage preservation, semantic model metadata round trips,
+and modeling history. The browser suites exercise the conversion dialog and modeling
+URI editor using real templates in headless Chrome:
+
+```shell
+cd frontend
+npm ci
+npm test
+```
+
+Set `CHROME_BIN` when Chrome/Chromium is not on the default path.
+For the complete integration suite, install the recommendation test dependencies in
+an isolated Python 3.11 environment, then run:
+
+```shell
+python3 -m pip install -r auxiliary_services/ARS-R-statistic-recommender/requirements-test.txt
+./scripts/test-integration.sh
+```
+
+The script creates a separate Compose project with disposable MariaDB and Fuseki
+services, runs Java verification plus the recommendation API/store tests, then removes
+only that temporary project. Ports 13316 and 18303 are bound to loopback; override
+`PLASMA_TEST_DATABASE_PORT` / `PLASMA_TEST_FUSEKI_PORT` when needed. It never mounts
+existing application data. The publishing workflow runs these checks before publishing.
+
+When running tests manually against equivalent disposable services, set
+`PLASMA_TEST_DATABASE=true`, `PLASMA_TEST_DATABASE_URL`, `PLASMA_TEST_FUSEKI`,
+`PLASMA_TEST_TRIPLESTORE=true`, `SPARQL_SM_STORE`, and `SPARQL_ONTOLOGIES_STORE`.
+Database tests use the `plasma_cleanup_test` database and require a disposable URL;
+RDF integration tests require explicitly named `cleanup` datasets. Without these
+settings only the integration cases are skipped; API and core unit tests remain active.
+
 
 ### Starting PLASMA
 

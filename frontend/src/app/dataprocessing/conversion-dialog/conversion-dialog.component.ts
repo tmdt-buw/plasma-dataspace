@@ -13,7 +13,7 @@ import { Util } from '../../../../projects/smui/src/lib/modeling/model/common/ut
 export class ConversionDialogComponent implements OnInit {
 
   @Input() model: ModelingInfo;
-  fileList: Array<string>;
+  fileList: Array<string> = [];
   selectedFile: string;
 
   constructor(private processingService: DataProcessingControllerService, private notification: NzNotificationService,
@@ -42,20 +42,22 @@ export class ConversionDialogComponent implements OnInit {
   }
 
   triggerConversion(): void {
+    if (!this.selectedFile) return;
     this.modelingService.getCombinedModel(this.model.id).subscribe(
       (cm: CombinedModel) => {
         this.processingService.convertFile(this.model.dataId, cm, this.selectedFile).subscribe(rdf => {
-            const filename = this.selectedFile.replace('.json', '.ttl');
+            const filename = this.selectedFile.replace(/\.[^.]+$/, '') + '.ttl';
             Util.download(filename, rdf);
           },
           async error => {
-            const err = JSON.parse(await error.error.text());
-            if (error.message.includes('service unavailable')) {
-              this.notification.error('Error during conversion', 'Processing service not reachable');
-            } else {
-
-              this.notification.error('Error during conversion', err.message);
+            let message = error?.error?.message || error?.message || 'Conversion failed';
+            if (typeof error?.error?.text === 'function') {
+              try {
+                const text = await error.error.text();
+                try { message = JSON.parse(text).message || text; } catch { message = text || message; }
+              } catch { /* Keep the HTTP error message if the body cannot be read. */ }
             }
+            this.notification.error('Error during conversion', message);
 
           });
       },

@@ -1,0 +1,8 @@
+@prefix fuseki: <http://jena.apache.org/fuseki#> .
+@prefix ja: <http://jena.hpl.hp.com/2005/11/Assembler#> .
+<models> a fuseki:Service; fuseki:name "cleanup-models";
+ fuseki:serviceQuery "query", "sparql"; fuseki:serviceUpdate "update";
+ fuseki:dataset [a ja:MemoryDataset] .
+<ontologies> a fuseki:Service; fuseki:name "cleanup-ontologies";
+ fuseki:serviceQuery "query", "sparql"; fuseki:serviceUpdate "update";
+ fuseki:dataset [a ja:MemoryDataset] .

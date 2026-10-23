@@ -1,7 +1,9 @@
 networkx==2.6.3
 fastapi
 node2vec==0.4.4
-numpy==1.20.3
+numpy==1.23.5
+scipy==1.10.1
+gensim==4.3.2
 rdflib==6.0.2
 pydantic
 datamodel-code-generator[http]
@@ -12,4 +14,3 @@ apscheduler
 requests
 bson
 python-dotenv
-uuid

@@ -1,135 +1,57 @@
+"""Integration against explicitly supplied, disposable Fuseki datasets."""
+import json
 import os
-import unittest
 import uuid
-from pathlib import Path
-from typing import List
-from unittest import mock
-
-from SPARQLWrapper import SPARQLWrapper, JSON, TURTLE, POST, INSERT
-from rdflib import URIRef, Graph, Namespace, Literal, RDF
-
+from unittest.mock import patch
+import pytest
+import requests
+from rdflib import Graph, Literal, Namespace, RDF, RDFS, URIRef
 from modelbuilder import modelbuilder
-import service
-from modelbuilder.modelbuilder import PREFIXES
-from schemas import CombinedModel, SemanticModel, SemanticModelNode
-from util.namespaces import PLCM, PLSM
+from util.namespaces import PLCM
 
-sparql_sm_store = "http://localhost:3030/kgstest/"
-sparql_ontology_store = "http://localhost:3030/ontologiestest/"
+pytestmark = pytest.mark.skipif(os.getenv("PLASMA_TEST_TRIPLESTORE") != "true", reason="Needs disposable Fuseki datasets")
 
 
-clear_database_query = """
-    DELETE {
-    ?s ?p ?o .
-} WHERE {
-    ?s ?p ?o .
-}
-"""
+def update(endpoint, query):
+    assert "cleanup" in endpoint, "Only disposable cleanup datasets are allowed"
+    response = requests.post(endpoint, data={"update": query}, timeout=15)
+    response.raise_for_status()
 
 
-def get_semantic_models() -> Graph:
-    kg: Graph = Graph()
-    count = 1
-    for file in os.listdir("testdata"):
-        g: Graph = Graph()
-        g.parse(Path("testdata", file), format="ttl")
-        model_node: URIRef = URIRef("model-" + str(count), PLSM)
-
-        for s in g.subjects(None, None):
-            g.add((model_node, PLCM.hasNode, s))
-
-        g.add((model_node, PLCM.cmUuid, Literal(str(uuid.uuid4()))))
-        g.add((model_node, RDF.type, PLCM.SemanticModel))
-        for namespace in g.namespace_manager.namespaces():
-            kg.namespace_manager.bind(namespace[0], namespace[1])
-
-        kg.__iadd__(g)
-        count += 1
-        print(len(kg))
-    return kg
+def triples(graph):
+    return "\n".join(f"{s.n3()} {p.n3()} {o.n3()} ." for s, p, o in graph)
 
 
-def generate_insert_data_query(triples: List):
-    """
-    Generate an update query to add the given triples to a triple store
-    """
-    q_header = """
-        INSERT DATA {
-           """
-    triples_data = ''.join([f'{s.n3()} {p.n3()} {o.n3()} .\n' for (s, p, o) in triples])
-
-    q_tail = """
-        }
-        """
-    return q_header + triples_data + q_tail
-
-
-def prepare_ontology_store():
-    sparql = SPARQLWrapper(sparql_ontology_store)
-    sparql.setQuery(modelbuilder.PREFIXES + """
-            DELETE WHERE {
-      ?s ?p ?o .
-    }
-        """)
-    sparql.setMethod(POST)
-    sparql.query()
-
-    onto = Graph()
-    onto.load("test/test_ontology.ttl", format="turtle")
-
-    query = generate_insert_data_query(list(onto.triples((None,None,None))))
-    sparql.setMethod(POST)
-    sparql.setQuery(query)
-    sparql.query()
-
-
-def prepare_semantic_model_store():
-
-    sparql = SPARQLWrapper(sparql_sm_store)
-    sparql.setQuery(modelbuilder.PREFIXES + """
-            SELECT (count(?s) as ?count) WHERE {
-              ?s ?p ?o .
-            }
-        """)
-    # sparql.setCredentials("admin", "plasma")
-    # sparql.setMethod(POST)
-    sparql.setReturnFormat(JSON)
-    results = sparql.query().convert()
-
-    count = int(results["results"]["bindings"][0]["count"]['value'])
-
-    if count > 0:
-        return
-
-    kg = get_semantic_models()
-
-    query = generate_insert_data_query(list(kg.triples((None,None,None))))
-    sparql.setMethod(POST)
-    sparql.setQuery(query)
-    sparql.query()
-
-
-class TestStringMethods(unittest.TestCase):
-
-    @mock.patch.dict(os.environ, {'sparql_sm_store': sparql_sm_store,
-                                  'sparql_ontologies_store': sparql_ontology_store})
-    def test_connect_triple_store(self):
-        prepare_semantic_model_store()
-        prepare_ontology_store()
-        # modelbuilder.get_models()
-        service.init()
-
-        cm: CombinedModel = CombinedModel()
-        cm.recommendations = []
-        cm.semanticModel = SemanticModel()
-        smn = SemanticModelNode.parse_obj({"_class": "Class",
-                                           "uuid": str(uuid.uuid1())})
-        # smn.uri = "http://plasma.uni-wuppertal.de/schema#latitude"
-        smn.uri = "https://local.ontology#Haltestelle"
-        cm.semanticModel.nodes = [smn]
-        cm_with_recommendations: CombinedModel = service.generate_recommendations(combinedModel=cm)
-        print("recommendations", cm_with_recommendations.recommendations)
-
-
-if __name__ == '__main__':
-    unittest.main()
+def test_reads_models_and_optional_ontology_descriptions(tmp_path, monkeypatch):
+    models = os.environ["SPARQL_SM_STORE"]
+    ontologies = os.environ["SPARQL_ONTOLOGIES_STORE"]
+    prefix = Namespace(f"urn:cleanup:{uuid.uuid4()}:")
+    graph = Graph()
+    for index in range(2):
+        base = URIRef(prefix[f"model-{index}"])
+        node = URIRef(str(base) + "-node")
+        graph.add((base, RDF.type, PLCM.SemanticModel))
+        graph.add((base, PLCM.cmUuid, Literal(str(uuid.uuid4()))))
+        graph.add((node, RDF.type, prefix.Station))
+        graph.add((node, PLCM.cmUuid, Literal(str(uuid.uuid4()))))
+        graph.add((node, prefix.measures, Literal(index)))
+    ontology = Graph()
+    ontology.add((prefix.Station, RDFS.label, Literal("Station")))
+    ontology.add((prefix.Station, RDFS.comment, Literal("Example station")))
+    ontology.add((prefix.measures, RDFS.label, Literal("measures")))
+    cache = tmp_path / "models.json"
+    monkeypatch.setattr(modelbuilder.config.CACHE, "RAW_MODELS_PATH", str(cache))
+    try:
+        update(models, "INSERT DATA {" + triples(graph) + "}")
+        update(ontologies, "INSERT DATA {" + triples(ontology) + "}")
+        modelbuilder.get_models()
+        stored = json.loads(cache.read_text())
+        own = [m for m in stored if any(t[0] == str(prefix.Station) for t in m)]
+        assert len(own) == 2  # Node UUID metadata must not be mistaken for another model.
+        assert all(len(m) == 1 and m[0][1] == str(prefix.measures) for m in own)
+        metadata = modelbuilder.build_label_index()
+        assert metadata[str(prefix.Station)] == {"label": "Station", "comment": "Example station"}
+        assert metadata[str(prefix.measures)] == {"label": "measures", "comment": None}
+    finally:
+        update(models, "DELETE DATA {" + triples(graph) + "}")
+        update(ontologies, "DELETE DATA {" + triples(ontology) + "}")

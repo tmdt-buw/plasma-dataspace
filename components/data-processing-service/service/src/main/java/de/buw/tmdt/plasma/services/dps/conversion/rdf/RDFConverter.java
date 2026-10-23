@@ -1,636 +1,221 @@
 package de.buw.tmdt.plasma.services.dps.conversion.rdf;
 
 import com.fasterxml.jackson.core.JsonPointer;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ValueNode;
 import de.buw.tmdt.plasma.datamodel.CombinedModel;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.Class;
-import de.buw.tmdt.plasma.datamodel.semanticmodel.Literal;
 import de.buw.tmdt.plasma.datamodel.semanticmodel.*;
-import de.buw.tmdt.plasma.datamodel.syntaxmodel.*;
+import de.buw.tmdt.plasma.datamodel.syntaxmodel.SyntaxNode;
 import de.buw.tmdt.plasma.services.dps.conversion.ConversionException;
 import org.apache.jena.rdf.model.*;
 import org.apache.jena.shared.PrefixMapping;
 import org.apache.jena.vocabulary.RDF;
-import org.jetbrains.annotations.NotNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.web.util.HtmlUtils;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static de.buw.tmdt.plasma.datamodel.syntaxmodel.SyntaxNode.ARRAY_PATH_TOKEN;
 import static de.buw.tmdt.plasma.datamodel.syntaxmodel.SyntaxNode.PREDEFINED_LABELS;
+import static de.buw.tmdt.plasma.datamodel.syntaxmodel.SyntaxNode.ROOT_PATH_TOKEN;
 
-/**
- * Converter to parse a {@link SemanticModel} with filled {@link Literal}s and convert it to RDF.
- */
+/** Converts mapped values and their array contexts without interpreting field names as JSONPath. */
 public class RDFConverter {
-
-    public static final Logger log = LoggerFactory.getLogger(RDFConverter.class);
-
-    private static final int NODE_LABEL_LENGTH = 254;
-    private static final String ROOT_ELEMENT_NAME = "";
-
-    private static final String MISSING_DATA_LITERAL = "##ValueNotAvailable##";
-
-
     private final PrefixMapping prefixes;
+    // Keep identifiers distinct when the caller merges several converted records.
+    private long counter;
 
-    /* Runtime resources.
-     * Those are reset for every datum to parse.
-     */
-    private CombinedModel combinedModel;
-    private JsonNode datum;
-    private Map<String, RDFNode> uuidtoResource = new HashMap<>();
-    private Model m;
-    private String smURI;
-    private String plasmaURI;
-    private Property hasValueProperty;
-    private String semanticModelId;
-    private Map<SemanticNode, List<RDFNode>> arrayExpansionMap = new HashMap<>();
-    private Map<String, RDFNode> deepListMap = new HashMap<>();
-    private int counter = 0;
-    private boolean dirty = false;
-    List<SemanticNode> unprocessedNodes;
-    List<Relation> unprocessedEdges;
-    Set<Relation> processed;
-
-    /**
-     * Initialize a new {@link RDFConverter}.
-     */
     public RDFConverter(PrefixMapping prefixes) {
-        this.prefixes = prefixes;
+        this.prefixes = PrefixMapping.Factory.create()
+                .setNsPrefix("plsm", "http://plasma.uni-wuppertal.de/sm/")
+                .setNsPrefix("plasma", "http://plasma.uni-wuppertal.de/ontology#")
+                .setNsPrefix("plcm", PLCM.getURI())
+                .setNsPrefixes(prefixes);
     }
 
-    public void reset() {
-        uuidtoResource = new HashMap<>();
-        arrayExpansionMap = new HashMap<>();
-        semanticModelId = null;
-        combinedModel = null;
-        datum = null;
-        dirty = false;
+    /** Conversion state is local to each call; retained for callers of the former stateful converter. */
+    public void reset() { }
+
+    public List<Model> convertToRDF(CombinedModel model, List<JsonNode> data) throws ConversionException {
+        return convertToRDF(model, data, null);
     }
 
-    private void validate() {
-        // TODO
-    }
-
-    private int getCounter() {
-        return counter++;
-    }
-
-    public List<Model> convertToRDF(CombinedModel combinedModel, List<JsonNode> data) throws ConversionException {
-        return convertToRDF(combinedModel, data, null);
-    }
-
-    public List<Model> convertToRDF(CombinedModel combinedModel, List<JsonNode> data, String relativePath) throws ConversionException {
+    public List<Model> convertToRDF(CombinedModel model, List<JsonNode> data, String relativePath) throws ConversionException {
         List<Model> results = new ArrayList<>(data.size());
-        for (JsonNode datum : data) {
-            results.add(convertToRDF(combinedModel, datum, relativePath));
-        }
+        for (JsonNode datum : data) results.add(convertToRDF(model, datum, relativePath));
         return results;
     }
 
-    public Model convertToRDF(CombinedModel combinedModel, JsonNode datum) throws ConversionException {
-        return convertToRDF(combinedModel, datum, null);
+    public Model convertToRDF(CombinedModel model, JsonNode datum) throws ConversionException {
+        return convertToRDF(model, datum, null);
     }
 
-    public Model convertToRDF(CombinedModel combinedModel, JsonNode datum, String relativePath) throws ConversionException {
-        SemanticModel semanticModel = combinedModel.getSemanticModel();
-        if (dirty) {
-            reset();
+    /** relativePath, when present, is the JSON Pointer locating this datum in the original document. */
+    public Model convertToRDF(CombinedModel model, JsonNode datum, String relativePath) throws ConversionException {
+        if (model == null || model.getSemanticModel() == null || datum == null) {
+            throw new ConversionException("A semantic model and input datum are required");
         }
-        if (relativePath == null) {
-            relativePath = "";
+        Model result = ModelFactory.createDefaultModel().setNsPrefixes(prefixes);
+        SemanticModel semantic = model.getSemanticModel();
+        Map<String, List<String>> paths = new HashMap<>();
+        Map<String, List<String>> scopes = new HashMap<>();
+        List<String> base = pointerTokens(relativePath);
+        for (SemanticNode node : semantic.getNodes()) {
+            List<String> path = null;
+            if (node instanceof LinkableSemanticNode linked && linked.isLinked()) {
+                SyntaxNode syntax = model.getSyntaxModel().getNode(linked.getMappedSyntaxNodeUuid());
+                if (syntax == null) throw new ConversionException("Missing syntax node for " + node.getUuid());
+                path = relativeTokens(syntax.getPath(), base);
+                paths.put(node.getUuid(), path);
+            }
+            scopes.put(node.getUuid(), arrayScope(path));
         }
-        dirty = true;
-        this.combinedModel = combinedModel;
-        this.datum = datum;
-
-        semanticModelId = semanticModel.getId().substring(0, 13);
-        m = ModelFactory.createDefaultModel();
-        m.setNsPrefixes(prefixes);
-        smURI = prefixes.getNsPrefixURI("plsm");
-        plasmaURI = prefixes.getNsPrefixURI("plasma");
-        hasValueProperty = m.createProperty(plasmaURI, "hasValue");
-
-        unprocessedNodes = new ArrayList<>(combinedModel.getSemanticModel().getNodes());
-        unprocessedEdges = new ArrayList<>(combinedModel.getSemanticModel().getEdges());
-
-        // process primitive arrays
-
-        // process serialized arrays
-
-        // identify array contexts
-        List<SemanticModel> arrayContexts = new ArrayList<>();
-        for (SemanticNode unprocessedNode : unprocessedNodes) {
-            // check that this node is not part of any existing array context
-            if (arrayContexts.stream()
-                    .flatMap(ic -> ic.getNodes().stream())
-                    .anyMatch(node -> node.getUuid().equals(unprocessedNode.getUuid()))) {
-                continue;
+        // An unlinked class or constant in an array context must be instantiated for each row too.
+        Set<String> visited = new HashSet<>();
+        for (SemanticNode node : semantic.getNodes()) {
+            if (visited.contains(node.getUuid())) continue;
+            SemanticModel context = semantic.getArrayContext(node, new ArrayList<>());
+            List<String> scope = List.of();
+            for (SemanticNode member : context.getNodes()) {
+                List<String> candidate = scopes.get(member.getUuid());
+                if (!scope.isEmpty() && !candidate.isEmpty() && !scope.equals(candidate)) {
+                    throw new ConversionException("An array-context relation joins incompatible array scopes");
+                }
+                if (!candidate.isEmpty()) scope = candidate;
             }
-            SemanticModel arrayContext = combinedModel.getSemanticModel().getArrayContext(unprocessedNode, new ArrayList<>());
-            if (arrayContext.getNodes().size() == 1) {
-                // check if this node is actually mapped below an array
-                SemanticNode semanticNode = arrayContext.getNodes().get(0);
-                if (!semanticNode.isMapped()) {
-                    continue;
-                }
-                MappableSemanticNode mappedNode = (MappableSemanticNode) semanticNode;
-                SyntaxNode syntaxNode = combinedModel.getSyntaxModel().getNode(mappedNode.getMappedSyntaxNodeUuid());
-                if (!syntaxNode.getPath().contains(ARRAY_PATH_TOKEN)) {
-                    continue;
-                }
+            for (SemanticNode member : context.getNodes()) {
+                scopes.put(member.getUuid(), scope);
+                visited.add(member.getUuid());
             }
-
-            // heck homogeneity of each array context (same level)
-            for (Relation r : arrayContext.getEdges()) {
-                SemanticNode from = semanticModel.getNode(r.getFrom());
-                SemanticNode to = semanticModel.getNode(r.getTo());
-                int fromLevel = combinedModel.getArrayDepthOfNode(from);
-                int toLevel = combinedModel.getArrayDepthOfNode(to);
-                if (fromLevel > 0 && toLevel > 0 && fromLevel != toLevel) {
-                    throw new ConversionException("Found array context spanning multiple array depths");
-                }
-                // reject all models with array context depth > 1 (remove when #68 is solved)
-                if (fromLevel > 1 || toLevel > 1) {
-                    throw new ConversionException("Array contexts of depth greater than 1 are not yet supported");
-                }
-            }
-            arrayContexts.add(arrayContext);
-        }
-        arrayContexts = arrayContexts.stream().sorted(Comparator.comparing(ac ->
-                                ac.getNodes().stream()
-                                        .filter(SemanticNode::isMapped)
-                                        .map(node -> (MappableSemanticNode) node)
-                                        .map(node -> combinedModel.getSyntaxModel().getNode(node.getMappedSyntaxNodeUuid()))
-                                        .map(snode -> snode.getPath().stream()
-                                                .filter(token -> token.equals(ARRAY_PATH_TOKEN))
-                                                .count())
-                                        .findFirst().orElseThrow()
-                        )
-                )
-                .collect(Collectors.toList());
-        Collections.reverse(arrayContexts);
-
-        for (SemanticModel arrayContext : arrayContexts) {
-            LinkableSemanticNode indexNode;
-            if (arrayContext.getNodes().size() == 1) {
-                indexNode = (LinkableSemanticNode) arrayContext.getNodes().get(0);
-            } else {
-                // identify the index node
-                List<LinkableSemanticNode> indexNodes = arrayContext.getNodes().stream()
-                        .filter(smn -> smn instanceof LinkableSemanticNode)
-                        .map(smn -> (LinkableSemanticNode) smn)
-                        .filter(LinkableSemanticNode::isLinked)
-                        .filter(smn -> smn.getMappedSyntaxNodePath().endsWith(ARRAY_PATH_TOKEN))
-                        .collect(Collectors.toList());
-                if (indexNodes.size() != 1) {
-                    throw new ConversionException(
-                            "Could not identify unanimous index node for array context containing node " +
-                                    arrayContext.getNodes().get(0).getUuid() +
-                                    " (" + arrayContext.getNodes().get(0).getURI() + ")");
-                }
-                indexNode = indexNodes.get(0);
-            }
-            // identify the array json node
-            SyntaxNode syntaxNode = combinedModel.getSyntaxModel().getNode(indexNode.getMappedSyntaxNodeUuid());
-            JsonPointer tmpPointer = JsonPointer.compile(syntaxNode.getPathAsJSONPath());
-            JsonPointer arrayPointer = null;
-            JsonPointer tailPointer = tmpPointer;
-            while (arrayPointer == null) {
-                JsonNode jsonNode = datum.at(tmpPointer);
-                if (jsonNode.isArray()) {
-                    arrayPointer = tmpPointer;
-                    continue;
-                }
-                if (tmpPointer.toString().equals("/")) {
-                    throw new ConversionException(
-                            "Could not identify array node for array context containing node " +
-                                    arrayContext.getNodes().get(0).getUuid() +
-                                    " (" + arrayContext.getNodes().get(0).getURI() + ")");
-                }
-                tailPointer = tmpPointer;
-                tmpPointer = tmpPointer.head();
-            }
-
-            JsonNode arrayNode = datum.at(arrayPointer);
-            if (!arrayNode.isArray()) {
-                throw new ConversionException("Node " + arrayPointer + " is not an array!");
-            }
-
-            RDFList list = buildRDFListForArrayContext(indexNode, arrayContext);
-            uuidtoResource.put(indexNode.getUuid(), list);
         }
 
-        // process the remaining nodes and edges
-        for (SemanticNode node : unprocessedNodes) {
-            convertNodeToRDF(node, false);
+        String id = semantic.getId() == null ? UUID.randomUUID().toString() : semantic.getId();
+        String baseUri = prefixes.getNsPrefixURI("plsm") + id.substring(0, Math.min(13, id.length())) + "-";
+        Map<String, List<Occurrence>> occurrences = new HashMap<>();
+        for (SemanticNode node : semantic.getNodes()) {
+            List<Map<List<String>, Integer>> bindings = new ArrayList<>();
+            enumerate(datum, scopes.get(node.getUuid()), 0, new LinkedHashMap<>(), bindings);
+            List<Occurrence> values = new ArrayList<>();
+            for (Map<List<String>, Integer> binding : bindings) {
+                JsonNode value = paths.containsKey(node.getUuid()) ? resolve(datum, paths.get(node.getUuid()), binding) : null;
+                RDFNode rdf = convertNode(result, node, value, baseUri);
+                if (rdf != null) values.add(new Occurrence(rdf, binding));
+            }
+            occurrences.put(node.getUuid(), values);
         }
-        for (Relation r : unprocessedEdges) {
-            SemanticNode from = semanticModel.getNode(r.getFrom());
-            SemanticNode to = semanticModel.getNode(r.getTo());
-            RDFNode fromNode = uuidtoResource.get(from.getUuid());
-            RDFNode toNode = uuidtoResource.get(to.getUuid());
-            List<RDFNode> headNodes = List.of(toNode);
-            List<RDFNode> tailNodes = List.of(fromNode);
-            if (!(toNode instanceof RDFList) && arrayExpansionMap.containsKey(to)) {
-                headNodes = arrayExpansionMap.get(to);
-            }
-            if (arrayExpansionMap.containsKey(from)) {
-                tailNodes = arrayExpansionMap.get(from);
-            }
-            for (RDFNode tailNode : tailNodes) {
-                for (RDFNode headNode : headNodes) {
-                    tailNode.asResource().addProperty(m.createProperty(m.expandPrefix(r.getURI())), headNode);
+        for (Relation relation : semantic.getEdges()) {
+            List<Occurrence> subjects = occurrences.get(relation.getFrom());
+            List<Occurrence> objects = occurrences.get(relation.getTo());
+            if (subjects == null || objects == null) throw new ConversionException("Relation references a missing semantic node");
+            Property predicate = result.createProperty(result.expandPrefix(relation.getURI()));
+            for (Occurrence subject : subjects) {
+                if (!subject.value.isResource()) throw new ConversionException("A literal cannot be the subject of an RDF relation");
+                for (Occurrence object : objects) {
+                    if (compatible(subject.indices, object.indices)) subject.value.asResource().addProperty(predicate, object.value);
                 }
             }
         }
-        return m;
+        return result;
     }
 
-    private RDFNode convertNodeToRDF(SemanticNode node, boolean force) throws ConversionException {
-        if (uuidtoResource.containsKey(node.getUuid()) && !force) {
-            return null;
-        }
-        RDFNode rdfNode = null;
-        if (node instanceof Class) {
-            Class clazz = (Class) node;
-            if (clazz.isMapped()) {
-                String syntaxNodeUuid = clazz.getMappedSyntaxNodeUuid();
-                RDFNode resultNode;
-
-                SyntaxNode syntaxNode = combinedModel.getSyntaxModel().getNode(syntaxNodeUuid);
-                List<String> nodePath = syntaxNode.getPath();
-                if (ARRAY_PATH_TOKEN.equals(nodePath.get(nodePath.size() - 1))) {
-                    // this is a child node of an array, refer back to parent node to build list
-                    JsonNode arrayNode = datum.at(JsonPointer.compile(syntaxNode.getPathAsJSONPath()).head());
-                    if (!(arrayNode instanceof ArrayNode)) {
-                        throw new ConversionException("Node " + JsonPointer.compile(syntaxNode.getPathAsJSONPath()).head() + " is not an array node!");
-                    }
-                    RDFList list = buildRDFListFromArray(arrayNode, clazz, JsonPointer.compile(syntaxNode.getPathAsJSONPath()).head().toString());
-                    arrayExpansionMap.put(clazz, list.asJavaList());
-                    resultNode = list;
-                } else if (syntaxNode instanceof SetNode) {
-                    JsonNode arrayNode = datum.at(JsonPointer.compile(syntaxNode.getPathAsJSONPath()));
-                    if (!(arrayNode instanceof ArrayNode)) {
-                        throw new ConversionException("Node " + JsonPointer.compile(syntaxNode.getPathAsJSONPath()) + " is not an array node!");
-                    }
-                    String value = readJSONArray((ArrayNode) arrayNode);
-                    resultNode = m.createLiteral(value);
-                } else {
-                    //String value = uuidValueMap.get(syntaxNodeUuid);
-                    resultNode = convertClassNodeToRDF(clazz);
+    private RDFNode convertNode(Model result, SemanticNode node, JsonNode value, String baseUri) throws ConversionException {
+        if (node instanceof Class clazz) {
+            // Class links describe the row's context. Only Literal mappings produce data values.
+            Resource resource = result.createResource(baseUri + counter++);
+            resource.addProperty(RDF.type, result.createResource(result.expandPrefix(clazz.getURI())));
+            Instance instance = clazz.getInstance();
+            if (instance != null) {
+                if (instance.getLabel() != null && !PREDEFINED_LABELS.contains(instance.getLabel())) {
+                    resource.addProperty(PLCM.label, instance.getLabel());
                 }
-                rdfNode = resultNode;
-            } else {
-                // not mapped
-                Resource resource = convertClassNodeToRDF(clazz);
-                rdfNode = resource;
+                if (instance.getDescription() != null && !instance.getDescription().isBlank()) {
+                    resource.addProperty(PLCM.description, instance.getDescription());
+                }
             }
-        } else if (node instanceof Literal) {
-            Literal l = (Literal) node;
-            rdfNode = convertLiteralNodeToRDF(l);
-        } else if (node instanceof NamedEntity) {
-            NamedEntity ne = (NamedEntity) node;
-            // create a resource which describes the named entity
-            // this will later be elevated to the ontology
-            Resource neResource = m.createResource(m.expandPrefix(ne.getURI()));
-            neResource.addProperty(RDF.type, PLCM.NamedEntity);
-
-            Resource resource = m.createResource();
-            resource.addProperty(RDF.type, neResource);
-            // use the b-node as reference
-            rdfNode = resource;
+            return resource;
         }
-        uuidtoResource.put(node.getUuid(), rdfNode);
-        return rdfNode;
+        if (node instanceof de.buw.tmdt.plasma.datamodel.semanticmodel.Literal literal) {
+            if (!literal.isMapped()) return literal.getValue() == null ? null : result.createLiteral(literal.getValue());
+            // Missing measurements do not become fabricated strings or values.
+            if (value == null || value.isMissingNode() || value.isNull()) return null;
+            if (value.isObject()) throw new ConversionException("An object must be linked to a Class, not mapped to a Literal");
+            return result.createLiteral(value.isArray() ? value.toString() : value.asText());
+        }
+        if (node instanceof NamedEntity named) {
+            Resource type = result.createResource(result.expandPrefix(named.getURI()));
+            type.addProperty(RDF.type, PLCM.NamedEntity);
+            return result.createResource().addProperty(RDF.type, type);
+        }
+        throw new ConversionException("Unsupported semantic node " + node.getClass().getSimpleName());
     }
 
-    private RDFList buildRDFListForArrayContext(LinkableSemanticNode indexNode, SemanticModel arrayContext) throws ConversionException {
-        LinkableSyntaxNode syntaxNode = findLinkedSyntaxNode(indexNode);
-        ArrayList<String> linkedSyntaxNodePath = new ArrayList<>(syntaxNode.getPath());
+    private record Occurrence(RDFNode value, Map<List<String>, Integer> indices) { }
 
-        PointerFactory pf = new PointerFactory(linkedSyntaxNodePath);
-        processed = new HashSet<>();
-
-        // for each data point in the array node, a new set of rdf entities has to be generated
-        List<RDFList> list = new ArrayList<>();
-        JsonPointer peekPointer = JsonPointer.compile(pf.composePath());
-        JsonNode peekNode = datum.at(peekPointer);
-        while (!peekNode.isMissingNode()) {
-            list.add(iterateArray(pf, 0, indexNode, arrayContext));
-            pf.increaseIndex(0);
-            peekPointer = JsonPointer.compile(pf.composePath());
-            peekNode = datum.at(peekPointer);
-        }
-        unprocessedEdges.removeAll(processed);
-        return list.get(0);
+    private static boolean compatible(Map<List<String>, Integer> first, Map<List<String>, Integer> second) {
+        return first.entrySet().stream().allMatch(entry -> !second.containsKey(entry.getKey()) || second.get(entry.getKey()).equals(entry.getValue()));
     }
 
-    private RDFList iterateArray(PointerFactory pf, int level, LinkableSemanticNode indexNode, SemanticModel arrayContext) throws ConversionException {
-        if (level >= pf.getDepth()) {
-            // process
-            String originPointer = pf.composePath();
-            JsonPointer peekPointer = JsonPointer.compile(pf.composePath());
-            JsonNode peekNode = datum.at(peekPointer);
-            List<RDFNode> nodes = new ArrayList<>();
+    private static List<String> arrayScope(List<String> path) {
+        if (path == null) return List.of();
+        int last = path.lastIndexOf(ARRAY_PATH_TOKEN);
+        return last < 0 ? List.of() : List.copyOf(path.subList(0, last + 1));
+    }
 
-            while (!peekNode.isMissingNode()) {
-                JsonNode entry = datum.at(JsonPointer.compile(pf.composePath()));
-                RDFNode rdfIndexNode = processArrayContext(arrayContext, indexNode, pf.getOriginalPath(), pf.composePath(), entry);
-                nodes.add(rdfIndexNode);
-                pf.increaseIndex(level);
-                peekPointer = JsonPointer.compile(pf.composePath());
-                peekNode = datum.at(peekPointer);
+    private static void enumerate(JsonNode datum, List<String> path, int offset,
+                                  Map<List<String>, Integer> binding, List<Map<List<String>, Integer>> results) throws ConversionException {
+        if (offset == path.size()) { results.add(Map.copyOf(binding)); return; }
+        if (datum == null || datum.isMissingNode() || datum.isNull()) return;
+        String token = path.get(offset);
+        if (ARRAY_PATH_TOKEN.equals(token)) {
+            if (!datum.isArray()) throw new ConversionException("Expected an array at " + path.subList(0, offset));
+            List<String> key = List.copyOf(path.subList(0, offset + 1));
+            for (int index = 0; index < datum.size(); index++) {
+                binding.put(key, index);
+                enumerate(datum.get(index), path, offset + 1, binding, results);
             }
-            RDFList list = m.createList(nodes.iterator());
-            deepListMap.put(originPointer, list);
-            return list;
+            binding.remove(key);
         } else {
-            return iterateArray(pf, level + 1, indexNode, arrayContext);
+            enumerate(datum.path(token), path, offset + 1, binding, results);
         }
     }
 
-
-    private LinkableSyntaxNode findLinkedSyntaxNode(LinkableSemanticNode node) {
-        return combinedModel.getSyntaxModel().getNodes().stream()
-                .filter(n -> n.getUuid().equals(node.getMappedSyntaxNodeUuid()))
-                .map(n -> (LinkableSyntaxNode) n)
-                .findFirst().orElseThrow();
+    private static JsonNode resolve(JsonNode datum, List<String> path, Map<List<String>, Integer> binding) {
+        JsonNode value = datum;
+        for (int offset = 0; offset < path.size(); offset++) {
+            if (ARRAY_PATH_TOKEN.equals(path.get(offset))) {
+                Integer index = binding.get(path.subList(0, offset + 1));
+                if (index == null) return null;
+                value = value.path(index);
+            } else value = value.path(path.get(offset));
+        }
+        return value;
     }
 
-    private RDFNode processArrayContext(SemanticModel arrayContext, LinkableSemanticNode indexNode,
-                                        String basePath, String currentPath, JsonNode entry) throws ConversionException {
-        RDFNode rdfIndexNode = null;
-        for (SemanticNode node : arrayContext.getNodes()) {
-            RDFNode rdfNode = convertNodeInArrayContextToRDF(node, entry, basePath);
-            if (node.equals(indexNode)) {
-                rdfIndexNode = rdfNode;
-            }
-            if (!arrayExpansionMap.containsKey(node)) {
-                arrayExpansionMap.put(node, new ArrayList<>());
-            }
-            arrayExpansionMap.get(node).add(rdfNode);
-            unprocessedNodes.remove(node);
-        }
-        for (Relation r : arrayContext.getEdges()) {
-            SemanticNode from = arrayContext.getNode(r.getFrom());
-            SemanticNode to = arrayContext.getNode(r.getTo());
-            RDFNode fromNode = uuidtoResource.get(from.getUuid());
-            RDFNode toNode = uuidtoResource.get(to.getUuid());
-            List<RDFNode> headNodes = List.of(toNode);
-            List<RDFNode> tailNodes = List.of(fromNode);
-
-            if (!arrayContext.getNodes().contains(to) && arrayExpansionMap.containsKey(to)) {
-                headNodes = arrayExpansionMap.get(to);
-            }
-            if (!arrayContext.getNodes().contains(from) && arrayExpansionMap.containsKey(from)) {
-                tailNodes = arrayExpansionMap.get(from);
-            }
-            for (RDFNode tailNode : tailNodes) {
-                for (RDFNode headNode : headNodes) {
-                    tailNode.asResource().addProperty(m.createProperty(m.expandPrefix(r.getURI())), headNode);
-                }
-            }
-            unprocessedEdges.remove(r);
-        }
-        // search outside of array context
-
-        for (Relation r : unprocessedEdges) {
-            SemanticNode from = combinedModel.getSemanticModel().getNode(r.getFrom());
-            SemanticNode to = combinedModel.getSemanticModel().getNode(r.getTo());
-            RDFNode fromNode = uuidtoResource.get(from.getUuid());
-            RDFNode toNode = uuidtoResource.get(to.getUuid());
-            if (fromNode == null || toNode == null) {
-                continue;
-            }
-            for (Map.Entry<String, RDFNode> listmapEntry : deepListMap.entrySet()) {
-                if (listmapEntry.getKey().startsWith(currentPath)) {
-                    RDFNode headNode = listmapEntry.getValue();
-                    fromNode.asResource().addProperty(m.createProperty(m.expandPrefix(r.getURI())), headNode);
-                    processed.add(r);
-                }
+    private static List<String> relativeTokens(List<String> path, List<String> base) throws ConversionException {
+        List<String> tokens = new ArrayList<>(path);
+        if (!tokens.isEmpty() && ROOT_PATH_TOKEN.equals(tokens.get(0))) tokens.remove(0);
+        if (base.size() > tokens.size()) throw new ConversionException("Relative path lies outside the mapped path");
+        for (int i = 0; i < base.size(); i++) {
+            if (!tokens.get(i).equals(base.get(i)) && !ARRAY_PATH_TOKEN.equals(tokens.get(i))) {
+                throw new ConversionException("Relative path does not match the mapped path");
             }
         }
-
-        return rdfIndexNode;
+        return List.copyOf(tokens.subList(base.size(), tokens.size()));
     }
 
-    private RDFNode convertNodeInArrayContextToRDF(SemanticNode node, JsonNode datum, String relativePath) throws ConversionException {
-        RDFNode rdfNode = null;
-        if (node instanceof Class) {
-            Class clazz = (Class) node;
-            if (clazz.isMapped()) {
-                String syntaxNodeUuid = clazz.getMappedSyntaxNodeUuid();
-                RDFNode resultNode;
-                SyntaxNode syntaxNode = combinedModel.getSyntaxModel().getNode(syntaxNodeUuid);
-
-
-                /*
-                 List<String> nodePath = schemaNode.getPath();
-                if (ARRAY_ELEMENT_NAME.equals(nodePath.get(nodePath.size() - 1))) {
-                    // this is a child node of an array, refer back to parent node to build list
-                    JsonNode arrayNode = datum.at(JsonPointer.compile(schemaNode.getPathAsJSONPointer()).head());
-                    if (!(arrayNode instanceof ArrayNode)) {
-                        throw new ConversionException("Node " + JsonPointer.compile(schemaNode.getPathAsJSONPointer()).head() + " is not an array node!");
-                    }
-                    RDFList list = buildRDFListFromArray(arrayNode, clazz, JsonPointer.compile(schemaNode.getPathAsJSONPointer()).head().toString());
-                    arrayExpansionMap.put(clazz, list.asJavaList());
-                    resultNode = list;
-                } else
-                 */
-                if (syntaxNode instanceof SetNode) {
-                    String jsonPointerPath = syntaxNode.getPathAsJSONPath();
-                    jsonPointerPath = jsonPointerPath.replaceFirst(relativePath, "");
-                    JsonNode arrayNode = datum.at(JsonPointer.compile(jsonPointerPath));
-                    if (!(arrayNode instanceof ArrayNode)) {
-                        throw new ConversionException("Node " + JsonPointer.compile(syntaxNode.getPathAsJSONPath()) + " is not an array node!");
-                    }
-                    String value = readJSONArray((ArrayNode) arrayNode);
-                    resultNode = m.createLiteral(value);
-                } else if (syntaxNode instanceof ObjectNode) {
-                    resultNode = convertClassNodeToRDF(clazz, datum, relativePath);
-                } else if (syntaxNode instanceof PrimitiveNode) {
-                    resultNode = convertClassNodeToRDF(clazz, datum, relativePath);
-                } else {
-                    log.warn("Encountered unknown node type for processing:" + syntaxNode);
-                    return null;
-                }
-                rdfNode = resultNode;
-            } else {
-                // not mapped
-                Resource resource = convertClassNodeToRDF(clazz, datum, relativePath);
-                rdfNode = resource;
+    private static List<String> pointerTokens(String pointer) throws ConversionException {
+        List<String> tokens = new ArrayList<>();
+        try {
+            for (JsonPointer part = JsonPointer.compile(pointer == null ? "" : pointer); !part.matches(); part = part.tail()) {
+                tokens.add(part.getMatchingProperty());
             }
-        } else if (node instanceof Literal) {
-            Literal l = (Literal) node;
-            rdfNode = convertLiteralNodeToRDF(l, datum, relativePath);
-
-        } else if (node instanceof NamedEntity) {
-            throw new ConversionException("Named Entity " + node.getURI() + " should not be part of an iteration context!");
+        } catch (IllegalArgumentException exception) {
+            throw new ConversionException("Relative path must be a JSON Pointer", exception);
         }
-        uuidtoResource.put(node.getUuid(), rdfNode);
-        return rdfNode;
-    }
-
-
-    @NotNull
-    private Resource convertClassNodeToRDF(Class clazz) throws ConversionException {
-        return convertClassNodeToRDF(clazz, datum, "");
+        return tokens;
     }
 
     public static String convertToInstanceId(String label) {
-        String formatted = label.trim().toLowerCase().replace(" ", "_");
-        formatted = HtmlUtils.htmlEscape(formatted);
-        formatted = formatted.replaceAll("##", "_");
-        formatted = formatted.replaceAll("#", "_");
-        formatted = formatted.replaceAll("\\[", "_");
-        formatted = formatted.replaceAll("\\]", "_");
-        formatted = formatted.replaceAll("\\)", "_");
-        formatted = formatted.replaceAll("\\(", "_");
-        formatted = formatted.replaceAll("__", "_");
-        return formatted;
-    }
-
-    private RDFNode convertLiteralNodeToRDF(Literal l) throws ConversionException {
-        return convertLiteralNodeToRDF(l, datum, "");
-    }
-
-    private RDFNode convertLiteralNodeToRDF(Literal l, JsonNode datum, String relativePath) throws ConversionException {
-        if (l.isMapped()) {
-            String syntaxNodeUuid = l.getMappedSyntaxNodeUuid();
-            SyntaxNode syntaxNode = combinedModel.getSyntaxModel().getNode(syntaxNodeUuid);
-            String jsonPointerPath = syntaxNode.getPathAsJSONPath();
-            jsonPointerPath = jsonPointerPath.replaceFirst(relativePath, "");
-            JsonNode valueNode = datum.at(JsonPointer.compile(jsonPointerPath));
-            if (!valueNode.isValueNode()) {
-                throw new ConversionException("Node " + JsonPointer.compile(syntaxNode.getPathAsJSONPath()) + " is not a value node!");
-            }
-            if (valueNode.isMissingNode()) {
-                // throw new ConversionException("Could not find value for syntaxId " + syntaxNodeUuid + " on model " + combinedModel.getId());
-                return m.createLiteral(MISSING_DATA_LITERAL);
-            } else {
-                String value = valueNode.asText();
-                return m.createLiteral(value);
-            }
-        } else {
-            return m.createLiteral(l.getValue());
-        }
-    }
-
-    /**
-     * Parses the values of an array and converts them to an {@link RDFList}.
-     *
-     * @param arrayNode The JSON node containing the array data
-     * @return The root element of the list
-     */
-    private RDFList buildRDFListFromArray(JsonNode arrayNode, Class clazz, String relativePath) throws ConversionException {
-        /*
-        SchemaNode schemaNode = combinedModel.getSyntaxModel().getNode(syntaxNodeUuid);
-        if(!(schemaNode instanceof SetNode)){
-            throw new ConversionException("Node " + syntaxNodeUuid + " is no SetNode");
-        }
-        SetNode node = (SetNode) schemaNode;
-         */
-        List<RDFNode> nodes = new ArrayList<>();
-        for (JsonNode node : arrayNode) {
-            if (node.isValueNode()) {
-                if (clazz != null) {
-                    Resource classResource = convertClassNodeToRDF(clazz);
-                    org.apache.jena.rdf.model.Literal valueLiteral = m.createLiteral(node.asText());
-                    classResource.addProperty(hasValueProperty, valueLiteral);
-                    nodes.add(classResource);
-                } else {
-                    nodes.add(m.createLiteral(node.asText()));
-                }
-            } else {
-                // should not happen
-                throw new ConversionException("There are no unprocessed complex arrays");
-            }
-        }
-        return m.createList(nodes.iterator());
-    }
-
-    @NotNull
-    private Resource convertClassNodeToRDF(Class clazz, JsonNode datum, String relativePath) throws ConversionException {
-        Instance i = clazz.getInstance();
-        Resource resource;
-        String baseURI = smURI + semanticModelId + "-" + getCounter();
-
-        resource = m.createResource(baseURI);
-        if (i != null) {
-            if (!PREDEFINED_LABELS.contains(i.getLabel())) {
-                resource.addProperty(PLCM.label, m.createLiteral(i.getLabel()));
-            }
-            if (i.getDescription() != null && !i.getDescription().isBlank()) {
-                resource.addProperty(PLCM.description, m.createLiteral(i.getDescription()));
-            }
-        }
-        resource.addProperty(RDF.type, m.createResource(m.expandPrefix(clazz.getURI())));
-        if (clazz.isMapped()) {
-            SyntaxNode syntaxNode = combinedModel.getSyntaxModel().getNode(clazz.getMappedSyntaxNodeUuid());
-            if (syntaxNode instanceof ObjectNode) {
-                // ignore the mapping, this is just for clarification
-                return resource;
-            }
-            String jsonPointerPath = syntaxNode.getPathAsJSONPath();
-            jsonPointerPath = jsonPointerPath.replaceFirst(relativePath, "");
-            JsonNode valueNode = datum.at(JsonPointer.compile(jsonPointerPath));
-            if (!valueNode.isValueNode()) {
-                throw new ConversionException("Node " + JsonPointer.compile(syntaxNode.getPathAsJSONPath()) + " is not a value node!");
-            }
-            org.apache.jena.rdf.model.Literal valueLiteral;
-            if (valueNode.isMissingNode()) {
-                // throw new ConversionException("Could not find value for syntaxId " + syntaxNodeUuid + " on model " + combinedModel.getId());
-                valueLiteral = m.createLiteral(MISSING_DATA_LITERAL);
-            } else {
-                String value = valueNode.asText();
-                valueLiteral = m.createLiteral(value);
-            }
-            m.add(resource, hasValueProperty, valueLiteral);
-        }
-        return resource;
-    }
-
-    /**
-     * Serializes a json array into a {@link String}.
-     *
-     * @param arrayNode The node containing the data
-     * @return A string of all values divided by the ',' character
-     */
-    private String readJSONArray(ArrayNode arrayNode) {
-        List<String> values = new ArrayList<>();
-        arrayNode.elements().forEachRemaining(el -> {
-            if (el instanceof ValueNode) {
-                ValueNode v = (ValueNode) el;
-                values.add(v.asText());
-            } else if (el instanceof com.fasterxml.jackson.databind.node.ObjectNode) {
-                com.fasterxml.jackson.databind.node.ObjectNode o = (com.fasterxml.jackson.databind.node.ObjectNode) el;
-                ObjectMapper mapper = new ObjectMapper();
-                try {
-                    String objectString = mapper.writeValueAsString(o);
-                    values.add(objectString);
-                } catch (JsonProcessingException e) {
-                    e.printStackTrace();
-                }
-
-            }
-
-        });
-        return values.stream()
-                .map(v -> {
-                    if (!v.startsWith("\"") || !v.endsWith("\"")) {
-                        v = "\"" + v + "\"";
-                    }
-                    return v;
-                })
-                .collect(Collectors.joining(","));
+        return HtmlUtils.htmlEscape(label.trim().toLowerCase(Locale.ROOT).replace(" ", "_"))
+                .replace("##", "_").replaceAll("[#\\[\\]()]", "_").replace("__", "_");
     }
 }

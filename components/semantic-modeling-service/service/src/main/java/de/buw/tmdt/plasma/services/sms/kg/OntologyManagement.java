@@ -40,11 +40,10 @@ public class OntologyManagement {
 
     private static final Logger log = LoggerFactory.getLogger(OntologyManagement.class);
 
-    static String SM_URI = "http://plasma.uni-wuppertal.de/sm/";
+    static final String SM_URI = "http://plasma.uni-wuppertal.de/sm/";
 
     private Map<Ontology, OntModel> ontologyModels = new HashMap<>();
     private List<OntologyInfo> ontologyInfoCache = new ArrayList<>();
-    public static final PrefixMapping PREFIXES = new PrefixMappingImpl();
     @Value("${plasma.kgs.ontologies.metadata.suffix:.ontology}")
     private final String ontologySuffix = ".ontology";
 
@@ -57,6 +56,8 @@ public class OntologyManagement {
             .setNsPrefix("plcm", PLCM.getURI())
             .setNsPrefix("plsm", SM_URI)
             .setNsPrefix("plasma", "http://plasma.uni-wuppertal.de/schema#");
+
+    public static final PrefixMapping PREFIXES = new PrefixMappingImpl().setNsPrefixes(DEFAULT_PREFIXES);
 
     private RDFConnectionRemoteBuilder builder;
 

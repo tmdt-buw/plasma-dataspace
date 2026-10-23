@@ -1,39 +1,43 @@
 package de.buw.tmdt.plasma.services.sms.modeling;
 
-import de.buw.tmdt.plasma.datamodel.CombinedModel;
 import de.buw.tmdt.plasma.datamodel.generators.AdvancedCombinedModelGenerator;
-import de.buw.tmdt.plasma.datamodel.semanticmodel.SemanticModel;
-import de.buw.tmdt.plasma.services.sms.kg.TestApplication;
-import de.buw.tmdt.plasma.services.sms.kg.SemanticModelService;
-import org.junit.jupiter.api.Disabled;
+import de.buw.tmdt.plasma.datamodel.semanticmodel.Literal;
+import de.buw.tmdt.plasma.datamodel.semanticmodel.DataProperty;
+import de.buw.tmdt.plasma.services.sms.kg.*;
+import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.ModelFactory;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import java.util.concurrent.atomic.AtomicReference;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.*;
 
-import java.util.UUID;
-
-@Disabled("Not suited for execution due to mismatch in ontology handling")
-@SpringBootTest(classes = TestApplication.class)
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class SemanticModelServiceTest {
-
-    @Autowired
-    private SemanticModelService testee;
-
-    private final AdvancedCombinedModelGenerator generator = new AdvancedCombinedModelGenerator();
-
-    @Test
-    public void testAddSemanticModel() {
-        generator.setMapStaffInstance(true);
-        CombinedModel combinedModel = generator.getFlightModel();
-        combinedModel.getSemanticModel().setId(UUID.randomUUID().toString().substring(0, 6));
-        SemanticModel semanticModel = combinedModel.getSemanticModel();
-        testee.storeSemanticModel(semanticModel);
-
-        SemanticModel restoredSM = testee.getSemanticModel(combinedModel.getSemanticModel().getId());
-
-        //assertEquals(semanticModel, restoredSM, "Restored model does not match stored one.");
-        testee.deleteSemanticModel(restoredSM.getId());
+class SemanticModelServiceTest {
+    @Test void preservesMappedLiteralsAndArrayContextsThroughStorage() {
+        var generator = new AdvancedCombinedModelGenerator(); generator.setMapStaffInstance(true);
+        var original = generator.getFlightModel().getSemanticModel();
+        var ops = mock(SemanticModelManagement.class); var onto = mock(LocalOntologyManagement.class); var ontology = mock(OntologyService.class);
+        var stored = new AtomicReference<Model>();
+        doAnswer(call -> { stored.set(ModelFactory.createDefaultModel().add((Model) call.getArgument(0))); return null; }).when(ops).persistModel(any());
+        when(ops.queryModel(original.getId())).thenAnswer(call -> stored.get());
+        when(ontology.getElements(anyList(), isNull(), isNull(), anyString())).thenAnswer(call -> original.getNodes().stream().filter(n -> call.getArgument(3).equals(n.getURI())).toList());
+        when(ontology.getRelations(anyList(), isNull(), isNull(), anyString())).thenAnswer(call -> original.getEdges().stream().filter(n -> call.getArgument(3).equals(n.getURI())).toList());
+        var service = new SemanticModelService(ops, onto, ontology);
+        service.storeSemanticModel(original);
+        var restored = service.getSemanticModel(original.getId());
+        assertEquals(original.getId(), restored.getId());
+        assertEquals(original.getNodes().size(), restored.getNodes().size());
+        assertEquals(original.getEdges().size(), restored.getEdges().size());
+        for (var node : original.getNodes()) {
+            if (node instanceof Literal literal && literal.isMapped()) {
+                var copy = (Literal) restored.getNode(node.getUuid());
+                assertEquals(literal.getMappedSyntaxNodeUuid(), copy.getMappedSyntaxNodeUuid());
+                assertEquals(literal.getMappedSyntaxNodePath(), copy.getMappedSyntaxNodePath());
+                assertEquals(literal.getLabel(), copy.getLabel());
+            }
+        }
+        assertEquals(original.getEdges().stream().filter(e -> e.isArrayContext()).count(), restored.getEdges().stream().filter(e -> e.isArrayContext()).count());
+        assertEquals(original.getEdges().stream().filter(e -> e instanceof DataProperty).count(), restored.getEdges().stream().filter(e -> e instanceof DataProperty).count());
+        service.deleteSemanticModel(original.getId()); verify(ops).deleteModel(original.getId());
     }
 }

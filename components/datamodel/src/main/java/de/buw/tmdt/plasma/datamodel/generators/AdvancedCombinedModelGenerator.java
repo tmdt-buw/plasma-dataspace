@@ -24,7 +24,7 @@ public class AdvancedCombinedModelGenerator {
     private boolean mapTagInstance = false;
 
 
-    private static void mapSemanticNode(MappableSemanticNode semanticNode, LinkableSyntaxNode schemaNode) {
+    private static void mapSemanticNode(LinkableSemanticNode semanticNode, LinkableSyntaxNode schemaNode) {
         semanticNode.setMappedSyntaxNodeLabel(schemaNode.getLabel());
         semanticNode.setMappedSyntaxNodeUuid(schemaNode.getUuid());
         semanticNode.setMappedSyntaxNodePath(schemaNode.getPathAsJSONPath());
@@ -143,19 +143,19 @@ public class AdvancedCombinedModelGenerator {
                 Literal identificationNumbersLiteral = new Literal(namespace + "ident_numbers");
                 mapSemanticNode(identificationNumbersLiteral, identificationNumbersNode);
                 elements.add(identificationNumbersLiteral);
-                ObjectProperty airportNumbersProperty = new ObjectProperty(airlineClass.getUuid(), identificationNumbersLiteral.getUuid(), namespace + "identNumbers");
+                DataProperty airportNumbersProperty = new DataProperty(airlineClass.getUuid(), identificationNumbersLiteral.getUuid(), namespace + "identNumbers");
                 relations.add(airportNumbersProperty);
             } else if (this.mapIdentificationNumberInstance) {
                 Literal identificationNumbersInstanceLiteral = new Literal(namespace + "ident_number");
                 mapSemanticNode(identificationNumbersInstanceLiteral, identificationNumberNode);
                 elements.add(identificationNumbersInstanceLiteral);
-                ObjectProperty airportNumberInstanceProperty = new ObjectProperty(airlineClass.getUuid(), identificationNumbersInstanceLiteral.getUuid(), namespace + "identNum");
+                DataProperty airportNumberInstanceProperty = new DataProperty(airlineClass.getUuid(), identificationNumbersInstanceLiteral.getUuid(), namespace + "identNum");
                 relations.add(airportNumberInstanceProperty);
             }
         }
 
         if (this.mapStaffInstance) {
-            Literal staffLiteral = new Literal(namespace + "staff");
+            Class staffLiteral = new Class(namespace + "Staff", "Staff", "A member of the flight crew");
             mapSemanticNode(staffLiteral, staffObjectNode);
             Literal staffNameLiteral = new Literal("name");
             mapSemanticNode(staffNameLiteral, staffNameNode);
@@ -165,7 +165,7 @@ public class AdvancedCombinedModelGenerator {
             staffNameRelation.setArrayContext(true);
             Literal seatLiteral = new Literal(namespace + "seat_number");
             mapSemanticNode(seatLiteral, staffSeatNode);
-            Relation staffSeatRelation = new ObjectProperty(staffLiteral.getUuid(), seatLiteral.getUuid(), namespace + "seatedAt");
+            Relation staffSeatRelation = new DataProperty(staffLiteral.getUuid(), seatLiteral.getUuid(), namespace + "seatedAt");
             staffSeatRelation.setArrayContext(true);
             // connect this bloc to the flight
             Relation flightStaffRelation = new ObjectProperty(flightClass.getUuid(), staffLiteral.getUuid(), namespace + "hasStaff");
@@ -173,7 +173,7 @@ public class AdvancedCombinedModelGenerator {
             elements.addAll(List.of(staffLiteral, staffNameLiteral, seatLiteral));
             relations.addAll(List.of(flightStaffRelation, staffFlightRelation, staffNameRelation, staffSeatRelation));
             if (this.mapTagInstance) {
-                Literal tagsLiteral = new Literal(namespace + "tag");
+                Class tagsLiteral = new Class(namespace + "Tag", "Tag", "A staff tag");
                 mapSemanticNode(tagsLiteral, tagsObjectNode);
                 Literal tagKeyLiteral = new Literal("key");
                 mapSemanticNode(tagKeyLiteral, tagsKeyNode);
@@ -181,7 +181,7 @@ public class AdvancedCombinedModelGenerator {
                 tagKeyRelation.setArrayContext(true);
                 Literal tagValueLiteral = new Literal("value");
                 mapSemanticNode(tagValueLiteral, tagsValueNode);
-                Relation tagValueRelation = new ObjectProperty(tagsLiteral.getUuid(), tagValueLiteral.getUuid(), namespace + "value");
+                Relation tagValueRelation = new DataProperty(tagsLiteral.getUuid(), tagValueLiteral.getUuid(), namespace + "value");
                 tagValueRelation.setArrayContext(true);
                 Relation staffTagsRelation = new ObjectProperty(staffLiteral.getUuid(), tagsLiteral.getUuid(), namespace + "tags");
                 elements.addAll(List.of(tagsLiteral, tagKeyLiteral, tagValueLiteral));

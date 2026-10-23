@@ -3,11 +3,11 @@ import os
 import pickle
 from typing import Dict
 
-from SPARQLWrapper import SPARQLWrapper, JSON, XML, RDFXML, TURTLE
+from SPARQLWrapper import SPARQLWrapper, JSON
 from rdflib import Graph
 
 import config
-from util.graphutil import uninstanciate_graph, get_triples_from_model
+from util.graphutil import uninstanciate_graph
 from util.namespaces import PREFIXES, PLCM
 from util.parse import get_classes_and_predicates, generate_id_dict, encode_triples
 
@@ -22,7 +22,7 @@ def get_models():
     sparql = SPARQLWrapper(host)
     sparql.setQuery(PREFIXES + """
         SELECT DISTINCT ?model WHERE {
-          ?model plcm:cmUuid ?id .
+          ?model a plcm:SemanticModel ; plcm:cmUuid ?id .
         } LIMIT 100
     """)
     # sparql.setCredentials("admin", "plasma")
@@ -92,8 +92,7 @@ def build_label_index():
     for result in results["results"]["bindings"]:
         uri = result["uri"]['value']
         label = result["label"]['value']
-        if "comment" in result:
-            comment = result["comment"]['value']
+        comment = result.get("comment", {}).get("value")
 
         meta_info[uri] = {'label':label, 'comment':comment}
 

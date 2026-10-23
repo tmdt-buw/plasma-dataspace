@@ -1,15 +1,18 @@
 package de.buw.tmdt.plasma.converter.csv;
 
 import de.buw.tmdt.plasma.converter.ConversionException;
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
-public class CSVConverterTest extends TestCase {
+public class CSVConverterTest {
 
+    @Test
     public void testConvertCommaSeperated() throws IOException, ConversionException {
         String prefix = "csv/singleHeader/";
         InputStream is = CSVConverter.class.getClassLoader().getResourceAsStream(prefix + "test.csv");
@@ -22,6 +25,7 @@ public class CSVConverterTest extends TestCase {
         assertEquals(expected, result);
     }
 
+    @Test
     public void testConvertTabularSeperated() throws IOException, ConversionException {
         String prefix = "csv/singleHeaderTabular/";
         InputStream is = CSVConverter.class.getClassLoader().getResourceAsStream(prefix + "test.csv");
@@ -34,6 +38,7 @@ public class CSVConverterTest extends TestCase {
         assertEquals(expected, result);
     }
 
+    @Test
     public void testMultiHeader() throws IOException, ConversionException {
         String prefix = "csv/multiHeader/";
         InputStream is = CSVConverter.class.getClassLoader().getResourceAsStream(prefix + "test.csv");
@@ -46,6 +51,7 @@ public class CSVConverterTest extends TestCase {
         assertEquals(expected, result);
     }
 
+    @Test
     public void testWithoutHeader() throws IOException, ConversionException {
         String prefix = "csv/withoutHeader/";
         InputStream is = CSVConverter.class.getClassLoader().getResourceAsStream(prefix + "test.csv");
@@ -58,6 +64,7 @@ public class CSVConverterTest extends TestCase {
         assertEquals(expected, result);
     }
 
+    @Test
     public void testInvalidDataRows() throws IOException, ConversionException {
         String prefix = "csv/invalidDataRows/";
         InputStream is = CSVConverter.class.getClassLoader().getResourceAsStream(prefix + "test.csv");
@@ -70,6 +77,7 @@ public class CSVConverterTest extends TestCase {
         assertEquals(expected, result);
     }
 
+    @Test
     public void testUnequalHeader() throws IOException, ConversionException {
         String prefix = "csv/unequalHeader/";
         InputStream is = CSVConverter.class.getClassLoader().getResourceAsStream(prefix + "test.csv");

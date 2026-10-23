@@ -1,0 +1,31 @@
+services:
+  fuseki:
+    image: saiye/fuseki@sha256:b86879775ec7ec214b8f849d55b23120e72258d47979bd12920ffffc964eee9a
+    entrypoint: ["java", "-Xmx512m", "-jar", "/jena-fuseki/fuseki-server.jar", "--config=/config/test.ttl"]
+    environment:
+      FUSEKI_BASE: /tmp/fuseki
+    volumes:
+      - ./fuseki.ttl:/config/test.ttl:ro
+    ports:
+      - "127.0.0.1:${PLASMA_TEST_FUSEKI_PORT:-18303}:3030"
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "--silent", "http://localhost:3030/$$/ping"]
+      interval: 2s
+      timeout: 2s
+      retries: 30
+  database:
+    image: mariadb@sha256:a02fe89cb597d4375812b2eac90cf9d0775d4686daa7f7cc750ebbcad7525bbc
+    environment:
+      MARIADB_ROOT_PASSWORD: cleanup-root-only
+      MARIADB_DATABASE: plasma_cleanup_test
+      MARIADB_USER: cleanup
+      MARIADB_PASSWORD: cleanup-test-only
+    tmpfs:
+      - /var/lib/mysql
+    ports:
+      - "127.0.0.1:${PLASMA_TEST_DATABASE_PORT:-13316}:3306"
+    healthcheck:
+      test: ["CMD", "mariadb-admin", "ping", "--host=127.0.0.1", "--user=root", "--password=cleanup-root-only", "--silent"]
+      interval: 2s
+      timeout: 2s
+      retries: 30

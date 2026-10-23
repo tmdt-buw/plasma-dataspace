@@ -50,7 +50,7 @@ public class CMToRDFMapper {
         }
         Map<String, RDFNode> uuidtoResource = new HashMap<>();
         Model m = ModelFactory.createDefaultModel();
-        String semanticModelId = semanticModel.getId().substring(0, SEMANTIC_MODEL_PREFIX_LENGTH);
+        String semanticModelId = semanticModel.getId().substring(0, Math.min(SEMANTIC_MODEL_PREFIX_LENGTH, semanticModel.getId().length()));
         m.setNsPrefixes(PREFIXES);
         String smPrefix = PREFIXES.getNsPrefixURI("plsm");
         Resource rdfModel = m.createResource(smPrefix + semanticModelId);
@@ -89,16 +89,17 @@ public class CMToRDFMapper {
             } else if (node instanceof Literal) {
                 Literal l = (Literal) node;
                 Resource resource = m.createResource(prefix + getNextCounter());
-                resource.addProperty(RDF.type, PLCM.LiteralMapping);
                 RDFDatatype datatype = XSDDatatype.XSDstring;
                 if(l.getURI() != null) {
-                    RDFDatatype dt = TypeMapper.getInstance().getTypeByValue( l.getURI() );
+                    RDFDatatype dt = TypeMapper.getInstance().getSafeTypeByName(l.getURI());
                     if (dt != null) {
                         datatype = dt;
                     }
                 }
 
                 if (l.isMapped()) {
+                    resource.addProperty(RDF.type, PLCM.LiteralMapping);
+                    resource.addProperty(PLCM.label, l.getLabel());
                     if (l.getMappedSyntaxNodePath() != null && !l.getMappedSyntaxNodePath().isBlank()) {
                         resource.addProperty(PLCM.syntaxNodePath, m.createLiteral(l.getMappedSyntaxNodePath()));
                     }
@@ -140,6 +141,15 @@ public class CMToRDFMapper {
                 }
                 rdfNode = resource;
             }
+            if (rdfNode != null && rdfNode.isResource()) {
+                Resource metadata = rdfNode.asResource();
+                metadata.addProperty(PLCM.cmUuid, node.getUuid());
+                if (node.getXCoordinate() != null && !metadata.hasProperty(PLCM.xCoordinate)) metadata.addLiteral(PLCM.xCoordinate, node.getXCoordinate());
+                if (node.getYCoordinate() != null && !metadata.hasProperty(PLCM.yCoordinate)) metadata.addLiteral(PLCM.yCoordinate, node.getYCoordinate());
+                if (node instanceof LinkableSemanticNode linked && linked.getMappedSyntaxNodePath() != null) {
+                    metadata.addProperty(PLCM.syntaxNodePath, linked.getMappedSyntaxNodePath());
+                }
+            }
             uuidtoResource.put(node.getUuid(), rdfNode);
 
         });
@@ -167,6 +177,7 @@ public class CMToRDFMapper {
                     stmt = m.listStatements(fromNode.asResource(), property, toNode).nextStatement();
                     stmtResource = m.createResource(stmt);
                 }
+                if (!toNode.isResource()) stmtResource.addProperty(PLCM.cmUuid, to.getUuid());
                 // specify position information for literals using rdf-star
                 if (to.getXCoordinate() != null) {
                     stmtResource.addProperty(PLCM.xCoordinate, m.createLiteral(String.valueOf(to.getXCoordinate())));
@@ -236,9 +247,9 @@ public class CMToRDFMapper {
                 convertedObject = mappedNodes.get(object);
                 if (convertedObject == null) {
                     if (object.hasProperty(RDF.type, PLCM.LiteralMapping)) {
-                        convertedObject = createLiteralFromLiteralMapping(s);
+                        convertedObject = createLiteralFromLiteralMapping(object);
                         nodes.add(convertedObject);
-                        mappedNodes.put(s, convertedObject);
+                        mappedNodes.put(object, convertedObject);
                     } else {
                         // we have to create a new one
                         Resource superclass = object.getRequiredProperty(RDF.type).getObject().asResource();
@@ -250,39 +261,21 @@ public class CMToRDFMapper {
                 }
             } else if (o.isLiteral()) {
                 // obtain meta information statement resource (modeled using rdf-star)
-                Resource stmtResource = null;
-                ResIterator resIterator = model.listSubjectsWithProperty(PLCM.xCoordinate);
-                while (resIterator.hasNext()) {
-                    Resource next = resIterator.next();
-                    if (next.isStmtResource() && next.getStmtTerm().equals(stmt)) {
-                        stmtResource = next;
-                        break;
-                    }
-                }
+                Resource stmtResource = model.createResource(stmt);
                 convertedObject = createLiteral(o.asLiteral(), stmtResource);
                 nodes.add(convertedObject);
             } else {
                 throw new CombinedModelIntegrityException("Could not determine type for object " + o);
             }
 
-            // handle properties
-            if (o.isResource()) {
-                // this is an ObjectProperty
-                Relation ontologyInstance = relationRetrieverByURI.apply(stmt.getPredicate().getURI());
-                Relation r = new ObjectProperty(convertedSubject.getUuid(), convertedObject.getUuid(), stmt.getPredicate().getURI());
-                if (ontologyInstance != null) {
-                    r.setLabel(ontologyInstance.getLabel());
-                }
-                relations.add(r);
-            } else if (o.isLiteral()) {
-                // this is a DataProperty
-                Relation ontologyInstance = relationRetrieverByURI.apply(stmt.getPredicate().getURI());
-                Relation r = new DataProperty(convertedSubject.getUuid(), convertedObject.getUuid(), stmt.getPredicate().getURI());
-                if (ontologyInstance != null) {
-                    r.setLabel(ontologyInstance.getLabel());
-                }
-                relations.add(r);
-            }
+            Relation ontologyInstance = relationRetrieverByURI.apply(p.getURI());
+            Relation relation = convertedObject instanceof Literal
+                    ? new DataProperty(convertedSubject.getUuid(), convertedObject.getUuid(), p.getURI())
+                    : new ObjectProperty(convertedSubject.getUuid(), convertedObject.getUuid(), p.getURI());
+            if (ontologyInstance != null) relation.setLabel(ontologyInstance.getLabel());
+            Resource metadata = model.createResource(stmt);
+            if (metadata.hasProperty(PLCM.arrayContext)) relation.setArrayContext(metadata.getProperty(PLCM.arrayContext).getBoolean());
+            relations.add(relation);
         }
         if (modelId == null) {
             // there is no model for that id in the model
@@ -343,7 +336,7 @@ public class CMToRDFMapper {
             xCoordinate = getPropertyAsDoubleOrNull(metaInfoNode, PLCM.xCoordinate);
             yCoordinate = getPropertyAsDoubleOrNull(metaInfoNode, PLCM.yCoordinate);
         }
-        Literal l = new Literal(res.getString(), xCoordinate, yCoordinate);
+        Literal l = new Literal(metaInfoNode == null ? null : getPropertyOrNull(metaInfoNode, PLCM.cmUuid), res.getString(), xCoordinate, yCoordinate);
         return l;
     }
 
@@ -356,7 +349,8 @@ public class CMToRDFMapper {
         String syntaxNodePath = getPropertyOrNull(res, PLCM.syntaxNodePath);
         String datatype = getPropertyOrNull(res, PLCM.XSDDataType);
         //String value = getPropertyOrNull(res, res.);
-        Literal lit = new Literal(uuid, "", xCoordinate, yCoordinate, syntaxNodeId, originalLabel, syntaxNodePath, datatype);
+        String label = getPropertyOrNull(res, PLCM.label);
+        Literal lit = new Literal(uuid, label == null ? "" : label, xCoordinate, yCoordinate, syntaxNodeId, originalLabel, syntaxNodePath, datatype);
 
         return lit;
     }

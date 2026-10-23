@@ -1,55 +1,62 @@
 package de.buw.tmdt.plasma.services.dps.core;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import de.buw.tmdt.plasma.services.dps.api.SampleDTO;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.junit.jupiter.api.io.TempDir;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
-@ExtendWith(MockitoExtension.class)
 class DataStorageHandlerTest {
+    @TempDir
+    Path directory;
+    private DataStorageHandler storageHandler;
 
-    static DataStorageHandler storageHandler;
-
-    @BeforeAll
-    public static void setup() {
+    @BeforeEach
+    void setup() {
         storageHandler = new DataStorageHandler();
+        storageHandler.storageDirectoryString = directory.toString();
+        storageHandler.initStorage();
+    }
+
+    private MockMultipartFile flightFile() throws IOException {
+        try (InputStream input = getClass().getResourceAsStream("/flight.json")) {
+            assertNotNull(input);
+            return new MockMultipartFile("flight.json", "flight.json", "application/json", input);
+        }
     }
 
     @Test
-    @Order(1)
-    void uploadFile() throws IOException {
-        InputStream resourceAsStream = DataStorageHandlerTest.class.getClassLoader().getResourceAsStream("flight.json");
-        assertNotNull(resourceAsStream);
-        MultipartFile mpf = new MockMultipartFile("flight.json", "flight.json", "application/json", resourceAsStream);
-
-        SampleDTO sample = storageHandler.storeFile(null, mpf);
-        String dataId = sample.getDataId();
-        assertNotNull(dataId);
+    void uploadPreservesJsonContent() throws IOException {
+        MockMultipartFile file = flightFile();
+        SampleDTO sample = storageHandler.storeFile(null, file);
+        assertNotNull(sample.getDataId());
+        List<File> files = storageHandler.listFiles(sample.getDataId());
+        assertEquals(1, files.size());
+        ObjectMapper mapper = new ObjectMapper();
+        assertEquals(mapper.readTree(file.getBytes()), mapper.readTree(files.get(0)));
     }
 
     @Test
-    @Order(2)
-    void listFiles() throws IOException {
-        InputStream resourceAsStream = DataStorageHandlerTest.class.getClassLoader().getResourceAsStream("flight.json");
-        assertNotNull(resourceAsStream);
-        MultipartFile mpf = new MockMultipartFile("flight.json", "flight.json", "application/json", resourceAsStream);
-
-        SampleDTO sample = storageHandler.storeFile(null, mpf);
-        String dataId = sample.getDataId();
-        assertNotNull(dataId);
-        List<File> files = storageHandler.listFiles(dataId);
-        assertTrue(files.size() > 0);
+    void subsequentUploadPreservesPreviousVersion() throws IOException {
+        MockMultipartFile file = flightFile();
+        SampleDTO first = storageHandler.storeFile(null, file);
+        File original = storageHandler.listFiles(first.getDataId()).get(0);
+        byte[] originalBytes = Files.readAllBytes(original.toPath());
+        SampleDTO second = storageHandler.storeFile(first.getDataId(), file);
+        assertEquals(first.getDataId(), second.getDataId());
+        List<File> files = storageHandler.listFiles(first.getDataId());
+        assertEquals(2, files.size());
+        assertTrue(files.contains(original));
+        assertArrayEquals(originalBytes, Files.readAllBytes(original.toPath()));
     }
 }

@@ -1,37 +1,27 @@
 package de.buw.tmdt.plasma.services.sms.kg;
 
-import de.buw.tmdt.plasma.datamodel.CombinedModel;
 import de.buw.tmdt.plasma.datamodel.generators.AdvancedCombinedModelGenerator;
-import de.buw.tmdt.plasma.datamodel.semanticmodel.SemanticModel;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
+import static org.junit.jupiter.api.Assertions.*;
 
-import java.util.UUID;
-
-@Disabled("Not suited for execution due to mismatch in ontology handling")
-@SpringBootTest(classes = TestApplication.class)
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class SemanticModelHandlerTest {
-
-    @Autowired
-    private SemanticModelService testee;
-
-    private final AdvancedCombinedModelGenerator generator = new AdvancedCombinedModelGenerator();
-
-    @Test
-    public void testAddSemanticModel() {
-        generator.setMapStaffInstance(true);
-        CombinedModel combinedModel = generator.getFlightModel();
-        combinedModel.getSemanticModel().setId(UUID.randomUUID().toString().substring(0, 6));
-        SemanticModel semanticModel = combinedModel.getSemanticModel();
-        testee.storeSemanticModel(semanticModel);
-
-        SemanticModel restoredSM = testee.getSemanticModel(combinedModel.getSemanticModel().getId());
-
-        //assertEquals(semanticModel, restoredSM, "Restored model does not match stored one.");
-        testee.deleteSemanticModel(restoredSM.getId());
+@EnabledIfEnvironmentVariable(named = "PLASMA_TEST_FUSEKI", matches = ".+")
+class SemanticModelHandlerTest {
+    @Test void storesQueriesAndDeletesOnlyTheRequestedModel() {
+        String endpoint = System.getenv("PLASMA_TEST_FUSEKI");
+        assertTrue(endpoint.contains("cleanup"), "Only an explicitly named disposable cleanup dataset may be used");
+        var store = new SemanticModelManagement(endpoint);
+        var generator = new AdvancedCombinedModelGenerator(); generator.setMapStaffInstance(true);
+        var first = generator.getFlightModel().getSemanticModel();
+        var second = new AdvancedCombinedModelGenerator().getFlightModel().getSemanticModel();
+        try {
+            var rdf = CMToRDFMapper.convertToRDFModel(first); store.persistModel(rdf);
+            store.persistModel(CMToRDFMapper.convertToRDFModel(second));
+            var restored = store.queryModel(first.getId());
+            assertTrue(rdf.isIsomorphicWith(restored), () -> "Missing: " + rdf.difference(restored) + " Extra: " + restored.difference(rdf));
+            store.deleteModel(first.getId());
+            assertTrue(store.queryModel(first.getId()).isEmpty());
+            assertFalse(store.queryModel(second.getId()).isEmpty());
+        } finally { store.deleteModel(first.getId()); store.deleteModel(second.getId()); }
     }
 }
