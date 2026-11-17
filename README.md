@@ -1,5 +1,40 @@
-# PLASMA
-## Platform for Auxiliary Semantic Modeling Approaches
+# PLASMA for Solid Dataspace
+
+This repository is the Solid Dataspace integration copy of **PLASMA (Platform for Auxiliary Semantic Modeling Approaches)**. Original PLASMA authorship and license notices are retained. Our changes cover deployment below `/plasma/`, published integration images and compatibility/conversion tests; this is not a new independently developed modeling platform.
+
+## Origin and update status
+
+The source history identifies [data-platform/plasma](https://git.uni-wuppertal.de/data-platform/plasma) as upstream, branch `master`. The public [tmdt-buw/plasma](https://github.com/tmdt-buw/plasma) repository is an older publication snapshot and is not the current upstream for this checkout. Our GitHub copy is an independent repository, so GitHub's **Sync fork** button is not available; ordinary Git remotes work.
+
+Checked on 2026-11-17: upstream `master` is `e89901670f4d6d7a59dfff7648556055358f6a3e` (version 1.8.1, 2025-10-01). That commit is already an ancestor of this integration checkout. There are no new upstream-mainline commits to merge at this check. Local integration changes and their histories remain intact.
+
+[README.upstream.md](README.upstream.md) preserves the original README at that exact upstream revision, unchanged. It describes the upstream platform; use this README for the Dataspace integration. The component READMEs describe this checkout's modules. Generated OpenAPI-client READMEs are generator output and should be regenerated with their clients, not manually edited.
+
+## Use inside Solid Dataspace
+
+The simplest local setup is the orchestration repository's [PLASMA profile](https://github.com/hoelk-f/solid-dataspace/blob/main/LOCAL_DEVELOPMENT.md#plasma-und-weitere-dienste-zuschalten). It uses published images and configures proxy routing, MariaDB, Fuseki and persistent workspace volumes. No Java build is needed for that mode. Set `LOCAL_PLASMA_ENABLED=true` and enable the Compose `plasma` profile. The tag comes from `LOCAL_PLASMA_TAG`; `latest` or a Maven version is not necessarily a published Docker tag.
+
+Open `/plasma/modelings` through the Dataspace host after Solid login. The access gateway protects the integrated workspace. PLASMA's own services use their databases and workspace storage; they do not become a Solid Pod server. Do not expose SMS/DPS or the databases publicly to bypass the gateway. Profile-specific workspaces and volumes are retained by the deployment configuration.
+
+## Updating from upstream
+
+If not already configured, add the upstream once:
+
+```sh
+git remote add upstream git@git.uni-wuppertal.de:data-platform/plasma.git
+```
+
+Inspect updates without modifying the working tree:
+
+```sh
+git fetch upstream master
+git log --oneline HEAD..upstream/master
+git diff --stat HEAD...upstream/master
+```
+
+Use a clean integration branch/worktree for an actual merge. Preserve the fork's gateway routes, frontend base path, image publication, conversion fixes and regression tests. Keep the upstream README snapshot separate from this integration README. Review database/configuration changes and verify a disposable stack before any deployment. Do not reset the integration branch to upstream or push integration changes into the upstream project. Updates here do not automatically update running Dataspace instances.
+
+## Platform overview
 
 PLASMA is a modular framework for semantic model creation. It features a GUI that allows users to create semantic models
 without requiring deep knowledge about technologies and formalisms.
@@ -36,7 +71,7 @@ The included web-based frontend is written using Angular 13.
 * Install OpenJDK 21 or newer
 * Install Docker with Docker Compose
 * Install Maven to build the Java services
-* The frontend uses npm internally. Check the dedicated frontend README for development information.
+* The frontend uses npm internally. See [frontend/README.md](frontend/README.md) and retain the pinned Angular/toolchain dependencies.
 
 ### Docker Setup
 
@@ -130,7 +165,7 @@ docker compose -f docker-compose.local.yml down
 
 ## Development Setup
 
-For development, infrastructure services can be started exclusively using `docker compose up -d`.
+For service development, start only the required disposable infrastructure from the checked-in Compose configuration. The complete core-stack command above is the reproducible reference; the central Dataspace profile has different proxy paths and workspace volumes.
 
 ### Developing Services and Frontend
 
@@ -187,3 +222,8 @@ an overview of the services and ports occupied and is for information purposes o
 | Frontend | 80 (proxy), 81 (direct) |
 | ARS-L-LM |    8190 |
 | ARS-R-SR |    8221 |
+
+
+## Authorship and licenses
+
+Retain [LICENSE](LICENSE) and all existing component license notices when distributing this integration. Component package manifests can declare their own licenses; in particular the Angular modeling library retains its upstream package metadata. The original PLASMA publication/citation is retained in [the modeling-library README](frontend/projects/smui/README.md). Fork-specific deployment changes do not replace the original attribution.

@@ -1,9 +1,9 @@
-# Modeling
+# PLASMA semantic-modeling UI (SMUI)
 
 PLASMA (Platform for Auxiliary Semantic Modeling Approaches) modeling is an angular library that offers a visual user interface for semantic modeling and ontology management in the plasma system.
 PLASMA is a platform to utilize existing and future modeling approaches in a consistent and extendable environment. PLASMA aims to support the development of new semantic refinement approaches by providing necessary supplementary functionalities.
 
-For more information see our [github repository](https://github.com/tmdt-buw/plasma)
+For this integration see the [fork README](../../../README.md). The [public upstream snapshot](https://github.com/tmdt-buw/plasma) documents the original project; it is not the current integration build.
 
 ## Cite PLASMA as
 
@@ -24,23 +24,7 @@ issn={2184-4992},
 
 ## Use the modeling library
 
-Install the library via npm
-
-`@tmdt-buw/pls-modeling`
-
-Install peer dependencies required by jointjs:
-
-```
-"@angular/cdk": ">=10.0.0",
-"@angular/core": ">=10.0.0",
-"@angular/flex-layout": "^10.0.0-beta.32 || ^11.0.0-beta.33 || 12.0.0-beta.34",
-"ng-zorro-antd": ">=10.0.0",
-"dagre": "^0.8.5",
-"graphlib": "^2.1.8",
-"jointjs": "^3.3.0",
-"rxjs": "^6.4.0",
-"svg-pan-zoom": "^3.6.1"
-```
+This checkout builds the local package `@tmdt/smui`; its package metadata is in `package.json`. Build it from the frontend workspace using `npm run build:smui`. The Angular 13 app and its lockfile provide the supported dependency combination. The historic `@tmdt-buw/pls-modeling` package name and broad peer ranges are not a guarantee of compatibility with arbitrary Angular releases.
 
 Include the modeling component in your application providing at least a modeling id from a model created in plasma:
 
@@ -90,14 +74,12 @@ The modeling library uses less variables for styling. The variables can be overw
 
 ## Development
 
-### Build
+Run these commands from `frontend/`:
 
-Run `ng build modeling` to build the project. The build artifacts will be stored in the `dist/` directory.
+```sh
+npm ci
+npm run build:smui
+npm test
+```
 
-### Publishing
-
-After building your library with `ng build modeling`, go to the dist folder `cd dist/modeling` and run `npm publish`.
-
-### Running unit tests
-
-Run `ng test modeling` to execute the unit tests via [Karma](https://karma-runner.github.io).
+The build output is `dist/@tmdt/smui`, as configured in `ng-package.json`. `npm test` runs the application and library checks. For live changes use `npm run watch:smui` alongside `npm start`. This fork does not require publishing the Angular library to npm to run PLASMA. Retain the upstream citation and the license declared in this library's package when distributing it.

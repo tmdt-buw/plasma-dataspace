@@ -1,25 +1,26 @@
-### Platform for Auxiliary Semantic Modeling Approaches (PLASMA)
+# Semantic Modeling Service (SMS)
 
-# Semantic Modeling Servics (SMS)
+The PLASMA service for ongoing modelings, semantic modifications, ontology management and finalized semantic models. It uses MariaDB for modeling state and Fuseki for semantic data. See the [integration README](../../README.md) for complete startup, gateway routing and upstream provenance.
 
-Main component of PLASMA. This service stores ongoing semantic model creations ("modelings")
-and handles model modifications.
+## Development and tests
 
-## Environment Variables
-This section covers the main environment variables that can be manipulated in order to customize PLASMA.
-Set them in the docker-compose environment section to overwrite container set values.
+Use JDK 21 and Maven from the repository root so shared reactor modules are available:
 
+```sh
+mvn -pl components/semantic-modeling-service/service -am test
+```
+
+Database/Fuseki integration tests additionally require the disposable services described in the root README. The configured standalone service port is 8181; use the proxy for browser access. Do not expose the integrated service directly around the Dataspace access gateway.
+
+## Configuration
+
+Settings live in `service/src/main/resources` and are overridden by the selected deployment. Relevant local-ontology properties include:
+
+```properties
 plasma.kgs.localontology.prefix=local
 plasma.kgs.localontology.uri=https://local.ontology#
 plasma.kgs.localontology.label=LOCAL
 plasma.kgs.localontology.description=A local ontology maintained by this instance.
+```
 
-### Optional features
-
-If ```plasma.sms.feature.syntacticoperations.enabled``` is set to ```true```, the UI 
-is provided with options to modify the syntactic model. Keep set to ```false``` (default)
-if your surrounding system is unable to handle those changes.
-
-```plasma.sms.feature.recommendations.enabled``` enables the request for recommendations
-from the SRS if set to ```true```. If an instance of this service is available, 
-set to true to obtain recommendations from connected auxiliary modeling services (ARS).
+`plasma.sms.feature.syntacticoperations.enabled` enables syntactic model edits; consumers must support changed syntax before enabling this. `plasma.sms.feature.recommendations.enabled` enables the optional recommendation path. Auxiliary recommendation services are not required for manual modeling and are disabled in the lightweight Dataspace profile. No former standalone SRS service needs to be added to that profile.

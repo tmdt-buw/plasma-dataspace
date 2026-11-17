@@ -1,0 +1,120 @@
+# PLASMA
+## Platform for Auxiliary Semantic Modeling Approaches
+
+PLASMA is a modular framework for semantic model creation. It features a GUI that allows users to create semantic models
+without requiring deep knowledge about technologies and formalisms.
+Additionally, PLASMA provides interfaces to attach additional (auxiliary) services to support the user during the modeling process.
+
+
+## Architecture
+PLASMA currently consists of the following (micro)services: 
+
+* **Semantic Modeling Service**: Service for semantic model creation 
+* **Data Processing Service**: Processes files and converts JSON data to RDF
+* Semantic Modeling UI: A modeling UI with focus on simplifying the modeling process
+
+### Auxiliary Services
+
+PLASMA currently offers the following auxiliary services:
+
+* **ARS Label Matching**: Service for adding labels (currently set to NOOP)
+* **ARS Statistical Recommender**: Recommends extensions to semantic models based on existing semantic models
+
+These services are designed and configured for demonstration purposes and can serve as a blueprint for own extensions.
+
+### Storage
+PLASMA is preconfigured to use MariaDB instances for the raw data management.
+Semantic information (the Knowledge Graph) is stored using Apache Jena Fuseki.
+
+### Software and Frameworks
+PLASMA is written in Java, using Java 11 as the baseline version. 
+The included web-based frontend is written using Angular 13.
+
+## Building PLASMA
+
+### Requirements
+* Install OpenJDK 11
+* Install Docker for executing each service
+* You require Maven to build the services
+* The frontend uses npm to build. Check the dedicated frontend README for more information.
+
+### Docker Setup
+* Checkout the repository
+* To build the services execute `mvn package` on the parent module in the `components` folder
+* Alternatively, to also build the Docker containers execute `mvn package jib:dockerBuild -DskipTests` on the parent
+  module
+
+**Note**: Ensure that your docker is running on the local machine and can be reached
+
+* Build the UI by running `npm run build:smui` and `npm run build` in `frontend` directory
+* Build the docker container for the UI using the corresponding `Dockerfile` in `frontend`
+
+### Starting PLASMA
+* Optional: Adjust environment variables in the docker-compose.yml file. 
+For an explanation of most parameters, check the individual README files of those services
+* To start, execute the `docker compose` script, e.g. `docker compose -f docker-compose.local.yml --profile=staging up -d`
+* Access the UI at `localhost:80`
+
+### Stopping PLASMA
+
+* PLASMA can be stopped by halting all Docker containers, e.g. `docker compose -f docker-compose.local.yml --profile=staging down`
+
+## Development Setup
+
+For development, infrastructure services can be started exclusively using `docker compose up -d`.
+
+### Developing Services and Frontend
+
+Each service has to be started manually in dev mode.
+
+* Start each service using either Spring Boot, FastAPI or Maven
+* Start the frontend with `npm run watch:smui` and `npm start` in `/frontend`
+* Access the UI at [**localhost:4200**](http://localhost:4200)
+
+### Development Config for IDEs
+
+By default, the configuration parameters are set for local development mode (run via IDE).
+When utilizing a Docker deployment, these values are overwritten by the compose configuration.
+IDEs offers the option to overwrite configuration files for specific applications.
+
+#### SMS
+
+| Name                                    | Value                                     |
+|-----------------------------------------|-------------------------------------------|
+| `plasma.config.local.path`              | ` C:\temp`                                |
+| `plasma.maria.url`                      | ` jdbc:mysql://localhost:3306/plasma-sms` |
+
+#### ARS-L-LM
+
+| Name                                | Value                                           |
+|-------------------------------------|-------------------------------------------------|
+| `plasma.registration.upstream.host` | `localhost`                                     |
+| `plasma.registration.upstream.port` | `8181`                                          |
+| `plasma.registration.interval`      | `30000`                                         |
+| `plasma.registration.path`          | `/api/sms/ars/registration'                     |
+| `plasma.kgs.ontology.api`           | `http://localhost:8888/api/plasma-kgs/ontology` |
+
+#### ARS-R-SR
+
+| Name                                  | Value                                              |
+|---------------------------------------|----------------------------------------------------|
+| `PLASMA_REGISTRATION_URL`             | ` http://localhost:8181/api/sms/ars/registration`  |
+| `PLASMA_ARS_API_URL`                  | ` http://localhost:8221/recommendation`            |
+| `SERVICE_PORT`                        | ` 8221`                                            |
+| `SPARQL_ONTOLOGIES_STORE`             | ` http://localhost:3030/ontologies`                |
+| `SPARQL_SM_STORE`                     | ` http://localhost:3030/sm`                        |
+
+### Default port mappings
+
+These port mappings are only relevant when accessing the services via localhost. Inside the Docker network, all services
+have their own host. Adjust the Docker port mappings if a deviation is needed (e.g. for testing). This list should give
+an overview of the services and ports occupied and is for information purposes only.
+
+| Name     | Service |
+|:---------|--------:|
+| Database |    3308 |
+| SMS      |    8181 |
+| DPS      |    8182 |
+| Frontend |      80 |
+| ARS-L-LM |    8190 |
+| ARS-R-SR |    8221 |

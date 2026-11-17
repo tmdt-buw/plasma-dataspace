@@ -1,7 +1,11 @@
-### Platform for Auxiliary Semantic Modeling Approaches (PLASMA)
+# PLASMA utilities
 
-# Utilities
+Shared Java utilities used by the PLASMA Maven reactor. This module does not have its own HTTP service or Docker deployment.
 
-Shared components to provide generic functionalities.
+From the repository root with JDK 21 and Maven:
 
-Please Update all referencing projects, if the utilities are updated. 
+```sh
+mvn -pl components/utilities -am test
+```
+
+Rebuild and test consuming services when changing common behavior. Use the [root README](../../README.md) for the complete SMS/DPS build and integration checks; building only this module does not verify all callers.
