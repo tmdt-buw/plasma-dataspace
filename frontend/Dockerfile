@@ -23,7 +23,7 @@ RUN npm run build -- \
     --configuration=production \
     --base-href="${PLASMA_BASE_HREF}"
 
-FROM nginx
+FROM nginx:1.31.9-trixie@sha256:08f354a3b44c422021a5c0f5efb3e27f8f90236b5447d3bac4053f5f50ab6760
 # copy over the artifacts in dist folder to hidden nginx public folder
 COPY --from=build /home/dist/plasma /usr/share/nginx/html
 
